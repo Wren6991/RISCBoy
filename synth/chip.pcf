@@ -1,0 +1,14 @@
+set_io activity_led 99
+set_io heartbeat_led 95
+set_io led_unused[2] 98
+set_io led_unused[1] 97
+set_io led_unused[0] 96
+
+set_io clk_osc 21
+
+set_io sck 78
+set_io mosi 79
+set_io miso 80
+set_io cs 81
+
+set_io uart_tx 8

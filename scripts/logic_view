@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+# Displays serial port logic trace dump from logic_analyser_uart.v
+
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+
+if len(sys.argv) != 3:
+	exit("Usage: logic_view (log file) (sample width)")
+
+ifile = open(sys.argv[1])
+sample_width = int(sys.argv[2])
+
+vectors = [list() for i in range(sample_width)]
+
+for line in ifile:
+	for i in range(sample_width):
+		if i < len(line.strip()):
+			vectors[i].append(int(line[i]))
+		else:
+			vectors[i].append(0)
+
+
+plt.figure()
+for i, v in enumerate(vectors):
+	plt.plot(np.arange(len(v)), np.array(v) + i * 1.5, label = str(i))
+
+plt.legend()
+plt.show()

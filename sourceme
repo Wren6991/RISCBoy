@@ -1,0 +1,12 @@
+# Xilinx junk (isim will **segfault** if these are not set)
+# (ended up stuffing these into the makefile's fuse invocation. LD_LIBRARY_PATH was killing yosys.)
+export XILINX="/opt/Xilinx/14.7/ISE_DS/ISE"
+#export PLATFORM=lin64
+#export LD_LIBRARY_PATH="$XILINX/lib/$PLATFORM"
+export PATH="$PATH:$XILINX/bin/lin64"
+
+# Project paths
+export PROJ_ROOT=`pwd`
+export SCRIPTS=$PROJ_ROOT/scripts
+export HDL=$PROJ_ROOT/hdl
+
