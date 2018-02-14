@@ -131,3 +131,5 @@ bitmap_mux #(
 	.sel(slave_sel_d),
 	.out(ahblm_hready_resp)
 );
+
+endmodule
