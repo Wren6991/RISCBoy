@@ -103,7 +103,7 @@ The diagram shown here is a simplified block diagram of the core. Not shown is:
 \begin{itemize}
 \item The full and specific contents of the pipeline registers
 \item The forwarding/bypass network which shortens data hazards to improve pipeline throughput
-\item Additional hardware in ICACHE which helps to support unaligned code fetches
+\item Additional hardware in \texttt{ICACHE} which helps to support unaligned code fetches
 \item Interrupt entry/exit hardware
 \item The ready/valid handshakes on pipe stages which allow them to NOP later stages, and stall prior ones
 \item Hardware registers such as PC, and PC update logic
@@ -137,25 +137,50 @@ The \texttt{F} stage always provides \texttt{D} with 32 bits of fresh instructio
 
 \begin{itemize}
 \item AHB busmaster with access to system memory map
-\item ICACHE. A small, fully-associative cache with random eviction
-\item An \texttt{F}-local 16-bit buffer containing the unused second half of a previous word
+\item \texttt{ICACHE}. A small, fully-associative cache with random eviction
+\item An \texttt{F}-local buffer containing up to 32 bits of fetched, unused instruction data
 \item The second halfword of the current instruction register of \texttt{D}, in the case that \texttt{D} found the last instruction to be 16-bit
 \end{itemize}
 
-\subsubsection {Sequential Code}
-In sequential code, the ICACHE will be queried during \texttt{W}, as to whether it has the next aligned word. (We can guarantee the word will be aligned, as \texttt{F} buffers unused halfwords from prior accesses.)
+\subsubsection{Purpose of Fetch Buffer}
+
+Between them, \texttt{ICACHE} and AHB are able to provide the fetch stage with 32 bits of fresh fetch data on every cycle (assuming that, on cache miss and \texttt{HREADY} low, \texttt{F} simply stalls). The \texttt{D} stage will consume either 32 or 16 bits of instruction data per cycle, and the amount is determined very early in \texttt{D} by looking at the two LSBs of the instruction; \texttt{F} can see the size of the instruction currently in \texttt{D}. Due to the pipelined nature of AHB, the decision of whether to fetch is made one cycle ahead of \texttt{F} itself, which ends up being in the \texttt{W} stage.
+
+This latency necessitates a small amount of buffering: on no-fetch cycles in \texttt{F} (the decision of whether to fetch having already been made one cycle prior), we will still need 32 bits of fetch data on hand to guarantee that we can refill \texttt{CIR} once \texttt{D} has consumed up to 32 bits of instruction.
+
+To summarise our state transitions:
+
+\begin{itemize}
+\item Fetch:
+	\begin{itemize}
+	\item 32-bit instruction in \texttt{CIR}: buffer level stays same
+	\item 16-bit instruction in \texttt{CIR}: buffer level increases by 16
+	\end{itemize}
+\item No fetch:
+	\begin{itemize}
+	\item 32-bit instruction in \texttt{CIR}: buffer level decreases by 32
+	\item 16-bit instruction in \texttt{CIR}: buffer level decreases by 16
+	\end{itemize}
+\end{itemize}
+
+This suggests a simple rule: fetch if the buffer is not currently full. If we follow this rule, we guarantee that the buffer will have 0, 16 or 32 bits of data at all times.
+
+\subsubsection{Sequential Code}
+
+In sequential code, the \texttt{ICACHE} will be queried every cycle during \texttt{W}, as to whether it has the next aligned word. We are able to guarantee that all AHB and \texttt{ICACHE} accesses are word aligned due to the operation of the fetch buffer in \texttt{F}.
 
 The query response is combinatorial, and is used to decide whether to assert an AHB access during the address phase. Successful queries will result in cached read data appearing on the next clock edge, for use by \texttt{F}.
 
 \texttt{F} is concurrent with the AHB data phase, except for a small muxing layer at the end which assembles the instruction word from AHB data, buffered data and cached data.
 
-Following an unsuccessful ICACHE query, \texttt{F} will write the AHB data into the cache, evicting one word of its present contents. \textit{The same address must not appear more than once in the cache}, as the query logic is based on a non-priority sum of product encoder.
+Following an unsuccessful \texttt{ICACHE} query, \texttt{F} will write the AHB data into the cache, evicting one word of its present contents. \textit{The same address must not appear more than once in the cache}, as the query logic is based on a non-priority sum of product encoder.
+
 
 \subsubsection{Jumps}
 
 Upon a jump or taken branch, \texttt{F}'s halfword buffer is invalidated, and the \texttt{CIR} is ignored.
 
-Aligned jumps are otherwise no different from sequential code: the ICACHE is queried with the word access, and AHB supplies the data if ICACHE does not have it.
+Aligned jumps are otherwise no different from sequential code: the \texttt{ICACHE} is queried with the word access, and AHB supplies the data if \texttt{ICACHE} does not have it.
 
 Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, as we may need to perform two accesses to fetch the required data.
 
@@ -163,19 +188,47 @@ The logic is as such:
 
 \begin{enumerate}
 \item \texttt{W} queries the cache with the address containing the first halfword and, in parallel, unconditionally fetches the second halfword via AHB
-\item 
+\item
 	\begin{itemize}
 	\item After a cache hit, both required words will be available at the end of \texttt{F}. We have not lost any cycles.
-	\item After a cache miss, \texttt{W} will stall stages \texttt{D,X,M}, and issue a second access over AHB, to fetch the first halfword			\end{itemize}
+	\item After a cache miss, \texttt{W} will stall stages \texttt{D,X,M}, and issue a second access over AHB, to fetch the first halfword
+	\end{itemize}
 \item For fetched halfwords 0, 1, 2, 3:
 	\begin{itemize}
 	\item 0 is discarded
 	\item 1, 2 are sent to \texttt{D}
 	\item 3 is stored in \texttt{F}'s halfword buffer
 	\end{itemize}
-\end{enumerate} 
+\end{enumerate}
 
 After this, we return to the sequential code steady-state.
+
+\subsubsection{ICACHE Writeback}
+
+\texttt{ICACHE} operates with the following timing:
+
+\begin{enumerate}
+	\item
+	\begin{itemize}
+		\item Fetch address is asserted to \texttt{ICACHE.raddr} on the rising edge, in \texttt{W}.
+		\item Data valid bit is available before the end of the cycle (cache is small, and valid check is optimised for speed)
+		\item Valid bit is used to determine whether to assert a transfer request on AHB
+	\end{itemize}
+	\item
+	\begin{itemize}
+		\item \texttt{ICACHE} read data is presented to \texttt{F} on next rising edge.
+		\item \texttt{ICACHE} write enable, address and data are asserted by \texttt{F} during this cycle
+	\end{itemize}
+	\item
+	\begin{itemize}
+		\item New data is visible in \texttt{ICACHE} as of beginning of this cycle.
+	\end{itemize}
+\end{enumerate}
+
+The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache. It is therefore vital that the same piece of data is not written more than once. In light of this, there is an issue with the timing above: if we were to query the same address in \texttt{ICACHE} on two consecutive cycles, the second cycle will not yet see the results of the writeback, so will also trigger an AHB fetch. On the third cycle, with the results of the first fetch already in the cache, \texttt{F} would also be writing the same data again, triggered by the second instruction fetch.
+
+One resolution is for \texttt{F} to store the last address written to \texttt{ICACHE}, and gate writes to this address. This is okay, but adds another 30 flops to \texttt{F}, and the routing will already be quite congested. A better answer is to guarantee that \texttt{W} will not fetch from the same address on consecutive cycles, since this would itself be an inefficiency.
+
 
 \subsection{Jumps and Branches}
 
