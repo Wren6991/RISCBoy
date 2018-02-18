@@ -3,3 +3,4 @@ module revive_instr_decompress (
 	output wire instr_is_32bit,
 	output wire [31:2] instr_out
 );
+

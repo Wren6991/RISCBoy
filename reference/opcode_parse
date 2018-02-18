@@ -8,7 +8,7 @@ field_pattern = re.compile("(\d+)\.\.(\d+)=([0-9a-fA-FxX]+)")
 
 def line_2_verilog(line, instr_size, prefix="RV_"):
 	name = line.split(" ")[0].upper()
-	name = name.split(".")[-1]
+	name = name.replace(".", "_")	
 	opcode = ["?"] * instr_size
 	for m in re.finditer(field_pattern, line):
 		msb = int(m.group(1))
@@ -21,7 +21,7 @@ def line_2_verilog(line, instr_size, prefix="RV_"):
 
 output_lines = ["// Auto-generated RISC-V opcode header", ""]
 
-for filename, instr_size, prefix in [("opcodes", 32, "RV_"), ("opcodes-rvc", 16, "RVC_")]:
+for filename, instr_size, prefix in [("opcodes", 32, "RV_"), ("opcodes-rvc", 16, "RV_")]:
 	f = open(filename)
 	for line in f:
 		line = line.split("#")[0].strip()
