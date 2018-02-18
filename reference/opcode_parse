@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+# Script to generate verilog headers from RISC-V github opcode listings
+
+import re
+
+field_pattern = re.compile("(\d+)\.\.(\d+)=([0-9a-fA-FxX]+)")
+
+def line_2_verilog(line, instr_size, prefix="RV_"):
+	name = line.split(" ")[0].upper()
+	name = name.split(".")[-1]
+	opcode = ["?"] * instr_size
+	for m in re.finditer(field_pattern, line):
+		msb = int(m.group(1))
+		lsb = int(m.group(2))
+		value = int(m.group(3), 16)
+		for i in range(lsb, msb+1):
+			opcode[i] = str(value & 0x1)
+			value = value >> 1
+	return "localparam {:<30} = {}'b{};".format(prefix + name, str(instr_size), "".join(reversed(opcode)))
+
+output_lines = ["// Auto-generated RISC-V opcode header", ""]
+
+for filename, instr_size, prefix in [("opcodes", 32, "RV_"), ("opcodes-rvc", 16, "RVC_")]:
+	f = open(filename)
+	for line in f:
+		line = line.split("#")[0].strip()
+		if len(line) == 0:
+			continue
+		output_lines.append(line_2_verilog(line, instr_size, prefix))
+	output_lines.append("")
+	f.close()
+
+f = open("rv_opcodes.vh", "w")
+for line in output_lines:
+	f.write(line + "\n")
+f.close()

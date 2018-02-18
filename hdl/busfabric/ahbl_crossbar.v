@@ -222,3 +222,5 @@ for (j = 0; j < N_SLAVES; j = j + 1) begin: arb_instantiate
 	);
 end
 endgenerate
+
+endmodule

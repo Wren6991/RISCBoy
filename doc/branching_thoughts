@@ -1,0 +1,57 @@
+Branching 2: Electric Boogaloo
+==============================
+
+3 types of jump/branch:
+
+JAL: pc <= pc + imm; rd <= pc + (2/4)
+JALR: pc <= rs1 + imm; rd <= pc + (2/4)
+B<cond>: if rs1 <cond> rs2: pc <= pc + imm
+
+NB: the rd value calculated by the linking jump instructions is also required by the branch instruction, for mispredict recovery!! Should probably travel down pipeline alongside the branch.
+
+Try some different allocations:
+
+1.
+
+JAL: pc addition done by ALU. Link value is "pc_next" from F.
+JALR: register + immediate addition done by ALU. Link value is "pc_next" from F.
+B*: comparison performed by ALU. pc + imm addition performed by ALU on next cycle (!)
+
+Some problems:
+
+- Require mux on ALU output to replace result with link address for JAL(R).
+- Extra penalty for B due to using ALU twice.
+
+2.
+
+Jump target is always computed by a separate adder. Adder has two sources for first operand:
+
+- pc_current (belongs to D)
+- src1 (belongs to X)
+
+Source for second operand is always the immediate, which is produced combinationally in D. The jump target will therefore be valid during D for JAL and B*, and X for JALR. We may wish to move this to always be in X, depending on timing issues.
+
+The timing is as follows:
+
+JAL
+
+- F: Normal
+- D: Jump target computed. F stalled. W signalled that jump is taking place. pc_next is passed on to X in some way.
+- X,M,W: nothing else happens
+
+JALR
+
+- F: Normal
+- D: F stalled. ALU inputs set to rs1, imm. ALU op set to add. pc_next is passed on to X in same way as JAL.
+- X: ALU output sent to W. W signalled that this is a jump cycle. X output is set to link register.
+- M, W: nothing exciting happens
+
+B*
+
+- F: Normal
+- D: Sign bit of immediate used to guess branch taken/not taken. Branch target is computed.
+	- Taken: Mispredict recovery reg set to pc_next, and travels down pipe. W signalled with branch target.
+	- Nontaken: no-op, but mispredict recovery reg set to branch target
+	- Prediction polarity travels down in a pipe reg
+- X: comparison takes place
+- M: comparison checked against prediction. On mispredict, signal W with value of mispredict register.
