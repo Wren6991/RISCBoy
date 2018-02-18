@@ -20,6 +20,7 @@
 // Don't worry if you don't understand it -- I don't either
 
 module revive_cpu #(
+	parameter RESET_VECTOR = 32'h0000_0000;
 	localparam W_ADDR = 32,
 	localparam W_DATA = 32
 ) (
@@ -96,76 +97,89 @@ reg               wf_icache_valid;
 wire [W_ADDR-1:0] f_icache_waddr;
 wire [W_DATA-1:0] f_icache_wdata;
 wire              f_icache_wen;
-reg  [15:0]       halfword_buf;
-reg               hwbuf_valid;
+reg  [31:0]       f_fetch_buf;
+reg  [1:0]        f_buf_level;
+wire [1:0]        f_buf_level_next;
 
 reg [31:0]        fd_cir;
 
 wire              df_instr_is_32bit;
 
 
+// Calculate next buffer level combinatorially, so that it is visible to W
+// fetch logic in-cycle.
+always @ (*) begin
+	if (df_instr_is_32bit) begin
+		if (f_buf_level == 2'h2) begin
+			f_buf_level_next = 2'h0;
+		end else begin
+			f_buf_level_next = f_buf_level;
+		end
+	end else begin
+		if (f_buf_level == 2'h2) begin
+			f_buf_level_next = 2'h1;
+		end else begin
+			f_buf_level_next = f_buf_level + 1'b1;
+		end
+	end
+end
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		halfword_buf <= 16'h0;
-		hwbuf_valid <= 1'b0;
-		fd_cir <= 16'h0;
+		f_fetch_buf <= 32'h0;
+		f_buf_level <= 2'h0;
+		fd_cir  <= 32'h0;
 	end else begin
 		// Instruction addressing is defined little endian by RISC-V spec.
 		// D will consume either all of CIR, or bits [15:0]
-		if (wf_icache_valid) begin
-			if (hwbuf_valid) begin
-				if (df_instr_is_32bit) begin
-					fd_cir <= {wf_icache_rdata[15:0], halfword_buf};
-					halfword_buf <= wf_icache_rdata[31:16];
-					hwbuf_valid <= 1'b1;
+		if (df_instr_is_32bit) begin
+			if (f_buf_level == 2'h2) begin
+				// No new fetch data since buffer is full; level will go to 0
+				fd_cir <= f_fetch_buf;
+			end else if (f_buf_level == 2'h1) begin
+				if (wf_icache_valid) begin
+					fd_cir <= {wf_icache_rdata[15:0], f_fetch_buf[15:0]};
+					f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
 				end else begin
-					fd_cir <= {halfword_buf, fd_cir[31:16]};
-					halfword_buf <= wf_icache_rdata[15:0];	// TODO: what do we do with the other half?
-					hwbuf_valid <= 1'b1;
+					fd_cir <= {ahblm_hrdata[15:0], f_fetch_buf[15:0]};
+					f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
 				end
 			end else begin
-				if (df_instr_is_32bit) begin
+				if (wf_icache_valid) begin
 					fd_cir <= wf_icache_rdata;
-					hwbuf_valid <= 1'b0;
 				end else begin
-					fd_cir <= {wf_icache_rdata[15:0], fd_cir[31:16]};
-					halfword_buf <= wf_icache_rdata[31:16];
-					hwbuf_valid <= 1'b1;
+					fd_cir <= ahblm_hrdata;
 				end
 			end
 		end else begin
-			if (hwbuf_valid) begin
-				if (df_instr_is_32bit) begin
-					// TODO: we are assuming hready. Need to add ready/valid pipeline handshakes so that we can stall on !hready
-					fd_cir <= {ahblm_hrdata[15:0], halfword_buf};
-					halfword_buf <= ahblm_hrdata[31:16];
-					hwbuf_valid <= 1'b1;
+			if (f_buf_level == 2'h2) begin
+				// No new fetch data since buffer is full; level will go to 1
+				fd_cir <= {f_fetch_buf[15:0], fd_cir[31:16]};
+				f_fetch_buf <= {16'h0, f_fetch_buf[31:16]};
+			end else if (f_buf_level == 2'h1) begin
+				fd_cir <= {f_fetch_buf[15:0], fd_cir[31:16]};
+				if (wf_icache_valid) begin
+					f_fetch_buf <= wf_icache_rdata;
 				end else begin
-					fd_cir <= {halfword_buf, fd_cir[31:16]};
-					halfword_buf <= ahblm_hrdata[15:0];	// Same problem! ^^^
-					hwbuf_valid <= 1'b1;
+					f_fetch_buf <= ahblm_hrdata;
 				end
 			end else begin
-				if (df_instr_is_32bit) begin
-					fd_cir <= ahblm_hrdata;
-					hwbuf_valid <= 1'b0;
+				if (wf_icache_valid) begin
+					fd_cir <= {wf_icache_rdata[15:0], fd_cir[31:16]};
+					f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
 				end else begin
 					fd_cir <= {ahblm_hrdata[15:0], fd_cir[31:16]};
-					halfword_buf <= ahblm_hrdata[31:16];
-					hwbuf_valid <= 1'b1;
+					f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
 				end
-			end
+			end		
 		end
+		f_buf_level <= f_buf_level_next;
 	end
 end
 
 // ============================================================================
 //                               Pipe Stage D
 // ============================================================================
-
-wire [W_REGADDR-1:0] w_regfile_waddr;
-wire [W_DATA-1:0]    w_regfile_wdata;
-wire                 w_regfile_wen;
 
 wire [31:2]          d_instr;
 reg  [W_ADDR-1:0]    d_pc;
@@ -219,12 +233,12 @@ always @ (posedge clk or negedge rst_n) begin
 
 		// Decode ALU controls
 		casez ({d_instr, 2'b11})
-		RV_BEQ:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_TRUE; end
-		RV_BNE:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_FALSE; end
-		RV_BLT:     begin dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_TRUE; end
-		RV_BGE:     begin dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_TRUE; end
-		RV_BLTU:    begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_TRUE; end
-		RV_BGEU:    begin dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_TRUE; end
+		RV_BEQ:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
+		RV_BNE:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BLT:     begin dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BGE:     begin dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BLTU:    begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BGEU:    begin dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_j; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
 		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
 		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
@@ -270,26 +284,6 @@ revive_instr_decompress decomp(
 	.instr_out(d_instr)
 );
 
-regfile_1w2r #(
-	.FAKE_DUALPORT(0),
-	.RESET_REGS(1),
-	.N_REGS(N_REGS),
-	.W_DATA(W_DATA),
-	.W_ADDR(W_ADDR)
-) inst_regfile_1w2r (
-	// Global signals
-	.clk    (clk),
-	.rst_n  (rst_n),
-	// Signals driven during D
-	.raddr1 (d_rs1),
-	.rdata1 (dx_rdata1),
-	.raddr2 (d_rs2),
-	.rdata2 (dx_rdata2),
-	// Signals driven during W
-	.waddr  (w_regfile_waddr),
-	.wdata  (w_regfile_wdata),
-	.wen    (w_regfile_wen)
-);
 
 // ============================================================================
 //                               Pipe Stage X
@@ -298,9 +292,10 @@ regfile_1w2r #(
 wire [W_DATA-1:0] x_op_a;
 wire [W_DATA-1:0] x_op_a;
 
-reg [W_DATA-1:0] xm_result;
-reg [W_ADDR-1:0] xm_jump_target;
-reg              xm_jump;
+reg [W_DATA-1:0]  xm_result;
+reg [W_ADDR-1:0]  xm_jump_target;
+reg               xm_jump;
+reg [W_MEMOP-1:0] xm_memop;
 
 // TODO: speculative execution on branches, earlier jumping for unconditional jumps
 
@@ -361,15 +356,17 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		{xm_jump_target, xm_jump} <= {(W_ADDR + 1){1'b0}};
 		xm_result <= {W_DATA{1'b0}};
+		xm_memop <= MEMOP_NONE;
 	end else begin
 		xm_jump_target <= dx_imm + (??fasfafasd?? ? dx_pc : dx_rdata1);
 		case (dx_branchcond)
 			BCOND_ALWAYS: begin xm_jump <= 1'b1; end
-			BCOND_TRUE:   begin xm_jump <= alu_zero; end
-			BCOND_FALSE:  begin xm_jump <= !alu_zero; end
+			BCOND_ZERO:   begin xm_jump <= alu_zero; end
+			BCOND_NZERO:  begin xm_jump <= !alu_zero; end
 			default:      begin xm_jump <= 1'b0; end
 		endcase
 		xm_result <= x_alu_result;
+		xm_memop <= dx_memop;
 	end
 end
 
@@ -385,6 +382,20 @@ revive_alu alu (
 //                               Pipe Stage M
 // ============================================================================
 
+reg [W_REGADDR-1:0] mw_rd;
+reg [W_DATA-1:0]    mw_result;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mw_rd <= {W_REGADDR{1'b0}};
+		mw_result <= {W_DATA{1'b0}};
+	end else begin
+		mw_rd <= xm_rd;
+		mw_result <= xm_result;
+	end
+end
+
+
 // ============================================================================
 //                               Pipe Stage W
 // ============================================================================
@@ -392,14 +403,43 @@ revive_alu alu (
 wire [W_ADDR-1:0] w_icache_raddr;
 wire              w_icache_valid;
 
+reg [W_ADDR-1:0] w_fetchaddr;
+
+assign ahb_haddr_i = w_fetchaddr;
+assign ahb_req_i = !f_buf_level_next[1];
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		wf_icache_valid <= 1'b0;
+		w_fetchaddr <= RESET_VECTOR;
 	end else begin
 		wf_icache_valid <= w_icache_valid;
+		if (ahb_req_i) begin
+			w_fetchaddr <= w_fetchaddr + 3'h4;
+		end
 	end
 end
+
+regfile_1w2r #(
+	.FAKE_DUALPORT(0),
+	.RESET_REGS(1),
+	.N_REGS(N_REGS),
+	.W_DATA(W_DATA),
+	.W_ADDR(W_ADDR)
+) inst_regfile_1w2r (
+	// Global signals
+	.clk    (clk),
+	.rst_n  (rst_n),
+	// Signals driven during D
+	.raddr1 (d_rs1),
+	.rdata1 (dx_rdata1),
+	.raddr2 (d_rs2),
+	.rdata2 (dx_rdata2),
+	// Signals driven during W
+	.waddr  (mw_rd),
+	.wdata  (mw_result),
+	.wen    (|mw_rd)
+);
 
 cache_ro_full_assoc #(
 	.W_DATA(W_DATA),

@@ -44,5 +44,5 @@ localparam MEMOP_NONE = 4'h8;
 
 localparam BCOND_NEVER  = 3'h0;
 localparam BCOND_ALWAYS = 3'h1;
-localparam BCOND_TRUE   = 3'h2;
-localparam BCOND_FALSE  = 3'h3;
+localparam BCOND_ZERO   = 3'h2;
+localparam BCOND_NZERO  = 3'h3;
