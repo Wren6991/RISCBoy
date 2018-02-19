@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="29" />
+   <wvobject fp_name="/tb/inst_ahbl_splitter/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hready</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hready_resp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hready_resp</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hready_resp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hresp</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_haddr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_htrans[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hburst" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hburst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hburst[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hprot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hprot[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hprot[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hmastlock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hmastlock</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hmastlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hwdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahbls_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hrdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hready" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hready[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hready[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hready_resp" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hready_resp[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hready_resp[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hresp" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hresp[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hresp[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_haddr[127:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_haddr[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hwrite" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hwrite[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hwrite[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hsize[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hsize[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hburst" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hburst[11:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hburst[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hprot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hprot[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hprot[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hmastlock" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hmastlock[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hmastlock[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hwdata[127:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hwdata[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hrdata[127:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hrdata[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/ahblm_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_htrans[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_htrans[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/slave_sel_a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slave_sel_a[3:0]</obj_property>
+      <obj_property name="ObjectShortName">slave_sel_a[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_splitter/slave_sel_d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">slave_sel_d[3:0]</obj_property>
+      <obj_property name="ObjectShortName">slave_sel_d[3:0]</obj_property>
+   </wvobject>
+</wave_config>
