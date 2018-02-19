@@ -11,12 +11,17 @@ for testname in list:
 	testname = testname.strip()
 	sys.stdout.write("Running test {:<30}".format(testname))
 	sys.stdout.flush()
-	output = subprocess.check_output(["make", "-C", testname, "sim"], stderr=subprocess.STDOUT)
-	if "Test PASSED" in output.decode("utf-8"):
-		print("[PASSED]")
-	else:
-		print("[FAILED]")
+	try:
+		output = subprocess.check_output(["make", "-C", testname, "sim"], stderr=subprocess.STDOUT)
+	except subprocess.CalledProcessError as e:
+		print("\033[33m[ABORT!]\033[39m")
 		all_passed = False
+	else:
+		if "Test PASSED" in output.decode("utf-8"):
+			print("\033[32m[PASSED]\033[39m")
+		else:
+			print("\033[31m[FAILED]\033[39m")
+			all_passed = False
 	subprocess.call(["make", "-C", testname, "clean"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 if all_passed:

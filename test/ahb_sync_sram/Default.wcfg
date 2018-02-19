@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="24" />
+   <wvobject fp_name="/tb/uut/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hready_resp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hready_resp</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hready_resp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hresp</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="vbus86" type="vbus" db_ref_id="1">
+      <obj_property name="label">haddr_smol</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[9]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[8]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[8]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[7]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[6]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[6]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[5]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[5]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[4]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[3]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[3]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[2]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[2]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[1]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uut/ahbls_haddr[0]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_htrans[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hburst" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hburst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hburst[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hprot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hprot[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hprot[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hmastlock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hmastlock</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hmastlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/w_mask" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_mask[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_mask[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/sram_rdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sram_rdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/ahbls_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/w_mask_noshift" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_mask_noshift[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_mask_noshift[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/sram_rdata_rot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_rdata_rot[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sram_rdata_rot[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/state" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">state[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/haddr_d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">haddr_d[31:0]</obj_property>
+      <obj_property name="ObjectShortName">haddr_d[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/hsize_d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hsize_d[2:0]</obj_property>
+      <obj_property name="ObjectShortName">hsize_d[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/sram/\has_byte_enable.byte_mem[0].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[0].mem [0:255,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[0].mem [0:255,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/sram/\has_byte_enable.byte_mem[1].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[1].mem [0:255,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[1].mem [0:255,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/sram/\has_byte_enable.byte_mem[2].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[2].mem [0:255,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[2].mem [0:255,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/sram/\has_byte_enable.byte_mem[3].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[3].mem [0:255,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[3].mem [0:255,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
