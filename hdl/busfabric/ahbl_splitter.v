@@ -17,7 +17,7 @@
  /*
   * AHB-lite 1:N splitter
   * If this splitter is at the top of the busfabric (i.e. its master is a true master),
-  * tie ahblm_hready_resp across to ahblm_hready.
+  * tie ahbls_hready_resp across to ahbls_hready.
   *
   * It is up to the system implementer to *ensure that the address mapped ranges
   *  are mutually exclusive*.
@@ -36,33 +36,33 @@ module ahbl_splitter #(
 	input wire                       clk,
 	input wire                       rst_n,
 
-	// Master port
-	input  wire                      abhlm_hready,
-	output wire                      ahblm_hready_resp,
-	output wire                      ahblm_hresp,
-	input  wire [W_ADDR-1:0]         ahblm_haddr,
-	input  wire                      ahblm_hwrite,
-	input  wire [1:0]                ahblm_htrans,
-	input  wire [2:0]                ahblm_hsize,
-	input  wire [2:0]                ahblm_hburst,
-	input  wire [3:0]                ahblm_hprot,
-	input  wire                      ahblm_hmastlock,
-	input  wire [W_DATA-1:0]         ahblm_hwdata,
-	output wire [W_DATA-1:0]         ahblm_hrdata,
+	// From master; functions as slave port
+	input  wire                      ahbls_hready,
+	output wire                      ahbls_hready_resp,
+	output wire                      ahbls_hresp,
+	input  wire [W_ADDR-1:0]         ahbls_haddr,
+	input  wire                      ahbls_hwrite,
+	input  wire [1:0]                ahbls_htrans,
+	input  wire [2:0]                ahbls_hsize,
+	input  wire [2:0]                ahbls_hburst,
+	input  wire [3:0]                ahbls_hprot,
+	input  wire                      ahbls_hmastlock,
+	input  wire [W_DATA-1:0]         ahbls_hwdata,
+	output wire [W_DATA-1:0]         ahbls_hrdata,
 
-	// Slave ports
-	output wire [N_PORTS-1:0]        abhls_hready,
-	input  wire [N_PORTS-1:0]        ahbls_hready_resp,
-	input  wire [N_PORTS-1:0]        ahbls_hresp,
-	output wire [N_PORTS*W_ADDR-1:0] ahbls_haddr,
-	output wire [N_PORTS-1:0]        ahbls_hwrite,
-	output wire [N_PORTS*2-1:0]      ahbls_htrans,
-	output wire [N_PORTS*3-1:0]      ahbls_hsize,
-	output wire [N_PORTS*3-1:0]      ahbls_hburst,
-	output wire [N_PORTS*4-1:0]      ahbls_hprot,
-	output wire [N_PORTS-1:0]        ahbls_hmastlock,
-	output wire [N_PORTS*W_DATA-1:0] ahbls_hwdata,
-	input  wire [N_PORTS*W_DATA-1:0] ahbls_hrdata
+	// To slaves; function as master ports
+	output wire [N_PORTS-1:0]        ahblm_hready,
+	input  wire [N_PORTS-1:0]        ahblm_hready_resp,
+	input  wire [N_PORTS-1:0]        ahblm_hresp,
+	output wire [N_PORTS*W_ADDR-1:0] ahblm_haddr,
+	output wire [N_PORTS-1:0]        ahblm_hwrite,
+	output wire [N_PORTS*2-1:0]      ahblm_htrans,
+	output wire [N_PORTS*3-1:0]      ahblm_hsize,
+	output wire [N_PORTS*3-1:0]      ahblm_hburst,
+	output wire [N_PORTS*4-1:0]      ahblm_hprot,
+	output wire [N_PORTS-1:0]        ahblm_hmastlock,
+	output wire [N_PORTS*W_DATA-1:0] ahblm_hwdata,
+	input  wire [N_PORTS*W_DATA-1:0] ahblm_hrdata
 );
 
 integer i;
@@ -73,7 +73,7 @@ wire [N_PORTS-1:0] slave_sel_a;
 
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
-		slave_sel_a[i] = !((ahblm_haddr ^ ADDR_MAP[i * W_ADDR +: W_ADDR])
+		slave_sel_a[i] = !((ahbls_haddr ^ ADDR_MAP[i * W_ADDR +: W_ADDR])
 			& ADDR_MASK[i * W_ADDR +: W_ADDR]);
 	end
 end
@@ -82,16 +82,16 @@ end
 // Be lazy and don't blank out signals to non-selected slaves,
 // except for HTRANS, which must be gated off to stop spurious transfer.
 
-assign ahbls_haddr     = {N_PORTS{ahblm_haddr}};
-assign ahbls_hwrite    = {N_PORTS{ahblm_hwrite}};
-assign ahbls_hsize     = {N_PORTS{ahblm_hsize}};
-assign ahbls_hburst    = {N_PORTS{ahblm_hburst}};
-assign ahbls_hprot     = {N_PORTS{ahblm_hprot}};
-assign ahbls_hmastlock = {N_PORTS{ahblm_hmastlock}};
+assign ahblm_haddr     = {N_PORTS{ahbls_haddr}};
+assign ahblm_hwrite    = {N_PORTS{ahbls_hwrite}};
+assign ahblm_hsize     = {N_PORTS{ahbls_hsize}};
+assign ahblm_hburst    = {N_PORTS{ahbls_hburst}};
+assign ahblm_hprot     = {N_PORTS{ahbls_hprot}};
+assign ahblm_hmastlock = {N_PORTS{ahbls_hmastlock}};
 
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
-		ahbls_htrans[i * 2 +: 2] = slave_sel_a[i] ? ahblm_htrans : 2'b00;
+		ahblm_htrans[i * 2 +: 2] = slave_sel_a[i] ? ahbls_htrans : 2'b00;
 	end
 end
 
@@ -103,7 +103,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		slave_sel_d <= {N_PORTS{1'b0}};
 	end else begin
-		if (ahblm_hready) begin
+		if (ahbls_hready) begin
 			slave_sel_d <= slave_sel_a;
 		end
 	end
@@ -111,25 +111,25 @@ end
 
 // Data-phase passthrough
 
-assign ahbls_hwdata = {N_PORTS{ahblm_hwdata}};
-assign ahbls_hready = {N_PORTS{ahblm_hready}};
+assign ahblm_hwdata = {N_PORTS{ahbls_hwdata}};
+assign ahblm_hready = {N_PORTS{ahbls_hready}};
 
 bitmap_mux #(
 	.N_INPUTS(N_PORTS),
 	.W_INPUT(W_DATA)
 ) hrdata_mux (
-	.in(ahbls_hrdata),
+	.in(ahblm_hrdata),
 	.sel(slave_sel_d),
-	.out(ahblm_hrdata)
+	.out(ahbls_hrdata)
 );
 
 bitmap_mux #(
 	.N_INPUTS(N_PORTS),
 	.W_INPUT(1)
 ) hready_resp_mux (
-	.in(ahbls_hready_resp),
+	.in(ahblm_hready_resp),
 	.sel(slave_sel_d),
-	.out(ahblm_hready_resp)
+	.out(ahbls_hready_resp)
 );
 
 endmodule

@@ -21,7 +21,7 @@
  * Use concat lists to wire masters in:
  *   .N_PORTS(2)
  *   ...
- *   .ahblm_haddr({mast1_haddr, mast0_haddr})
+ *   .ahbls_haddr({mast1_haddr, mast0_haddr})
  *   ...
  * Recommend that wiring up is scripted.
  */
@@ -37,33 +37,33 @@ module ahbl_arbiter #(
 	input wire                       clk,
 	input wire                       rst_n,
 
-	// Master ports
-	input  wire [N_PORTS-1:0]        abhlm_hready,
-	output wire [N_PORTS-1:0]        ahblm_hready_resp,
-	output wire [N_PORTS-1:0]        ahblm_hresp,
-	input  wire [N_PORTS*W_ADDR-1:0] ahblm_haddr,
-	input  wire [N_PORTS-1:0]        ahblm_hwrite,
-	input  wire [N_PORTS*2-1:0]      ahblm_htrans,
-	input  wire [N_PORTS*3-1:0]      ahblm_hsize,
-	input  wire [N_PORTS*3-1:0]      ahblm_hburst,
-	input  wire [N_PORTS*4-1:0]      ahblm_hprot,
-	input  wire [N_PORTS-1:0]        ahblm_hmastlock,
-	input  wire [N_PORTS*W_DATA-1:0] ahblm_hwdata,
-	output wire [N_PORTS*W_DATA-1:0] ahblm_hrdata,
+	// From masters; function as slave ports
+	input  wire [N_PORTS-1:0]        ahbls_hready,
+	output wire [N_PORTS-1:0]        ahbls_hready_resp,
+	output wire [N_PORTS-1:0]        ahbls_hresp,
+	input  wire [N_PORTS*W_ADDR-1:0] ahbls_haddr,
+	input  wire [N_PORTS-1:0]        ahbls_hwrite,
+	input  wire [N_PORTS*2-1:0]      ahbls_htrans,
+	input  wire [N_PORTS*3-1:0]      ahbls_hsize,
+	input  wire [N_PORTS*3-1:0]      ahbls_hburst,
+	input  wire [N_PORTS*4-1:0]      ahbls_hprot,
+	input  wire [N_PORTS-1:0]        ahbls_hmastlock,
+	input  wire [N_PORTS*W_DATA-1:0] ahbls_hwdata,
+	output wire [N_PORTS*W_DATA-1:0] ahbls_hrdata,
 
-	// Slave port
-	output wire                      abhls_hready,
-	input  wire                      ahbls_hready_resp,
-	input  wire                      ahbls_hresp,
-	output wire [W_ADDR-1:0]         ahbls_haddr,
-	output wire                      ahbls_hwrite,
-	output wire [1:0]                ahbls_htrans,
-	output wire [2:0]                ahbls_hsize,
-	output wire [2:0]                ahbls_hburst,
-	output wire [3:0]                ahbls_hprot,
-	output wire                      ahbls_hmastlock,
-	output wire [W_DATA-1:0]         ahbls_hwdata,
-	input  wire [W_DATA-1:0]         ahbls_hrdata
+	// To slave; functions as master port
+	output wire                      ahblm_hready,
+	input  wire                      ahblm_hready_resp,
+	input  wire                      ahblm_hresp,
+	output wire [W_ADDR-1:0]         ahblm_haddr,
+	output wire                      ahblm_hwrite,
+	output wire [1:0]                ahblm_htrans,
+	output wire [2:0]                ahblm_hsize,
+	output wire [2:0]                ahblm_hburst,
+	output wire [3:0]                ahblm_hprot,
+	output wire                      ahblm_hmastlock,
+	output wire [W_DATA-1:0]         ahblm_hwdata,
+	input  wire [W_DATA-1:0]         ahblm_hrdata
 );
 
 integer i;
@@ -77,7 +77,7 @@ wire [N_PORTS-1:0] mast_gnt_a;
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
 		// HTRANS == 2'b10, 2'b11 when active
-		mast_req_a[i] = ahblm_htrans[i * 2 +: 2][1];
+		mast_req_a[i] = ahbls_htrans[i * 2 +: 2][1];
 	end
 end
 
@@ -96,63 +96,63 @@ bitmap_mux #(
 	.W_INPUT(W_ADDR),
 	.N_INPUTS(N_PORTS)
 ) mux_haddr (
-	.in(ahblm_haddr),
+	.in(ahbls_haddr),
 	.sel(mast_gnt_a),
-	.out(ahbls_haddr)
+	.out(ahblm_haddr)
 );
 
 bitmap_mux #(
 	.W_INPUT(1),
 	.N_INPUTS(N_PORTS)
 ) mux_hwrite (
-	.in(ahblm_hwrite),
+	.in(ahbls_hwrite),
 	.sel(mast_gnt_a),
-	.out(ahbls_hwrite)
+	.out(ahblm_hwrite)
 );
 
 bitmap_mux #(
 	.W_INPUT(2),
 	.N_INPUTS(N_PORTS)
 ) mux_hwtrans (
-	.in(ahblm_htrans),
+	.in(ahbls_htrans),
 	.sel(mast_gnt_a),
-	.out(ahbls_htrans)
+	.out(ahblm_htrans)
 );
 
 bitmap_mux #(
 	.W_INPUT(3),
 	.N_INPUTS(N_PORTS)
 ) mux_hsize (
-	.in(ahblm_hsize),
+	.in(ahbls_hsize),
 	.sel(mast_gnt_a),
-	.out(ahbls_hsize)
+	.out(ahblm_hsize)
 );
 
 bitmap_mux #(
 	.W_INPUT(3),
 	.N_INPUTS(N_PORTS)
 ) mux_hburst (
-	.in(ahblm_hburst),
+	.in(ahbls_hburst),
 	.sel(mast_gnt_a),
-	.out(ahbls_hburst)
+	.out(ahblm_hburst)
 );
 
 bitmap_mux #(
 	.W_INPUT(4),
 	.N_INPUTS(N_PORTS)
 ) mux_hprot (
-	.in(ahblm_hprot),
+	.in(ahbls_hprot),
 	.sel(mast_gnt_a),
-	.out(ahbls_hprot)
+	.out(ahblm_hprot)
 );
 
 bitmap_mux #(
 	.W_INPUT(1),
 	.N_INPUTS(N_PORTS)
 ) mux_hsize (
-	.in(ahblm_hmastlock),
+	.in(ahbls_hmastlock),
 	.sel(mast_gnt_a),
-	.out(ahbls_hmastlock)
+	.out(ahblm_hmastlock)
 );
 
 // AHB State Machine
@@ -160,15 +160,15 @@ bitmap_mux #(
 // Data-phase grant bitmap
 reg [N_PORTS-1:0] mast_gnt_d;
 
-assign ahbls_hready =
-	mast_gnt_d ? ahblm_hready & mast_gnt_d :
-	mast_gnt_a ? ahblm_hready & mast_gnt_a : 1'b1;
+assign ahblm_hready =
+	mast_gnt_d ? ahbls_hready & mast_gnt_d :
+	mast_gnt_a ? ahbls_hready & mast_gnt_a : 1'b1;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mast_gnt_d <= {N_PORTS{1'b0}};
 	end else begin
-		if (ahbls_hready) begin
+		if (ahblm_hready) begin
 			mast_gnt_d <= mast_gnt_a;	
 		end
 	end
@@ -176,15 +176,15 @@ end
 
 // Data-phase signal passthrough
 
-assign ahblm_hrdata = {N_PORTS{ahbls_hrdata}};
-assign ahblm_hready_resp = {N_PORTS{ahbls_hready_resp}};
+assign ahbls_hrdata = {N_PORTS{ahblm_hrdata}};
+assign ahbls_hready_resp = {N_PORTS{ahblm_hready_resp}};
 
 
 bitmap_mux #(
 	.W_INPUT(W_DATA),
 	.N_INPUTS(N_PORTS)
 ) hwdata_mux (
-	.in(ahblm_hwdata),
+	.in(ahbls_hwdata),
 	.sel(mast_gnt_d),
 	.out(ahbll_hwdata)
 );
