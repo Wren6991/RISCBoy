@@ -47,15 +47,10 @@ localparam HTRANS_NSEQ = 2'b10;
 
 
 task ahb_wait_ready;
-begin: wait_block
-	reg done;
-	done = 0;
-	while (!done) begin
-		#(0.1);	// hack to ensure we execute after continuous assignments to hready
-		if (ahbl_hready)
-			done = 1;
-		else
-			@ (posedge clk);
+begin
+	@ (posedge clk);
+	while (!ahbl_hready) begin
+		@ (posedge clk);
 	end
 end
 endtask
@@ -71,7 +66,6 @@ begin
 	ahbl_htrans = HTRANS_NSEQ;
 
 	ahb_wait_ready();
-	@ (posedge clk);
 
 	ahbl_htrans = HTRANS_IDLE;
 	ahbl_haddr = 0;
@@ -113,8 +107,7 @@ task ahb_read_byte;
 	output [7:0]        rdata;
 	input  [W_ADDR-1:0] raddr;
 begin
-	ahb_addr_phase(1'b0, raddr,
-		3'b000);
+	ahb_addr_phase(1'b0, raddr, 3'b000);
 	ahb_wait_ready();
 	rdata = ahbl_hrdata[raddr[$clog2(W_DATA)-4:0] * 8 +: 8];
 end

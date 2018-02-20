@@ -37,8 +37,8 @@ module bitmap_mux #(
 
 integer i, j;
 
-wire [W_INPUT-1:0] masked_data [N_INPUTS-1:0];
-wire [W_INPUT-1:0] mux_accum   [N_INPUTS:0];
+reg [W_INPUT-1:0] masked_data [N_INPUTS-1:0];
+reg [W_INPUT-1:0] mux_accum   [N_INPUTS:0];
 
 
 always @ (*) begin

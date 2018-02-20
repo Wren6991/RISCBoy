@@ -26,7 +26,8 @@
  * Recommend that wiring up is scripted.
  */
 
- // TODO: no burst support!
+// TODO: no burst support!
+
 
 module ahbl_arbiter #(
 	parameter N_PORTS = 2,
@@ -68,24 +69,84 @@ module ahbl_arbiter #(
 
 integer i;
 
+// Why we need buffering of address-phase controls:
+//
+// Returning positive hready_resp to a master signifies the end of the current
+// data phase *and* the current address phase for that master.
+// However, suppose that master 1 is currently active in the data phase and
+// address phase, but master 0 (higher priority) also has an active address phase request.
+//
+// At the end of the data phase, we will signal hready_resp[1]. Master 1
+// will accept any read data, but will also see this as acceptance of its outstanding
+// address phase request. However, the arbiter will instead take master 0's transaction
+// to the data phase, which is signalled by raising hready_resp[0] concurrently.
+// Master 1 will now present the address phase request for its *third* bus cycle.
+//
+// We will have to buffer the address-phase controls from master 1's second bus cycle, and apply
+// them continually until this cycle enters its data phase. We do not raise hready_resp[1] at this point
+// because, from master 1's point of view, its second address phase already ended at the end of the first data phase.
+// Once the data phase is complete, we raise hready_resp[1]. Master 1 ends its third
+// address phase, and the address-phase buffer is loaded with these controls if master 1
+// is blocked by a higher-priority master again.
+// Eventually, master 1 will be idle at the end of the data phase, at which point the buffered
+// request will be HTRANS_IDLE, and the live port value will be used instead of the buffered value.
+
+reg [W_ADDR-1:0]         saved_haddr      [0:N_PORTS-1];
+reg                      saved_hwrite     [0:N_PORTS-1];
+reg [1:0]                saved_htrans     [0:N_PORTS-1];
+reg [2:0]                saved_hsize      [0:N_PORTS-1];
+reg [2:0]                saved_hburst     [0:N_PORTS-1];
+reg [3:0]                saved_hprot      [0:N_PORTS-1];
+reg                      saved_hmastlock  [0:N_PORTS-1];
+
+// "actual" is a mux between the saved signal, if valid, else the live signal on the port
+reg [N_PORTS*W_ADDR-1:0] actual_haddr;
+reg [N_PORTS-1:0]        actual_hwrite;
+reg [N_PORTS*2-1:0]      actual_htrans;
+reg [N_PORTS*3-1:0]      actual_hsize;
+reg [N_PORTS*3-1:0]      actual_hburst;
+reg [N_PORTS*4-1:0]      actual_hprot;
+reg [N_PORTS-1:0]        actual_hmastlock;
+
+always @ (*) begin
+	for (i = 0; i < N_PORTS; i = i + 1) begin
+		if (saved_htrans[i][1]) begin
+			actual_haddr     [i * W_ADDR +: W_ADDR] = saved_haddr     [i];
+			actual_hwrite    [i]                    = saved_hwrite    [i];
+			actual_htrans    [i * 2 +: 2]           = saved_htrans    [i];
+			actual_hsize     [i * 3 +: 3]           = saved_hsize     [i];
+			actual_hburst    [i * 3 +: 3]           = saved_hburst    [i];
+			actual_hprot     [i * 4 +: 4]           = saved_hprot     [i];
+			actual_hmastlock [i]                    = saved_hmastlock [i];
+		end else begin
+			actual_haddr     [i * W_ADDR +: W_ADDR] = ahbls_haddr     [i * W_ADDR +: W_ADDR];
+			actual_hwrite    [i]                    = ahbls_hwrite    [i];
+			actual_htrans    [i * 2 +: 2]           = ahbls_htrans    [i * 2 +: 2];
+			actual_hsize     [i * 3 +: 3]           = ahbls_hsize     [i * 3 +: 3];
+			actual_hburst    [i * 3 +: 3]           = ahbls_hburst    [i * 3 +: 3];
+			actual_hprot     [i * 4 +: 4]           = ahbls_hprot     [i * 4 +: 4];
+			actual_hmastlock [i]                    = ahbls_hmastlock [i];
+		end
+	end
+end
+
 // Address-phase arbitration
 
-wire [N_PORTS-1:0] mast_req_a;
-wire [N_PORTS:0]   already_granted_a;
-wire [N_PORTS-1:0] mast_gnt_a;
+reg [N_PORTS-1:0] mast_req_a;
+reg [N_PORTS:0]   already_granted_a;
+reg [N_PORTS-1:0] mast_gnt_a;
 
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
 		// HTRANS == 2'b10, 2'b11 when active
-		mast_req_a[i] = ahbls_htrans[i * 2 +: 2][1];
+		mast_req_a[i] = actual_htrans[i * 2 + 1];
 	end
 end
 
-// Synthesis will squash this down into something nice
 always @ (*) begin
 	already_granted_a[0] = 1'b0;
-	for (i = 0; i < N_PORTS; i = i + 1)) begin
-		mast_gnt_a[i] = mast_req_a[i] && !already_granted_a[i]
+	for (i = 0; i < N_PORTS; i = i + 1) begin
+		mast_gnt_a[i] = mast_req_a[i] && !already_granted_a[i];
 		already_granted_a[i + 1] = already_granted_a[i] || mast_req_a[i];
 	end
 end
@@ -96,7 +157,7 @@ bitmap_mux #(
 	.W_INPUT(W_ADDR),
 	.N_INPUTS(N_PORTS)
 ) mux_haddr (
-	.in(ahbls_haddr),
+	.in(actual_haddr),
 	.sel(mast_gnt_a),
 	.out(ahblm_haddr)
 );
@@ -105,7 +166,7 @@ bitmap_mux #(
 	.W_INPUT(1),
 	.N_INPUTS(N_PORTS)
 ) mux_hwrite (
-	.in(ahbls_hwrite),
+	.in(actual_hwrite),
 	.sel(mast_gnt_a),
 	.out(ahblm_hwrite)
 );
@@ -114,7 +175,7 @@ bitmap_mux #(
 	.W_INPUT(2),
 	.N_INPUTS(N_PORTS)
 ) mux_hwtrans (
-	.in(ahbls_htrans),
+	.in(actual_htrans),
 	.sel(mast_gnt_a),
 	.out(ahblm_htrans)
 );
@@ -123,7 +184,7 @@ bitmap_mux #(
 	.W_INPUT(3),
 	.N_INPUTS(N_PORTS)
 ) mux_hsize (
-	.in(ahbls_hsize),
+	.in(actual_hsize),
 	.sel(mast_gnt_a),
 	.out(ahblm_hsize)
 );
@@ -132,7 +193,7 @@ bitmap_mux #(
 	.W_INPUT(3),
 	.N_INPUTS(N_PORTS)
 ) mux_hburst (
-	.in(ahbls_hburst),
+	.in(actual_hburst),
 	.sel(mast_gnt_a),
 	.out(ahblm_hburst)
 );
@@ -141,7 +202,7 @@ bitmap_mux #(
 	.W_INPUT(4),
 	.N_INPUTS(N_PORTS)
 ) mux_hprot (
-	.in(ahbls_hprot),
+	.in(actual_hprot),
 	.sel(mast_gnt_a),
 	.out(ahblm_hprot)
 );
@@ -149,8 +210,8 @@ bitmap_mux #(
 bitmap_mux #(
 	.W_INPUT(1),
 	.N_INPUTS(N_PORTS)
-) mux_hsize (
-	.in(ahbls_hmastlock),
+) mux_hmastlock (
+	.in(actual_hmastlock),
 	.sel(mast_gnt_a),
 	.out(ahblm_hmastlock)
 );
@@ -161,15 +222,33 @@ bitmap_mux #(
 reg [N_PORTS-1:0] mast_gnt_d;
 
 assign ahblm_hready =
-	mast_gnt_d ? ahbls_hready & mast_gnt_d :
-	mast_gnt_a ? ahbls_hready & mast_gnt_a : 1'b1;
+	mast_gnt_d ? |(ahbls_hready & mast_gnt_d) :
+	mast_gnt_a ? |(ahbls_hready & mast_gnt_a) : 1'b1;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mast_gnt_d <= {N_PORTS{1'b0}};
+		// Ask nicely :D
+		// synthesis please_on
+		for (i = 0; i < N_PORTS; i = i + 1) begin
+			{saved_haddr[i], saved_hwrite[i], saved_htrans[i], saved_hsize[i],
+				saved_hburst[i], saved_hprot[i], saved_hmastlock[i]} <= {(W_ADDR + 14){1'b0}};
+		end
+		// synthesis please_off
 	end else begin
 		if (ahblm_hready) begin
-			mast_gnt_d <= mast_gnt_a;	
+			mast_gnt_d <= mast_gnt_a;
+		end
+		for (i = 0; i < N_PORTS; i = i + 1) begin
+			if (ahbls_hready_resp[i] && !mast_gnt_a[i]) begin
+				saved_haddr     [i] <= ahbls_haddr     [i * W_ADDR +: W_ADDR];
+				saved_hwrite    [i] <= ahbls_hwrite    [i];
+				saved_htrans    [i] <= ahbls_htrans    [i * 2 +: 2];
+				saved_hsize     [i] <= ahbls_hsize     [i * 3 +: 3];
+				saved_hburst    [i] <= ahbls_hburst    [i * 3 +: 3];
+				saved_hprot     [i] <= ahbls_hprot     [i * 4 +: 4];
+				saved_hmastlock [i] <= ahbls_hmastlock [i];
+			end
 		end
 	end
 end
@@ -177,8 +256,11 @@ end
 // Data-phase signal passthrough
 
 assign ahbls_hrdata = {N_PORTS{ahblm_hrdata}};
-assign ahbls_hready_resp = {N_PORTS{ahblm_hready_resp}};
 
+wire [N_PORTS-1:0] resp_mask = mast_gnt_a || mast_gnt_d ? mast_gnt_a | mast_gnt_d : {N_PORTS{1'b1}};
+
+assign ahbls_hready_resp = {N_PORTS{ahblm_hready_resp}} & resp_mask;
+assign ahbls_hresp = {N_PORTS{ahblm_hresp}} & resp_mask;
 
 bitmap_mux #(
 	.W_INPUT(W_DATA),
@@ -186,7 +268,7 @@ bitmap_mux #(
 ) hwdata_mux (
 	.in(ahbls_hwdata),
 	.sel(mast_gnt_d),
-	.out(ahbll_hwdata)
+	.out(ahblm_hwdata)
 );
 
 endmodule

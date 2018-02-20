@@ -56,7 +56,7 @@ module ahbl_splitter #(
 	input  wire [N_PORTS-1:0]        ahblm_hresp,
 	output wire [N_PORTS*W_ADDR-1:0] ahblm_haddr,
 	output wire [N_PORTS-1:0]        ahblm_hwrite,
-	output wire [N_PORTS*2-1:0]      ahblm_htrans,
+	output reg  [N_PORTS*2-1:0]      ahblm_htrans,
 	output wire [N_PORTS*3-1:0]      ahblm_hsize,
 	output wire [N_PORTS*3-1:0]      ahblm_hburst,
 	output wire [N_PORTS*4-1:0]      ahblm_hprot,
@@ -69,7 +69,7 @@ integer i;
 
 // Address decode
 
-wire [N_PORTS-1:0] slave_sel_a;
+reg [N_PORTS-1:0] slave_sel_a;
 
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
@@ -128,7 +128,7 @@ bitmap_mux #(
 	.W_INPUT(1)
 ) hready_resp_mux (
 	.in(ahblm_hready_resp),
-	.sel(slave_sel_d),
+	.sel(slave_sel_d ? slave_sel_d : slave_sel_a),
 	.out(ahbls_hready_resp)
 );
 

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="51" />
+   <wvobject fp_name="/tb/\inst_tb_master[1] /clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider57" type="divider">
+      <obj_property name="label">Master 0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[0] /ahbl_htrans[1]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_htrans[1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[0] /ahbl_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hready</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[0] /ahbl_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[0] /ahbl_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[0] /ahbl_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[0] /ahbl_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider64" type="divider">
+      <obj_property name="label">Master 1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[1] /ahbl_htrans[1]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_htrans[1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[1] /ahbl_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hready</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[1] /ahbl_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[1] /ahbl_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[1] /ahbl_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[1] /ahbl_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider65" type="divider">
+      <obj_property name="label">Master 2</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[2] /ahbl_htrans[1]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_htrans[1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[2] /ahbl_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hready</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[2] /ahbl_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[2] /ahbl_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[2] /ahbl_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[2] /ahbl_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider66" type="divider">
+      <obj_property name="label">Master 3</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[3] /ahbl_htrans[1]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_htrans[1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[3] /ahbl_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hready</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[3] /ahbl_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[3] /ahbl_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[3] /ahbl_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/\inst_tb_master[3] /ahbl_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider67" type="divider">
+      <obj_property name="label">Arbiter</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hready</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_hready_resp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hready_resp</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hready_resp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_htrans[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/ahblm_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/saved_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">saved_htrans[0:3,1:0]</obj_property>
+      <obj_property name="ObjectShortName">saved_htrans[0:3,1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/mast_req_a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mast_req_a[3:0]</obj_property>
+      <obj_property name="ObjectShortName">mast_req_a[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/mast_gnt_a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mast_gnt_a[3:0]</obj_property>
+      <obj_property name="ObjectShortName">mast_gnt_a[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahbl_arbiter/mast_gnt_d" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mast_gnt_d[3:0]</obj_property>
+      <obj_property name="ObjectShortName">mast_gnt_d[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider39" type="divider">
+      <obj_property name="label">SRAM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/wen" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wen[3:0]</obj_property>
+      <obj_property name="ObjectShortName">wen[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[5:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/wdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/rdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/\has_byte_enable.byte_mem[0].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[0].mem [0:63,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[0].mem [0:63,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/\has_byte_enable.byte_mem[1].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[1].mem [0:63,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[1].mem [0:63,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/\has_byte_enable.byte_mem[2].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[2].mem [0:63,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[2].mem [0:63,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ahb_sync_sram/sram/\has_byte_enable.byte_mem[3].mem " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\has_byte_enable.byte_mem[3].mem [0:63,7:0]</obj_property>
+      <obj_property name="ObjectShortName">\has_byte_enable.byte_mem[3].mem [0:63,7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
