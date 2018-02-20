@@ -1,10 +1,26 @@
 \documentclass{article}
 
 \usepackage{csquotes}
-\usepackage[margin=0.5in]{geometry}
+\usepackage[margin=0.7in]{geometry}
 \usepackage{graphicx}
 \usepackage{rotating}
 \usepackage[section]{placeins}
+\usepackage{sectsty}
+\sectionfont{\clearpage}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+	language=Verilog,
+	frame=single,
+	basicstyle=\small,
+	keywordstyle=\color{blue}\small,
+	stringstyle=\color{Maroon}\small,
+	commentstyle=\color{OliveGreen}\small,
+	breaklines=true,
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
+
 
 \title{FPGABoy Documentation}
 \author{Luke Wren}
@@ -34,11 +50,19 @@ FPGABoy is an open source portable games console, designed from scratch. It is a
 
 \subsection{Logic Design}
 
+\begin{figure}[!htb]
+\caption{System-level architecture}
+\label{diagram:system_arch}
+\centering
+\includegraphics[width=0.7\textwidth]{diagrams/system_arch.pdf}
+\end{figure}
+
 The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and flipflops. The logic was designed from scratch, using synthesisable Verilog. This includes:
 \begin{itemize}
-\item RV32EC-compatible 32-bit CPU design
+\item RV32IC-compatible 32-bit CPU design
 	\begin{itemize}
-	\item E: embedded profile (reduced register set)
+	\item RISC-V instruction set
+	\item 32I: base integer ISA profile
 	\item C: compressed instruction extension, for higher code density
 	\end{itemize}
 \item Graphics pipeline
@@ -89,6 +113,11 @@ The only exception is some 0.5mm vias underneath the BGA. Strictly this is out o
 The iCE40-HX8k FPGA is packaged in a 256-pin 0.8mm BGA, which \textit{can be} reflowed by a hobbyist with a hot air gun or a frying pan (best to choose a HASL finish so that contacts are pretinned). The 132-pin 0.5mm BGA has sufficient IO for our needs, but iTead does not manufacture at the tolerance required for such a fine pitch.
 
 
+\subsection{Licensing}
+
+The Verilog source to this project has no dependencies, and is distributed under the DWTFPL version 3. This is a very... permissive open-source licence, and its text should be included in full at the top of the source files.
+
+
 \section{CPU Architecture}
 
 \begin{sidewaysfigure}[!htb]
@@ -100,15 +129,13 @@ The iCE40-HX8k FPGA is packaged in a 256-pin 0.8mm BGA, which \textit{can be} re
 
 ReVive is a 32-bit processor based on the RISC V (hereafter RV) instruction set architecture. The name seemed appropriate for what is supposed to be a return to the glory days of games programming, when NULL pointers were just pointers to the start of ROM, and programmers were real programmers who wrote their \textit{own} polygon rasterisers, dammit.
 
-The diagram shown here is a simplified block diagram of the core. Not shown is:
+Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core. Not shown is:
 \begin{itemize}
 \item The full and specific contents of the pipeline registers
-\item The forwarding/bypass network which shortens data hazards to improve pipeline throughput
-\item Additional hardware in \texttt{ICACHE} which helps to support unaligned code fetches
 \item Interrupt entry/exit hardware
 \item The ready/valid handshakes on pipe stages which allow them to NOP later stages, and stall prior ones
-\item Hardware registers such as PC, and PC update logic
 \item Pipeline flushing signals for branch mispredict
+\item Hardware for supporting unaligned loads/stores (carried out as multiple bus cycles)
 \end{itemize}
 
 Overall this is a fairly standard RISC-style processor pipeline. The tall blue boxes represent the registers at the boundaries of two pipe stages. The nomenclature used in the diagram is:
@@ -495,13 +522,44 @@ This assumes that the programmer always maintains a valid stack pointer in \text
 
 \begin{figure}[!htb]
 \centering
+\caption{Block-level diagram of graphics pipeline}
 \includegraphics[width=0.9\textwidth]{diagrams/graphics.pdf}
 \end{figure}
 
 \section{Bus Fabric and Memory Subsystem}
 
-AHB-lite single layer full crossbar, 32-bit datapath, no burst support. Low-bandwidth peripherals attached with an AHB-APB bridge + splitter. Written from scratch, so no guarantees that it works.
+\begin{figure}[!htb]
+\centering
+\label{diagram:crossbar_structure}
+\caption{Module-level structure of AHBL crossbar}
+\includegraphics[width=0.6\textwidth]{diagrams/crossbar_structure.pdf}
+\end{figure}
 
-External 0.5MiB asynchronous SRAM with 16-bit data bus, 10 ns access times
+Figure \ref{diagram:crossbar_structure} shows the structure of the ahbl\_crossbar module (\texttt{hdl/busfabric/ahbl\_crossbar.v} in the code). To see how this fits into the overall system architecture, refer back to figure \ref{diagram:system_arch}, but in brief, it is used as a single-layer crossbar to connect the system masters, such as processor, to memories and peripherals. As shown, this module provides an independent AHB-lite datapath from each of $m$ masters to each of $n$ slaves. One master can address one slave at a time, and a slave can be in data-phase with one master at a time; subject to these constraints, up to $\min(m,n)$ independent data transfers can take place in a single machine clock cycle.
+
+The modules are parameterised, but for FPGABoy they are instantiated with 32-bit address and data path widths.
+
+\subsection{AHB-lite Brief Description}
+
+It is recommended to read through ARM's AMBA 3 AHB-lite spec before looking over the code. This is included in the \texttt{reference} folder in the GitHub repository. However, if you are feeling brave, what follows is a brief outline of AHB-lite's signals and timing, which may provide sufficient background to understand the following sections.
+
+AHB-lite is an asymmetric bus standard, where one or more masters assert transactions to one or more slaves. Each transaction can be either a read or a write. The size of a data cycle, encoded by \texttt{hsize}, is a power of two number of bytes, no larger than the width of the data bus. The standard requires all transactions to be naturally aligned, i.e. the modulo of address and transfer size is zero. This is in tension with the RISC-V ISA which allows transactions to have byte-alignment, so the load-store logic in the CPU may have to translate these into multiple AHB-lite transactions.
+
+AHB-lite has separate data paths for read and write. This represents a move away from tristate logic in ASIC bus designs, and a lack of tristate logic in FPGAs.
+
+AHB-lite transactions consist of two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus (\texttt{hrdata} and \texttt{hwdata}), but not both. The slave is able to insert wait states to extend the data phase, by deasserting the \texttt{hready\_resp} signal. \texttt{hready} indicates the final cycle of a data phase.
+
+The central conceit of AHB-lite is that these two phases are pipelined, and therefore can take place simultaneously. Whilst the master is asserting or accepting data for bus cycle 0 (currently in data phase), it concurrently asserts address and control information for bus cycle 1 (currently in address phase). To avoid cluster-headaches, the two phases are kept totally concurrent, so deassertion of \texttt{hready\_resp} by a slave will also extend the master's \textit{address} phase.
+
+
+\subsection{Bus Fabric Operation}
+
+\texttt{hready} is a signal which tells masters and slaves that the current data phase is over. On a single-master busfabric, this is a global signal. It always propagates down from the master end of the busfabric, and is generated by performing some kind of filtering on \texttt{hready\_resp}s from the slaves.
+
+\texttt{hready\_resp} (or \texttt{hreadyout} in some ARM docs) is a slave-driven signal indicating that this is the last cycle of the slave's current data phase.
+
+On a single-master busfabric, the master will mux in the \texttt{hready\_resp} from the slave currently in the data phase, and pass this down as hready.  In our multi-master busfabric, a splitter functions as a single-master busfabric in its own right; the difference is that the splitter's master ports are connected to slave ports on arbiters, instead of slave ports on the actual slaves.  However, there is the additional requirement that, if a splitter is not currently data-phase active, it should mux \texttt{hready\_resp} based on \textit{address-phase} select. This is because, unlike on a single master system, there is no guarantee that the first address phase request in a series of bus cycles will receive a zero-wait state \texttt{hready\_resp}, as the slave may be engaged by another master. (Note this is not strictly in line with the standard, which requires a zero-wait-state \texttt{OKAY} response to a preceding \texttt{IDLE} address phase request).
+
+
 
 \end{document}
