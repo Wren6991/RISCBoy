@@ -1,9 +1,11 @@
 \documentclass{article}
 
+\usepackage{caption}
 \usepackage{csquotes}
 \usepackage[margin=0.7in]{geometry}
 \usepackage{graphicx}
 \usepackage{rotating}
+\usepackage{float}
 \usepackage[section]{placeins}
 \usepackage{sectsty}
 \sectionfont{\clearpage}
@@ -120,14 +122,7 @@ The Verilog source to this project has no dependencies, and is distributed under
 
 \section{CPU Architecture}
 
-\begin{sidewaysfigure}[!htb]
-\caption{ReVive architectural block diagram}
-\label{diagram:cpu_pipeline}
-\centering
-\includegraphics[width=0.9\textwidth]{diagrams/cpu_full.pdf}
-\end{sidewaysfigure}
-
-ReVive is a 32-bit processor based on the RISC V (hereafter RV) instruction set architecture. The name seemed appropriate for what is supposed to be a return to the glory days of games programming, when NULL pointers were just pointers to the start of ROM, and programmers were real programmers who wrote their \textit{own} polygon rasterisers, dammit.
+ReVive is a 32-bit processor based on the RISC-V instruction set architecture. It yearns for the glory days of games programming, when NULL pointers were just pointers to the start of ROM, and programmers were real programmers who wrote their \textit{own} polygon rasterisers, dammit. Targeting a small FPGA, ReVive sits mostly in the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass.
 
 Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core. Not shown is:
 \begin{itemize}
@@ -138,7 +133,7 @@ Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core. 
 \item Hardware for supporting unaligned loads/stores (carried out as multiple bus cycles)
 \end{itemize}
 
-Overall this is a fairly standard RISC-style processor pipeline. The tall blue boxes represent the registers at the boundaries of two pipe stages. The nomenclature used in the diagram is:
+Overall this is a standard RISC-style pipeline. The tall blue boxes represent the registers at the boundaries of two pipe stages. The nomenclature used in the diagram is:
 
 \begin{itemize}
 \item \texttt{F}: fetch
@@ -148,20 +143,37 @@ Overall this is a fairly standard RISC-style processor pipeline. The tall blue b
 \item \texttt{W}: register writeback
 \end{itemize}
 
-The processor has a single AHB-lite busmaster; the instruction fetcher and the load/store stage need to share it, and the instruction fetch takes priority.
-
 Branches are speculated, according to the static prediction scheme described in the RV ISA manual:
 
 \begin{itemize}
-\item Backward branches are predicted to be taken, on the assumption that loops will run at least twice on average.
-\item Forward branches are predicted not taken; the ISA manual advises that compilers should put more likely code on this path.
+\item Backward branches predicted taken; hopefully, loops run at least twice on average.
+\item Forward branches predicted not taken; the ISA manual advises compilers should put more-likely code on this path.
 \end{itemize}
 
-RISC-V compressed instructions achieve respectable code density, but it's no Thumb-2. The small instruction cache helps to tame the fetch bandwidth, so that load/stores and other system masters will still see some appreciable fraction of the bus bandwidth.
+The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. Instructions take priority. If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The size allows it to fit into the pipeline in an interesting place, without imbalance.
+
+\begin{displayquote}
+\textit{It's not the size, mate, it's how you use it.} - Austin Powers, Goldmember
+\end{displayquote}
+
+
+\newpage
+
+\begin{center}
+	\begin{sideways}
+		\begin{minipage}{\textheight}
+			\includegraphics[width=\textheight]{diagrams/cpu_full.pdf}
+			\captionof{figure}{ReVive architectural block diagram}
+			\label{diagram:cpu_pipeline}
+		\end{minipage}
+	\end{sideways}
+\end{center}
+
+\newpage
 
 \subsection{Fetch Logic}
 
-The \texttt{F} stage always provides \texttt{D} with 32 bits of fresh instruction data, in the canonical RISC-V order (halfword-wise little-endian). There are four sources for this data:
+\texttt{F} always provides \texttt{D} with 32 bits of fresh instruction data, in the canonical RISC-V order (halfword-wise little-endian). There are four sources:
 
 \begin{itemize}
 \item AHB busmaster with access to system memory map
@@ -170,11 +182,15 @@ The \texttt{F} stage always provides \texttt{D} with 32 bits of fresh instructio
 \item The second halfword of the current instruction register of \texttt{D}, in the case that \texttt{D} found the last instruction to be 16-bit
 \end{itemize}
 
+The pipeline register \texttt{F} writes to, containing the 32 fresh instruction bits, is referred to internally as current instruction register or \texttt{CIR}.
+
+AHB instructions fetches are \textit{always} word-sized, word-aligned. Internal buffering and muxes take care of building unaligned instruction bundles from this aligned data stream.
+
 \subsubsection{Purpose of Fetch Buffer}
 
-Between them, \texttt{ICACHE} and AHB are able to provide the fetch stage with 32 bits of fresh fetch data on every cycle (assuming that, on cache miss and \texttt{HREADY} low, \texttt{F} simply stalls). The \texttt{D} stage will consume either 32 or 16 bits of instruction data per cycle, and the amount is determined very early in \texttt{D} by looking at the two LSBs of the instruction; \texttt{F} can see the size of the instruction currently in \texttt{D}. Due to the pipelined nature of AHB, the decision of whether to fetch is made one cycle ahead of \texttt{F} itself, which ends up being in the \texttt{W} stage.
+Between them, \texttt{ICACHE} and AHB provide \texttt{F} with 32 bits of fresh fetch data on every cycle (assuming that, on cache miss and \texttt{HREADY} low, \texttt{F} simply stalls), or with 0 bits if a fetch was not requested. \texttt{D} will consume either 32 or 16 bits of instruction data per cycle, and quickly determines this size by looking at the two LSBs of \texttt{CIR}; \texttt{F} can see the size of the instruction currently in \texttt{D}. 
 
-This latency necessitates a small amount of buffering: on no-fetch cycles in \texttt{F} (the decision of whether to fetch having already been made one cycle prior), we will still need 32 bits of fetch data on hand to guarantee that we can refill \texttt{CIR} once \texttt{D} has consumed up to 32 bits of instruction.
+Due to the pipelined nature of AHB, the decision of whether to fetch is made one cycle ahead of \texttt{F} itself, which ends up being in \texttt{W}. We aren't magicians: we use buffering to hide this latency cycle. On no-fetch cycles in \texttt{F} (having decided one cycle prior not to fetch), we will still need 32 bits of fetch data on hand to guarantee that we can refill \texttt{CIR} at the end of the cycle, once \texttt{D} has consumed up to 32 bits of instruction.
 
 To summarise our state transitions:
 
@@ -207,13 +223,9 @@ Following an unsuccessful \texttt{ICACHE} query, \texttt{F} will write the AHB d
 \subsubsection{Jumps}
 \label{section:jumps}
 
-Upon a jump or taken branch, \texttt{F}'s fetch buffer is invalidated, and the \texttt{CIR} is ignored.
+When jumping or taking a branch, \texttt{F} invalidates its fetch buffer, and ignores present \texttt{CIR} contents. Aligned jumps are otherwise no different from sequential code: \texttt{ICACHE} is queried with the jump address, and AHB supplies the data if \texttt{ICACHE} does not have it.
 
-Aligned jumps are otherwise no different from sequential code: the \texttt{ICACHE} is queried with the word access, and AHB supplies the data if \texttt{ICACHE} does not have it.
-
-Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, as we may need to perform two accesses to fetch the required data.
-
-The logic is as such:
+Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, as we may need to perform two accesses to fetch the required data:
 
 \begin{enumerate}
 	\item \texttt{W} queries the cache with the address of the word containing the first instruction halfword
