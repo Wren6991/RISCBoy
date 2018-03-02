@@ -1,0 +1,25 @@
+Jumplite
+========
+
+A packet consists of the following signals:
+
+- type (2 bits)
+- ID (n bits)
+- src_naddr (source node address - n bits)
+- dst_naddr (destination node address - n bits)
+- haddr (host addrehss - e.g. 32 bits)
+- data
+
+Type decodes as:
+
+- 2'b00: idle
+- 2'b01: write
+- 2'b10: read addr
+- 2'b11: read data
+
+ID is a fixed-size identifier. The namespace is local to each master, i.e. each master can occupy all or any subset of the ID space, and collisions are disambiguated by appending the source node address.
+
+A node address is the X,Y coordinate of a node in the network. The host address (e.g. AHB HADDR) is decoded at injection to find the correct destination node. The host address then travels through the network alongside the data, on the way to the destination.
+
+Writes take place as a single bus cycle. Reads take place as a read address transfer from node A to node B, followed by a read data transfer from B to A.
+
