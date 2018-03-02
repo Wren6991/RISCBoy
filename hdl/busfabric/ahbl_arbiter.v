@@ -87,7 +87,8 @@ integer i;
 // because, from master 1's point of view, its second address phase already ended at the end of the first data phase.
 // Once the data phase is complete, we raise hready_resp[1]. Master 1 ends its third
 // address phase, and the address-phase buffer is loaded with these controls if master 1
-// is blocked by a higher-priority master again.
+// is blocked by a higher-priority master again; otherwise they will have already been passed through
+// combinatorially to the slave, so there is no need to buffer them.
 // Eventually, master 1 will be idle at the end of the data phase, at which point the buffered
 // request will be HTRANS_IDLE, and the live port value will be used instead of the buffered value.
 
@@ -139,6 +140,7 @@ reg [N_PORTS-1:0] mast_gnt_a;
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
 		// HTRANS == 2'b10, 2'b11 when active
+		// Uses buffered requests if valid
 		mast_req_a[i] = actual_htrans[i * 2 + 1];
 	end
 end
@@ -221,6 +223,8 @@ bitmap_mux #(
 // Data-phase grant bitmap
 reg [N_PORTS-1:0] mast_gnt_d;
 
+reg [N_PORTS-1:0] mast_req_d;
+
 assign ahblm_hready =
 	mast_gnt_d ? |(ahbls_hready & mast_gnt_d) :
 	mast_gnt_a ? |(ahbls_hready & mast_gnt_a) : 1'b1;
@@ -228,16 +232,15 @@ assign ahblm_hready =
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mast_gnt_d <= {N_PORTS{1'b0}};
-		// Ask nicely :D
-		// synthesis please_on
+		mast_req_d <= {N_PORTS{1'b0}};
 		for (i = 0; i < N_PORTS; i = i + 1) begin
 			{saved_haddr[i], saved_hwrite[i], saved_htrans[i], saved_hsize[i],
 				saved_hburst[i], saved_hprot[i], saved_hmastlock[i]} <= {(W_ADDR + 14){1'b0}};
 		end
-		// synthesis please_off
 	end else begin
 		if (ahblm_hready) begin
 			mast_gnt_d <= mast_gnt_a;
+			mast_req_d <= mast_req_a;
 		end
 		for (i = 0; i < N_PORTS; i = i + 1) begin
 			if (ahbls_hready_resp[i] && !mast_gnt_a[i]) begin
@@ -259,7 +262,8 @@ assign ahbls_hrdata = {N_PORTS{ahblm_hrdata}};
 
 wire [N_PORTS-1:0] resp_mask = mast_gnt_a || mast_gnt_d ? mast_gnt_a | mast_gnt_d : {N_PORTS{1'b1}};
 
-assign ahbls_hready_resp = {N_PORTS{ahblm_hready_resp}} & resp_mask;
+// If master did not have a request during previous address phase, return a positive ready signal.
+assign ahbls_hready_resp = ({N_PORTS{ahblm_hready_resp}} & resp_mask) | ~mast_req_d;
 assign ahbls_hresp = {N_PORTS{ahblm_hresp}} & resp_mask;
 
 bitmap_mux #(

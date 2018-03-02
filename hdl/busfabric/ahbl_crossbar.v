@@ -20,9 +20,9 @@
 
 // TODO: add connectivity matrix parameter
 
-module ahbl_crossbar (
-	parameter N_MASTERS = 2,
-	parameter N_SLAVES = 2,
+module ahbl_crossbar #(
+	parameter N_MASTERS = 3,
+	parameter N_SLAVES = 4,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
 	parameter ADDR_MAP  = 64'h20000000_00000000,
@@ -78,7 +78,7 @@ wire              xbar_hmastlock   [0:N_MASTERS-1][0:N_SLAVES-1];
 wire [W_DATA-1:0] xbar_hwdata      [0:N_MASTERS-1][0:N_SLAVES-1];
 wire [W_DATA-1:0] xbar_hrdata      [0:N_MASTERS-1][0:N_SLAVES-1];
 
-integer i, j;
+genvar i, j;
 
 // =======================
 // Splitter instantiations
@@ -101,20 +101,20 @@ for (i = 0; i < N_MASTERS; i = i + 1) begin: split_instantiate
 	wire [N_SLAVES*W_DATA-1:0]  split_hwdata;
 	wire [N_SLAVES*W_DATA-1:0]  split_hrdata;
 
-	for (j = 0; j < N_SLAVES; j = j + 1) begin
-		xbar_hready[i][j]                  = split_hready[j];
-		xbar_haddr[i][j]                   = split_haddr[W_ADDR * j +: W_ADDR];
-		xbar_hwrite[i][j]                  = split_hwrite[j];
-		xbar_htrans[i][j]                  = split_htrans[2 * j +: 2];
-		xbar_hsize[i][j]                   = split_hsize[3 * j +: 3];
-		xbar_hburst[i][j]                  = split_hburst[3 * j +: 3];
-		xbar_hprot[i][j]                   = split_hprot[4 * j +: 3];
-		xbar_hmastlock[i][j]               = split_hmastlock[j];
-		xbar_hwdata[i][j]                  = split_hwdata[W_DATA * j +: W_DATA];
+	for (j = 0; j < N_SLAVES; j = j + 1) begin: split_connect
+		assign xbar_hready[i][j]                  = split_hready[j];
+		assign xbar_haddr[i][j]                   = split_haddr[W_ADDR * j +: W_ADDR];
+		assign xbar_hwrite[i][j]                  = split_hwrite[j];
+		assign xbar_htrans[i][j]                  = split_htrans[2 * j +: 2];
+		assign xbar_hsize[i][j]                   = split_hsize[3 * j +: 3];
+		assign xbar_hburst[i][j]                  = split_hburst[3 * j +: 3];
+		assign xbar_hprot[i][j]                   = split_hprot[4 * j +: 3];
+		assign xbar_hmastlock[i][j]               = split_hmastlock[j];
+		assign xbar_hwdata[i][j]                  = split_hwdata[W_DATA * j +: W_DATA];
 
-		split_hready_resp[j]               = xbar_hready_resp[i][j];
-		split_hresp[j]                     = xbar_hresp[i][j];
-		split_hrdata[W_DATA * j +: W_DATA] = xbar_hrdata[i][j];
+		assign split_hready_resp[j]               = xbar_hready_resp[i][j];
+		assign split_hresp[j]                     = xbar_hresp[i][j];
+		assign split_hrdata[W_DATA * j +: W_DATA] = xbar_hrdata[i][j];
 	end
 
 	ahbl_splitter #(
@@ -173,19 +173,19 @@ for (j = 0; j < N_SLAVES; j = j + 1) begin: arb_instantiate
 	wire [N_MASTERS*W_DATA-1:0]  arb_hwdata;
 	wire [N_MASTERS*W_DATA-1:0]  arb_hrdata;
 
-	for (i = 0; i < N_MASTERS; i = i + 1) begin
-		arb_hready[j]                    = xbar_hready[i][j];
-		arb_haddr[W_ADDR * j +: W_ADDR]  = xbar_haddr[i][j];
-		arb_hwrite[j]                    = xbar_hwrite[i][j];
-		arb_htrans[2 * j +: 2]           = xbar_htrans[i][j];
-		arb_hsize[3 * j +: 3]            = xbar_hsize[i][j];
-		arb_hburst[3 * j +: 3]           = xbar_hburst[i][j];
-		arb_hprot[4 * j +: 3]            = xbar_hprot[i][j];
-		arb_hmastlock[j]                 = xbar_hmastlock[i][j];
-		arb_hwdata[W_DATA * j +: W_DATA] = xbar_hwdata[i][j];
-		xbar_hready_resp[i][j]           = arb_hready_resp[j];
-		xbar_hresp[i][j]                 = arb_hresp[j];
-		xbar_hrdata[i][j]                = arb_hrdata[W_DATA * j +: W_DATA];
+	for (i = 0; i < N_MASTERS; i = i + 1) begin: arb_connect
+		assign arb_hready[i]                    = xbar_hready[i][j];
+		assign arb_haddr[W_ADDR * i +: W_ADDR]  = xbar_haddr[i][j];
+		assign arb_hwrite[i]                    = xbar_hwrite[i][j];
+		assign arb_htrans[2 * i +: 2]           = xbar_htrans[i][j];
+		assign arb_hsize[3 * i +: 3]            = xbar_hsize[i][j];
+		assign arb_hburst[3 * i +: 3]           = xbar_hburst[i][j];
+		assign arb_hprot[4 * i +: 3]            = xbar_hprot[i][j];
+		assign arb_hmastlock[i]                 = xbar_hmastlock[i][j];
+		assign arb_hwdata[W_DATA * i +: W_DATA] = xbar_hwdata[i][j];
+		assign xbar_hready_resp[i][j]           = arb_hready_resp[i];
+		assign xbar_hresp[i][j]                 = arb_hresp[i];
+		assign xbar_hrdata[i][j]                = arb_hrdata[W_DATA * i +: W_DATA];
 	end
 
 	ahbl_arbiter #(

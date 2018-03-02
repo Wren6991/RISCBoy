@@ -132,4 +132,13 @@ bitmap_mux #(
 	.out(ahbls_hready_resp)
 );
 
+bitmap_mux #(
+	.N_INPUTS(N_PORTS),
+	.W_INPUT(1)
+) hresp_mux (
+	.in(ahblm_hresp),
+	.sel(slave_sel_d ? slave_sel_d : slave_sel_a),
+	.out(ahbls_hresp)
+);
+
 endmodule

@@ -35,6 +35,7 @@ initial begin
 	ahbl_hburst = 0;
 	ahbl_hprot = 4'b0011;
 	ahbl_hmastlock = 1'b0;
+	ahbl_hwdata = 0;
 
 	success = 0;
 

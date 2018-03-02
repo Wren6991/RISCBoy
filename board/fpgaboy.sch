@@ -2869,4 +2869,115 @@ Wire Wire Line
 	4550 6650 4550 6700
 Text Notes 4900 6950 0    60   ~ 0
 12MHz MEMS oscillator
+Text Notes 6300 8700 0    60   ~ 0
+Buttons
+$Comp
+L CONN_01X12 P?
+U 1 1 5A92DF3A
+P 6500 9450
+F 0 "P?" H 6500 10100 50  0000 C CNN
+F 1 "CONN_01X12" V 6600 9450 50  0000 C CNN
+F 2 "" H 6500 9450 50  0000 C CNN
+F 3 "" H 6500 9450 50  0000 C CNN
+	1    6500 9450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6300 8900 6200 8900
+Wire Wire Line
+	6200 8900 6200 10100
+Wire Wire Line
+	6300 10000 6200 10000
+Connection ~ 6200 10000
+$Comp
+L GND #PWR?
+U 1 1 5A92E42C
+P 6200 10100
+F 0 "#PWR?" H 6200 9850 50  0001 C CNN
+F 1 "GND" H 6200 9950 50  0000 C CNN
+F 2 "" H 6200 10100 50  0000 C CNN
+F 3 "" H 6200 10100 50  0000 C CNN
+	1    6200 10100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6300 9000 6100 9000
+Wire Wire Line
+	6300 9100 6100 9100
+Wire Wire Line
+	6300 9200 6100 9200
+Wire Wire Line
+	6300 9300 6100 9300
+Wire Wire Line
+	6300 9400 6100 9400
+Wire Wire Line
+	6300 9500 6100 9500
+Wire Wire Line
+	6300 9600 6100 9600
+Wire Wire Line
+	6300 9700 6100 9700
+Wire Wire Line
+	6300 9800 6100 9800
+Wire Wire Line
+	6300 9900 6100 9900
+Text Label 6100 9000 2    60   ~ 0
+GPIO_SW0
+Text Label 6100 9100 2    60   ~ 0
+GPIO_SW1
+Text Label 6100 9200 2    60   ~ 0
+GPIO_SW2
+Text Label 6100 9300 2    60   ~ 0
+GPIO_SW3
+Text Label 6100 9400 2    60   ~ 0
+GPIO_SW4
+Text Label 6100 9500 2    60   ~ 0
+GPIO_SW5
+Text Label 6100 9600 2    60   ~ 0
+GPIO_SW6
+Text Label 6100 9700 2    60   ~ 0
+GPIO_SW7
+Text Label 6100 9800 2    60   ~ 0
+GPIO_SW8
+Text Label 6100 9900 2    60   ~ 0
+GPIO_SW9
+Text Label 4500 1400 2    60   ~ 0
+GPIO_SW0
+Wire Wire Line
+	4600 1400 4500 1400
+Wire Wire Line
+	4600 1500 4500 1500
+Wire Wire Line
+	4600 1600 4500 1600
+Wire Wire Line
+	4600 1700 4500 1700
+Wire Wire Line
+	4600 1800 4500 1800
+Wire Wire Line
+	4600 1900 4500 1900
+Wire Wire Line
+	4600 2000 4500 2000
+Wire Wire Line
+	4600 2100 4500 2100
+Wire Wire Line
+	4600 2200 4500 2200
+Wire Wire Line
+	4600 2300 4500 2300
+Text Label 4500 1500 2    60   ~ 0
+GPIO_SW1
+Text Label 4500 1600 2    60   ~ 0
+GPIO_SW2
+Text Label 4500 1700 2    60   ~ 0
+GPIO_SW3
+Text Label 4500 1800 2    60   ~ 0
+GPIO_SW4
+Text Label 4500 1900 2    60   ~ 0
+GPIO_SW5
+Text Label 4500 2000 2    60   ~ 0
+GPIO_SW6
+Text Label 4500 2100 2    60   ~ 0
+GPIO_SW7
+Text Label 4500 2300 2    60   ~ 0
+GPIO_SW9
+Text Label 4500 2200 2    60   ~ 0
+GPIO_SW8
 $EndSCHEMATC

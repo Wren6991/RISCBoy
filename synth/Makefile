@@ -1,3 +1,3 @@
-SRCS=$(SRC)/blinky.v $(SRC)/chip_top.v $(SRC)/pll.v $(SRC)/spi_gcd_interface.v $(SRC)/steins_gcd.v $(SRC)/logic_analyser_uart.v $(SRC)/ip/uart.v $(SRC)/sram_behav.v
-
+#SRCS=$(HDL)/busfabric/ahbl_crossbar.v $(HDL)/busfabric/ahbl_arbiter.v $(HDL)/busfabric/ahbl_splitter.v $(HDL)/busfabric/bitmap_mux.v
+SRCS=$(HDL)/busfabric/jumplite_switch.v $(HDL)/busfabric/jumplite_torus.v
 include $(SCRIPTS)/synth.mk

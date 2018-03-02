@@ -1,3 +1,4 @@
 ahb_sync_sram
 ahbl_splitter
 ahbl_arbiter
+ahbl_crossbar
