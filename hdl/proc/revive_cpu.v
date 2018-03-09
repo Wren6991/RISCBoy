@@ -93,15 +93,18 @@ end
 
 wire [W_DATA-1:0] wf_icache_rdata;
 reg               wf_icache_valid;
+reg               wf_jump_now;
+reg               wf_jump_unaligned;
 
 wire [W_ADDR-1:0] f_icache_waddr;
 wire [W_DATA-1:0] f_icache_wdata;
 wire              f_icache_wen;
 reg  [31:0]       f_fetch_buf;
 reg  [1:0]        f_buf_level;
-wire [1:0]        f_buf_level_next;
+reg  [1:0]        f_buf_level_next;
 
 reg [31:0]        fd_cir;
+reg               fd_cir_half_valid;	// If we could only manage 16 bits of instruction data
 
 wire              df_instr_is_32bit;
 
@@ -109,7 +112,13 @@ wire              df_instr_is_32bit;
 // Calculate next buffer level combinatorially, so that it is visible to W
 // fetch logic in-cycle.
 always @ (*) begin
-	if (df_instr_is_32bit) begin
+	if (wf_jump_now) begin
+		if (wf_icache_valid && wf_jump_unaligned) begin
+			f_buf_level_next = 2'h1;
+		end else begin
+			f_buf_level_next = 2'h0;
+		end
+	end else if (df_instr_is_32bit) begin
 		if (f_buf_level == 2'h2) begin
 			f_buf_level_next = 2'h0;
 		end else begin
@@ -125,24 +134,27 @@ always @ (*) begin
 end
 
 always @ (posedge clk or negedge rst_n) begin
+	// This is a big pile of mux statements, but each result bit has only
+	// a few sources. This should be synthesised as a fairly shallow mux tree
+	// with some boolean functions in front of it to steer the selectors,
+	// and these functions will be in parallel with the AHB data phase.
 	if (!rst_n) begin
 		f_fetch_buf <= 32'h0;
 		f_buf_level <= 2'h0;
 		fd_cir  <= 32'h0;
 	end else begin
-		// Instruction addressing is defined little endian by RISC-V spec.
-		// D will consume either all of CIR, or bits [15:0]
-		if (df_instr_is_32bit) begin
-			if (f_buf_level == 2'h2) begin
-				// No new fetch data since buffer is full; level will go to 0
-				fd_cir <= f_fetch_buf;
-			end else if (f_buf_level == 2'h1) begin
+		fd_cir_half_valid <= 1'b0;
+		if (wf_jump_now) begin
+			if (wf_jump_unaligned) begin
 				if (wf_icache_valid) begin
-					fd_cir <= {wf_icache_rdata[15:0], f_fetch_buf[15:0]};
-					f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
-				end else begin
-					fd_cir <= {ahblm_hrdata[15:0], f_fetch_buf[15:0]};
+					// 64 bits were fetched in parallel. 48 of them are useful
+					fd_cir <= {wf_icache_rdata[31:16], ahblm_hrdata[15:0]};
 					f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
+				end else begin
+					// We only have 16 bits of valid instruction data to hand.
+					// Pass it down anyway -- we might get lucky.
+					fd_cir <= {16'h0, ahblm_hrdata[31:16]};
+					fd_cir_half_valid <= 1'b1;
 				end
 			end else begin
 				if (wf_icache_valid) begin
@@ -151,27 +163,58 @@ always @ (posedge clk or negedge rst_n) begin
 					fd_cir <= ahblm_hrdata;
 				end
 			end
+		end else if (fd_cir_half_valid && df_instr_is_32bit) begin
+			// Second cycle of unaligned jump. Recover from partial fetch
+			if (wf_icache_valid) begin
+				fd_cir <= {wf_icache_rdata[15:0], fd_cir[15:0]};
+				f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
+			end else begin
+				fd_cir <= {ahblm_hrdata[15:0], fd_cir[15:0]};
+				f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
+			end
 		end else begin
-			if (f_buf_level == 2'h2) begin
-				// No new fetch data since buffer is full; level will go to 1
-				fd_cir <= {f_fetch_buf[15:0], fd_cir[31:16]};
-				f_fetch_buf <= {16'h0, f_fetch_buf[31:16]};
-			end else if (f_buf_level == 2'h1) begin
-				fd_cir <= {f_fetch_buf[15:0], fd_cir[31:16]};
-				if (wf_icache_valid) begin
-					f_fetch_buf <= wf_icache_rdata;
+			// Sequential code execution
+			if (df_instr_is_32bit) begin
+				if (f_buf_level == 2'h2) begin
+					// No new fetch data since buffer is full; level will go to 0
+					fd_cir <= f_fetch_buf;
+				end else if (f_buf_level == 2'h1) begin
+					if (wf_icache_valid) begin
+						fd_cir <= {wf_icache_rdata[15:0], f_fetch_buf[15:0]};
+						f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
+					end else begin
+						fd_cir <= {ahblm_hrdata[15:0], f_fetch_buf[15:0]};
+						f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
+					end
 				end else begin
-					f_fetch_buf <= ahblm_hrdata;
+					if (wf_icache_valid) begin
+						fd_cir <= wf_icache_rdata;
+					end else begin
+						fd_cir <= ahblm_hrdata;
+					end
 				end
 			end else begin
-				if (wf_icache_valid) begin
-					fd_cir <= {wf_icache_rdata[15:0], fd_cir[31:16]};
-					f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
+				if (f_buf_level == 2'h2) begin
+					// No new fetch data since buffer is full; level will go to 1
+					fd_cir <= {f_fetch_buf[15:0], fd_cir[31:16]};
+					f_fetch_buf <= {16'h0, f_fetch_buf[31:16]};
+				end else if (f_buf_level == 2'h1) begin
+					fd_cir <= {f_fetch_buf[15:0], fd_cir[31:16]};
+					if (wf_icache_valid) begin
+						f_fetch_buf <= wf_icache_rdata;
+					end else begin
+						f_fetch_buf <= ahblm_hrdata;
+					end
 				end else begin
-					fd_cir <= {ahblm_hrdata[15:0], fd_cir[31:16]};
-					f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
+					if (wf_icache_valid) begin
+						fd_cir <= {wf_icache_rdata[15:0], fd_cir[31:16]};
+						f_fetch_buf[15:0] <= wf_icache_rdata[31:16];
+					end else begin
+						fd_cir <= {ahblm_hrdata[15:0], fd_cir[31:16]};
+						f_fetch_buf[15:0] <= ahblm_hrdata[31:16];
+					end
 				end
-			end		
+			end
 		end
 		f_buf_level <= f_buf_level_next;
 	end
