@@ -246,33 +246,31 @@ Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, 
 		\end{itemize}
 \end{enumerate}
 
-
 \subsubsection{ICACHE Writeback}
 
-\texttt{ICACHE} operates with the following timing:
+The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache (however, it is smaller/faster as a result). It is therefore vital that the same piece of data is not written more than once. There is a behaviour pattern here that can put \texttt{ICACHE} into an invalid state if we fetch from the same address on consecutive cycles:
 
 \begin{enumerate}
-	\item
-	\begin{itemize}
-		\item Fetch address is asserted to \texttt{ICACHE.raddr} on the rising edge, in \texttt{W}.
-		\item Data valid bit is available before the end of the cycle (cache is small, and valid check is optimised for speed)
-		\item Valid bit is used to determine whether to assert a transfer request on AHB
-	\end{itemize}
-	\item
-	\begin{itemize}
-		\item \texttt{ICACHE} read data is presented to \texttt{F} on next rising edge.
-		\item \texttt{ICACHE} write enable, address and data are asserted by \texttt{F} during this cycle
-	\end{itemize}
-	\item
-	\begin{itemize}
-		\item New data is visible in \texttt{ICACHE} as of beginning of this cycle.
-	\end{itemize}
+	\item Miss on first cycle; \texttt{W} enacts and AHB address phase.
+	\item \texttt{W} duplicated AHB address phase; writeback value is not yet visible in cache.
+	\item One copy of data has been written to \texttt{ICACHE}; another write is in progress. \texttt{W} hits \texttt{ICACHE} successfully on this cycle.
+	\item The second write has put \texttt{ICACHE} into an invalid state, and all subsequent fetches are undefined.
 \end{enumerate}
 
-The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache. It is therefore vital that the same piece of data is not written more than once. In light of this, there is an issue with the timing above: if we were to query the same address in \texttt{ICACHE} on two consecutive cycles, the second cycle will not yet see the results of the writeback, so will also trigger an AHB fetch. On the third cycle, with the results of the first fetch already in the cache, \texttt{F} would also be writing the same data again, triggered by the second instruction fetch.
+ This does not happen during normal execution: sequential code fetches are always to incrementing addresses, and jumps have a penalty cycle, which hides the \texttt{ICACHE} writeback hazard, so we do not require any data forwarding paths to hide it. However, this hazard does require careful handling when \texttt{D} is stalled on later stages.
 
-One resolution is for \texttt{F} to store the last address written to \texttt{ICACHE}, and gate writes to this address. This is okay, but adds another 30 flops to \texttt{F}, and the routing will already be quite congested. A better answer is to guarantee that \texttt{W} will not fetch from the same address on consecutive cycles, since this would itself be an inefficiency.
+The solution is some kind of forwarding path. We could build the forwarding into the \texttt{ICACHE}, but we would like this cache to synthesise with iCE40 BRAMs if possible to save on LUTs, and these BRAMs have synchronous readout; our forwarding needs to be after the clock edge.
 
+Luckily, our \texttt{F} logic is currently very unbalanced: the memory read path has AHB data phase with some mux logic on the end of it, whereas the \texttt{ICACHE} read path has a registered input going into the mux logic. There is plenty of space here to mux the \texttt{ICACHE} readout.
+
+\begin{itemize}
+	\item AHB read data and address are registered at the end of every non-stall cycle.
+	\item Both \texttt{W} and \texttt{F} look at the registered fetch address:
+	\begin{itemize}
+		\item \texttt{W} inhibits AHB address phase on match
+		\item \texttt{F} muxes registered AHB data onto \texttt{ICACHE} read bus
+	\end{itemize}
+\end{itemize}
 
 \subsubsection{Program Counter}
 
@@ -284,30 +282,57 @@ The true \texttt{PC} lives in \texttt{F}. It watches the size of instructions in
 
 \subsection{Jumps and Branches}
 
+
 Due to the pipelined nature of AHB, we are unable to jump or to take branches in fewer than 2 cycles:
 
 \begin{itemize}
 \item Cycle 0: AHB address phase to fetch jump/branch instruction
 \item Cycle 1: AHB data phase for fetch of jump/branch. Next instruction is in address phase concurrently.
-\item Cycle 2: Jump/branch instruction is now available to \texttt{D}, and can be (quickly) used to control the new address phase.
-\item The immediately following instruction is already in data phase
+\item Cycle 2: Jump/branch instruction is now available to \texttt{D}
+	\begin{itemize}
+		\item (Quickly) use to control the new address phase
+		\item The immediately following instruction is already in data phase
+	\end{itemize}
+\item Cycle 3: data phase for jump target instruction
 \end{itemize}
 
-This gives the following cycle costs, assuming full speculation:
+
+We've paid one penalty cycle in the pipeline (cycle 2), and also made one wasted code fetch.
+
+Jumps are physically taken in \texttt{W}, directly in front of the fetch address generator. There are two reasons to jump:
+
 \begin{itemize}
-\item Jump: 2 cycles
-\item Predicted, non-taken branch: 1 cycle
-\item Predicted, taken branch: 2 cycles (same as jump)
-\item Branch mispredict: 4 cycles
+	\item Inspecting the \texttt{CIR} in \texttt{F/D} pipe register (\texttt{JAL}, speculated taken branches)
+	\item Inspecting \texttt{X/M} pipe register (\texttt{JALR}, branch mispredict)
 \end{itemize}
+
+\texttt{JALR} (indirect jump) is taken later because it uses the register file and the ALU to compute its target.
+
+If both of these sources attempt to jump in the same cycle, \texttt{X/M} takes priority, since it is executing an older instruction. In both cases, the part of the pipeline in the hazard shadow is invalidated; i.e., \texttt{W} $\to$ \texttt{F}, or \texttt{W} $\to$ \texttt{X}. Invalidation is performed by clobbering the pipeline control signals in such a way that these instructions will have no side effects.
+
+This gives the following cycle costs, assuming full speculation:
+
+\begin{center}
+\begin{tabular}{l c}
+\hline
+Jump Type & Cycles (Execution + Penalty) \\
+\hline
+Direct jump & 2 \\
+Predicted, non-taken branch & 1 \\
+Predicted, taken branch (same as jump) & 2 \\
+Indirect jump & 4 \\
+Branch mispredict & 4 \\
+\hline
+\end{tabular}
+\end{center}
 
 The branch prediction scheme is static: take backward branches, and do not take forward branches.
 
 \subsection{Operand Bypass}
 
-ReVive follows the standard practice of providing a multiplexed operand bypass (or forwarding, depending on your predilections) network. The purpose is that register writes by a given instruction always be visible to later instructions, \textit{before} the first instruction reaches the register writeback stage. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
+ReVive provides a multiplexed operand bypass (forwarding) network. Register writes by a given instruction must always be visible to later instructions, even \textit{before} the first instruction reaches the register writeback stage. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
 
-This removes, or at least shortens, read-after-write data hazards in the pipeline, and allows us to approach one clock-per-instruction execution rates. Without bypassing, only one instruction could be present in \texttt{D,X,M,W} at a time, giving a CPI of 4.
+This removes, or at least shortens, read-after-write data hazards in the pipeline, and allows us to approach one clock-per-instruction execution rates. Without bypassing, only one instruction could be present in $\left\{ \texttt{D}, \texttt{X}, \texttt{M}, \texttt{W} \right\}$ at a time, giving a CPI of 4.
 
 The following bypasses are available: (notation: pipe register $\to$ pipestage logic)
 
@@ -328,7 +353,10 @@ These serve the following purposes:
 	\item \texttt{M} Looks at the \texttt{src} register for a store (encoded in the \texttt{rd2} specifier field), and will look at the pending register write in \texttt{W}, which will be either a load result or a prior \texttt{X} result.
 \end{itemize}
 
-This means that:
+Architecturally, it may be preferable to perform these bypasses earlier, since RISC-V makes operand decode very simple, with fixed bitfield position for rd1, rd2. That is, put the muxes between the register file and the \texttt{D/X} pipe register, and move the taps to make the hazards work. However, we want the register file to support BRAM inference on iCE40 FPGAs, as we otherwise use about 15\% of the flops on the device just to implement the registers. iCE40s have a synchronous BRAM read port, so the muxes end up after the "pipe register", i.e. the BRAM output registers.
+
+The upshot is:
+
 \begin{itemize}
 	\item Back-to-back ALU operations execute at 1 CPI
 	\item Loads execute at 2 CPI if they are immediately required by the ALU. 1 CPI otherwise.
@@ -504,7 +532,7 @@ Unaligned: Only \texttt{X} and \texttt{M} are different.
 	\item \texttt{X}
 	\begin{itemize}
 		\item ALU computes \texttt{rs1 + imm}.
-		\item First cycle: AHB address phase to \texttt{(rs1 + imm) \& \~0x3}. \texttt{F, D} stalled.
+		\item First cycle: AHB address phase to \texttt{(rs1 + imm) \& \textasciitilde 0x3}. \texttt{F, D} stalled.
 		\item Second cycle: AHB address phase to prev address + 4. \texttt{F, D} resume.
 	\end{itemize}
 	\item \texttt{M}
