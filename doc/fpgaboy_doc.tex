@@ -129,6 +129,7 @@ Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core. 
 \item The full and specific contents of the pipeline registers
 \item Interrupt entry/exit hardware
 \item The ready/valid handshakes on pipe stages which allow them to NOP later stages, and stall prior ones
+\item Stall-generation logic
 \item Pipeline flushing signals for branch mispredict
 \item Hardware for supporting unaligned loads/stores (carried out as multiple bus cycles)
 \end{itemize}
@@ -140,7 +141,7 @@ Overall this is a standard RISC-style pipeline. The tall blue boxes represent th
 \item \texttt{D}: decode
 \item \texttt{X}: execute
 \item \texttt{M}: memory access (load/store)
-\item \texttt{W}: register writeback
+\item \texttt{W}: register writeback, fetch address generation
 \end{itemize}
 
 Branches are speculated, according to the static prediction scheme described in the RV ISA manual:
@@ -150,7 +151,7 @@ Branches are speculated, according to the static prediction scheme described in 
 \item Forward branches predicted not taken; the ISA manual advises compilers should put more-likely code on this path.
 \end{itemize}
 
-The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. Instructions take priority. If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The size allows it to fit into the pipeline in an interesting place, without imbalance.
+The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. Instructions take priority. If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The small size allows it to fit into the pipeline in an interesting place, without imbalance.
 
 \begin{displayquote}
 \textit{It's not the size, mate, it's how you use it.} - Austin Powers, Goldmember
@@ -209,6 +210,8 @@ To summarise our state transitions:
 
 This suggests a simple rule: fetch if the buffer is not currently full. If we follow this rule, we guarantee that the buffer will have 0, 16 or 32 bits of data at all times.
 
+TODO: consider performing 16-bit fetches if there is 16 bits of space in the buffer. The bus to main memory is only 16 bits wide, so executing 16 bit instructions with 32 bit fetches will only execute 2 cycles in every 3, due to the AHB wait state stalling \texttt{F}. Need to consider how this would interact with the cache.
+
 \subsubsection{Sequential Code}
 
 In sequential code, the \texttt{ICACHE} will be queried every cycle (unless the fetch buffer is full), during \texttt{W}, as to whether it has the next aligned word. We are able to guarantee that all AHB and \texttt{ICACHE} accesses are word aligned due to the operation of the fetch buffer in \texttt{F}.
@@ -251,8 +254,8 @@ Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, 
 The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache (however, it is smaller/faster as a result). It is therefore vital that the same piece of data is not written more than once. There is a behaviour pattern here that can put \texttt{ICACHE} into an invalid state if we fetch from the same address on consecutive cycles:
 
 \begin{enumerate}
-	\item Miss on first cycle; \texttt{W} enacts and AHB address phase.
-	\item \texttt{W} duplicated AHB address phase; writeback value is not yet visible in cache.
+	\item Miss on first cycle; \texttt{W} performs an AHB address phase.
+	\item \texttt{W} performs duplicate AHB address phase; writeback value is not yet visible in cache.
 	\item One copy of data has been written to \texttt{ICACHE}; another write is in progress. \texttt{W} hits \texttt{ICACHE} successfully on this cycle.
 	\item The second write has put \texttt{ICACHE} into an invalid state, and all subsequent fetches are undefined.
 \end{enumerate}
@@ -366,12 +369,44 @@ The upshot is:
 
 \subsection{Pipeline Stalling and Flushing}
 
-Stalling: a stage causes prior stages to not advance their state, until this stage is ready.
+Stalling: a stage halts and causes prior stages to not advance their state, until this stage is ready.
 
 Flushing: cause the in-flight instructions in some pipeline stages to be replaced with NOPs, and their results discarded.
 
+Stall policy:
 
+\begin{itemize}
+	\item \texttt{F}
+	\begin{itemize}
+		\item AHB HREADY low, on a code fetch transaction
+		\item Stall in section \texttt{D}, \texttt{X} or \texttt{M}
+	\end{itemize}
+	\item \texttt{D}
+	\begin{itemize}
+		\item Stall in \texttt{X} or \texttt{M}
+		\item Tries to assert a jump, but \texttt{W} fetch is stalled
+	\end{itemize}
+	\item \texttt{X}
+	\begin{itemize}
+		\item \texttt{W} is using the AHB busmaster
+		\item Stall in \texttt{M}
+		\item \texttt{M} is about to write to a register \texttt{X} depends on
+	\end{itemize}
+	\item \texttt{M}
+	\begin{itemize}
+		\item AHB HREADY low, on a load/store transaction.
+		\item Tries to assert a jump, but \texttt{W} fetch is stalled
+	\end{itemize}
+	\item \texttt{W}
+	\begin{itemize}
+		\item Writeback: never stalls
+		\item PC generation: stalls on \texttt{F} stalling
+	\end{itemize}
+\end{itemize}
 
+\texttt{D} and \texttt{M} stall on jumps, because there is no way of cancelling the AHB transaction currently in flight, so we need to wait to start the new one.
+
+Pipeline bubbles (no-ops) are inserted by a stage if it is stalled, but the next stage is not. It does this by zeroing out the destination register field, memory op field, and any other pipe register fields which cause side effects.
 
 \subsection{Pipeline Operation -- Worked Examples}
 
