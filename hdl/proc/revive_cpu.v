@@ -48,6 +48,12 @@ module revive_cpu #(
 localparam N_REGS = 32;
 localparam W_REGADDR = $clog2(N_REGS);
 
+wire stall_f;
+wire stall_d;
+wire stall_x;
+wire stall_m;
+wire stall_w;
+
 // ============================================================================
 //                                AHB Master
 // ============================================================================
@@ -105,6 +111,7 @@ reg  [1:0]        f_buf_level_next;
 
 reg [31:0]        fd_cir;
 reg               fd_cir_half_valid;	// If we could only manage 16 bits of instruction data
+reg               fd_pipe_bubble;		// set if F was stalled but D was not.
 
 wire              df_instr_is_32bit;
 
@@ -142,8 +149,17 @@ always @ (posedge clk or negedge rst_n) begin
 		f_fetch_buf <= 32'h0;
 		f_buf_level <= 2'h0;
 		fd_cir  <= 32'h0;
+		fd_cir_half_valid <= 1'b0;
+		fd_pipe_bubble <= 1'b0;
+	end else if (stall_f) begin
+		// TODO: buffering of AHB data phase which completes whilst we stall
+		fd_cir_half_valid <= 1'b0;
+		if (!stall_d) begin
+			fd_pipe_bubble <= 1'b1;
+		end
 	end else begin
 		fd_cir_half_valid <= 1'b0;
+		fd_cir_pipe_bubble <= 1'b0;
 		if (wf_jump_now) begin
 			if (wf_jump_unaligned) begin
 				if (wf_icache_valid) begin
@@ -256,10 +272,19 @@ reg  [W_ADDR-1:0]    dx_linkaddr;
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		{dx_imm, dx_rs1, dx_rs2, dx_rd, dx_rdata1, dx_rdata2} <= {(3 * W_DATA + 3 * W_REGADDR){1'b0}};
-		{dx_alusrc_a, dx_alusrc_b, dx_aluop} <= {(W_ALUOP + 2){1'b0}};
-		dx_memop <= {W_MEMOP{1'b0}};
+		dx_alusrc_a <= ALUSRCA_ZERO;
+		dx_alusrc_b <= ALUSRCB_ZERO;
+		dx_aluop <= ALUOP_ADD;
+		dx_memop <= MEMOP_NONE;
 		d_pc <= {W_ADDR{1'b0}};
 		dx_branchcond <= {W_BCOND{1'b0}};
+	end else if (stall_d || fd_pipe_bubble) begin
+		if (!stall_x) begin
+			// Insert a pipe bubble by zeroing out any pipeflags which would cause state changes
+			dx_memop <= MEMOP_NONE;
+			dx_branchcond <= BCOND_NEVER;
+			dx_rd <= {W_REGADDR{1'b0}};
+		end
 	end else begin
 		// Assign some defaults
 		dx_rs1 <= d_rs1;
@@ -400,6 +425,11 @@ always @ (posedge clk or negedge rst_n) begin
 		{xm_jump_target, xm_jump} <= {(W_ADDR + 1){1'b0}};
 		xm_result <= {W_DATA{1'b0}};
 		xm_memop <= MEMOP_NONE;
+	end else if (stall_x) begin
+		if (!stall_m) begin
+			xm_jump <= 1'b0;
+			xm_memop <= MEMOP_NONE;
+		end
 	end else begin
 		xm_jump_target <= dx_imm + (??fasfafasd?? ? dx_pc : dx_rdata1);
 		case (dx_branchcond)
@@ -432,6 +462,8 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mw_rd <= {W_REGADDR{1'b0}};
 		mw_result <= {W_DATA{1'b0}};
+	end else if (stall_m) begin
+		// do nothing! (yet)
 	end else begin
 		mw_rd <= xm_rd;
 		mw_result <= xm_result;
