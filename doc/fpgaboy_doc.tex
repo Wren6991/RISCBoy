@@ -251,29 +251,16 @@ Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, 
 
 \subsubsection{ICACHE Writeback}
 
-The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache (however, it is smaller/faster as a result). It is therefore vital that the same piece of data is not written more than once. There is a behaviour pattern here that can put \texttt{ICACHE} into an invalid state if we fetch from the same address on consecutive cycles:
+The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache (however, it is smaller/faster as a result). There is a behaviour pattern that could put \texttt{ICACHE} into an invalid state if we fetched from the same address on consecutive cycles:
 
 \begin{enumerate}
 	\item Miss on first cycle; \texttt{W} performs an AHB address phase.
-	\item \texttt{W} performs duplicate AHB address phase; writeback value is not yet visible in cache.
-	\item One copy of data has been written to \texttt{ICACHE}; another write is in progress. \texttt{W} hits \texttt{ICACHE} successfully on this cycle.
-	\item The second write has put \texttt{ICACHE} into an invalid state, and all subsequent fetches are undefined.
+	\item Writeback data not visible until end of this cycle; \texttt{W} performs duplicate AHB address phase.
+	\item One copy of data has been written to \texttt{ICACHE}; another write is in progress. \texttt{W} hits \texttt{ICACHE} on this cycle, so no AHB address phase.
+	\item The second write has put \texttt{ICACHE} into an invalid state; fetch behaviour is undefined from this point.
 \end{enumerate}
 
- This does not happen during normal execution: sequential code fetches are always to incrementing addresses, and jumps have a penalty cycle, which hides the \texttt{ICACHE} writeback hazard, so we do not require any data forwarding paths to hide it. However, this hazard does require careful handling when \texttt{D} is stalled on later stages.
-
-The solution is some kind of forwarding path. We could build the forwarding into the \texttt{ICACHE}, but we would like this cache to synthesise with iCE40 BRAMs if possible to save on LUTs, and these BRAMs have synchronous readout; our forwarding needs to be after the clock edge.
-
-Luckily, our \texttt{F} logic is currently very unbalanced: the memory read path has AHB data phase with some mux logic on the end of it, whereas the \texttt{ICACHE} read path has a registered input going into the mux logic. There is plenty of space here to mux the \texttt{ICACHE} readout.
-
-\begin{itemize}
-	\item AHB read data and address are registered at the end of every non-stall cycle.
-	\item Both \texttt{W} and \texttt{F} look at the registered fetch address:
-	\begin{itemize}
-		\item \texttt{W} inhibits AHB address phase on match
-		\item \texttt{F} muxes registered AHB data onto \texttt{ICACHE} read bus
-	\end{itemize}
-\end{itemize}
+Extreme care is required to avoid this pitfall. This sequence does not occur during normal execution: sequential code fetches are to incrementing addresses, and jumps (including jump-to-self) have a penalty cycle, which prevents the double-write behaviour. However, stalls must be treated carefully.
 
 \subsubsection{Program Counter}
 
@@ -369,44 +356,56 @@ The upshot is:
 
 \subsection{Pipeline Stalling and Flushing}
 
-Stalling: a stage halts and causes prior stages to not advance their state, until this stage is ready.
+Our terminology: stalling means a pipeline stage, along with prior stages, does not advance its state until some blocking condition has cleared. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
 
-Flushing: cause the in-flight instructions in some pipeline stages to be replaced with NOPs, and their results discarded.
+All stages stall on HREADY low, no matter which internal master instigated the current data phase. TODO: this is non-optimal. For example, if code fetch is stalled, stages \texttt{D,X,M} could still proceed. This would save one cycle in the case that \texttt{X} is stalled in a RAW hazard on \texttt{M}. We may save \textit{some} cycles on a jump/branch which would cause the current fetch data phase to be ignored; however, AHB does not allow us to assert a new address whilst the current address phase is in progress, so the whole pipe would still stall on the code fetch once the jump/branch is ready to be asserted. For now it seems best to proceed with the simple option.
 
-Stall policy:
+Besides HREADY low, each stage may stall for the following reasons:
 
 \begin{itemize}
-	\item \texttt{F}
+	\item \texttt{F}: stall in \texttt{X}
+	\item \texttt{D}: stall in \texttt{X}
+	\item \texttt{X}:
 	\begin{itemize}
-		\item AHB HREADY low, on a code fetch transaction
-		\item Stall in section \texttt{D}, \texttt{X} or \texttt{M}
+		\item \texttt{W} needs the AHB busmaster
+		\item RAW hazard on \texttt{M}
 	\end{itemize}
-	\item \texttt{D}
+	\item \texttt{M}: only on HREADY
+	\item \texttt{W}:
 	\begin{itemize}
-		\item Stall in \texttt{X} or \texttt{M}
-		\item Tries to assert a jump, but \texttt{W} fetch is stalled
-	\end{itemize}
-	\item \texttt{X}
-	\begin{itemize}
-		\item \texttt{W} is using the AHB busmaster
-		\item Stall in \texttt{M}
-		\item \texttt{M} is about to write to a register \texttt{X} depends on
-	\end{itemize}
-	\item \texttt{M}
-	\begin{itemize}
-		\item AHB HREADY low, on a load/store transaction.
-		\item Tries to assert a jump, but \texttt{W} fetch is stalled
-	\end{itemize}
-	\item \texttt{W}
-	\begin{itemize}
-		\item Writeback: never stalls
-		\item PC generation: stalls on \texttt{F} stalling
+		\item Writeback: only on HREADY
+		\item PC generation: stalls when \texttt{X} stalls
 	\end{itemize}
 \end{itemize}
 
-\texttt{D} and \texttt{M} stall on jumps, because there is no way of cancelling the AHB transaction currently in flight, so we need to wait to start the new one.
+Pipeline bubbles are inserted into a pipe register by the rightmost stage in the stall chain. This stage creates the bubble by zeroing out the destination register field, memory op field, and any other fields which cause side effects. Under the above stall policy, only \texttt{X} will need to create bubbles: this ends up a single bubble, on an \texttt{M} $\to$ \texttt{X} RAW hazard.
 
-Pipeline bubbles (no-ops) are inserted by a stage if it is stalled, but the next stage is not. It does this by zeroing out the destination register field, memory op field, and any other pipe register fields which cause side effects.
+\subsection{Unaligned Memory Accesses}
+
+Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to \textit{natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
+
+The RISC-V base ISA sizes instructions in 32-bit parcels, which must be 32-bit aligned; the compressed instruction extension relaxes this constraint to 16 and 16 bits. Data accesses range in size from single bytes to the machine word size, with no alignment requirements. 
+
+ReVive uses AHB-lite for its bus interface. AHB-lite requires alignment of all accesses; this simplifies AHB-lite compatible hardware. The drawback for us is that, when programmers request a single unaligned access, the ReVive hardware must carry this out as multiple aligned accesses of smaller size. To avoid adding additional complexity to the CPU state machine, we handle this problem in two parts:
+
+\begin{itemize}
+	\item The CPU proceeds with an unaligned AHB transfer, blissfully unaware of the alignment requirements. This is already significantly complex.
+	\item An additional busfabric component -- the \textit{aligner} -- sits between the CPU master port and the busfabric crossbar
+	\begin{itemize}
+		\item Single unaligned accesses by the aligner's master trigger multiple aligned accesses to its slave
+		\item The aligner stalls its master using \texttt{HREADYOUT} during until the last bus cycle, whereupon it passes through the slave's \texttt{HREADYOUT}
+		\item A shift register inside the aligner collates the results of multiple reads, or provides data for multiple writes
+	\end{itemize}
+\end{itemize}
+
+We are able to simplify the CPU operation by reusing the existing AHB stall logic, although we may lose some speed by outsourcing the alignment logic. It's expected that this component will live inside a top-level CPU wrapper.
+
+\begin{figure}[!htb]
+\centering
+\label{diagram:unaligned_accesses}
+\caption{Aligner busfabric component}
+\includegraphics[width=0.4\textwidth]{diagrams/unaligned_accesses.pdf}
+\end{figure}
 
 \subsection{Pipeline Operation -- Worked Examples}
 
