@@ -38,7 +38,7 @@ module revive_cpu #(
 	output wire [2:0]                ahblm_hburst,
 	output wire [3:0]                ahblm_hprot,
 	output wire                      ahblm_hmastlock,
-	output wire [W_DATA-1:0]         ahblm_hwdata,
+	output reg  [W_DATA-1:0]         ahblm_hwdata,
 	input  wire [W_DATA-1:0]         ahblm_hrdata
 );
 
@@ -48,12 +48,8 @@ module revive_cpu #(
 localparam N_REGS = 32;
 localparam W_REGADDR = $clog2(N_REGS);
 
-wire stall_f;
-wire stall_d;
-wire stall_x;
-wire stall_m;
-wire stall_w;
-
+wire stall_cause_ahb;
+wire stall_cause_x;
 // ============================================================================
 //                                AHB Master
 // ============================================================================
@@ -74,6 +70,7 @@ wire              ahb_req_i;
 wire [W_ADDR-1:0] ahb_haddr_i;
 
 always @ (*) begin
+	stall_cause_ahb = !abhlm_hready;
 	if (ahb_req_i) begin
 		ahblm_htrans = HTRANS_NSEQ;
 		ahblm_haddr  = ahb_haddr_i;
@@ -150,16 +147,11 @@ always @ (posedge clk or negedge rst_n) begin
 		f_buf_level <= 2'h0;
 		fd_cir  <= 32'h0;
 		fd_cir_half_valid <= 1'b0;
-		fd_pipe_bubble <= 1'b0;
-	end else if (stall_f) begin
+	end else if (stall_cause_ahb || stall_cause_x) begin
 		// TODO: buffering of AHB data phase which completes whilst we stall
 		fd_cir_half_valid <= 1'b0;
-		if (!stall_d) begin
-			fd_pipe_bubble <= 1'b1;
-		end
 	end else begin
 		fd_cir_half_valid <= 1'b0;
-		fd_cir_pipe_bubble <= 1'b0;
 		if (wf_jump_now) begin
 			if (wf_jump_unaligned) begin
 				if (wf_icache_valid) begin
@@ -264,6 +256,7 @@ reg  [W_ALUSRC-1:0]  dx_alusrc_b;
 reg  [W_ALUOP-1:0]   dx_aluop;
 reg  [W_MEMOP-1:0]   dx_memop;
 reg  [W_BCOND-1:0]   dx_branchcond;
+reg                  dx_jump_is_regoffs;
 wire [W_DATA-1:0]    dx_rdata1;	// Registered internally in regfile
 wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
@@ -278,14 +271,11 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_memop <= MEMOP_NONE;
 		d_pc <= {W_ADDR{1'b0}};
 		dx_branchcond <= {W_BCOND{1'b0}};
-	end else if (stall_d || fd_pipe_bubble) begin
-		if (!stall_x) begin
-			// Insert a pipe bubble by zeroing out any pipeflags which would cause state changes
-			dx_memop <= MEMOP_NONE;
-			dx_branchcond <= BCOND_NEVER;
-			dx_rd <= {W_REGADDR{1'b0}};
-		end
+		dx_jump_is_regoffs <= 1'b0;
 	end else begin
+		// If D is stalled, X is also stalled.
+		// Since D has no side effects other than passing info to X via pipe regs,
+		// there is no need to handle stalling in D at all!
 		// Assign some defaults
 		dx_rs1 <= d_rs1;
 		dx_rs2 <= d_rs2;
@@ -295,9 +285,11 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_RS2;
 		dx_memop <= MEMOP_NONE;
 		dx_branchcond <= BCOND_NEVER;
+		dx_jump_is_regoffs <= 1'b0;
 		dx_pc <= d_pc;
 		dx_linkaddr <= d_pc_next;
-		d_pc <= d_pc_next;
+		dx_pc <= d_pc_next;
+		dx_jump_is_regoffs <= 0;
 
 		// Decode ALU controls
 		casez ({d_instr, 2'b11})
@@ -307,7 +299,7 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_BGE:     begin dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BLTU:    begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BGEU:    begin dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_j; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
+		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_j; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
 		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
 		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
 		RV_AUIPC:   begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_PC; end
@@ -360,12 +352,26 @@ revive_instr_decompress decomp(
 wire [W_DATA-1:0] x_op_a;
 wire [W_DATA-1:0] x_op_a;
 
-reg [W_DATA-1:0]  xm_result;
-reg [W_ADDR-1:0]  xm_jump_target;
-reg               xm_jump;
-reg [W_MEMOP-1:0] xm_memop;
+reg [W_REGADDR-1:0] xm_rs1;
+reg [W_REGADDR-1:0] xm_rs2;
+reg [W_REGADDR-1:0] xm_rd;
+reg [W_DATA-1:0]    xm_result;
+reg [W_ADDR-1:0]    xm_jump_target;
+reg                 xm_jump;
+reg [W_MEMOP-1:0]   xm_memop;
 
-// TODO: speculative execution on branches, earlier jumping for unconditional jumps
+// X stalls are caused by M->X RAW hazards, or busmaster contention
+assign stall_cause_x =
+	(xm_rd && xm_rd == dx_rs1 && RV_MEMOP_IS_LOAD(xm_memop)) ||
+	(ahb_req_d && ahb_req_i);
+
+// AHB transaction request
+always @ (*) begin
+	ahb_req_d = !dx_memop[3];
+	ahb_haddr_d = x_alu_result;
+	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
+	ahb_haddr_d = x_alu_result;
+end
 
 // ALU operand muxes
 always @ (*) begin
@@ -374,7 +380,7 @@ always @ (*) begin
 		if (!dx_rs1) begin
 			x_op_a = {W_DATA{1'b0}};
 		end else if (xm_rd && xm_rd == dx_rs1) begin
-			x_op_a = xm_result; // TODO: stall if mem op
+			x_op_a = xm_result;
 		end else if (mw_rd && mw_rd == dx_rs1) begin
 			x_op_a = mw_result;
 		end else begin
@@ -397,7 +403,7 @@ always @ (*) begin
 		if (!dx_rs2) begin
 			x_op_b = {W_DATA{1'b0}};
 		end else if (xm_rd && xm_rd == dx_rs2) begin
-			x_op_b = xm_result; // TODO: stall if mem op
+			x_op_b = xm_result;
 		end else if (mw_rd && mw_rd == dx_rs2) begin
 			x_op_b = mw_result;
 		end else begin
@@ -413,33 +419,32 @@ always @ (*) begin
 	endcase
 end
 
-// AHB transaction request
-always @ (*) begin
-	ahb_req_d = !dx_memop[3];
-	ahb_haddr_d = x_alu_result;
-	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
-end
-
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		{xm_jump_target, xm_jump} <= {(W_ADDR + 1){1'b0}};
 		xm_result <= {W_DATA{1'b0}};
 		xm_memop <= MEMOP_NONE;
-	end else if (stall_x) begin
-		if (!stall_m) begin
-			xm_jump <= 1'b0;
-			xm_memop <= MEMOP_NONE;
-		end
+		{xm_rs1, xm_rs2, xm_rd} = {3 * W_REGADDR{1'b0}};
 	end else begin
-		xm_jump_target <= dx_imm + (??fasfafasd?? ? dx_pc : dx_rdata1);
-		case (dx_branchcond)
-			BCOND_ALWAYS: begin xm_jump <= 1'b1; end
-			BCOND_ZERO:   begin xm_jump <= alu_zero; end
-			BCOND_NZERO:  begin xm_jump <= !alu_zero; end
-			default:      begin xm_jump <= 1'b0; end
-		endcase
+		{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
+		xm_jump_target <= dx_imm + (dx_jump_is_regoffs ? dx_rdata1 : dx_pc);
 		xm_result <= x_alu_result;
 		xm_memop <= dx_memop;
+		if (stall_cause_x || stall_cause_ahb) begin
+			if (!stall_cause_ahb) begin
+				// Insert bubble
+				xm_rd <= {W_REGADDR{1'b0}};
+				xm_jump <= 1'b0;
+				xm_memop <= MEMOP_NONE;
+			end
+		end else begin
+			case (dx_branchcond)
+				BCOND_ALWAYS: begin xm_jump <= 1'b1; end
+				BCOND_ZERO:   begin xm_jump <= alu_zero; end
+				BCOND_NZERO:  begin xm_jump <= !alu_zero; end
+				default:      begin xm_jump <= 1'b0; end
+			endcase
+		end
 	end
 end
 
@@ -458,15 +463,35 @@ revive_alu alu (
 reg [W_REGADDR-1:0] mw_rd;
 reg [W_DATA-1:0]    mw_result;
 
+always @ (*) begin
+	case (xm_memop)
+		MEMOP_SW: ahblm_hwdata = xm_result;
+		MEMOP_SH: ahblm_hwdata = {2{xm_result[15:0]}};
+		MEMOP_SB: ahblm_hwdata = {4{xm_result[7:0]}};
+		default:  ahblm_hwdata = 32'h0;
+	endcase
+end
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mw_rd <= {W_REGADDR{1'b0}};
 		mw_result <= {W_DATA{1'b0}};
-	end else if (stall_m) begin
-		// do nothing! (yet)
-	end else begin
+	end else if (stall_cause_ahb) begin
+		// Just repeat these assignments in here to avoid an extra mux tap
 		mw_rd <= xm_rd;
 		mw_result <= xm_result;
+	end else begin
+		mw_rd <= xm_rd;
+		case (xm_memop)
+			// The aligner should tile the correct data across hrdata,
+			// so we don't have to index here
+			MEMOP_LW:  mw_result <= ahblm_hrdata;
+			MEMOP_LH:  mw_result <= {{16{ahblm_hrdata[15]}}, ahblm_hrdata[15:0]};
+			MEMOP_LHU: mw_result <= {16'h0, ahblm_hrdata[15:0]};
+			MEMOP_LB:  mw_result <= {{24{ahblm_hrdata[7]}}, ahblm_hrdata[7:0]};
+			MEMOP_LBU: mw_result <= {24'h0, ahblm_hrdata[7:0]};
+			default:   mw_result <= xm_result;
+		endcase
 	end
 end
 
