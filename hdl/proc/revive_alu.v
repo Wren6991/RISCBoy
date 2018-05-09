@@ -19,9 +19,11 @@ module revive_alu (
 	input  wire [3:0]  aluop,
 	input  wire [31:0] op_a,
 	input  wire [31:0] op_b,
-	output wire [31:0] result,
-	output wire        zero
+	output reg  [31:0] result,
+	output reg         zero
 );
+
+`include "alu_ops.vh"
 
 wire [31:0] sum  = op_a + op_b;
 wire [31:0] diff = op_a - op_b;

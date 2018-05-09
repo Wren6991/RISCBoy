@@ -28,7 +28,7 @@ module regfile_1w2r #(
 	parameter RESET_REGS = 0,	// Unsupported for FAKE_DUALPORT
 	parameter N_REGS = 16,
 	parameter W_DATA = 32,
-	localparam W_ADDR = $clog2(W_DATA)
+	parameter W_ADDR = $clog2(W_DATA)	// should be localparam. ISIM...
 ) (
 	input wire clk,
 	input wire rst_n,

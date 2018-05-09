@@ -20,7 +20,7 @@
 // Don't worry if you don't understand it -- I don't either
 
 module revive_cpu #(
-	parameter RESET_VECTOR = 32'h0000_0000;
+	parameter RESET_VECTOR = 32'h0000_0000,
 	localparam W_ADDR = 32,
 	localparam W_DATA = 32
 ) (
@@ -31,10 +31,10 @@ module revive_cpu #(
 	// AHB-lite Master port
 	input  wire                      abhlm_hready,
 	input  wire                      ahblm_hresp,
-	output wire [W_ADDR-1:0]         ahblm_haddr,
-	output wire                      ahblm_hwrite,
-	output wire [1:0]                ahblm_htrans,
-	output wire [2:0]                ahblm_hsize,
+	output reg  [W_ADDR-1:0]         ahblm_haddr,
+	output reg                       ahblm_hwrite,
+	output reg  [1:0]                ahblm_htrans,
+	output reg  [2:0]                ahblm_hsize,
 	output wire [2:0]                ahblm_hburst,
 	output wire [3:0]                ahblm_hprot,
 	output wire                      ahblm_hmastlock,
@@ -46,10 +46,12 @@ module revive_cpu #(
 `include "alu_ops.vh"
 
 localparam N_REGS = 32;
-localparam W_REGADDR = $clog2(N_REGS);
+// should be localparam but ISIM can't cope
+parameter W_REGADDR = $clog2(N_REGS);
 
-wire stall_cause_ahb;
-wire stall_cause_x;
+reg stall_cause_ahb;
+reg stall_cause_x;
+
 // ============================================================================
 //                                AHB Master
 // ============================================================================
@@ -62,10 +64,11 @@ assign ahblm_hburst = 3'b000;	// HBURST_SINGLE
 assign ahblm_hprot = 4'b0011;	// Lie and say everything is non-cacheable non-bufferable privileged data access
 assign ahblm_hmastlock = 1'b0;	// Not supported by processor (or by slaves!)
 
-wire              ahb_req_d;
-wire [W_ADDR-1:0] ahb_haddr_d;
-wire [2:0]        ahb_hsize_d;
-wire              ahb_hwrite_d;
+// These "regs" are all combinational signals from X or W
+reg               ahb_req_d;
+reg  [W_ADDR-1:0] ahb_haddr_d;
+reg  [2:0]        ahb_hsize_d;
+reg               ahb_hwrite_d;
 wire              ahb_req_i;
 wire [W_ADDR-1:0] ahb_haddr_i;
 
@@ -232,7 +235,7 @@ end
 //                               Pipe Stage D
 // ============================================================================
 
-wire [31:2]          d_instr;
+wire [31:0]          d_instr;
 reg  [W_ADDR-1:0]    d_pc;
 wire [W_ADDR-1:0]    d_pc_next = d_pc + (df_instr_is_32bit ? 3'h4 : 3'h2);
 
@@ -264,7 +267,7 @@ reg  [W_ADDR-1:0]    dx_linkaddr;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		{dx_imm, dx_rs1, dx_rs2, dx_rd, dx_rdata1, dx_rdata2} <= {(3 * W_DATA + 3 * W_REGADDR){1'b0}};
+		{dx_imm, dx_rs1, dx_rs2, dx_rd} <= {(3 * W_DATA + 3 * W_REGADDR){1'b0}};
 		dx_alusrc_a <= ALUSRCA_ZERO;
 		dx_alusrc_b <= ALUSRCB_ZERO;
 		dx_aluop <= ALUOP_ADD;
@@ -292,7 +295,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_jump_is_regoffs <= 0;
 
 		// Decode ALU controls
-		casez ({d_instr, 2'b11})
+		casez (d_instr)
 		RV_BEQ:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
 		RV_BNE:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BLT:     begin dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
@@ -349,8 +352,11 @@ revive_instr_decompress decomp(
 //                               Pipe Stage X
 // ============================================================================
 
-wire [W_DATA-1:0] x_op_a;
-wire [W_DATA-1:0] x_op_a;
+// Combinational regs for muxing
+reg  [W_DATA-1:0] x_op_a;
+reg  [W_DATA-1:0] x_op_b;
+wire [31:0]    	  x_alu_result;
+wire           	  x_alu_zero;
 
 reg [W_REGADDR-1:0] xm_rs1;
 reg [W_REGADDR-1:0] xm_rs2;
@@ -361,8 +367,8 @@ reg                 xm_jump;
 reg [W_MEMOP-1:0]   xm_memop;
 
 // X stalls are caused by M->X RAW hazards, or busmaster contention
-assign stall_cause_x =
-	(xm_rd && xm_rd == dx_rs1 && RV_MEMOP_IS_LOAD(xm_memop)) ||
+always @ (*) stall_cause_x =
+	(xm_rd && xm_rd == dx_rs1 && !(xm_memop & 4'hc)) ||
 	(ahb_req_d && ahb_req_i);
 
 // AHB transaction request
@@ -440,8 +446,8 @@ always @ (posedge clk or negedge rst_n) begin
 		end else begin
 			case (dx_branchcond)
 				BCOND_ALWAYS: begin xm_jump <= 1'b1; end
-				BCOND_ZERO:   begin xm_jump <= alu_zero; end
-				BCOND_NZERO:  begin xm_jump <= !alu_zero; end
+				BCOND_ZERO:   begin xm_jump <= x_alu_zero; end
+				BCOND_NZERO:  begin xm_jump <= !x_alu_zero; end
 				default:      begin xm_jump <= 1'b0; end
 			endcase
 		end
@@ -524,8 +530,7 @@ regfile_1w2r #(
 	.FAKE_DUALPORT(0),
 	.RESET_REGS(1),
 	.N_REGS(N_REGS),
-	.W_DATA(W_DATA),
-	.W_ADDR(W_ADDR)
+	.W_DATA(W_DATA)
 ) inst_regfile_1w2r (
 	// Global signals
 	.clk    (clk),
@@ -541,6 +546,7 @@ regfile_1w2r #(
 	.wen    (|mw_rd)
 );
 
+/*
 cache_ro_full_assoc #(
 	.W_DATA(W_DATA),
 	.W_ADDR(W_ADDR),
@@ -556,5 +562,6 @@ cache_ro_full_assoc #(
 	.waddr(f_icache_waddr),
 	.wdata(f_icache_wdata),
 	.wen(f_icache_wen)
-);
+);*/
 
+endmodule
