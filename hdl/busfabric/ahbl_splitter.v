@@ -65,6 +65,8 @@ module ahbl_splitter #(
 	input  wire [N_PORTS*W_DATA-1:0] ahblm_hrdata
 );
 
+localparam HTRANS_IDLE = 2'b00;
+
 integer i;
 
 // Address decode
@@ -72,9 +74,13 @@ integer i;
 reg [N_PORTS-1:0] slave_sel_a;
 
 always @ (*) begin
-	for (i = 0; i < N_PORTS; i = i + 1) begin
-		slave_sel_a[i] = !((ahbls_haddr ^ ADDR_MAP[i * W_ADDR +: W_ADDR])
-			& ADDR_MASK[i * W_ADDR +: W_ADDR]);
+	if (ahbls_htrans == HTRANS_IDLE) begin
+		slave_sel_a = {N_PORTS{1'b0}};
+	end else begin
+		for (i = 0; i < N_PORTS; i = i + 1) begin
+			slave_sel_a[i] = !((ahbls_haddr ^ ADDR_MAP[i * W_ADDR +: W_ADDR])
+				& ADDR_MASK[i * W_ADDR +: W_ADDR]);
+		end
 	end
 end
 
@@ -91,7 +97,7 @@ assign ahblm_hmastlock = {N_PORTS{ahbls_hmastlock}};
 
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
-		ahblm_htrans[i * 2 +: 2] = slave_sel_a[i] ? ahbls_htrans : 2'b00;
+		ahblm_htrans[i * 2 +: 2] = slave_sel_a[i] ? ahbls_htrans : HTRANS_IDLE;
 	end
 end
 
@@ -123,14 +129,19 @@ bitmap_mux #(
 	.out(ahbls_hrdata)
 );
 
+// Splitter must give a zero-wait-state OKAY response to idle cycles.
+wire hready_resp_muxed;
+assign ahbls_hready_resp = hready_resp_muxed || (ahbls_htrans == HTRANS_IDLE && !slave_sel_d);
+
 bitmap_mux #(
 	.N_INPUTS(N_PORTS),
 	.W_INPUT(1)
 ) hready_resp_mux (
 	.in(ahblm_hready_resp),
 	.sel(slave_sel_d ? slave_sel_d : slave_sel_a),
-	.out(ahbls_hready_resp)
+	.out(hready_resp_muxed)
 );
+
 
 bitmap_mux #(
 	.N_INPUTS(N_PORTS),

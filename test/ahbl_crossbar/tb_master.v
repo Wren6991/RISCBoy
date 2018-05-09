@@ -1,7 +1,8 @@
 module tb_master #(
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
-	parameter TEST_LEN = 64
+	parameter TEST_LEN = 64,
+	parameter N_MASTERS = 4
 ) (
 	input wire              clk,
 	input wire              rst_n,
@@ -50,7 +51,7 @@ initial begin
 	$display("Master %d beginning write", master_id);
 
 	for (i = 0; i < TEST_LEN; i = i + 1) begin
-		ahb_write_byte(test_vec[i], i * 4 + master_id);
+		ahb_write_byte(test_vec[i], i * N_MASTERS + master_id);
 		while ($random % 2)
 			@ (posedge clk);
 	end
@@ -58,7 +59,7 @@ initial begin
 	$display("Master %d beginning read", master_id);
 
 	for (i = 0; i < TEST_LEN; i = i + 1) begin
-		ahb_read_byte(rdata, i * 4 + master_id);
+		ahb_read_byte(rdata, i * N_MASTERS + master_id);
 		if (rdata != test_vec[i]) begin
 			$display("Test FAILED: Master %d, mismatch at %h: %h (r) != %h (w)", master_id, i * 4 + master_id, rdata, test_vec[i]);
 			$finish(2);

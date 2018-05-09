@@ -23,7 +23,7 @@
  *   ...
  *   .ahbls_haddr({mast1_haddr, mast0_haddr})
  *   ...
- * Recommend that wiring up is scripted.
+ * Recommend that wiring up either be scripted, or done by unpaid intern.
  */
 
 // TODO: no burst support!
@@ -90,7 +90,7 @@ integer i;
 // is blocked by a higher-priority master again; otherwise they will have already been passed through
 // combinatorially to the slave, so there is no need to buffer them.
 // Eventually, master 1 will be idle at the end of the data phase, at which point the buffered
-// request will be HTRANS_IDLE, and the live port value will be used instead of the buffered value.
+// request will be HTRANS_IDLE, and the live port value will be muxed instead of the buffered value.
 
 reg [W_ADDR-1:0]         saved_haddr      [0:N_PORTS-1];
 reg                      saved_hwrite     [0:N_PORTS-1];
@@ -134,7 +134,7 @@ end
 // Address-phase arbitration
 
 reg [N_PORTS-1:0] mast_req_a;
-reg [N_PORTS:0]   already_granted_a;
+reg [N_PORTS:0]   already_granted_a;	// temp for priority mux
 reg [N_PORTS-1:0] mast_gnt_a;
 
 always @ (*) begin
@@ -220,10 +220,8 @@ bitmap_mux #(
 
 // AHB State Machine
 
-// Data-phase grant bitmap
-reg [N_PORTS-1:0] mast_gnt_d;
-
 reg [N_PORTS-1:0] mast_req_d;
+reg [N_PORTS-1:0] mast_gnt_d;
 
 assign ahblm_hready =
 	mast_gnt_d ? |(ahbls_hready & mast_gnt_d) :
@@ -243,7 +241,7 @@ always @ (posedge clk or negedge rst_n) begin
 			mast_req_d <= mast_req_a;
 		end
 		for (i = 0; i < N_PORTS; i = i + 1) begin
-			if (ahbls_hready_resp[i] && !mast_gnt_a[i]) begin
+			if (ahbls_hready_resp[i] && !(mast_req_a[i] && mast_gnt_a[i])) begin
 				saved_haddr     [i] <= ahbls_haddr     [i * W_ADDR +: W_ADDR];
 				saved_hwrite    [i] <= ahbls_hwrite    [i];
 				saved_htrans    [i] <= ahbls_htrans    [i * 2 +: 2];
@@ -261,9 +259,7 @@ end
 assign ahbls_hrdata = {N_PORTS{ahblm_hrdata}};
 
 wire [N_PORTS-1:0] resp_mask = mast_gnt_a || mast_gnt_d ? mast_gnt_a | mast_gnt_d : {N_PORTS{1'b1}};
-
-// If master did not have a request during previous address phase, return a positive ready signal.
-assign ahbls_hready_resp = ({N_PORTS{ahblm_hready_resp}} & resp_mask) | ~mast_req_d;
+assign ahbls_hready_resp = {N_PORTS{ahblm_hready_resp}} & resp_mask;
 assign ahbls_hresp = {N_PORTS{ahblm_hresp}} & resp_mask;
 
 bitmap_mux #(

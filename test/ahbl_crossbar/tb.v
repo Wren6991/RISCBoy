@@ -15,8 +15,8 @@
  *                                                                    *
  *********************************************************************/
 
-// Map 4 SRAMs into a single flat memory region.
-// Attach 4 masters to SRAMs via crossbar.
+// Map 2 SRAMs into a single flat memory region.
+// Attach 2 masters to SRAMs via crossbar.
 // Each master writes to byte 0, 1, 2 or 3 (assigned per master)
 // of every single word in SRAM array.
 // Random idle periods are inserted between writes.
@@ -28,8 +28,8 @@ localparam W_ADDR = 32;
 localparam W_DATA = 32;
 localparam N_MASTERS = 2;
 localparam N_SRAMS = 2;
-localparam SRAM_DEPTH = 64;
-localparam TEST_LEN = N_SRAMS * SRAM_DEPTH;
+localparam SRAM_DEPTH = 8;
+localparam TEST_LEN = N_SRAMS * SRAM_DEPTH * (W_DATA / 8 / N_MASTERS);
 
 reg               clk;
 reg               rst_n;
@@ -68,8 +68,8 @@ ahbl_crossbar #(
 	.N_SLAVES(N_SRAMS),
 	.W_ADDR(W_ADDR),
 	.W_DATA(W_DATA),
-	.ADDR_MAP (128'h000000c0_00000080_00000040_00000000),
-	.ADDR_MASK(128'h000000c0_000000c0_000000c0_000000c0)
+	.ADDR_MAP (128'h00000060_00000040_00000020_00000000),
+	.ADDR_MASK(128'h000000e0_000000e0_000000e0_000000e0)
 ) inst_ahbl_crossbar (
 	.clk                (clk),
 	.rst_n              (rst_n),
@@ -85,7 +85,7 @@ ahbl_crossbar #(
 	.ahbls_hwdata       (master_hwdata),
 	.ahbls_hrdata       (master_hrdata),
 	.ahblm_hready_resp  (sram_hready_resp),
-	.ahblm_hresp        (sram_hresp),
+	.ahblm_hready       (sram_hready),
 	.ahblm_haddr        (sram_haddr),
 	.ahblm_hwrite       (sram_hwrite),
 	.ahblm_htrans       (sram_htrans),
@@ -93,6 +93,7 @@ ahbl_crossbar #(
 	.ahblm_hburst       (sram_hburst),
 	.ahblm_hprot        (sram_hprot),
 	.ahblm_hmastlock    (sram_hmastlock),
+	.ahblm_hresp        (sram_hresp),
 	.ahblm_hwdata       (sram_hwdata),
 	.ahblm_hrdata       (sram_hrdata)
 );
@@ -100,7 +101,8 @@ ahbl_crossbar #(
 tb_master #(
 	.W_ADDR(W_ADDR),
 	.W_DATA(W_DATA),
-	.TEST_LEN(TEST_LEN)
+	.TEST_LEN(TEST_LEN),
+	.N_MASTERS(N_MASTERS)
 ) inst_tb_master[N_MASTERS-1:0] (
 	.clk            (clk),
 	.rst_n          (rst_n),
