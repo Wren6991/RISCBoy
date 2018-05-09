@@ -187,30 +187,27 @@ The pipeline register \texttt{F} writes to, containing the 32 fresh instruction 
 
 AHB instructions fetches are \textit{always} word-sized, word-aligned. Internal buffering and muxes take care of building unaligned instruction bundles from this aligned data stream.
 
-\subsubsection{Purpose of Fetch Buffer}
+\subsubsection{The Fetch Buffer}
 
-Between them, \texttt{ICACHE} and AHB provide \texttt{F} with 32 bits of fresh fetch data on every cycle (assuming that, on cache miss and \texttt{HREADY} low, \texttt{F} simply stalls), or with 0 bits if a fetch was not requested. \texttt{D} will consume either 32 or 16 bits of instruction data per cycle, and quickly determines this size by looking at the two LSBs of \texttt{CIR}; \texttt{F} can see the size of the instruction currently in \texttt{D}. 
+Upon request, \texttt{F} can receive 32 bits of instruction data in a given cycle, via AHB or ICACHE. This request has a one-cycle latency. In the same cycle, \texttt{F} will consume 16 or 32 bits to refill \texttt{CIR}, based on the size of the instruction currently being decoded (which can quickly be ascertained by inspecting the two least-significant bits).
 
-Due to the pipelined nature of AHB, the decision of whether to fetch is made one cycle ahead of \texttt{F} itself, which ends up being in \texttt{W}. We aren't magicians: we use buffering to hide this latency cycle. On no-fetch cycles in \texttt{F} (having decided one cycle prior not to fetch), we will still need 32 bits of fetch data on hand to guarantee that we can refill \texttt{CIR} at the end of the cycle, once \texttt{D} has consumed up to 32 bits of instruction.
-
-To summarise our state transitions:
+The combination of request latency, and sometimes receiving more data than we need, suggests a need for buffering in the fetch stage. But how much? And what is the optimal rule for deciding whether to make a fetch request? Looking at the information we have to hand in a given cycle:
 
 \begin{itemize}
-\item Fetch:
-	\begin{itemize}
-	\item 32-bit instruction in \texttt{CIR}: buffer level stays same
-	\item 16-bit instruction in \texttt{CIR}: buffer level increases by 16
-	\end{itemize}
-\item No fetch:
-	\begin{itemize}
-	\item 32-bit instruction in \texttt{CIR}: buffer level decreases by 32
-	\item 16-bit instruction in \texttt{CIR}: buffer level decreases by 16
-	\end{itemize}
+	\item $b_n$, the current buffer level in halfwords
+	\item $i_n$, the size of the instruction currently being decoded
+	\item $f_{n-1}$, whether we made a fetch request on the previous cycle
 \end{itemize}
 
-This suggests a simple rule: fetch if the buffer is not currently full. If we follow this rule, we guarantee that the buffer will have 0, 16 or 32 bits of data at all times.
+we can come up with the following update rule for the buffer level on the next cycle:
 
-TODO: consider performing 16-bit fetches if there is 16 bits of space in the buffer. The bus to main memory is only 16 bits wide, so executing 16 bit instructions with 32 bit fetches will only execute 2 cycles in every 3, due to the AHB wait state stalling \texttt{F}. Need to consider how this would interact with the cache.
+\[ b_{n+1} = b_n - i_n + 2f_{n-1} \]
+
+And our task is to choose $f_n$ such that $b_n$ stays between 0 and the smallest possible positive integer. We can clearly rule out 0 as a possiblity for the buffer size, and can also rule out 1, since a fetch is required if $b_{n+1} = 1$ to avoid underflow if the next instruction is 32-bit, and this fetch will cause overflow if the next instruction is 16-bit.
+
+However, 2 halfwords works, if we apply the rule that we request a fetch on cycle $n$ if $b_{n+1} < 2$: if $b_{n+1} = 2$,  $b_{n+2}$ would then be 0 or 1, and any other value for $b_{n+1}$ could not cause overflow since buffer level cannot increase by more than 1 per cycle. Since 2 is a lower bound, it is the optimal size for the buffer, and this rule is also optimal.
+
+At start of day, we initialise the \texttt{CIR} and the fetch buffer with a 32-bit \texttt{nop} each, the buffer level to 2, and $f_{n-1}$ to zero (since there \textit{was} no previous cycle to fetch on!). According to our rule, \texttt{F} will request a fetch on the first cycle (which will be from the reset vector), kicking off an AHB address phase; \texttt{D} will decode a \texttt{nop} on this cycle, the \texttt{CIR} will be refilled with the \texttt{nop} from the buffer, and the buffer level will go to zero. On the next cycle, \texttt{D} will decode the second \texttt{nop}, and \texttt{CIR} will be refilled again, this time with the instruction data from AHB. The buffer level will remain at 0. We have reached our execution steady state, from reset, without having any special purpose logic to handle reset. We have just chosen our flipflop reset values carefully.
 
 \subsubsection{Sequential Code}
 

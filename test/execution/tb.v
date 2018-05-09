@@ -22,7 +22,7 @@ wire                      hmastlock;
 wire [W_DATA-1:0]         hwdata;
 wire [W_DATA-1:0]         hrdata;
 
-reg [W_DATA-1:0] init_mem [0:SRAM_DEPTH-1];
+reg [7:0] init_mem [0:SRAM_SIZE_BYTES-1];
 
 revive_cpu #(
 	.RESET_VECTOR(32'h0000_0000)
@@ -74,12 +74,19 @@ initial begin
 
 	// Memory initialisation is made a bit ugly by the byte-enables
 	// being implemented with separate BRAM inferences, inside a generate
-	$readmemh("ram_init.hex", init_mem);
+	for (i = 0; i < SRAM_SIZE_BYTES; i = i + 1) begin
+		init_mem[i] = 8'h00;
+	end
+	$readmemh("../ram_init.hex", init_mem);
+	$display("Loaded ram_init.hex");
+	for (i = 0; i < 20; i = i + 1) begin
+		$display("%h", init_mem[i]);
+	end
 	for (i = 0; i < SRAM_DEPTH; i = i + 1) begin
-		sram0.sram.\has_byte_enable.byte_mem[0].mem [i] = init_mem[i][0  +: 8];
-		sram0.sram.\has_byte_enable.byte_mem[1].mem [i] = init_mem[i][8  +: 8];
-		sram0.sram.\has_byte_enable.byte_mem[2].mem [i] = init_mem[i][16 +: 8];
-		sram0.sram.\has_byte_enable.byte_mem[3].mem [i] = init_mem[i][24 +: 8];
+		sram0.sram.\has_byte_enable.byte_mem[0].mem [i] = init_mem[i * 4 + 0];
+		sram0.sram.\has_byte_enable.byte_mem[1].mem [i] = init_mem[i * 4 + 1];
+		sram0.sram.\has_byte_enable.byte_mem[2].mem [i] = init_mem[i * 4 + 2];
+		sram0.sram.\has_byte_enable.byte_mem[3].mem [i] = init_mem[i * 4 + 3];
 	end
 
 	#(10 * CLK_PERIOD);

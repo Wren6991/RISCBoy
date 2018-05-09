@@ -48,6 +48,7 @@ module revive_cpu #(
 localparam N_REGS = 32;
 // should be localparam but ISIM can't cope
 parameter W_REGADDR = $clog2(N_REGS);
+localparam NOP_INSTR = 32'h13;	// addi x0, x0, 0
 
 reg stall_cause_ahb;
 reg stall_cause_x;
@@ -108,6 +109,8 @@ wire              f_icache_wen;
 reg  [31:0]       f_fetch_buf;
 reg  [1:0]        f_buf_level;
 reg  [1:0]        f_buf_level_next;
+reg               f_fetch_req;
+reg               f_fetch_req_prev;
 
 reg [31:0]        fd_cir;
 reg               fd_cir_half_valid;	// If we could only manage 16 bits of instruction data
@@ -125,19 +128,10 @@ always @ (*) begin
 		end else begin
 			f_buf_level_next = 2'h0;
 		end
-	end else if (df_instr_is_32bit) begin
-		if (f_buf_level == 2'h2) begin
-			f_buf_level_next = 2'h0;
-		end else begin
-			f_buf_level_next = f_buf_level;
-		end
 	end else begin
-		if (f_buf_level == 2'h2) begin
-			f_buf_level_next = 2'h1;
-		end else begin
-			f_buf_level_next = f_buf_level + 1'b1;
-		end
+		f_buf_level_next = f_buf_level - 1'b1 - df_instr_is_32bit + (f_fetch_req_prev << 1);
 	end
+	f_fetch_req = !f_buf_level_next;
 end
 
 always @ (posedge clk or negedge rst_n) begin
@@ -146,9 +140,10 @@ always @ (posedge clk or negedge rst_n) begin
 	// with some boolean functions in front of it to steer the selectors,
 	// and these functions will be in parallel with the AHB data phase.
 	if (!rst_n) begin
-		f_fetch_buf <= 32'h0;
-		f_buf_level <= 2'h0;
-		fd_cir  <= 32'h0;
+		f_fetch_buf <= NOP_INSTR;
+		f_buf_level <= 2'h2;
+		fd_cir  <= NOP_INSTR;
+		f_fetch_req_prev <= 1'b0;
 		fd_cir_half_valid <= 1'b0;
 	end else if (stall_cause_ahb || stall_cause_x) begin
 		// TODO: buffering of AHB data phase which completes whilst we stall
@@ -228,6 +223,7 @@ always @ (posedge clk or negedge rst_n) begin
 			end
 		end
 		f_buf_level <= f_buf_level_next;
+		f_fetch_req_prev <= f_fetch_req;
 	end
 end
 
@@ -355,8 +351,8 @@ revive_instr_decompress decomp(
 // Combinational regs for muxing
 reg  [W_DATA-1:0] x_op_a;
 reg  [W_DATA-1:0] x_op_b;
-wire [31:0]    	  x_alu_result;
-wire           	  x_alu_zero;
+wire [31:0]       x_alu_result;
+wire              x_alu_zero;
 
 reg [W_REGADDR-1:0] xm_rs1;
 reg [W_REGADDR-1:0] xm_rs2;
@@ -373,7 +369,7 @@ always @ (*) stall_cause_x =
 
 // AHB transaction request
 always @ (*) begin
-	ahb_req_d = !dx_memop[3];
+	ahb_req_d = !(dx_memop & 4'hc);
 	ahb_haddr_d = x_alu_result;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	ahb_haddr_d = x_alu_result;
@@ -512,7 +508,7 @@ wire              w_icache_valid;
 reg [W_ADDR-1:0] w_fetchaddr;
 
 assign ahb_haddr_i = w_fetchaddr;
-assign ahb_req_i = !f_buf_level_next[1];
+assign ahb_req_i = f_fetch_req;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
