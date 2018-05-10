@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import sys
+
+f = open(sys.argv[1])
+regs = []
+found_regs = False
+for l in f:
+	if found_regs:
+		try:
+			regs.append(int(l, 16))
+		except:
+			break
+	else:
+		found_regs = "Register contents:" in l
+assert(len(regs) == 32)
+
+# Actual test:
+
+assert(all(a == b for a, b in zip(regs[16:22], [1, 2, 1, 2, 2, 1])))
+print("Test PASSED.")

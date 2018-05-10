@@ -12,7 +12,7 @@ for testname in list:
 	sys.stdout.write("Running test {:<30}".format(testname))
 	sys.stdout.flush()
 	try:
-		output = subprocess.check_output(["make", "-C", testname, "sim"], stderr=subprocess.STDOUT)
+		output = subprocess.check_output(["make", "-C", testname, "test"], stderr=subprocess.STDOUT)
 	except subprocess.CalledProcessError as e:
 		print("\033[33m[ABORT!]\033[39m")
 		all_passed = False

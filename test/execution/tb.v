@@ -91,6 +91,13 @@ initial begin
 
 	#(10 * CLK_PERIOD);
 	rst_n = 1'b1;
+
+	#(10000 * CLK_PERIOD);
+	$display("Register contents:");
+	for (i = 0; i < 32; i = i + 1) begin
+		$display("%h", cpu0.inst_regfile_1w2r.\real_dualport_reset.mem [i]);
+	end
+	$finish(2);
 end
 
 endmodule
