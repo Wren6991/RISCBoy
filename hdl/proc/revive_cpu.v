@@ -52,6 +52,9 @@ localparam NOP_INSTR = 32'h13;	// addi x0, x0, 0
 
 reg stall_cause_ahb;
 reg stall_cause_x;
+reg flush_d_x;
+reg w_jump_now;
+reg [W_ADDR-1:0] w_jump_target;
 
 // ============================================================================
 //                                AHB Master
@@ -100,7 +103,6 @@ end
 
 wire [W_DATA-1:0] wf_icache_rdata;
 reg               wf_icache_valid;
-reg               wf_jump_now;
 reg               wf_jump_unaligned;
 
 wire [W_ADDR-1:0] f_icache_waddr;
@@ -114,7 +116,7 @@ reg               f_fetch_req_prev;
 
 reg [31:0]        fd_cir;
 reg               fd_cir_half_valid;	// If we could only manage 16 bits of instruction data
-reg               fd_pipe_bubble;		// set if F was stalled but D was not.
+reg               fd_pipe_bubble;		// Instruct D to nop out the instruction we're giving it
 
 wire              df_instr_is_32bit;
 
@@ -122,7 +124,7 @@ wire              df_instr_is_32bit;
 // Calculate next buffer level combinatorially, so that it is visible to W
 // fetch logic in-cycle.
 always @ (*) begin
-	if (wf_jump_now) begin
+	if (w_jump_now) begin
 		if (wf_icache_valid && wf_jump_unaligned) begin
 			f_buf_level_next = 2'h1;
 		end else begin
@@ -145,12 +147,13 @@ always @ (posedge clk or negedge rst_n) begin
 		fd_cir  <= NOP_INSTR;
 		f_fetch_req_prev <= 1'b0;
 		fd_cir_half_valid <= 1'b0;
+		fd_pipe_bubble <= 1'b0;
 	end else if (stall_cause_ahb || stall_cause_x) begin
 		// TODO: buffering of AHB data phase which completes whilst we stall
 		fd_cir_half_valid <= 1'b0;
 	end else begin
 		fd_cir_half_valid <= 1'b0;
-		if (wf_jump_now) begin
+		if (w_jump_now) begin
 			if (wf_jump_unaligned) begin
 				if (wf_icache_valid) begin
 					// 64 bits were fetched in parallel. 48 of them are useful
@@ -222,8 +225,9 @@ always @ (posedge clk or negedge rst_n) begin
 				end
 			end
 		end
-		f_buf_level <= f_buf_level_next;
-		f_fetch_req_prev <= f_fetch_req;
+		fd_pipe_bubble   <= w_jump_now;
+		f_buf_level      <= w_jump_now ? 2'h0 : f_buf_level_next;
+		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req;
 	end
 end
 
@@ -259,7 +263,23 @@ reg                  dx_jump_is_regoffs;
 wire [W_DATA-1:0]    dx_rdata1;	// Registered internally in regfile
 wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
-reg  [W_ADDR-1:0]    dx_linkaddr;
+reg  [W_ADDR-1:0]    dx_mispredict_addr;
+
+reg d_jump;
+reg [W_ADDR-1:0] d_jump_target;
+
+always @ (*) begin
+	casez ({d_instr[31], d_instr})
+	{1'b1, RV_BEQ }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BNE }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLT }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGE }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLTU}: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGEU}: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b?, RV_JAL }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_j; end
+	default: begin d_jump = 1'b0; d_jump_target = d_pc; end
+	endcase
+end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -268,8 +288,10 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_ZERO;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
-		d_pc <= {W_ADDR{1'b0}};
-		dx_branchcond <= {W_BCOND{1'b0}};
+		d_pc <= RESET_VECTOR - 32'h8;
+		dx_pc <= {W_ADDR{1'b0}};
+		dx_mispredict_addr <= {W_ADDR{1'b0}};
+		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 	end else begin
 		// If D is stalled, X is also stalled.
@@ -286,9 +308,16 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 		dx_pc <= d_pc;
-		dx_linkaddr <= d_pc_next;
-		dx_pc <= d_pc_next;
+		dx_mispredict_addr <= d_pc_next;
 		dx_jump_is_regoffs <= 0;
+
+		if (w_jump_now) begin
+			d_pc <= w_jump_target;
+		end else if (fd_pipe_bubble) begin
+			d_pc <= d_pc;
+		end else begin
+			d_pc <= d_pc_next;
+		end
 
 		// Decode ALU controls
 		casez (d_instr)
@@ -298,8 +327,8 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_BGE:     begin dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BLTU:    begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BGEU:    begin dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_j; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
-		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
+		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
+		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_j; dx_branchcond <= BCOND_NEVER; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
 		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
 		RV_AUIPC:   begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_PC; end
 		RV_ADDI:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
@@ -334,6 +363,12 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
 		default:    begin $display("Invalid instruction! %h", d_instr); end
 		endcase
+
+		if (fd_pipe_bubble || flush_d_x) begin
+			dx_branchcond <= BCOND_NEVER;
+			dx_memop <= MEMOP_NONE;
+			dx_rd <= 5'h0;
+		end
 	end
 end
 
@@ -362,14 +397,18 @@ reg [W_ADDR-1:0]    xm_jump_target;
 reg                 xm_jump;
 reg [W_MEMOP-1:0]   xm_memop;
 
+wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? dx_rdata1 : dx_pc);
+
 // X stalls are caused by M->X RAW hazards, or busmaster contention
-always @ (*) stall_cause_x =
-	(xm_rd && xm_rd == dx_rs1 && !(xm_memop & 4'hc)) ||
-	(ahb_req_d && ahb_req_i);
+wire x_stall_raw = xm_rd && xm_rd == dx_rs1 && !(xm_memop & 4'hc);
+always @ (*) stall_cause_x = x_stall_raw || (ahb_req_d && ahb_req_i);
 
 // AHB transaction request
+// Deasserted when X stalled on RAW.
+// Not deasserted on AHB contention stall (combinatorial loop!)
+// or on AHB hready stall
 always @ (*) begin
-	ahb_req_d = !(dx_memop & 4'hc);
+	ahb_req_d = !(dx_memop & 4'hc) && !x_stall_raw && !flush_d_x;
 	ahb_haddr_d = x_alu_result;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	ahb_haddr_d = x_alu_result;
@@ -390,7 +429,7 @@ always @ (*) begin
 		end
 	end
 	ALUSRCA_LINKADDR: begin
-		x_op_a = dx_linkaddr;
+		x_op_a = d_pc;
 	end
 	ALUSRCA_PC: begin
 		x_op_a = dx_pc;
@@ -429,10 +468,9 @@ always @ (posedge clk or negedge rst_n) begin
 		{xm_rs1, xm_rs2, xm_rd} = {3 * W_REGADDR{1'b0}};
 	end else begin
 		{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
-		xm_jump_target <= dx_imm + (dx_jump_is_regoffs ? dx_rdata1 : dx_pc);
 		xm_result <= x_alu_result;
 		xm_memop <= dx_memop;
-		if (stall_cause_x || stall_cause_ahb) begin
+		if (stall_cause_x || stall_cause_ahb || flush_d_x) begin
 			if (!stall_cause_ahb) begin
 				// Insert bubble
 				xm_rd <= {W_REGADDR{1'b0}};
@@ -441,10 +479,25 @@ always @ (posedge clk or negedge rst_n) begin
 			end
 		end else begin
 			case (dx_branchcond)
-				BCOND_ALWAYS: begin xm_jump <= 1'b1; end
-				BCOND_ZERO:   begin xm_jump <= x_alu_zero; end
-				BCOND_NZERO:  begin xm_jump <= !x_alu_zero; end
-				default:      begin xm_jump <= 1'b0; end
+				BCOND_ALWAYS: begin
+					xm_jump <= 1'b1;
+					xm_jump_target <= x_taken_jump_target;
+				end
+				BCOND_ZERO: begin
+					// For branches, we are either taking a branch late,
+					// or recovering from an incorrectly taken branch,
+					// depending on sign of branch offset.
+					xm_jump <= x_alu_zero ^ dx_imm[31];
+					xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
+				end
+				BCOND_NZERO: begin
+					xm_jump <= !x_alu_zero ^ dx_imm[31];
+					xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
+				end
+				default: begin
+					xm_jump <= 1'b0;
+					xm_jump_target <= x_taken_jump_target;
+				end
 			endcase
 		end
 	end
@@ -507,16 +560,27 @@ wire              w_icache_valid;
 
 reg [W_ADDR-1:0] w_fetchaddr;
 
-assign ahb_haddr_i = w_fetchaddr;
-assign ahb_req_i = f_fetch_req;
+assign ahb_haddr_i = w_jump_now ? w_jump_target : w_fetchaddr;
+assign ahb_req_i = f_fetch_req || w_jump_now;
+
+always @ (*) begin
+	w_jump_now = xm_jump || d_jump;
+	w_jump_target = xm_jump ? xm_jump_target : d_jump_target;
+	flush_d_x = xm_jump;
+end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		wf_icache_valid <= 1'b0;
 		w_fetchaddr <= RESET_VECTOR;
+		wf_jump_unaligned <= 1'b0;
 	end else begin
 		wf_icache_valid <= w_icache_valid;
-		if (ahb_req_i) begin
+		wf_jump_unaligned <= 1'b0;
+		if (w_jump_now) begin
+			w_fetchaddr <= (w_jump_target & 32'hffff_fffc) + 3'h4;
+			wf_jump_unaligned <= w_jump_target[1];
+		end else if (ahb_req_i) begin
 			w_fetchaddr <= w_fetchaddr + 3'h4;
 		end
 	end
