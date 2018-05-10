@@ -263,14 +263,13 @@ Extreme care is required to avoid this pitfall. This sequence does not occur dur
 
 ReVive does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. It is used exclusively for the first fetch cycle of jumps/branches, the link value in \texttt{JAL(R)}, and branch mispredict recovery.
 
-Instruction fetch takes place from a consecutive series of word-aligned addresses, as described in section \ref{section:jumps}. \texttt{F} feeds data back to the fetch control in \texttt{W} to indicate whether a new fetch is needed. \texttt{W} therefore never requires the value of \texttt{PC} during normal operation. However, during non-sequential execution, it does require a \texttt{PC} value. Bits [31:2] are used to set the new fetch address, and bit 1 is used to determine whether the first instruction is aligned or unaligned with the fetch. The difference is outlined in section \ref{section:jumps}: essentially, on an unaligned jump, the first 16 bits of the fetch data are ignored, and the hardware scrabbles to put together a valid instruction.
+\texttt{W} fetches instruction data from consecutive word-aligned addresses, as described in section \ref{section:jumps}. \texttt{F} has \textit{flow} control, and can inhibit \texttt{W}'s address phase on any given cycle; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, during non-sequential execution, it does require a \texttt{PC} value. Bits [31:2] are used to set the new fetch address, and bit 1 is used to determine whether the first instruction is aligned or unaligned with the fetch. The difference is outlined in section \ref{section:jumps}: essentially, on an unaligned jump, the first 16 bits of the fetch data are ignored, and the hardware scrabbles to put together a valid instruction.
 
-The true \texttt{PC} lives in \texttt{F}. It watches the size of instructions in \texttt{D}, and uses this to increment by 2 or 4 each cycle. \texttt{D} looks at this \texttt{PC} value when using its jump logic: it can either look at the value currently in the \texttt{PC} register, or the value due to be written to it at the end of the current clock. This gives the address of the instruction currently in \texttt{D}, and the address of the immediately following instruction, respectively. The first is used in the calculation of jump targets; the second is the link value used in \texttt{JAL(R)} and mispredict recovery.
+The true \texttt{PC} lives in \texttt{D}, where it is incremented by 2 or 4 each cycle, depending on the size of the instruction currently in the \texttt{CIR}. The current values of \texttt{PC} and \texttt{PC\_next} both travel into the \texttt{D/X} pipe register, where they are used for relative jump target calculation, and mispredict recovery (later down the pipe, in \texttt{M}), respectively. It may be surprising that we need both of these values, rather than just looking one stage back in the pipeline to get the "next" value. We need to buffer both values because \texttt{D}'s \texttt{PC} is clobbered when we take a branch, so we can not use it for mispredict recovery.
 
 \subsection{Jumps and Branches}
 
-
-Due to the pipelined nature of AHB, we are unable to jump or to take branches in fewer than 2 cycles:
+Due to the pipelined nature of AHB, we are unable to jump or to take branches in fewer than 2 cycles (without some fairly sophisticated prediction):
 
 \begin{itemize}
 \item Cycle 0: AHB address phase to fetch jump/branch instruction
@@ -297,7 +296,7 @@ Jumps are physically taken in \texttt{W}, directly in front of the fetch address
 
 If both of these sources attempt to jump in the same cycle, \texttt{X/M} takes priority, since it is executing an older instruction. In both cases, the part of the pipeline in the hazard shadow is invalidated; i.e., \texttt{W} $\to$ \texttt{F}, or \texttt{W} $\to$ \texttt{X}. Invalidation is performed by clobbering the pipeline control signals in such a way that these instructions will have no side effects.
 
-This gives the following cycle costs, assuming full speculation:
+The branch prediction scheme is static: take backward branches, and do not take forward branches. The cycle costs are as follows:
 
 \begin{center}
 \begin{tabular}{l c}
@@ -313,7 +312,7 @@ Branch mispredict & 4 \\
 \end{tabular}
 \end{center}
 
-The branch prediction scheme is static: take backward branches, and do not take forward branches.
+Upon jumping, we need some mechanism to invalidate parts of the pipeline: this is described in section \ref{section:stalling_flushing}.
 
 \subsection{Operand Bypass}
 
@@ -352,6 +351,7 @@ The upshot is:
 \end{itemize}
 
 \subsection{Pipeline Stalling and Flushing}
+\label{section:stalling_flushing}
 
 Our terminology: stalling means a pipeline stage, along with prior stages, does not advance its state until some blocking condition has cleared. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
 
@@ -376,6 +376,20 @@ Besides HREADY low, each stage may stall for the following reasons:
 \end{itemize}
 
 Pipeline bubbles are inserted into a pipe register by the rightmost stage in the stall chain. This stage creates the bubble by zeroing out the destination register field, memory op field, and any other fields which cause side effects. Under the above stall policy, only \texttt{X} will need to create bubbles: this ends up a single bubble, on an \texttt{M} $\to$ \texttt{X} RAW hazard.
+
+There are two cases where we must flush:
+
+\begin{itemize}
+	\item Branch/jump taken from \texttt{D}; must flush \texttt{F}.
+	\item Jump/mispredict taken from \texttt{M}; must flush \texttt{F}, \texttt{D}, \texttt{X}
+\end{itemize}
+
+And the flushing mechanisms for each stage are as follows:
+\begin{itemize}
+	\item \texttt{F}: Write a flag in \texttt{F/D} which causes \texttt{D} to perform a render-safe on the next cycle (nopping out the instruction which was being fetched on the previous cycle), using the same method described below. We also set the instruction buffer level to zero.
+	\item \texttt{D}: destination register \texttt{rd} cleared, which makes result invisible to register file and operand bypass. \texttt{memop}, \texttt{branchcond} pipe flags are cleared.
+	\item \texttt{X}: same as \texttt{D} (except for \texttt{branchcond}, which terminates here).
+\end{itemize}
 
 \subsection{Unaligned Memory Accesses}
 
