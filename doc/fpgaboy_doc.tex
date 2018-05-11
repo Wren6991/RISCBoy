@@ -4,6 +4,7 @@
 \usepackage{csquotes}
 \usepackage[margin=0.7in]{geometry}
 \usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
 \usepackage{rotating}
 \usepackage{float}
 \usepackage[section]{placeins}
@@ -151,7 +152,7 @@ Branches are speculated, according to the static prediction scheme described in 
 \item Forward branches predicted not taken; the ISA manual advises compilers should put more-likely code on this path.
 \end{itemize}
 
-The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. Instructions take priority. If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The small size allows it to fit into the pipeline in an interesting place, without imbalance.
+The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The small size allows it to fit into the pipeline in an interesting place, without imbalance.
 
 \begin{displayquote}
 \textit{It's not the size, mate, it's how you use it.} - Austin Powers, Goldmember
@@ -188,6 +189,7 @@ The pipeline register \texttt{F} writes to, containing the 32 fresh instruction 
 AHB instructions fetches are \textit{always} word-sized, word-aligned. Internal buffering and muxes take care of building unaligned instruction bundles from this aligned data stream.
 
 \subsubsection{The Fetch Buffer}
+\label{section:fetch_buffer}
 
 Upon request, \texttt{F} can receive 32 bits of instruction data in a given cycle, via AHB or ICACHE. This request has a one-cycle latency. In the same cycle, \texttt{F} will consume 16 or 32 bits to refill \texttt{CIR}, based on the size of the instruction currently being decoded (which can quickly be ascertained by inspecting the two least-significant bits).
 
@@ -266,6 +268,24 @@ ReVive does \textit{not} use the program counter (\texttt{PC}) for code fetching
 \texttt{W} fetches instruction data from consecutive word-aligned addresses, as described in section \ref{section:jumps}. \texttt{F} has \textit{flow} control, and can inhibit \texttt{W}'s address phase on any given cycle; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, during non-sequential execution, it does require a \texttt{PC} value. Bits [31:2] are used to set the new fetch address, and bit 1 is used to determine whether the first instruction is aligned or unaligned with the fetch. The difference is outlined in section \ref{section:jumps}: essentially, on an unaligned jump, the first 16 bits of the fetch data are ignored, and the hardware scrabbles to put together a valid instruction.
 
 The true \texttt{PC} lives in \texttt{D}, where it is incremented by 2 or 4 each cycle, depending on the size of the instruction currently in the \texttt{CIR}. The current values of \texttt{PC} and \texttt{PC\_next} both travel into the \texttt{D/X} pipe register, where they are used for relative jump target calculation, and mispredict recovery (later down the pipe, in \texttt{M}), respectively. It may be surprising that we need both of these values, rather than just looking one stage back in the pipeline to get the "next" value. We need to buffer both values because \texttt{D}'s \texttt{PC} is clobbered when we take a branch, so we can not use it for mispredict recovery.
+
+\subsubsection{Load/Store, Fetch Arbitration}
+
+The single AHB master port asserts transactions from two sources: the fetch unit, whose address phase is in \texttt{W}, and the load/store unit, whose address phase is in \texttt{X}. The arbitration rule is that load/store wins over fetch, \textit{unless} a jump is triggered by \texttt{M}, in which case fetch wins. (This includes mispredict recoveries).
+
+The rationale for the main rule is that arbitrating either way can cause a bubble to appear in the pipeline, either after \texttt{F} or after \texttt{X}. However:
+
+\begin{itemize}
+	\item \texttt{F} may still be able to cover the next fetch cycle with its buffer contents, in which case we don't lose any cycles
+	\item Stalling \texttt{X} on AHB contention also stalls previous stages, including \texttt{F}; \texttt{F} needs to buffer the AHB transaction which will occur during this stall.
+\end{itemize}
+
+The rationale for the exception is that a late jump/branch should invalidate newer instructions in the pipeline, so it doesn't make sense for \texttt{X} to be given preferential access to a resource in this case, let alone be allowed to have side effects on system memory.
+
+On cycles where code fetch loses arbitration, \texttt{F} does \textit{not} set its flag which indicates an AHB address phase took place ($f_n \to f_{n-1}$). On the next cycle, \texttt{F} looks at next buffer level, $b_{n+1}$ (see section \ref{section:fetch_buffer}), and inserts a pipe bubble if this value is negative.
+
+Note that this creates some oddities in instruction flows for long strings of loads/stores: the load/store unit will remain active, blocking the fetch port, until the bubbles created by \texttt{F} reach it. The fetch unit will then win until the bubbles have elapsed. This shouldn't affect performance (the busmaster is always occupied, so memory is the bottleneck), it's just a bit weird.
+
 
 \subsection{Jumps and Branches}
 
@@ -602,6 +622,19 @@ Interrupts and traps are implemented using the mispredict recovery hardware. The
 The interrupt return mechanism is implemented with a small amount of ISA abuse: the hardware stashes the link address in an invisible architectural register during handler entry. The handler calls the magic instruction \texttt{JAL x0, 0} to jump back to this stashed \texttt{PC} value and therefore exit the interrupt. Hopefully not too much is lost by shadowing this instruction (jump to self without link).
 
 This assumes that the programmer always maintains a valid stack pointer in \texttt{x2}, with enough space to save the registers. In practice this is not such an onerous task, and other processors such as Cortex-M0 make liberal use of stack operations on interrupt entry/exit.
+
+\subsection{Possible Performance Gains}
+
+This section lists ideas of potential improvements which are waiting for synthesis + timing reports before I make a decision, or waiting for a decent regression test suite and working processor before I make complex changes.
+
+\begin{itemize}
+	\item The load/store address is generated by the ALU, which needs to mux its inputs and its operation. However, the inputs will always be rd1 and imm, and the operation is always add, so consider a hardwired adder to improve AHB timing.
+	\item There is a large amount of muxing required at the end of the AHB data phase in \texttt{F}. It may be possible to move some of this muxing over the cycle boundary into \texttt{D}.
+	\begin{itemize}
+		\item \texttt{F} needs to look at the \texttt{CIR}, but \texttt{D} creating the \texttt{CIR} in-cycle will not affect \texttt{F}'s timing, because this will be in parallel with the AHB data phase.
+		\item However, this may affect \texttt{W}'s address-phase timing, as \texttt{D}'s instruction size is used in fetch flow control.
+	\end{itemize}
+\end{itemize}
 
 \section{Graphics Pipeline}
 
