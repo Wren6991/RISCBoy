@@ -211,6 +211,7 @@ However, 2 halfwords works, if we apply the rule that we request a fetch on cycl
 
 At start of day, we initialise the \texttt{CIR} and the fetch buffer with a 32-bit \texttt{nop} each, the buffer level to 2, and $f_{n-1}$ to zero (since there \textit{was} no previous cycle to fetch on!). According to our rule, \texttt{F} will request a fetch on the first cycle (which will be from the reset vector), kicking off an AHB address phase; \texttt{D} will decode a \texttt{nop} on this cycle, the \texttt{CIR} will be refilled with the \texttt{nop} from the buffer, and the buffer level will go to zero. On the next cycle, \texttt{D} will decode the second \texttt{nop}, and \texttt{CIR} will be refilled again, this time with the instruction data from AHB. The buffer level will remain at 0. We have reached our execution steady state, from reset, without having any special purpose logic to handle reset. We have just chosen our flipflop reset values carefully.
 
+There is one extra case where we may expect to need more than two halfwords of buffering: what happens if an AHB dataphase completes whilst \texttt{D} is stalled? We would have a surplus of data, and would either have to drop some fetch data and restart that fetch (at a cost of 2 cycles), or would require up to an extra word of buffering. The resolution is to examine the cases where \texttt{D} is actually stalled: either this is due to a low \texttt{hready} -- in which case \textit{by definition} this is not the last cycle of a data phase -- or we are stalled on a RAW hazard between \texttt{X} and \texttt{M}. This will only happen if the instruction in \texttt{M} is a load. On the previous cycle, this load was in \texttt{X}, where it would have won arbitration over the code fetch address phase -- hence, there cannot be data arriving in \texttt{F} on the current cycle, and no extra buffering is required.
 \subsubsection{Sequential Code}
 
 In sequential code, the \texttt{ICACHE} will be queried every cycle (unless the fetch buffer is full), during \texttt{W}, as to whether it has the next aligned word. We are able to guarantee that all AHB and \texttt{ICACHE} accesses are word aligned due to the operation of the fetch buffer in \texttt{F}.
@@ -438,190 +439,13 @@ We are able to simplify the CPU operation by reusing the existing AHB stall logi
 \includegraphics[width=0.4\textwidth]{diagrams/unaligned_accesses.pdf}
 \end{figure}
 
-\subsection{Pipeline Operation -- Worked Examples}
-
-This section is included as much for my benefit as anything else. It describes the operation of all 5 pipeline stages for a few specimen instructions. I found it helpful to print out a few copies of figure \ref{diagram:cpu_pipeline} to trace out instructions with pen and paper.
-
-\subsubsection{ADD}
-
-Assembly: \texttt{add rd, rs1, rs2}
-
-Pseudocode: \texttt{rd} $\leftarrow$ \texttt{rd1} $+$ \texttt{rd2}
-
-\begin{enumerate}
-	\item \texttt{F}
-	\begin{itemize}
-		\item Instruction can be either 16 or 32 bit
-	\end{itemize}
-	\item \texttt{D}
-	\begin{itemize}
-		\item Current values of source registers are read out from register file
-		\item An internal bypass in the register file routes in the result of the instruction currently in \texttt{W}, if said instruction's \texttt{rd} matches our \texttt{rs1,rd2}, and the instruction generates a regfile write.
-	\end{itemize}
-	\item \texttt{X}
-	\begin{itemize}
-		\item Check the \texttt{rd} of \texttt{X/M} against our \texttt{rs1, rs2}. If there is a match:
-		\begin{itemize}
-			\item If \texttt{M} instruction is an ALU op: bypass it in
-			\item If \texttt{M} instruction is a load: stall until it completes
-		\end{itemize}
-		\item Otherwise, check \texttt{rd} in \texttt{M/W}. If there is a match, bypass this result in.
-	\end{itemize}
-	\item \texttt{M}
-	\begin{itemize}
-		\item \texttt{add} is a no-op in \texttt{M}
-		\item Our result is present in the pipe register, as well as our \texttt{rd}, and the fact that we are an ALU operation. Earlier pipe stages will forward our result as necessary
-	\end{itemize}
-	\item \texttt{W}
-	\begin{itemize}
-		\item Our result is pending write to the register file, and will be visible as of the next cycle
-		\item \texttt{D} is able to bypass our result in due to internal regfile bypass. \texttt{X,M} can also bypass our result using the normal bypass network
-	\end{itemize}
-	\item Retirement
-	\begin{itemize}
-		\item The result has been written to the register file. The instruction has no further side effects.
-	\end{itemize}
-\end{enumerate} 
-
-
-\subsubsection{JAL}
-
-Pseudocode: \texttt{rd $\leftarrow$ PC + 2/4;  PC $\leftarrow$ PC $+$ imm}
-
-(\texttt{JAL} has both 32-bit and 16-bit variants, so the value of the link address will vary.)
-
-
-\begin{enumerate}
-	\item \texttt{F}
-	\begin{itemize}
-		\item Whilst the jump is being fetched in \texttt{F}, the following instruction is entering the AHB address phase in \texttt{W}.
-		\item This following fetch will be wasted, but we have no way of knowing this until we start to decode the jump instruction.
-	\end{itemize}
-	\item \texttt{D}
-	\begin{itemize}
-		\item This is a J-format instruction. It contains 20 bits of immediate data, which are sign-extended and effectively left-shifted by 1 by the immediate mux structure.
-		\item \texttt{pc\_next} is passed on to \texttt{dx\_linkval}. ALU + muxes are configured to compute the sum of this value and \texttt{x0}.
-		\item Immediate value is passed on as normal.
-		\item \texttt{F} is stalled
-	\end{itemize}
-	\item \texttt{X}
-	\begin{itemize}
-		\item ALU passes link address to \texttt{X} result.
-		\item Jump target adder computes \texttt{PC + imm}.
-		\item Fetch update logic in \texttt{W} is flagged that \texttt{X} has a valid jump target. This is forwarded on to the fetch logic.
-		\item \texttt{D} is stalled.
-	\end{itemize}
-	\item \texttt{M}
-	\begin{itemize}
-		\item New instruction is in \texttt{F}. Two penalty cycles were incurred by jump.
-		\item The instruction is finished, but the link value continues on down the pipeline toward \texttt{W}. It is also available to the bypass network.
-	\end{itemize}
-	\item \texttt{W}
-	\begin{itemize}
-		\item Link address is written to register file.
-		\item Target instruction is now in decode, and may use the link value via regfile bypass.
-	\end{itemize}
-\end{enumerate}
-
-
-\subsubsection{JALR}
-
-Pseudocode: \texttt{rd $\leftarrow$ PC + 2/4; PC $\leftarrow$ rs1 + imm}
-
-
-\begin{enumerate}
-	\item \texttt{F}
-	\begin{itemize}
-		\item Whilst the jump is being fetched in \texttt{F}, the following instruction is entering the AHB address phase in \texttt{W}.
-		\item This following fetch will be wasted, but we have no way of knowing this until we start to decode the jump instruction.
-	\end{itemize}
-	\item \texttt{D}
-	\begin{itemize}
-		\item This is an I-format instruction. It contains 12 bits of immediate data, which are sign-extended but not shifted.
-		\item \texttt{pc\_next} is passed on to \texttt{dx\_linkval}. ALU + muxes are configured to compute the sum of this value and \texttt{x0}.
-		\item Immediate value is passed on as normal.
-		\item \texttt{F} is stalled
-	\end{itemize}
-	\item \texttt{X}
-	\begin{itemize}
-		\item ALU passes link address to \texttt{X} result.
-		\item Jump target adder computes \texttt{rs1 + imm}.
-		\item Fetch update logic in \texttt{W} is flagged that \texttt{X} has a valid jump target. This is forwarded on to the fetch logic.
-		\item \texttt{D} is stalled.
-	\end{itemize}
-	\item \texttt{M}
-	\begin{itemize}
-		\item New instruction is in \texttt{F}. Two penalty cycles were incurred by jump.
-		\item The instruction is finished, but the link value continues on down the pipeline toward \texttt{W}. It is also available to the bypass network.
-	\end{itemize}
-	\item \texttt{W}
-	\begin{itemize}
-		\item Link address is written to register file.
-		\item Target instruction is now in decode, and may use the link value via regfile bypass.
-	\end{itemize}
-\end{enumerate}
-
-\subsubsection{LW and friends}
-
-Pseudocode: \texttt{rd $\leftarrow$ mem[rs1 + imm]}
-
-Two cases: aligned and unaligned. Aligned:
-
-
-\begin{enumerate}
-	\item \texttt{F}
-	\begin{itemize}
-		\item Nothing special to see here.
-	\end{itemize}
-	\item \texttt{D}
-	\begin{itemize}
-		\item This is an I-format instruction. It contains 12 bits of immediate data, which are sign-extended but not shifted.
-	\end{itemize}
-	\item \texttt{X}
-	\begin{itemize}
-		\item ALU computes \texttt{rs1 + imm}. This is the load address. AHB address phase starts immediately if master is not contested (timing should be okay...)
-	\end{itemize}
-	\item \texttt{M}
-	\begin{itemize}
-		\item AHB data phase takes place. Loaded word appears in \texttt{M/W} result register at end of cycle.
-	\end{itemize}
-	\item \texttt{W}
-	\begin{itemize}
-		\item Loaded data is written to register file.
-	\end{itemize}
-\end{enumerate}
-
-Unaligned: Only \texttt{X} and \texttt{M} are different.
-
-\begin{enumerate}
-	\item \texttt{X}
-	\begin{itemize}
-		\item ALU computes \texttt{rs1 + imm}.
-		\item First cycle: AHB address phase to \texttt{(rs1 + imm) \& \textasciitilde 0x3}. \texttt{F, D} stalled.
-		\item Second cycle: AHB address phase to prev address + 4. \texttt{F, D} resume.
-	\end{itemize}
-	\item \texttt{M}
-	\begin{itemize}
-		\item Second cycle: store AHB data phase result in a word-sized local buffer.
-		\item Third cycle: use muxes to build full load result from buffer, second data phase.
-	\end{itemize}
-\end{enumerate}
-
-\texttt{SW} is even worse. Due to AHB alignment requirements, a word-store may have to be implemented as a byte store, halfword store and byte store.
-
-\texttt{LH} will require either one halfword fetch, one word fetch, or two byte fetches depending on alignment.
-
-\texttt{LB} can always be completed with a single fetch.
-
-
-
 \subsection{Interrupts}
 
-Interrupts and traps are implemented using the mispredict recovery hardware. They are precise and immediate; however, no state saving is carried out by the processor. The handler is responsible for saving any registers it uses on the stack, and restoring the state of the stack afterwards. The RISC-V ISA makes it possible for our handler to completely restore the processor state before exiting, but does not provide any mechanism to perform a return without first smashing the link register on handler entry.
+ReVive has a single interrupt, implemented using the early jump hardware (\texttt{D}-triggered jumps). Upon raising of the interrrupt flag, the processor will abruptly jump to a predefined location (current plan is just to have this as a module parameter -- TODO). No state is saved on interrupt entry, except for the link register and the \texttt{PC}; the link register is overwritten with a magic value of \texttt{0xffffffff}, and a \texttt{jalr} to this address (most likely a \texttt{ret}) will trigger a jump back to the saved \texttt{PC}, and restoration of the stashed link register. This return is handled by the mispredict recovery hardware: \texttt{M} will see the magic jump value, initiating a jump to \texttt{PC} and swapping the stashed link register into the pipeline result register (making it visible to the bypass network).
 
-The interrupt return mechanism is implemented with a small amount of ISA abuse: the hardware stashes the link address in an invisible architectural register during handler entry. The handler calls the magic instruction \texttt{JAL x0, 0} to jump back to this stashed \texttt{PC} value and therefore exit the interrupt. Hopefully not too much is lost by shadowing this instruction (jump to self without link).
+It's up to the ISR to save any registers it uses. This may be a simple shell handler which saves the registers (caller- and callee-saved!) before dispatching out to a C function for each interrupt source. However, \textit{extremely} fast ISRs (2 cycle entry, 4 cycle exit) can be written by saving only those registers actually used.
 
-This assumes that the programmer always maintains a valid stack pointer in \texttt{x2}, with enough space to save the registers. In practice this is not such an onerous task, and other processors such as Cortex-M0 make liberal use of stack operations on interrupt entry/exit.
+Note that this model requires the stack pointer to be valid at all times. Software must set the stack pointer before unmasking interrupts in the external interrupt controller.
 
 \subsection{Possible Performance Gains}
 
