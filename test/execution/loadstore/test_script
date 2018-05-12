@@ -18,5 +18,5 @@ assert(len(regs) == 32)
 # Actual test:
 
 assert(all(a == b for a, b in zip(regs[8:15],
-	[0x1234, 0x56781234, 0xffffff9a, 0x9a, 0x34f09abc, 0x9abc, 0xffff9abc])))
+	[0x1234, 0x56781234, 0xffffff9a, 0x9a, 0x34f09abc, 0xffff9abc, 0x9abc])))
 print("Test PASSED.")

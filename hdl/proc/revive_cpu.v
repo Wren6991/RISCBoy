@@ -169,13 +169,13 @@ always @ (posedge clk or negedge rst_n) begin
 		fd_cir_half_valid <= 1'b0;
 		if (f_buf_level_next[2]) begin
 			fd_pipe_bubble <= 1'b1;
-			f_fetch_req_prev <= f_fetch_req;
+			f_fetch_req_prev <= f_fetch_req && !ahb_req_d;
 		end
 	end else begin
 		fd_cir_half_valid <= 1'b0;
 		f_buf_level <= f_buf_level_next;
 		fd_pipe_bubble   <= w_jump_now;
-		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req;
+		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req && !ahb_req_d;
 		if (wf_jumped) begin
 			if (wf_jump_unaligned) begin
 				fd_cir <= f_fetch_data[47:16];

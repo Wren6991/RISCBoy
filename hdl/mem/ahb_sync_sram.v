@@ -63,9 +63,11 @@ reg  [W_BYTES-1:0] w_mask_noshift;
 wire [W_BYTES-1:0] w_mask;
 
 // NB: we assume little-endian addressing here
+
+reg [2:0]        hsize_d;
 always @ (*) begin
 	for (i = 0; i < W_BYTES; i = i + 1) begin
-		w_mask_noshift[i] = i < (1 << ahbls_hsize);
+		w_mask_noshift[i] = i < (1 << hsize_d);
 	end
 end
 assign w_mask = w_mask_noshift << haddr_d[$clog2(W_BYTES)-1:0];
@@ -114,7 +116,6 @@ end
 
 reg [1:0] state;
 reg [W_ADDR-1:0] haddr_d;
-reg [2:0]        hsize_d;
 
 assign ahbls_hready_resp = !(state == STATE_WRITE && ahbls_htrans[1] && !ahbls_hwrite);
 assign ahbls_hresp = 1'b0;

@@ -5,3 +5,4 @@ ahbl_crossbar
 sync_fifo
 execution/fibonacci
 execution/branch
+execution/loadstore

@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="74" />
+   <WVObjectSize size="80" />
    <wvobject fp_name="divider17" type="divider">
       <obj_property name="label">Top Level</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -53,6 +53,35 @@
    <wvobject fp_name="/tb/hrdata" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">hrdata[31:0]</obj_property>
       <obj_property name="ObjectShortName">hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider107" type="divider">
+      <obj_property name="label">SRAM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/w_mask" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_mask[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_mask[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/w_mask_noshift" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">w_mask_noshift[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_mask_noshift[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/sram/addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr[13:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[13:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/sram/wdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/sram/rdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="divider41" type="divider">
