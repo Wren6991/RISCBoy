@@ -30,7 +30,7 @@ revive_cpu #(
 	.clk(clk),
 	.rst_n(rst_n),
 
-	.abhlm_hready    (hready),
+	.ahblm_hready    (hready),
 	.ahblm_hresp     (hresp),
 	.ahblm_haddr     (haddr),
 	.ahblm_hwrite    (hwrite),

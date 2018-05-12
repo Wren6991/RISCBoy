@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="72" />
+   <WVObjectSize size="74" />
    <wvobject fp_name="divider17" type="divider">
       <obj_property name="label">Top Level</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -274,6 +274,10 @@
       <obj_property name="ElementShortName">f_buf_level[1:0]</obj_property>
       <obj_property name="ObjectShortName">f_buf_level[1:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb/cpu0/f_buf_level_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">f_buf_level_next[2:0]</obj_property>
+      <obj_property name="ObjectShortName">f_buf_level_next[2:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb/cpu0/f_fetch_req_prev" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">f_fetch_req_prev</obj_property>
       <obj_property name="ObjectShortName">f_fetch_req_prev</obj_property>
@@ -296,6 +300,10 @@
       <obj_property name="ElementShortName">d_jump_target[31:0]</obj_property>
       <obj_property name="ObjectShortName">d_jump_target[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/fd_pipe_bubble" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fd_pipe_bubble</obj_property>
+      <obj_property name="ObjectShortName">fd_pipe_bubble</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/fd_cir" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">fd_cir[31:0]</obj_property>
