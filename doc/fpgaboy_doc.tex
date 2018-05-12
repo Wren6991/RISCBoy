@@ -11,6 +11,7 @@
 \usepackage{sectsty}
 \sectionfont{\clearpage}
 
+\setlength{\parskip}{0.3em}
 \usepackage{xcolor}
 \usepackage{listings}
 \lstset{
@@ -212,6 +213,7 @@ However, 2 halfwords works, if we apply the rule that we request a fetch on cycl
 At start of day, we initialise the \texttt{CIR} and the fetch buffer with a 32-bit \texttt{nop} each, the buffer level to 2, and $f_{n-1}$ to zero (since there \textit{was} no previous cycle to fetch on!). According to our rule, \texttt{F} will request a fetch on the first cycle (which will be from the reset vector), kicking off an AHB address phase; \texttt{D} will decode a \texttt{nop} on this cycle, the \texttt{CIR} will be refilled with the \texttt{nop} from the buffer, and the buffer level will go to zero. On the next cycle, \texttt{D} will decode the second \texttt{nop}, and \texttt{CIR} will be refilled again, this time with the instruction data from AHB. The buffer level will remain at 0. We have reached our execution steady state, from reset, without having any special purpose logic to handle reset. We have just chosen our flipflop reset values carefully.
 
 There is one extra case where we may expect to need more than two halfwords of buffering: what happens if an AHB dataphase completes whilst \texttt{D} is stalled? We would have a surplus of data, and would either have to drop some fetch data and restart that fetch (at a cost of 2 cycles), or would require up to an extra word of buffering. The resolution is to examine the cases where \texttt{D} is actually stalled: either this is due to a low \texttt{hready} -- in which case \textit{by definition} this is not the last cycle of a data phase -- or we are stalled on a RAW hazard between \texttt{X} and \texttt{M}. This will only happen if the instruction in \texttt{M} is a load. On the previous cycle, this load was in \texttt{X}, where it would have won arbitration over the code fetch address phase -- hence, there cannot be data arriving in \texttt{F} on the current cycle, and no extra buffering is required.
+
 \subsubsection{Sequential Code}
 
 In sequential code, the \texttt{ICACHE} will be queried every cycle (unless the fetch buffer is full), during \texttt{W}, as to whether it has the next aligned word. We are able to guarantee that all AHB and \texttt{ICACHE} accesses are word aligned due to the operation of the fetch buffer in \texttt{F}.
@@ -381,18 +383,18 @@ All stages stall on HREADY low, no matter which internal master instigated the c
 Besides HREADY low, each stage may stall for the following reasons:
 
 \begin{itemize}
-	\item \texttt{F}: stall in \texttt{X}
-	\item \texttt{D}: stall in \texttt{X}
-	\item \texttt{X}:
+	\item \texttt{F}: 
 	\begin{itemize}
-		\item \texttt{W} needs the AHB busmaster
-		\item RAW hazard on \texttt{M}
+		\item Fetch buffer underflow (after losing busmaster arbitration)
+		\item  Stall in \texttt{X}
 	\end{itemize}
+	\item \texttt{D}: stall in \texttt{X}
+	\item \texttt{X}: RAW hazard on \texttt{M}
 	\item \texttt{M}: only on HREADY
 	\item \texttt{W}:
 	\begin{itemize}
 		\item Writeback: only on HREADY
-		\item PC generation: stalls when \texttt{X} stalls
+		\item PC generation: stalls when \texttt{X} is stalled.
 	\end{itemize}
 \end{itemize}
 

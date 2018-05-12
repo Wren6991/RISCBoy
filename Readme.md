@@ -14,6 +14,9 @@ The design is written in synthesisable Verilog 2001, and is intended to fit onto
 
 More detailed information can be found in the [documentation](doc/fpgaboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
 
+Simulation
+----------
+
 The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the scripts/ folder. This has only been tested with the Linux version of ISIM. The ISIM installer failed due to permissions on my Ubuntu 17.04 installation, and I had to manually create the directory /opt/Xilinx and chmod/chown it.
 
 Once ISIM is installed, you should be able to do the following:
@@ -31,3 +34,15 @@ which will run all of the HDL-level tests. You may need to adjust some of the pa
 cd ahbl_arbiter
 make gui
 ```
+
+Building RV32IC Toolchain
+-------------------------
+
+Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
+
+```
+./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
+make
+```
+
+Note the calling convention is *not* `ilp3d2`. The example on the GitHub page is for a processor with double floating point. The configure script will not complain if you do this, but the build will fail.
