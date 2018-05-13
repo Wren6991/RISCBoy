@@ -340,6 +340,9 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
+reg [W_REGADDR-1:0] mw_rd;
+reg [W_DATA-1:0]    mw_result;
+
 regfile_1w2r #(
 	.FAKE_DUALPORT(0),
 	.RESET_REGS(1),
@@ -513,9 +516,6 @@ revive_alu alu (
 // ============================================================================
 //                               Pipe Stage M
 // ============================================================================
-
-reg [W_REGADDR-1:0] mw_rd;
-reg [W_DATA-1:0]    mw_result;
 
 reg [1:0]           m_shift;
 reg [W_DATA-1:0]    m_rdata_shift;
