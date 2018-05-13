@@ -6,3 +6,4 @@ sync_fifo
 execution/fibonacci
 execution/branch
 execution/loadstore
+execution/factorial

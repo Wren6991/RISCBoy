@@ -548,9 +548,10 @@
       <obj_property name="ObjectShortName">w_fetchaddr[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/wx_rd" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">wx_rd</obj_property>
-      <obj_property name="ObjectShortName">wx_rd</obj_property>
+   <wvobject fp_name="/tb/cpu0/wx_rd" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wx_rd[4:0]</obj_property>
+      <obj_property name="ObjectShortName">wx_rd[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/wx_result" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">wx_result[31:0]</obj_property>
