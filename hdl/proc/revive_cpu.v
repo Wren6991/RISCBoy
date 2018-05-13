@@ -289,12 +289,12 @@ always @ (posedge clk or negedge rst_n) begin
 
 		// Decode ALU controls
 		casez (d_instr)
-		RV_BEQ:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
-		RV_BNE:     begin dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BLT:     begin dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BGE:     begin dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BLTU:    begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BGEU:    begin dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BEQ:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
+		RV_BNE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BLT:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BGE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BLTU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+		RV_BGEU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
 		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
 		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
@@ -371,19 +371,25 @@ revive_instr_decompress decomp(
 //                               Pipe Stage X
 // ============================================================================
 
-// Combinational regs for muxing
-reg  [W_DATA-1:0]   x_op_a;
-reg  [W_DATA-1:0]   x_op_b;
-wire [31:0]         x_alu_result;
-wire                x_alu_zero;
+// Register the write which took place to the regfile on previous cycle, and bypass.
+// This is an alternative to a write -> read bypass in the regfile,
+// which we can't implement whilst maintaining BRAM inference compatibility.
+reg  [W_REGADDR-1:0] wx_rd;
+reg  [W_DATA-1:0]    wx_result;
 
-reg [W_REGADDR-1:0] xm_rs1;
-reg [W_REGADDR-1:0] xm_rs2;
-reg [W_REGADDR-1:0] xm_rd;
-reg [W_DATA-1:0]    xm_result;
-reg [W_ADDR-1:0]    xm_jump_target;
-reg                 xm_jump;
-reg [W_MEMOP-1:0]   xm_memop;
+// Combinational regs for muxing
+reg   [W_DATA-1:0]   x_op_a;
+reg   [W_DATA-1:0]   x_op_b;
+wire  [31:0]         x_alu_result;
+wire                 x_alu_zero;
+
+reg  [W_REGADDR-1:0] xm_rs1;
+reg  [W_REGADDR-1:0] xm_rs2;
+reg  [W_REGADDR-1:0] xm_rd;
+reg  [W_DATA-1:0]    xm_result;
+reg  [W_ADDR-1:0]    xm_jump_target;
+reg                  xm_jump;
+reg  [W_MEMOP-1:0]   xm_memop;
 
 wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? dx_rdata1 : dx_pc);
 
@@ -406,7 +412,7 @@ always @ (*) begin
 	endcase
 end
 
-// ALU operand muxes
+// ALU operand muxes and bypass
 always @ (*) begin
 	case (dx_alusrc_a)
 	ALUSRCA_RS1: begin
@@ -416,6 +422,8 @@ always @ (*) begin
 			x_op_a = xm_result;
 		end else if (mw_rd == dx_rs1) begin
 			x_op_a = mw_result;
+		end else if (wx_rd == dx_rs1) begin
+			x_op_a = wx_result;
 		end else begin
 			x_op_a = dx_rdata1;
 		end
@@ -439,6 +447,8 @@ always @ (*) begin
 			x_op_b = xm_result;
 		end else if (mw_rd == dx_rs2) begin
 			x_op_b = mw_result;
+		end else if (wx_rd == dx_rs2) begin
+			x_op_b = wx_result;
 		end else begin
 			x_op_b = dx_rdata2;
 		end
@@ -572,10 +582,16 @@ always @ (posedge clk or negedge rst_n) begin
 		w_fetchaddr <= RESET_VECTOR;
 		wf_jump_unaligned <= 1'b0;
 		wf_jumped <= 1'b0;
+		wx_rd <= {W_REGADDR{1'b0}};
+		wx_result <= {W_DATA{1'b0}};
 	end else if (!stall_cause_ahb) begin
 		wf_icache_valid <= w_icache_valid;
 		wf_jump_unaligned <= 1'b0;
 		wf_jumped <= w_jump_now;
+		// Register the write currently going into cache, as this
+		// is invisible to D, so bypassed from here to X.
+		wx_result <= mw_result;
+		wx_rd <= mw_rd;
 		if (w_jump_now) begin
 			w_fetchaddr <= (w_jump_target & 32'hffff_fffc) + 3'h4;
 			wf_jump_unaligned <= w_jump_target[1];

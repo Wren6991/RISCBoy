@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="80" />
+   <WVObjectSize size="82" />
    <wvobject fp_name="divider17" type="divider">
       <obj_property name="label">Top Level</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -321,6 +321,11 @@
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_pc" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb/cpu0/d_jump" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">d_jump</obj_property>
       <obj_property name="ObjectShortName">d_jump</obj_property>
@@ -373,11 +378,6 @@
       <obj_property name="ObjectShortName">d_instr[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/d_pc" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">d_pc[31:0]</obj_property>
-      <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/d_pc_next" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">d_pc_next[31:0]</obj_property>
       <obj_property name="ObjectShortName">d_pc_next[31:0]</obj_property>
@@ -407,6 +407,11 @@
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/dx_pc" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dx_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dx_pc[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/dx_aluop" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">dx_aluop[3:0]</obj_property>
@@ -438,11 +443,6 @@
       <obj_property name="ObjectShortName">dx_memop[3:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/dx_pc" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">dx_pc[31:0]</obj_property>
-      <obj_property name="ObjectShortName">dx_pc[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/dx_rd" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">dx_rd[4:0]</obj_property>
       <obj_property name="ObjectShortName">dx_rd[4:0]</obj_property>
@@ -468,15 +468,6 @@
       <obj_property name="ObjectShortName">dx_rs2[4:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/x_alu_result" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">x_alu_result[31:0]</obj_property>
-      <obj_property name="ObjectShortName">x_alu_result[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/x_alu_zero" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">x_alu_zero</obj_property>
-      <obj_property name="ObjectShortName">x_alu_zero</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/x_op_a" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">x_op_a[31:0]</obj_property>
       <obj_property name="ObjectShortName">x_op_a[31:0]</obj_property>
@@ -486,6 +477,15 @@
       <obj_property name="ElementShortName">x_op_b[31:0]</obj_property>
       <obj_property name="ObjectShortName">x_op_b[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/x_alu_result" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">x_alu_result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">x_alu_result[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/x_alu_zero" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">x_alu_zero</obj_property>
+      <obj_property name="ObjectShortName">x_alu_zero</obj_property>
    </wvobject>
    <wvobject fp_name="divider14" type="divider">
       <obj_property name="label">Memory</obj_property>
@@ -546,6 +546,15 @@
    <wvobject fp_name="/tb/cpu0/w_fetchaddr" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">w_fetchaddr[31:0]</obj_property>
       <obj_property name="ObjectShortName">w_fetchaddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/wx_rd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wx_rd</obj_property>
+      <obj_property name="ObjectShortName">wx_rd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/wx_result" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wx_result[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wx_result[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
 </wave_config>
