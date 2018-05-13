@@ -1,5 +1,5 @@
 module revive_instr_decompress #(
-	parameter PASSTHROUGH = 1
+	parameter PASSTHROUGH = 0
 ) (
 	input wire [31:0] instr_in,
 	output reg instr_is_32bit,
@@ -45,6 +45,7 @@ end else begin
 			instr_is_32bit = 1'b0;
 			instr_out = 32'h0;
 			casez (instr_in[15:0])
+			16'h0:  begin end // Do nothing; 32-bit 0s are illegal too!
 			RV_C_ADDI4SPN: instr_out = RV_NOZ_ADDI | (rd_s << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
 				| ({instr_in[10:7], instr_in[12:11], instr_in[5], instr_in[6], 2'b00} << 20);
 			RV_C_LW:       instr_out = RV_NOZ_LW | (rd_s << RV_RD_LSB) | (rs1_s << RV_RS1_LSB)

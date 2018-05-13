@@ -363,9 +363,12 @@ regfile_1w2r #(
 	.wen    (|mw_rd)
 );
 
+wire d_cir_is_32bit;
+assign df_instr_is_32bit = d_cir_is_32bit || fd_pipe_bubble;
+
 revive_instr_decompress decomp(
 	.instr_in(fd_cir),
-	.instr_is_32bit(df_instr_is_32bit),
+	.instr_is_32bit(d_cir_is_32bit),
 	.instr_out(d_instr)
 );
 
