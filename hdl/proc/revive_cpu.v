@@ -134,8 +134,9 @@ always @ (*) begin
 		end else begin
 			f_buf_level_next = 2'h0;
 		end
-	end else if (fd_cir_half_valid && df_instr_is_32bit) begin
-		f_buf_level_next = 2'h1;
+	end else if (fd_cir_half_valid) begin
+		// Either CIR fully consumed by 16 bit, or previously stalled on 32-bit -> excess halfword
+		f_buf_level_next = df_instr_is_32bit;
 	end else begin
 		f_buf_level_next = f_buf_level - 1'b1 - df_instr_is_32bit + (f_fetch_req_prev << 1);
 	end
@@ -184,10 +185,14 @@ always @ (posedge clk or negedge rst_n) begin
 			end else begin
 				fd_cir <= f_fetch_data[31:0];
 			end
-		end else if (fd_cir_half_valid && df_instr_is_32bit) begin
-			// Second cycle of unaligned jump. Recover from partial fetch
-			fd_cir <= {f_fetch_data[15:0], fd_cir[15:0]};
-			f_fetch_buf[15:0] <= {f_fetch_data[31:16]};
+		end else if (fd_cir_half_valid) begin
+			if (df_instr_is_32bit) begin
+				// Second cycle of unaligned jump. Recover from partial fetch
+				fd_cir <= {f_fetch_data[15:0], fd_cir[15:0]};
+				f_fetch_buf[15:0] <= {f_fetch_data[31:16]};
+			end else begin
+				fd_cir <= {f_fetch_data[31:0]};
+			end
 		end else begin
 			// Sequential code execution
 			if (df_instr_is_32bit) begin
@@ -576,7 +581,7 @@ assign w_jump_now = xm_jump || (d_jump && !ahb_req_d);
 assign w_jump_target = xm_jump ? xm_jump_target : d_jump_target;
 assign flush_d_x = xm_jump;
 
-assign ahb_haddr_i = w_jump_now ? w_jump_target : w_fetchaddr;
+assign ahb_haddr_i = w_jump_now ? {w_jump_target[31:2], 2'b00} : w_fetchaddr;
 assign ahb_req_i = f_fetch_req || w_jump_now;
 
 always @ (posedge clk or negedge rst_n) begin

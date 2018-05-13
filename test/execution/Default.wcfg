@@ -326,6 +326,11 @@
       <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb/cpu0/fd_cir" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fd_cir[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fd_cir[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb/cpu0/d_jump" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">d_jump</obj_property>
       <obj_property name="ObjectShortName">d_jump</obj_property>
@@ -338,11 +343,6 @@
    <wvobject fp_name="/tb/cpu0/fd_pipe_bubble" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">fd_pipe_bubble</obj_property>
       <obj_property name="ObjectShortName">fd_pipe_bubble</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/fd_cir" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fd_cir[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fd_cir[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/fd_cir_half_valid" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">fd_cir_half_valid</obj_property>

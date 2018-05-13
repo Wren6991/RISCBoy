@@ -23,10 +23,10 @@ wire [W_REGADDR-1:0] rs2_s = {2'b01, instr_in[4:2]};
 // I don't even
 wire [31:0] imm_ci = {{7{instr_in[12]}}, instr_in[6:2]} << 20;
 
-wire imm_cj = {instr_in[12], instr_in[8], instr_in[10:9], instr_in[6], instr_in[7],
+wire [31:0] imm_cj = {instr_in[12], instr_in[8], instr_in[10:9], instr_in[6], instr_in[7],
 	instr_in[2], instr_in[11], instr_in[5:3], {9{instr_in[12]}}} << 12;
 
-wire imm_cb = ({instr_in[11:10], instr_in[4:3], instr_in[12]} << 7)
+wire [31:0] imm_cb = ({instr_in[11:10], instr_in[4:3], instr_in[12]} << 7)
 	| ({{4{instr_in[12]}}, instr_in[6:5], instr_in[2], instr_in[11:10], instr_in[4:3]} << 25);
 
 generate
@@ -76,15 +76,15 @@ end else begin
 				if (rs2_l) begin
 					instr_out = RV_NOZ_ADD | (rd_l << RV_RD_LSB) | (rs1_l << RV_RS1_LSB) | (rs2_l << RV_RS2_LSB);
 				end else begin
-					instr_out = RV_NOZ_JALR | (rs1_l << RV_RS1_LSB);
+					// jalr
+					instr_out = RV_NOZ_JALR | (5'h1 << RV_RD_LSB) | (rs1_l << RV_RS1_LSB);
 				end
 			end
-			RV_C_ADD: begin
+			RV_C_MV: begin
 				if (rs2_l) begin
 					instr_out = RV_NOZ_ADD | (rd_l << RV_RD_LSB) | (rs2_l << RV_RS2_LSB);
 				end else begin
-					// jalr
-					instr_out = RV_NOZ_JALR | (5'h1 << RV_RD_LSB) | (rs1_l << RV_RS1_LSB);
+					instr_out = RV_NOZ_JALR | (rs1_l << RV_RS1_LSB);
 				end
 			end
 			RV_C_LWSP:     instr_out = RV_NOZ_LW | (rd_l << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
