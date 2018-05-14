@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="82" />
+   <WVObjectSize size="81" />
    <wvobject fp_name="divider17" type="divider">
       <obj_property name="label">Top Level</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -24,11 +24,6 @@
       <obj_property name="ElementShortName">rst_n</obj_property>
       <obj_property name="ObjectShortName">rst_n</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/haddr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">haddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">haddr[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/hready" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">hready</obj_property>
       <obj_property name="ObjectShortName">hready</obj_property>
@@ -40,6 +35,11 @@
    <wvobject fp_name="/tb/htrans[1]" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">[1]</obj_property>
       <obj_property name="ObjectShortName">htrans[1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/hsize" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">hsize[2:0]</obj_property>
@@ -294,18 +294,13 @@
       <obj_property name="ElementShortName">wf_jump_unaligned</obj_property>
       <obj_property name="ObjectShortName">wf_jump_unaligned</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/f_fetch_buf" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">f_fetch_buf[31:0]</obj_property>
-      <obj_property name="ObjectShortName">f_fetch_buf[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/f_buf_level" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">f_buf_level[1:0]</obj_property>
-      <obj_property name="ObjectShortName">f_buf_level[1:0]</obj_property>
+      <obj_property name="ElementShortName">f_buf_level[2:0]</obj_property>
+      <obj_property name="ObjectShortName">f_buf_level[2:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/f_buf_level_next" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">f_buf_level_next[2:0]</obj_property>
-      <obj_property name="ObjectShortName">f_buf_level_next[2:0]</obj_property>
+      <obj_property name="ElementShortName">f_buf_level_next[3:0]</obj_property>
+      <obj_property name="ObjectShortName">f_buf_level_next[3:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/f_fetch_req_prev" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">f_fetch_req_prev</obj_property>
@@ -314,6 +309,11 @@
    <wvobject fp_name="/tb/cpu0/f_fetch_req" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">f_fetch_req</obj_property>
       <obj_property name="ObjectShortName">f_fetch_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/f_buf" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">f_buf[63:0]</obj_property>
+      <obj_property name="ObjectShortName">f_buf[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="divider12" type="divider">
       <obj_property name="label">Decode</obj_property>
@@ -326,10 +326,142 @@
       <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/fd_cir" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fd_cir[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fd_cir[31:0]</obj_property>
+   <wvobject fp_name="vbus145" type="vbus" db_ref_id="1">
+      <obj_property name="label">CIR</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/tb/cpu0/f_buf[31]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[31]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[31]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[30]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[30]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[30]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[29]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[29]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[29]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[28]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[28]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[28]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[27]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[27]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[27]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[26]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[26]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[26]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[25]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[25]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[25]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[24]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[24]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[24]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[23]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[23]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[23]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[22]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[22]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[22]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[21]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[21]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[21]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[20]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[20]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[20]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[19]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[19]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[19]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[18]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[18]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[18]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[17]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[17]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[17]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[16]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[16]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[16]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[15]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[15]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[15]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[14]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[14]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[14]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[13]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[13]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[13]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[12]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[12]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[12]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[11]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[11]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[11]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[10]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[10]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[10]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[9]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[8]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[8]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[7]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[6]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[6]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[5]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[5]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[4]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[3]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[3]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[2]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[2]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[1]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/f_buf[0]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">f_buf[0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_bubble" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_bubble</obj_property>
+      <obj_property name="ObjectShortName">d_bubble</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/d_jump" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">d_jump</obj_property>
@@ -339,14 +471,6 @@
       <obj_property name="ElementShortName">d_jump_target[31:0]</obj_property>
       <obj_property name="ObjectShortName">d_jump_target[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/fd_pipe_bubble" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">fd_pipe_bubble</obj_property>
-      <obj_property name="ObjectShortName">fd_pipe_bubble</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/fd_cir_half_valid" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">fd_cir_half_valid</obj_property>
-      <obj_property name="ObjectShortName">fd_cir_half_valid</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/d_imm_b" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">d_imm_b[31:0]</obj_property>

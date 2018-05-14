@@ -102,6 +102,8 @@ end
 //                               Pipe Stage F
 // ============================================================================
 
+localparam W_FBUF = 64;
+
 wire [W_DATA-1:0] wf_icache_rdata;
 reg               wf_icache_valid;
 reg               wf_jump_unaligned;
@@ -110,18 +112,18 @@ reg               wf_jumped;
 wire [W_ADDR-1:0] f_icache_waddr;
 wire [W_DATA-1:0] f_icache_wdata;
 wire              f_icache_wen;
-reg  [31:0]       f_fetch_buf;
-reg  [1:0]        f_buf_level;
-reg  [2:0]        f_buf_level_next;
+reg  [W_FBUF-1:0] f_buf;
+reg  [2:0]        f_buf_level;
+reg  [3:0]        f_buf_level_next;
+reg  [1:0]        fd_cir_level;
 reg               f_fetch_req;
 reg               f_fetch_req_prev;
 
-reg [31:0]        fd_cir;
-reg               fd_cir_half_valid;	// If we could only manage 16 bits of instruction data
-reg               fd_pipe_bubble;		// Instruct D to nop out the instruction we're giving it
-
 wire              df_instr_is_32bit;
-
+// Halfwords consumed by D this cycle:
+wire [1:0]        f_instr_loss =
+	fd_cir_level[1] ? 1'b1 + df_instr_is_32bit :
+	fd_cir_level[0] ? 1'b1 - df_instr_is_32bit : 2'h0;
 
 // Calculate next buffer level combinatorially, so that it is visible to W
 // fetch logic in-cycle.
@@ -129,79 +131,54 @@ wire              df_instr_is_32bit;
 // D. Should go positive again once W is able to assert an address phase.
 always @ (*) begin
 	if (w_jump_now) begin
-		if (wf_icache_valid && wf_jump_unaligned) begin
-			f_buf_level_next = 2'h1;
-		end else begin
-			f_buf_level_next = 2'h0;
-		end
-	end else if (fd_cir_half_valid) begin
-		// Either CIR fully consumed by 16 bit, or previously stalled on 32-bit -> excess halfword
-		f_buf_level_next = df_instr_is_32bit;
+		f_buf_level_next = 3'h0;
 	end else begin
-		f_buf_level_next = f_buf_level - 1'b1 - df_instr_is_32bit + (f_fetch_req_prev << 1);
+		f_buf_level_next = f_buf_level - f_instr_loss - wf_jump_unaligned + (f_fetch_req_prev << 1);
 	end
-	f_fetch_req = f_buf_level_next < 2'h2 || f_buf_level_next[2];
+	f_fetch_req = f_buf_level_next < 3'h4;
 end
 
 
-wire [63:0] f_fetch_data = wf_icache_valid ? 
-	{ahblm_hrdata, wf_icache_rdata} : {wf_icache_rdata, ahblm_hrdata};
+wire [W_DATA-1:0] f_fetch_data = wf_icache_valid ? wf_icache_rdata : ahblm_hrdata;
 
-reg [63:0] f_data_buf_concat;
+reg [W_DATA+W_FBUF-1:0] f_data_buf_concat;
 always @ (*) begin
 	case (f_buf_level)
-		2'h2:    f_data_buf_concat = {f_fetch_data[31:0], f_fetch_buf};
-		2'h1:    f_data_buf_concat = {16'h0, f_fetch_data[31:0], f_fetch_buf[15:0]};
-		default: f_data_buf_concat = {32'h0, f_fetch_data[31:0]};
+		4: f_data_buf_concat = {f_fetch_data, f_buf};
+		3: f_data_buf_concat = {16'h0, f_fetch_data, f_buf[47:0]};
+		2: f_data_buf_concat = {32'h0, f_fetch_data, f_buf[31:0]};
+		1: f_data_buf_concat = {48'h0, f_fetch_data, f_buf[15:0]};
+		default: f_data_buf_concat = {64'h0, f_fetch_data};
 	endcase
 end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		f_fetch_buf <= NOP_INSTR;
-		f_buf_level <= 2'h2;
-		fd_cir  <= NOP_INSTR;
+		f_buf <= {W_FBUF{1'b0}};
+		f_buf_level <= 3'h0;
+		fd_cir_level <= 2'h0;
 		f_fetch_req_prev <= 1'b0;
-		fd_cir_half_valid <= 1'b0;
-		fd_pipe_bubble <= 1'b0;
-	end else if (stall_cause_ahb) begin
-		// do nothing at all!
-	end else if (stall_cause_x || f_buf_level_next[2]) begin
-		fd_cir_half_valid <= 1'b0;
-		if (f_buf_level_next[2]) begin
-			fd_pipe_bubble <= 1'b1;
-			f_fetch_req_prev <= f_fetch_req && !ahb_req_d;
-		end
-	end else begin
-		fd_cir_half_valid <= 1'b0;
-		f_buf_level <= f_buf_level_next;
-		fd_pipe_bubble   <= w_jump_now;
+	end else if (stall_cause_ahb || stall_cause_x) begin
 		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req && !ahb_req_d;
+		f_buf_level_next <= f_buf_level_next;
+	end else begin
+		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req && !ahb_req_d;
+		f_buf_level <= f_buf_level_next;
+		if (f_buf_level_next > 4) begin
+			fd_cir_level <= 2'h0;
+		end else if (f_buf_level_next > 1) begin
+			fd_cir_level <= 2'h2;
+		end else begin
+			fd_cir_level <= f_buf_level_next;
+		end
 		if (wf_jumped) begin
 			if (wf_jump_unaligned) begin
-				fd_cir <= f_fetch_data[47:16];
-				f_fetch_buf[15:0] = f_fetch_data[63:48];
-				fd_cir_half_valid <= !wf_icache_valid;
+				f_buf <= {48'h0, f_fetch_data[31:16]};
 			end else begin
-				fd_cir <= f_fetch_data[31:0];
-			end
-		end else if (fd_cir_half_valid) begin
-			if (df_instr_is_32bit) begin
-				// Second cycle of unaligned jump. Recover from partial fetch
-				fd_cir <= {f_fetch_data[15:0], fd_cir[15:0]};
-				f_fetch_buf[15:0] <= {f_fetch_data[31:16]};
-			end else begin
-				fd_cir <= {f_fetch_data[31:0]};
+				f_buf <= {32'h0, f_fetch_data[31:0]};
 			end
 		end else begin
-			// Sequential code execution
-			if (df_instr_is_32bit) begin
-				fd_cir <= f_data_buf_concat[31:0];
-				f_fetch_buf <= f_data_buf_concat[63:32];
-			end else begin
-				fd_cir <= {f_data_buf_concat[15:0], fd_cir[31:16]};
-				f_fetch_buf <= f_data_buf_concat[47:16];
-			end
+			f_buf <= f_data_buf_concat >> (16 * f_instr_loss);
 		end
 	end
 end
@@ -243,17 +220,19 @@ reg  [W_ADDR-1:0]    dx_mispredict_addr;
 reg d_jump;
 reg [W_ADDR-1:0] d_jump_target;
 
+wire d_bubble = !fd_cir_level || (fd_cir_level == 1 && df_instr_is_32bit);
+
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
 always @ (*) begin
 	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BNE }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLT }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGE }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLTU}: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGEU}: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'bz, RV_JAL }: begin d_jump = !fd_pipe_bubble; d_jump_target = d_pc + d_imm_j; end
-	default: begin d_jump = 1'b0; d_jump_target = d_pc; end
+	{1'b1, RV_BEQ }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BNE }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLT }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGE }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLTU}: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGEU}: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
+	{1'bz, RV_JAL }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_j; end
+	default: begin d_jump = 1'b0; d_jump_target = {W_ADDR{1'b0}}; end
 	endcase
 end
 
@@ -264,7 +243,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_ZERO;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
-		d_pc <= RESET_VECTOR - 32'h8;
+		d_pc <= RESET_VECTOR;
 		dx_pc <= {W_ADDR{1'b0}};
 		dx_mispredict_addr <= {W_ADDR{1'b0}};
 		dx_branchcond <= BCOND_NEVER;
@@ -286,7 +265,7 @@ always @ (posedge clk or negedge rst_n) begin
 
 		if (w_jump_now) begin
 			d_pc <= w_jump_target;
-		end else if (d_jump || fd_pipe_bubble) begin
+		end else if (d_jump || d_bubble) begin
 			d_pc <= d_pc;
 		end else begin
 			d_pc <= d_pc_next;
@@ -337,7 +316,7 @@ always @ (posedge clk or negedge rst_n) begin
 		default:    begin $display("Invalid instruction! %h", d_instr); end
 		endcase
 
-		if (fd_pipe_bubble || flush_d_x || (d_jump && ahb_req_d)) begin
+		if (d_bubble || flush_d_x || (d_jump && ahb_req_d)) begin
 			dx_branchcond <= BCOND_NEVER;
 			dx_memop <= MEMOP_NONE;
 			dx_rd <= 5'h0;
@@ -368,12 +347,10 @@ regfile_1w2r #(
 	.wen    (|mw_rd)
 );
 
-wire d_cir_is_32bit;
-assign df_instr_is_32bit = d_cir_is_32bit || fd_pipe_bubble;
 
 revive_instr_decompress decomp(
-	.instr_in(fd_cir),
-	.instr_is_32bit(d_cir_is_32bit),
+	.instr_in(f_buf[31:0]),
+	.instr_is_32bit(df_instr_is_32bit),
 	.instr_out(d_instr)
 );
 
