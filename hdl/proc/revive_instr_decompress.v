@@ -20,14 +20,15 @@ wire [W_REGADDR-1:0] rs1_s = {2'b01, instr_in[9:7]};
 wire [W_REGADDR-1:0] rs2_s = {2'b01, instr_in[4:2]};
 
 
-// I don't even
+// I don't even O_O
+
 wire [31:0] imm_ci = {{7{instr_in[12]}}, instr_in[6:2]} << 20;
 
 wire [31:0] imm_cj = {instr_in[12], instr_in[8], instr_in[10:9], instr_in[6], instr_in[7],
 	instr_in[2], instr_in[11], instr_in[5:3], {9{instr_in[12]}}} << 12;
 
 wire [31:0] imm_cb = ({instr_in[11:10], instr_in[4:3], instr_in[12]} << 7)
-	| ({{4{instr_in[12]}}, instr_in[6:5], instr_in[2], instr_in[11:10], instr_in[4:3]} << 25);
+	| ({{4{instr_in[12]}}, instr_in[6:5], instr_in[2]} << 25);
 
 generate
 if (PASSTHROUGH) begin
@@ -88,9 +89,9 @@ end else begin
 				end
 			end
 			RV_C_LWSP:     instr_out = RV_NOZ_LW | (rd_l << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
-				| ({instr_in[12], instr_in[6:2], 2'b00} << 20);
+				| ({instr_in[3:2], instr_in[12], instr_in[6:4], 2'b00} << 20);
 			RV_C_SWSP:    instr_out = RV_NOZ_SW | (rs2_l << RV_RS2_LSB) | (5'h2 << RV_RS1_LSB)
-				| (instr_in[11:9] << 7) | ({instr_in[8:7], instr_in[12]} << 25);
+				| ({instr_in[11:9], 2'b00} << 7) | ({instr_in[8:7], instr_in[12]} << 25);
 			RV_C_BEQZ:     instr_out = RV_NOZ_BEQ | (rs1_s << RV_RS1_LSB) | imm_cb;
 			RV_C_BEQZ:     instr_out = RV_NOZ_BNE | (rs1_s << RV_RS1_LSB) | imm_cb;
 			endcase

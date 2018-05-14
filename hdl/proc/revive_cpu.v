@@ -125,10 +125,6 @@ wire [1:0]        f_instr_loss =
 	fd_cir_level[1] ? 1'b1 + df_instr_is_32bit :
 	fd_cir_level[0] ? 1'b1 - df_instr_is_32bit : 2'h0;
 
-// Calculate next buffer level combinatorially, so that it is visible to W
-// fetch logic in-cycle.
-// If "next" level goes negative, F will hold state and push a bubble into
-// D. Should go positive again once W is able to assert an address phase.
 always @ (*) begin
 	if (w_jump_now) begin
 		f_buf_level_next = 3'h0;
@@ -159,8 +155,7 @@ always @ (posedge clk or negedge rst_n) begin
 		fd_cir_level <= 2'h0;
 		f_fetch_req_prev <= 1'b0;
 	end else if (stall_cause_ahb || stall_cause_x) begin
-		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req && !ahb_req_d;
-		f_buf_level_next <= f_buf_level_next;
+		// Just wait
 	end else begin
 		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req && !ahb_req_d;
 		f_buf_level <= f_buf_level_next;
@@ -271,7 +266,6 @@ always @ (posedge clk or negedge rst_n) begin
 			d_pc <= d_pc_next;
 		end
 
-		// Decode ALU controls
 		casez (d_instr)
 		RV_BEQ:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
 		RV_BNE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
@@ -366,6 +360,8 @@ reg  [W_REGADDR-1:0] wx_rd;
 reg  [W_DATA-1:0]    wx_result;
 
 // Combinational regs for muxing
+reg   [W_DATA-1:0]   x_rs1_bypass;
+reg   [W_DATA-1:0]   x_rs2_bypass;
 reg   [W_DATA-1:0]   x_op_a;
 reg   [W_DATA-1:0]   x_op_b;
 wire  [31:0]         x_alu_result;
@@ -379,7 +375,7 @@ reg  [W_ADDR-1:0]    xm_jump_target;
 reg                  xm_jump;
 reg  [W_MEMOP-1:0]   xm_memop;
 
-wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? dx_rdata1 : dx_pc);
+wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc);
 
 // X stalls are caused by M->X RAW hazards, or busmaster contention
 wire x_stall_raw = xm_rd && xm_rd == dx_rs1 && !(xm_memop & 4'hc);
@@ -402,51 +398,39 @@ end
 
 // ALU operand muxes and bypass
 always @ (*) begin
+	if (!dx_rs1) begin
+		x_rs1_bypass = {W_DATA{1'b0}};
+	end else if (xm_rd == dx_rs1) begin
+		x_rs1_bypass = xm_result;
+	end else if (mw_rd == dx_rs1) begin
+		x_rs1_bypass = mw_result;
+	end else if (wx_rd == dx_rs1) begin
+		x_rs1_bypass = wx_result;
+	end else begin
+		x_rs1_bypass = dx_rdata1;
+	end
+	if (!dx_rs2) begin
+		x_rs2_bypass = {W_DATA{1'b0}};
+	end else if (xm_rd == dx_rs2) begin
+		x_rs2_bypass = xm_result;
+	end else if (mw_rd == dx_rs2) begin
+		x_rs2_bypass = mw_result;
+	end else if (wx_rd == dx_rs2) begin
+		x_rs2_bypass = wx_result;
+	end else begin
+		x_rs2_bypass = dx_rdata2;
+	end
 	case (dx_alusrc_a)
-	ALUSRCA_RS1: begin
-		if (!dx_rs1) begin
-			x_op_a = {W_DATA{1'b0}};
-		end else if (xm_rd == dx_rs1) begin
-			x_op_a = xm_result;
-		end else if (mw_rd == dx_rs1) begin
-			x_op_a = mw_result;
-		end else if (wx_rd == dx_rs1) begin
-			x_op_a = wx_result;
-		end else begin
-			x_op_a = dx_rdata1;
-		end
-	end
-	ALUSRCA_LINKADDR: begin
-		x_op_a = dx_mispredict_addr;
-	end
-	ALUSRCA_PC: begin
-		x_op_a = dx_pc;
-	end
-	default: begin
-		x_op_a = {W_DATA{1'b0}};
-	end
+		ALUSRCA_RS1:      x_op_a = x_rs1_bypass;
+		ALUSRCA_LINKADDR: x_op_a = dx_mispredict_addr;
+		ALUSRCA_PC:       x_op_a = dx_pc;
+		default:          x_op_a = {W_DATA{1'b0}};
 	endcase
 
 	case (dx_alusrc_b)
-	ALUSRCB_RS2: begin
-		if (!dx_rs2) begin
-			x_op_b = {W_DATA{1'b0}};
-		end else if (xm_rd == dx_rs2) begin
-			x_op_b = xm_result;
-		end else if (mw_rd == dx_rs2) begin
-			x_op_b = mw_result;
-		end else if (wx_rd == dx_rs2) begin
-			x_op_b = wx_result;
-		end else begin
-			x_op_b = dx_rdata2;
-		end
-	end
-	ALUSRCB_IMM: begin
-		x_op_b = dx_imm;
-	end
-	default: begin
-		x_op_b = {W_DATA{1'b0}};
-	end
+		ALUSRCB_RS2:      x_op_b = x_rs2_bypass;
+		ALUSRCB_IMM:      x_op_b = dx_imm;
+		default:          x_op_b = {W_DATA{1'b0}};
 	endcase
 end
 
