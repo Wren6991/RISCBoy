@@ -63,7 +63,7 @@ module ahbl_align32 #(
 	input  wire [3:0]        ahbls_hprot,
 	input  wire              ahbls_hmastlock,
 	input  wire [W_DATA-1:0] ahbls_hwdata,
-	output wire [W_DATA-1:0] ahbls_hrdata
+	output wire [W_DATA-1:0] ahbls_hrdata,
 
 	// Master port
 	output wire              abhlm_hready,
@@ -77,7 +77,7 @@ module ahbl_align32 #(
 	output wire [3:0]        ahblm_hprot,
 	output wire              ahblm_hmastlock,
 	output wire [W_DATA-1:0] ahblm_hwdata,
-	input  wire [W_DATA-1:0] ahblm_hrdata,
+	input  wire [W_DATA-1:0] ahblm_hrdata
 );
 
 localparam HTRANS_IDLE = 2'b00;
@@ -95,14 +95,14 @@ localparam STATE_WORD0  = 3'h4;
 localparam STATE_WORD1  = 3'h5;
 localparam STATE_WORD2  = 3'h6;
 
-wire last_trans =
+/*wire last_trans =
 	 STATE == STATE_BYTE0                   ||
 	(STATE == STATE_HWORD0 && !haddr_d[0])  ||
 	 STATE == STATE_HWORD1                  ||
 	(STATE == STATE_WORD0 && !haddr_d[1:0]) ||
 	(STATE == STATE_WORD1 && !haddr_d[0])   ||
 	 STATE == STATE_WORD2;
-
+*/
 
 
 endmodule

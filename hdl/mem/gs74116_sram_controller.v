@@ -51,7 +51,7 @@ module gs74116_sram_controller #(
 ) (
 	// Globals
 	input wire clk,
-	input wire rst_n
+	input wire rst_n,
 
 	// AHB lite slave interface
 	output reg                      ahbls_hready_resp,
@@ -68,7 +68,7 @@ module gs74116_sram_controller #(
 
 	// SRAM interface
 	output reg [SRAM_W_ADDR-1:0]    sram_addr,
-	inout wire [SRAM_W_DATA-1:0]    sram_dq,
+	inout  reg [SRAM_W_DATA-1:0]    sram_dq,
 	output reg                      sram_ce_n,
 	output reg                      sram_oe_n,
 	output reg                      sram_we_n,
@@ -152,13 +152,12 @@ always @ (posedge clk or negedge rst_n) begin
 		end else begin
 			byte_enables[1:0] <= 2'b00;
 		end
-		end
 		if (ahbls_hready_resp) begin
 			if (ahbls_htrans[1]) begin
 				state <= ahbls_hwrite ? STATE_WRITE : STATE_READ;
 				case (ahbls_hsize)
 				3'h0: begin
-					byte_enables <= (1 << ahbls_haddr[1:0])[3:0];
+					byte_enables <= (1 << ahbls_haddr[1:0]);
 				end
 				3'h1: begin
 					// All AHB transfers are naturally-aligned

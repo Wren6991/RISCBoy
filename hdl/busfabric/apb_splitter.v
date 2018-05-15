@@ -10,15 +10,15 @@ module apb_splitter #(
 	input wire                        apbs_penable,
 	input wire                        apbs_pwrite,
 	input wire  [W_DATA-1:0]          apbs_pwdata,
-	output reg                        apbs_pready,
-	output reg  [W_DATA-1:0]          apbs_prdata,
-	output reg                        apbs_pslverr,
+	output wire                       apbs_pready,
+	output wire [W_DATA-1:0]          apbs_prdata,
+	output wire                       apbs_pslverr,
 
-	output reg  [N_SLAVES*W_ADDR-1:0] apbm_paddr,
-	output reg  [N_SLAVES-1:0]        apbm_psel,
-	output reg  [N_SLAVES-1:0]        apbm_penable,
-	output reg  [N_SLAVES-1:0]        apbm_pwrite,
-	output reg  [N_SLAVES*W_DATA-1:0] apbm_pwdata,
+	output wire [N_SLAVES*W_ADDR-1:0] apbm_paddr,
+	output wire [N_SLAVES-1:0]        apbm_psel,
+	output wire [N_SLAVES-1:0]        apbm_penable,
+	output wire [N_SLAVES-1:0]        apbm_pwrite,
+	output wire [N_SLAVES*W_DATA-1:0] apbm_pwdata,
 	input wire  [N_SLAVES-1:0]        apbm_pready,
 	input wire  [N_SLAVES*W_DATA-1:0] apbm_prdata,
 	input wire  [N_SLAVES-1:0]        apbm_pslverr 
@@ -35,14 +35,14 @@ always @ (*) begin
 	end
 end
 
-apbs_pready = !slave_mask || slave_mask & apbm_pready;
-apbs_pslverr = !slave_mask || slave_mask & apbm_pslverr;
+assign apbs_pready = !slave_mask || slave_mask & apbm_pready;
+assign apbs_pslverr = !slave_mask || slave_mask & apbm_pslverr;
 
-apbm_paddr = {N_SLAVES{apbs_paddr}};
-apbm_psel = slave_mask & {N_SLAVES{apbs_psel}};
-apbm_penable = slave_mask & {N_SLAVES{apbs_penable}};
-apbm_pwrite = slave_mask & {N_SLAVES{apbs_pwrite}};
-apbm_pwdata = {N_SLAVES{apbs_pwdata}};
+assign apbm_paddr = {N_SLAVES{apbs_paddr}};
+assign apbm_psel = slave_mask & {N_SLAVES{apbs_psel}};
+assign apbm_penable = slave_mask & {N_SLAVES{apbs_penable}};
+assign apbm_pwrite = slave_mask & {N_SLAVES{apbs_pwrite}};
+assign apbm_pwdata = {N_SLAVES{apbs_pwdata}};
 
 bitmap_mux #(
 	.N_INPUTS(N_SLAVES),

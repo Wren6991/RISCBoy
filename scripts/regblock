@@ -3,8 +3,9 @@
 # Regblock generation script
 
 import sys
-from collections import OrderedDict
 import yaml
+from collections import OrderedDict
+from math import log2, ceil
 
 def width2str(w):
 	return "[{}:0]".format(w - 1)
@@ -100,9 +101,9 @@ class RegBlock:
 		if self.bus == "apb":
 			v.ports.append("")
 			v.ports.append("// APB Port")
-			v.ports.append("input wire psel")
-			v.ports.append("input wire penable")
-			v.ports.append("input wire pwrite")
+			v.ports.append("input wire apbs_psel")
+			v.ports.append("input wire apbs_penable")
+			v.ports.append("input wire apbs_pwrite")
 			v.ports.append("input wire {} apbs_paddr".format(width2str(self.w_addr)))
 			v.ports.append("input wire {} apbs_pwdata".format(width2str(self.w_data)))
 			v.ports.append("output wire {} apbs_prdata".format(width2str(self.w_data)))
@@ -113,7 +114,7 @@ class RegBlock:
 			v.decls.append("reg {} rdata;".format(width2str(self.w_data)))
 			v.decls.append("wire wen = apbs_psel && apbs_penable && apbs_pwrite;")
 			v.decls.append("wire ren = apbs_psel && apbs_penable && !apbs_pwrite;")
-			v.decls.append("wire {} addr = apbs_paddr;".format(width2str(self.w_addr)))
+			v.decls.append("wire {} addr = apbs_paddr & {}'h{};".format(width2str(self.w_addr), self.w_addr, hex((1 << 2 + ceil(log2(len(self.regs)))) - 1)[2:]))
 			v.decls.append("assign apbs_prdata = rdata;")
 			v.decls.append("assign apbs_pready = 1'b1;")
 			v.decls.append("assign apbs_pslverr = 1'b0;")

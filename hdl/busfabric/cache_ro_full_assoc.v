@@ -18,9 +18,7 @@
 module cache_ro_full_assoc #(
 	parameter W_DATA = 32,
 	parameter W_ADDR = 32,
-	parameter N_ENTRIES = 8,
-	localparam W_SETADDR = $clog2(N_ENTRIES),
-	localparam W_TAG = W_ADDR - $clog2(W_DATA / 8)
+	parameter N_ENTRIES = 8
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -36,6 +34,10 @@ module cache_ro_full_assoc #(
 	input wire  [W_DATA-1:0] wdata,
 	input wire               wen
 );
+
+parameter W_SETADDR = $clog2(N_ENTRIES);
+parameter W_TAG = W_ADDR - $clog2(W_DATA / 8);
+
 
 reg [W_TAG-1:0]     tags     [0:N_ENTRIES-1];
 reg [N_ENTRIES-1:0] valid;
@@ -62,15 +64,15 @@ end
 // Parallel tag lookup + one-hot encoder
 // =====================================
 
-wire                 check_match [0:N_ENTRIES-1];
-wire [W_SETADDR-1:0] encode_accum [0:N_ENTRIES];
+reg  [N_ENTRIES-1:0] check_match;
+reg  [W_SETADDR-1:0] encode_accum [0:N_ENTRIES];
 wire [W_SETADDR-1:0] match_addr = encode_accum[N_ENTRIES];
 
-assign rvalid = check_match && valid[match_addr];
+assign rvalid = |(check_match & valid);
 
 always @ (*) begin
 	for (i = 0; i < N_ENTRIES; i = i + 1) begin
-		check_match[i] = addr_check[W_ADDR-1 -: W_TAG] == tags[i];
+		check_match[i] = raddr[W_ADDR-1 -: W_TAG] == tags[i];
 	end
 end
 
@@ -79,7 +81,7 @@ end
 // However, it is a 2-layer sum of product network, which is nice :)
 always @ (*) begin
 	for (i = 0; i < N_ENTRIES; i = i + 1) begin
-		encode_accum[i + 1] = encode_accum[i] | (check_match[i] ? i : 0)[0 +: W_SETADDR];
+		encode_accum[i + 1] = encode_accum[i] | (check_match[i] ? i : 0);
 	end
 end
 
@@ -106,3 +108,5 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end
 end
+
+endmodule

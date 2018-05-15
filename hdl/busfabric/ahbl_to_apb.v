@@ -33,11 +33,11 @@ localparam W_APB_STATE = 3;
 localparam STATE_RD0 = 3'h0;
 localparam STATE_RD1 = 3'h1;
 localparam STATE_WR0 = 3'h2;
-localparam STATE_WR1 = 3'h3
+localparam STATE_WR1 = 3'h3;
 localparam STATE_IDLE = 3'h4;
 
 reg [W_APB_STATE-1:0] apb_state;
-assign ahbls_hready_resp = ((state == STATE_RD1 || state == STATE_WR1) && apbm_pready) || state == STATE_IDLE;
+assign ahbls_hready_resp = ((apb_state == STATE_RD1 || apb_state == STATE_WR1) && apbm_pready) || apb_state == STATE_IDLE;
 assign ahbls_hrdata = apbm_prdata;
 assign ahbls_hresp = apbm_pslverr;
 
@@ -52,7 +52,7 @@ always @ (*) begin
 end
 
 always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) beginADDR_MASK[i * W_ADDR +: W_ADDR]
+	if (!rst_n) begin
 		apb_state <= STATE_IDLE;
 		apbm_paddr <= {W_PADDR{1'b0}};
 	end else begin
