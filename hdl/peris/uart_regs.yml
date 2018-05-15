@@ -1,0 +1,37 @@
+name: uart
+bus: apb
+addr: 16
+data: 32
+regs:
+  - name: csr
+    info: "Control and status register"
+    bits:
+      - {b: 0, name: en, access: rw}
+      - {b: 1, name: busy, access: rov}
+      - {b: 2, name: txie, info: "Enable TX FIFO interrupt", access: rw}
+      - {b: 3, name: rxie, info: "Enable RX FIFO interrupt", access: rw}
+  - name: div
+    info: "Clock divider"
+    bits:
+      - {b: [31, 8], name: int, access: rw}
+      - {b: [7, 0], name: frac, access: rw}
+  - name: tfstat
+    info: "TX FIFO status"
+    bits:
+      - {b: [7, 0], name: level, access: rov}
+      - {b: 31, name: full, access: rov}
+      - {b: 30, name: empty, access: rov}
+  - name: rfstat
+    info: "RX FIFO status"
+    bits:
+      - {b: [7, 0], name: level, access: rov}
+      - {b: 31, name: full, access: rov}
+      - {b: 30, name: empty, access: rov}
+  - name: tx
+    info: "TX data FIFO"
+    bits:
+      - {b: [7, 0], access: wf}
+  - name: rx
+    info: "RX data FIFO"
+    bits:
+      - {b: [7, 0], access: rf}
