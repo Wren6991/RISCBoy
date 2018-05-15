@@ -21,6 +21,7 @@
 
 module revive_cpu #(
 	parameter RESET_VECTOR = 32'h0000_0000,
+	parameter CACHE_DEPTH = 0,
 	localparam W_ADDR = 32,
 	localparam W_DATA = 32
 ) (
@@ -342,7 +343,9 @@ regfile_1w2r #(
 );
 
 
-revive_instr_decompress decomp(
+revive_instr_decompress #(
+	.PASSTHROUGH(0)
+) decomp (
 	.instr_in(f_buf[31:0]),
 	.instr_is_32bit(df_instr_is_32bit),
 	.instr_out(d_instr)
@@ -534,9 +537,9 @@ end
 // ============================================================================
 
 wire [W_ADDR-1:0] w_icache_raddr;
-wire              w_icache_valid = 1'b0;
+wire              w_icache_valid;
 
-reg [W_ADDR-1:0] w_fetchaddr;
+reg  [W_ADDR-1:0] w_fetchaddr;
 
 assign w_jump_now = xm_jump || (d_jump && !ahb_req_d);
 assign w_jump_target = xm_jump ? xm_jump_target : d_jump_target;
@@ -570,23 +573,28 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-/*
-cache_ro_full_assoc #(
-	.W_DATA(W_DATA),
-	.W_ADDR(W_ADDR),
-	.N_ENTRIES(8)
-) icache (
-	.clk(clk),
-	.rst_n(rst_n),
+generate
+if (CACHE_DEPTH) begin: cache
+	cache_ro_full_assoc #(
+		.W_DATA(W_DATA),
+		.W_ADDR(W_ADDR),
+		.N_ENTRIES(CACHE_DEPTH)
+	) icache (
+		.clk(clk),
+		.rst_n(rst_n),
 
-	.raddr(w_icache_raddr),
-	.rdata(wf_icache_rdata),
-	.rvalid(w_icache_valid),
+		.raddr(w_icache_raddr),
+		.rdata(wf_icache_rdata),
+		.rvalid(w_icache_valid),
 
-	.waddr(f_icache_waddr),
-	.wdata(f_icache_wdata),
-	.wen(f_icache_wen)
-);*/
-assign wf_icache_rdata = 32'h0;
+		.waddr(f_icache_waddr),
+		.wdata(f_icache_wdata),
+		.wen(f_icache_wen)
+	);
+end else begin: nocache
+	assign w_icache_valid = 1'b0;
+	assign wf_icache_rdata = 32'h0;
+end
+endgenerate
 
 endmodule

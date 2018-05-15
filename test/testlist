@@ -7,3 +7,4 @@ execution/fibonacci
 execution/branch
 execution/loadstore
 execution/factorial
+execution/gcd
