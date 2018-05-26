@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="6" />
+   <wvobject fp_name="/tb/out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">out[9:0]</obj_property>
+      <obj_property name="ObjectShortName">out[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_radix2_mult/\odd.pp0 " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\odd.pp0 [3:0]</obj_property>
+      <obj_property name="ObjectShortName">\odd.pp0 [3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_radix2_mult/\odd.pp1 " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\odd.pp1 [7:0]</obj_property>
+      <obj_property name="ObjectShortName">\odd.pp1 [7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_radix2_mult/\odd.pp2 " type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">\odd.pp2 [5:0]</obj_property>
+      <obj_property name="ObjectShortName">\odd.pp2 [5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">a[4:0]</obj_property>
+      <obj_property name="ObjectShortName">a[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/b" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">b[4:0]</obj_property>
+      <obj_property name="ObjectShortName">b[4:0]</obj_property>
+   </wvobject>
+</wave_config>
