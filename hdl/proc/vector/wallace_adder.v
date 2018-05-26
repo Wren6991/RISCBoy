@@ -32,8 +32,7 @@ end else begin: recurse
 					(in[(i + 1) * W +: W] & in[(i + 2) * W +: W]) |
 					(in[(i + 2) * W +: W] & in[(i + 0) * W +: W])) << 1;
 			end else if (N - i == 2) begin
-				psum[(i / 3 * 2 + 0) * W +: W] = in[(i + 0) * W +: W] ^ in[(i + 1) * W +: W];
-				psum[(i / 3 * 2 + 1) * W +: W] = (in[(i + 0) * W +: W] & in[(i + 1) * W +: W]) << 1;
+				psum[i / 3 * 2 * W +: 2 * W] = in[i * W +: 2 * W];
 			end else begin
 				psum[i / 3 * 2 * W +: W] = in[i * W +: W];
 			end
