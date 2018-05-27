@@ -308,7 +308,7 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
-		default:    begin $display("Invalid instruction! %h", d_instr); end
+		default:    begin if (!d_bubble) $display("Invalid instruction! %h", d_instr); end
 		endcase
 
 		if (d_bubble || flush_d_x || (d_jump && ahb_req_d)) begin

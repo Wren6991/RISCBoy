@@ -28,6 +28,9 @@ module revive_alu (
 wire [31:0] sum  = op_a + op_b;
 wire [31:0] diff = op_a - op_b;
 
+wire lt = $signed(op_a) < $signed(op_b);
+wire ltu = op_a < op_b;
+
 wire [63:0] op_a_sext = {{32{op_a[31]}}, op_a};
 wire [63:0] op_a_zext = {32'h0, op_a};
 wire [4:0] shamt = op_b[4:0];
@@ -36,10 +39,10 @@ always @ (*) begin
 	case (aluop)
 		ALUOP_ADD: begin result = sum; end
 		ALUOP_SUB: begin result = diff; end
-		ALUOP_LT:  begin result = diff[31] + 32'h0; end
-		ALUOP_GE:  begin result = !diff[31] + 32'h0; end
-		ALUOP_LTU: begin result = op_a < op_b; end
-		ALUOP_GEU: begin result = op_a >= op_b; end
+		ALUOP_LT:  begin result = lt; end
+		ALUOP_GE:  begin result = !lt; end
+		ALUOP_LTU: begin result = ltu; end
+		ALUOP_GEU: begin result = !ltu; end
 		ALUOP_AND: begin result = op_a & op_b; end
 		ALUOP_OR:  begin result = op_a | op_b; end
 		ALUOP_XOR: begin result = op_a ^ op_b; end

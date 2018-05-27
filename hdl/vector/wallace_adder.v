@@ -1,14 +1,14 @@
 module wallace_adder #(
 	parameter W = 32, // valid for W >= 1
-	parameter N = 3   // valid for N >= 3
+	parameter N = 2   // valid for N >= 2
 ) (
 	input  wire [W*N-1:0] in,
 	output wire [W-1:0]   out
 );
 
 generate
-if (N == 3) begin: base
-	assign out = in[0 +: W] + in[W +: W] + in[2*W +: W];
+if (N == 2) begin: base
+	assign out = in[0 +: W] + in[W +: W];
 end else begin: recurse
 	localparam N_NEXT = N / 3 * 2 + N % 3;
 	integer i;

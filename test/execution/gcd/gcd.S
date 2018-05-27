@@ -40,5 +40,6 @@ a_even_b_even:
 	j loop
 out:
 	sll  x9, x9, x10
+
 halt:
 	j halt

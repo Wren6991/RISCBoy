@@ -68,13 +68,14 @@ module gs74116_sram_controller #(
 
 	// SRAM interface
 	output reg [SRAM_W_ADDR-1:0]    sram_addr,
-	inout  reg [SRAM_W_DATA-1:0]    sram_dq,
+	inout wire [SRAM_W_DATA-1:0]    sram_dq,
 	output reg                      sram_ce_n,
 	output reg                      sram_oe_n,
 	output reg                      sram_we_n,
 	output reg                      sram_ub_n,
 	output reg                      sram_lb_n
 );
+/*
 
 // EVERYTHING IS FINE STOP ASKING
 assign ahbls_hresp = 1'b0;
@@ -173,5 +174,5 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end
 end
-
+*/
 endmodule
