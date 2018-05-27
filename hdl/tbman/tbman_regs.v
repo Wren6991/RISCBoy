@@ -41,11 +41,13 @@ wire exit_ren = ren && addr == ADDR_EXIT;
 
 wire [7:0] print__rdata;
 wire [7:0] print__wdata;
+assign print__rdata = 8'h0;
 wire [31:0] print_rdata = {24'h0, print__rdata};
 assign print__wdata = wdata[7:0];
 
 wire [31:0] exit__rdata;
 wire [31:0] exit__wdata;
+assign exit__rdata = 32'h0;
 wire [31:0] exit_rdata = {exit__rdata};
 assign exit__wdata = wdata[31:0];
 

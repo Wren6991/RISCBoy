@@ -192,6 +192,7 @@ class Field:
 		self.msb = msb
 		self.lsb = lsb
 		self.access = access
+		self.resetval = resetval
 		self.info = info
 
 	@property
@@ -223,6 +224,8 @@ class Field:
 			v.logic_rst.append("{}_o <= {}'h0;".format(name, self.msb - self.lsb + 1))
 			v.logic_clk.append("if ({}_wen)".format(regname))
 			v.logic_clk.append("\t{}_o <= {}_wdata;".format(name, name))
+		if self.access in ["ro", "wf"]:
+			v.decls.append("assign {}_rdata = {}'h{};".format(name, self.msb - self.lsb + 1, hex(self.resetval)[2:]))
 		return v
 		
 def main(argv):

@@ -11,7 +11,7 @@ module tbman #(
 	input wire [15:0] apbs_paddr,
 	input wire [31:0] apbs_pwdata,
 	output wire [31:0] apbs_prdata,
-	output wire apbs_apbs_pready,
+	output wire apbs_pready,
 	output wire apbs_pslverr
 );
 
