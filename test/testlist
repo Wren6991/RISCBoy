@@ -8,3 +8,5 @@ execution/branch
 execution/loadstore
 execution/factorial
 execution/gcd
+execution/quick_brown_fox
+system/helloworld

@@ -53,6 +53,7 @@ localparam NOP_INSTR = 32'h13;	// addi x0, x0, 0
 
 wire stall_cause_ahb;
 wire stall_cause_x;
+wire stall_cause_d;
 wire flush_d_x;
 wire w_jump_now;
 wire  [W_ADDR-1:0] w_jump_target;
@@ -123,6 +124,7 @@ reg               f_fetch_req_prev;
 wire              df_instr_is_32bit;
 // Halfwords consumed by D this cycle:
 wire [1:0]        f_instr_loss =
+	stall_cause_x   ? 2'h0 :
 	fd_cir_level[1] ? 1'b1 + df_instr_is_32bit :
 	fd_cir_level[0] ? 1'b1 - df_instr_is_32bit : 2'h0;
 
@@ -155,7 +157,7 @@ always @ (posedge clk or negedge rst_n) begin
 		f_buf_level <= 3'h0;
 		fd_cir_level <= 2'h0;
 		f_fetch_req_prev <= 1'b0;
-	end else if (stall_cause_ahb || stall_cause_x) begin
+	end else if (stall_cause_ahb || stall_cause_d) begin
 		// Just wait
 	end else begin
 		f_fetch_req_prev <= w_jump_now ? 1'b1 : f_fetch_req && !ahb_req_d;
@@ -184,6 +186,9 @@ end
 // ============================================================================
 
 wire [31:0]          d_instr;
+wire                 d_invalid_16bit;
+reg                  d_invalid_32bit;
+wire                 d_invalid = d_invalid_16bit || d_invalid_32bit;
 reg  [W_ADDR-1:0]    d_pc;
 wire [W_ADDR-1:0]    d_pc_next = d_pc + (df_instr_is_32bit ? 3'h4 : 3'h2);
 
@@ -213,22 +218,71 @@ wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
 reg  [W_ADDR-1:0]    dx_mispredict_addr;
 
+reg d_instr_causes_jump;
 reg d_jump;
 reg [W_ADDR-1:0] d_jump_target;
 
 wire d_bubble = !fd_cir_level || (fd_cir_level == 1 && df_instr_is_32bit);
+assign stall_cause_d = d_instr_causes_jump && !d_bubble && !w_jump_now;
 
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
 always @ (*) begin
 	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BNE }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLT }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGE }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLTU}: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGEU}: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_b; end
-	{1'bz, RV_JAL }: begin d_jump = !d_bubble; d_jump_target = d_pc + d_imm_j; end
-	default: begin d_jump = 1'b0; d_jump_target = {W_ADDR{1'b0}}; end
+	{1'b1, RV_BEQ }: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BNE }: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLT }: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGE }: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLTU}: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGEU}: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_b; end
+	{1'bz, RV_JAL }: begin d_instr_causes_jump = 1'b1; d_jump_target = d_pc + d_imm_j; end
+	default: begin d_instr_causes_jump = 1'b0; d_jump_target = {W_ADDR{1'b0}}; end
+	endcase
+	d_jump = d_instr_causes_jump && !d_bubble;
+end
+
+always @ (*) begin
+	casez (d_instr)
+	RV_BEQ:     d_invalid_32bit = 1'b0;
+	RV_BNE:     d_invalid_32bit = 1'b0;
+	RV_BLT:     d_invalid_32bit = 1'b0;
+	RV_BGE:     d_invalid_32bit = 1'b0;
+	RV_BLTU:    d_invalid_32bit = 1'b0;
+	RV_BGEU:    d_invalid_32bit = 1'b0;
+	RV_JALR:    d_invalid_32bit = 1'b0;
+	RV_JAL:     d_invalid_32bit = 1'b0;
+	RV_LUI:     d_invalid_32bit = 1'b0;
+	RV_AUIPC:   d_invalid_32bit = 1'b0;
+	RV_ADDI:    d_invalid_32bit = 1'b0;
+	RV_SLLI:    d_invalid_32bit = 1'b0;
+	RV_SLTI:    d_invalid_32bit = 1'b0;
+	RV_SLTIU:   d_invalid_32bit = 1'b0;
+	RV_XORI:    d_invalid_32bit = 1'b0;
+	RV_SRLI:    d_invalid_32bit = 1'b0;
+	RV_SRAI:    d_invalid_32bit = 1'b0;
+	RV_ORI:     d_invalid_32bit = 1'b0;
+	RV_ANDI:    d_invalid_32bit = 1'b0;
+	RV_ADD:     d_invalid_32bit = 1'b0;
+	RV_SUB:     d_invalid_32bit = 1'b0;
+	RV_SLL:     d_invalid_32bit = 1'b0;
+	RV_SLT:     d_invalid_32bit = 1'b0;
+	RV_SLTU:    d_invalid_32bit = 1'b0;
+	RV_XOR:     d_invalid_32bit = 1'b0;
+	RV_SRL:     d_invalid_32bit = 1'b0;
+	RV_SRA:     d_invalid_32bit = 1'b0;
+	RV_OR:      d_invalid_32bit = 1'b0;
+	RV_AND:     d_invalid_32bit = 1'b0;
+	RV_LB:      d_invalid_32bit = 1'b0;
+	RV_LH:      d_invalid_32bit = 1'b0;
+	RV_LW:      d_invalid_32bit = 1'b0;
+	RV_LBU:     d_invalid_32bit = 1'b0;
+	RV_LHU:     d_invalid_32bit = 1'b0;
+	RV_SB:      d_invalid_32bit = 1'b0;
+	RV_SH:      d_invalid_32bit = 1'b0;
+	RV_SW:      d_invalid_32bit = 1'b0;
+	RV_FENCE:   d_invalid_32bit = 1'b0;
+	RV_FENCE_I: d_invalid_32bit = 1'b0;
+	RV_SYSTEM:  d_invalid_32bit = 1'b0;
+	default:    d_invalid_32bit = 1'b1;
 	endcase
 end
 
@@ -245,76 +299,88 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 	end else if (!stall_cause_ahb) begin
-		// Assign some defaults
-		dx_rs1 <= d_rs1;
-		dx_rs2 <= d_rs2;
-		dx_rd <= d_rd;
-		dx_imm <= d_imm_i;
-		dx_alusrc_a <= ALUSRCA_RS1;
-		dx_alusrc_b <= ALUSRCB_RS2;
-		dx_memop <= MEMOP_NONE;
-		dx_branchcond <= BCOND_NEVER;
-		dx_jump_is_regoffs <= 1'b0;
 		dx_pc <= d_pc;
-		dx_mispredict_addr <= d_pc_next;
-		dx_jump_is_regoffs <= 0;
-
 		if (w_jump_now) begin
 			d_pc <= w_jump_target;
-		end else if (d_jump || d_bubble) begin
+		end else if (d_bubble || stall_cause_d || stall_cause_x) begin
 			d_pc <= d_pc;
+			dx_pc <= dx_pc;
 		end else begin
 			d_pc <= d_pc_next;
 		end
 
-		casez (d_instr)
-		RV_BEQ:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
-		RV_BNE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BLT:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BGE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BLTU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_BGEU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
-		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
-		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
-		RV_AUIPC:   begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_PC; end
-		RV_ADDI:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_SLLI:    begin dx_aluop <= ALUOP_SLL; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_SLTI:    begin dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_SLTIU:   begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_XORI:    begin dx_aluop <= ALUOP_XOR; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_SRLI:    begin dx_aluop <= ALUOP_SRL; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_SRAI:    begin dx_aluop <= ALUOP_SRA; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_ORI:     begin dx_aluop <= ALUOP_OR;  dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_ANDI:    begin dx_aluop <= ALUOP_AND; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
-		RV_ADD:     begin dx_aluop <= ALUOP_ADD; end
-		RV_SUB:     begin dx_aluop <= ALUOP_SUB; end
-		RV_SLL:     begin dx_aluop <= ALUOP_SLL; end
-		RV_SLT:     begin dx_aluop <= ALUOP_LT;  end
-		RV_SLTU:    begin dx_aluop <= ALUOP_LTU; end
-		RV_XOR:     begin dx_aluop <= ALUOP_XOR; end
-		RV_SRL:     begin dx_aluop <= ALUOP_SRL; end
-		RV_SRA:     begin dx_aluop <= ALUOP_SRA; end
-		RV_OR:      begin dx_aluop <= ALUOP_OR;  end
-		RV_AND:     begin dx_aluop <= ALUOP_AND; end
-		RV_LB:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LB;  end
-		RV_LH:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LH;  end
-		RV_LW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LW;  end
-		RV_LBU:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LBU; end
-		RV_LHU:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LHU; end
-		RV_SB:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SB;  dx_rd <= {W_REGADDR{1'b0}}; end
-		RV_SH:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SH;  dx_rd <= {W_REGADDR{1'b0}}; end
-		RV_SW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SW;  dx_rd <= {W_REGADDR{1'b0}}; end
-		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
-		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
-		RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
-		default:    begin if (!d_bubble) $display("Invalid instruction! %h", d_instr); end
-		endcase
-
-		if (d_bubble || flush_d_x || (d_jump && ahb_req_d)) begin
-			dx_branchcond <= BCOND_NEVER;
+		if (!stall_cause_x) begin
+			// Assign some defaults
+			dx_rs1 <= d_rs1;
+			dx_rs2 <= d_rs2;
+			dx_rd <= d_rd;
+			dx_imm <= d_imm_i;
+			dx_alusrc_a <= ALUSRCA_RS1;
+			dx_alusrc_b <= ALUSRCB_RS2;
 			dx_memop <= MEMOP_NONE;
-			dx_rd <= 5'h0;
+			dx_branchcond <= BCOND_NEVER;
+			dx_jump_is_regoffs <= 1'b0;
+			dx_mispredict_addr <= d_pc_next;
+			dx_jump_is_regoffs <= 0;
+
+			casez (d_instr)
+			RV_BEQ:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
+			RV_BNE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+			RV_BLT:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+			RV_BGE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+			RV_BLTU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+			RV_BGEU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
+			RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
+			RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
+			RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
+			RV_AUIPC:   begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_PC; end
+			RV_ADDI:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_SLLI:    begin dx_aluop <= ALUOP_SLL; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_SLTI:    begin dx_aluop <= ALUOP_LT;  dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_SLTIU:   begin dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_XORI:    begin dx_aluop <= ALUOP_XOR; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_SRLI:    begin dx_aluop <= ALUOP_SRL; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_SRAI:    begin dx_aluop <= ALUOP_SRA; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_ORI:     begin dx_aluop <= ALUOP_OR;  dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_ANDI:    begin dx_aluop <= ALUOP_AND; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
+			RV_ADD:     begin dx_aluop <= ALUOP_ADD; end
+			RV_SUB:     begin dx_aluop <= ALUOP_SUB; end
+			RV_SLL:     begin dx_aluop <= ALUOP_SLL; end
+			RV_SLT:     begin dx_aluop <= ALUOP_LT;  end
+			RV_SLTU:    begin dx_aluop <= ALUOP_LTU; end
+			RV_XOR:     begin dx_aluop <= ALUOP_XOR; end
+			RV_SRL:     begin dx_aluop <= ALUOP_SRL; end
+			RV_SRA:     begin dx_aluop <= ALUOP_SRA; end
+			RV_OR:      begin dx_aluop <= ALUOP_OR;  end
+			RV_AND:     begin dx_aluop <= ALUOP_AND; end
+			RV_LB:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LB;  end
+			RV_LH:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LH;  end
+			RV_LW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LW;  end
+			RV_LBU:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LBU; end
+			RV_LHU:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_LHU; end
+			RV_SB:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SB;  dx_rd <= {W_REGADDR{1'b0}}; end
+			RV_SH:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SH;  dx_rd <= {W_REGADDR{1'b0}}; end
+			RV_SW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SW;  dx_rd <= {W_REGADDR{1'b0}}; end
+			RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
+			RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
+			RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
+			default:    begin if (!d_bubble) $display("Invalid instruction! %h", d_instr); end
+			endcase
+
+			if (d_bubble || flush_d_x || (d_jump && ahb_req_d) || stall_cause_d) begin
+				dx_branchcond <= BCOND_NEVER;
+				dx_memop <= MEMOP_NONE;
+				dx_rd <= 5'h0;
+				// Also need to clear rs1, rs2, due to a nasty sequence of events:
+				// Suppose we have a load, followed by a dependent branch, which is predicted taken
+				// - branch will stall in D until AHB master becomes free
+				// - on next cycle, prediction causes jump, and bubble is in X
+				// - if X gets branch's rs1, rs2, it will cause spurious RAW stall
+				// - on next cycle, branch will not progress into X due to RAW stall, but *will* be replaced in D due to jump
+				// - branch mispredict now cannot be corrected
+				dx_rs1 <= 5'h0;
+				dx_rs2 <= 5'h0;
+			end
 		end
 	end
 end
@@ -332,9 +398,9 @@ regfile_1w2r #(
 	.rst_n  (rst_n),
 	// On stall, we feed X's addresses back into regfile
 	// so that output does not change.
-	.raddr1 (stall_cause_ahb ? dx_rs1 : d_rs1),
+	.raddr1 (stall_cause_ahb || stall_cause_x ? dx_rs1 : d_rs1),
 	.rdata1 (dx_rdata1),
-	.raddr2 (stall_cause_ahb ? dx_rs2 : d_rs2),
+	.raddr2 (stall_cause_ahb || stall_cause_x ? dx_rs2 : d_rs2),
 	.rdata2 (dx_rdata2),
 
 	.waddr  (mw_rd),
@@ -348,7 +414,8 @@ revive_instr_decompress #(
 ) decomp (
 	.instr_in(f_buf[31:0]),
 	.instr_is_32bit(df_instr_is_32bit),
-	.instr_out(d_instr)
+	.instr_out(d_instr),
+	.invalid(d_invalid_16bit)
 );
 
 
@@ -380,9 +447,23 @@ reg  [W_MEMOP-1:0]   xm_memop;
 
 wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc);
 
-// X stalls are caused by M->X RAW hazards, or busmaster contention
-wire x_stall_raw = xm_rd && xm_rd == dx_rs1 && !(xm_memop & 4'hc);
+reg x_stall_raw;
 assign stall_cause_x = x_stall_raw;
+
+// Load-use hazard detection
+always @ (*) begin
+	if (xm_memop < MEMOP_SW) begin
+		if (xm_rd && xm_rd == dx_rs1) begin
+			// Store addresses cannot be bypassed later, so there is no exception here.
+			x_stall_raw = 1'b1;
+		end else if (xm_rd && xm_rd == dx_rs2) begin
+			// Store data can be bypassed in M. Any other instructions must stall.
+			x_stall_raw = !(dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB);
+		end
+	end else begin
+		x_stall_raw = 1'b0;
+	end
+end
 
 // AHB transaction request
 always @ (*) begin
@@ -437,6 +518,7 @@ always @ (*) begin
 	endcase
 end
 
+// State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		{xm_jump_target, xm_jump} <= {(W_ADDR + 1){1'b0}};
@@ -470,7 +552,7 @@ always @ (posedge clk or negedge rst_n) begin
 				end
 				default: begin
 					xm_jump <= 1'b0;
-					xm_jump_target <= dx_rdata2;	// (ab)use this pathway to pass store data
+					xm_jump_target <= x_rs2_bypass;	// (ab)use this pathway to pass store data
 				end
 			endcase
 		end
@@ -494,7 +576,7 @@ reg [W_DATA-1:0]    m_rdata_shift;
 reg [W_DATA-1:0]    m_wdata;
 
 always @ (*) begin
-	if (!mw_rd && xm_rs2 == mw_rd) begin
+	if (mw_rd && xm_rs2 == mw_rd) begin
 		m_wdata = mw_result;
 	end else begin
 		m_wdata = xm_jump_target;
@@ -558,7 +640,10 @@ always @ (posedge clk or negedge rst_n) begin
 		wx_result <= {W_DATA{1'b0}};
 	end else if (!stall_cause_ahb) begin
 		wf_icache_valid <= w_icache_valid;
-		wf_jump_unaligned <= 1'b0;
+		if (f_fetch_req_prev) begin
+			// don't clear the unaligned flag if fetch is still starved!
+			wf_jump_unaligned <= 1'b0;
+		end
 		wf_jumped <= w_jump_now;
 		// Register the write currently going into cache, as this
 		// is invisible to D, so bypassed from here to X.

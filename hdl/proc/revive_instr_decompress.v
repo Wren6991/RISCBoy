@@ -3,7 +3,8 @@ module revive_instr_decompress #(
 ) (
 	input wire [31:0] instr_in,
 	output reg instr_is_32bit,
-	output reg [31:0] instr_out
+	output reg [31:0] instr_out,
+	output reg invalid
 );
 
 `include "rv_opcodes.vh"
@@ -34,17 +35,19 @@ generate
 if (PASSTHROUGH) begin
 	always @ (*) begin
 		instr_is_32bit = 1'b1;
-		instr_out[31:2] = instr_in[31:2];
-		instr_out[1:0] = 2'b11;
+		instr_out = instr_in;
+		invalid = 1'b0;
 	end
 end else begin
 	always @ (*) begin;
 		if (instr_in[1:0] == 2'b11) begin
 			instr_is_32bit = 1'b1;
 			instr_out = instr_in;
+			invalid = 1'b0;
 		end else begin
 			instr_is_32bit = 1'b0;
 			instr_out = 32'h0;
+			invalid = 1'b0;
 			casez (instr_in[15:0])
 			16'h0:  begin end // Do nothing; 32-bit 0s are illegal too!
 			RV_C_ADDI4SPN: instr_out = RV_NOZ_ADDI | (rd_s << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
@@ -93,7 +96,8 @@ end else begin
 			RV_C_SWSP:    instr_out = RV_NOZ_SW | (rs2_l << RV_RS2_LSB) | (5'h2 << RV_RS1_LSB)
 				| ({instr_in[11:9], 2'b00} << 7) | ({instr_in[8:7], instr_in[12]} << 25);
 			RV_C_BEQZ:     instr_out = RV_NOZ_BEQ | (rs1_s << RV_RS1_LSB) | imm_cb;
-			RV_C_BEQZ:     instr_out = RV_NOZ_BNE | (rs1_s << RV_RS1_LSB) | imm_cb;
+			RV_C_BNEZ:     instr_out = RV_NOZ_BNE | (rs1_s << RV_RS1_LSB) | imm_cb;
+			default: invalid = 1'b1;
 			endcase
 		end
 	end

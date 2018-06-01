@@ -55,6 +55,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		apb_state <= STATE_IDLE;
 		apbm_paddr <= {W_PADDR{1'b0}};
+		apbm_pwdata <= {W_DATA{1'b0}};
 	end else begin
 		if (apb_state == STATE_WR0) begin
 			apbm_pwdata <= ahbls_hwdata;

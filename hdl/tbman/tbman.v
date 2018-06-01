@@ -3,7 +3,7 @@ module tbman #(
 ) (
 	input wire clk,
 	input wire rst_n,
-	
+
 	// APB Port
 	input wire apbs_psel,
 	input wire apbs_penable,
@@ -41,7 +41,7 @@ tbman_regs inst_tbman_regs
 generate
 if (SIMULATION) begin: has_tbman
 
-	reg [1023:0] print_str = 1024'h0;
+	reg [0:1023] print_str = 1024'h0;
 	integer print_ptr = 0;
 
 	always @ (posedge clk) begin
@@ -57,6 +57,7 @@ if (SIMULATION) begin: has_tbman
 		end
 		if (exit_wen) begin
 			$display("TBMAN: CPU requested termination, exit code %d", exit_o);
+			$finish;
 		end
 	end
 

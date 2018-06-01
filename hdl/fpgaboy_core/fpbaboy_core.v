@@ -245,7 +245,7 @@ tbman #(
 	.apbs_paddr       (tbman_paddr),
 	.apbs_pwdata      (tbman_pwdata),
 	.apbs_prdata      (tbman_prdata),
-	.apbs_apbs_pready (tbman_apbs_pready),
+	.apbs_pready      (tbman_pready),
 	.apbs_pslverr     (tbman_pslverr)
 );
 
