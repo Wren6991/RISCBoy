@@ -21,7 +21,9 @@ Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/
 
 ```
 ./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
-make
+sudo mkdir /opt/riscv
+sudo chown $(whoami) /opt/riscv
+make -j $(nproc)
 ```
 
 Simulation
@@ -32,15 +34,15 @@ The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the sc
 Once ISIM is installed, you should be able to do the following:
 
 ```
-cd fpgaboy
 . sourceme
 cd test
 ./runtests
 ```
 
-which will run all of the HDL-level tests. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To debug a test graphically, run its makefile directly:
+which will run all of the HDL-level tests. Software tests will require the RV32IC toolchain. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To debug a test graphically, run its makefile directly:
 
 ```
-cd ahbl_arbiter
+cd system/helloworld
+make compile
 make gui
 ```
