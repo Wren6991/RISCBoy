@@ -49,7 +49,7 @@ end else begin
 			instr_out = 32'h0;
 			invalid = 1'b0;
 			casez (instr_in[15:0])
-			16'h0:  begin end // Do nothing; 32-bit 0s are illegal too!
+			16'h0:         invalid = 1'b1;
 			RV_C_ADDI4SPN: instr_out = RV_NOZ_ADDI | (rd_s << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
 				| ({instr_in[10:7], instr_in[12:11], instr_in[5], instr_in[6], 2'b00} << 20);
 			RV_C_LW:       instr_out = RV_NOZ_LW | (rd_s << RV_RD_LSB) | (rs1_s << RV_RS1_LSB)
@@ -63,7 +63,8 @@ end else begin
 			RV_C_LUI: begin
 				if (rd_l == 5'h2) begin
 					// addi6sp
-					instr_out = RV_NOZ_ADDI | (5'h2 << RV_RD_LSB) | (5'h2 << RV_RS1_LSB) | (imm_ci << 4);
+					instr_out = RV_NOZ_ADDI | (5'h2 << RV_RD_LSB) | (5'h2 << RV_RS1_LSB) |
+						({{3{instr_in[12]}}, instr_in[4:3], instr_in[5], instr_in[2], instr_in[6]} << 24);
 				end else begin
 					instr_out = RV_NOZ_LUI | (rd_l << RV_RD_LSB) | ({instr_in[12], instr_in[6:2]} << 12);
 				end
