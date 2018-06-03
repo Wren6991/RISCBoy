@@ -6,9 +6,9 @@ module uart_regs (
 	input wire rst_n,
 	
 	// APB Port
-	input wire psel,
-	input wire penable,
-	input wire pwrite,
+	input wire apbs_psel,
+	input wire apbs_penable,
+	input wire apbs_pwrite,
 	input wire [15:0] apbs_paddr,
 	input wire [31:0] apbs_pwdata,
 	output wire [31:0] apbs_prdata,
@@ -39,7 +39,7 @@ wire [31:0] wdata = apbs_pwdata;
 reg [31:0] rdata;
 wire wen = apbs_psel && apbs_penable && apbs_pwrite;
 wire ren = apbs_psel && apbs_penable && !apbs_pwrite;
-wire [15:0] addr = apbs_paddr;
+wire [15:0] addr = apbs_paddr & 16'h1f;
 assign apbs_prdata = rdata;
 assign apbs_pready = 1'b1;
 assign apbs_pslverr = 1'b0;
@@ -121,6 +121,7 @@ assign rfstat_empty_wdata = wdata[30:30];
 
 wire [7:0] tx__rdata;
 wire [7:0] tx__wdata;
+assign tx__rdata = 8'h0;
 wire [31:0] tx_rdata = {24'h0, tx__rdata};
 assign tx__wdata = wdata[7:0];
 

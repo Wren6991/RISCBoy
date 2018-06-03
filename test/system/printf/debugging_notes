@@ -1,0 +1,17 @@
+printf testcase
+===============
+
+Final failure: dereferences pointer which is not in RAM (736e6f47). Processor stalls on hready.
+
+This occurs in the function __ssprint_r. The dereference is of register s6, which is loaded from the address provided by the a2 argument, near the top of the function. This address seems to be a static variable.
+
+This function is called from the very bottom of _svfprintf_r. The a2 argument is set to sp + 212. Near the top of this function, the argument a7 is written to this location. (stack frame is 480 bytes!)
+
+Possible error: at the start of tbman_printf, the stack is adjusted downward by 192 bytes. However, the processor subtracts 320! (the same bit pattern, but with bit 8 and bit 7 swapped)   (this was an error. Fixed. Did not fix this testcase.)
+
+Cut down the size of the test string to reduce the size of the haystack to find the needle in. Noticed something weird: the pointer the processor dereferences when it dies is the ASCII string we're printing. e.g. "Abc\n" gives 0x0a636241. This cycle proceeds to data phase, and the processor hangs with this address + 4 on the bus.
+
+---------------
+
+The a2 argument to __ssprint_r is in fact the address of the string passed into tbman_prints as argument a0. __ssprint_r is defined in the file riscv-gnu-toolchain/riscv-newlib/newlib/libc/stdio/vfprintf.c.
+

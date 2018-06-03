@@ -216,7 +216,7 @@ apb_splitter #(
 ahb_sync_sram #(
 	.W_DATA(W_DATA),
 	.W_ADDR(W_ADDR),
-	.DEPTH(1 << 16)
+	.DEPTH(1 << 17) // 2^17 words = 0.5 MiB
 ) sram0 (
 	.clk               (clk),
 	.rst_n             (rst_n),

@@ -1,0 +1,14 @@
+name: gpio
+bus: apb
+addr: 16
+data: 32
+regs:
+  - name: out
+    bits:
+      - {b: [31, 0], access: rw}
+  - name: dir
+    bits:
+      - {b: [31, 0], access: rw}
+  - name: in
+    bits:
+      - {b: [31, 0], access: rov}
