@@ -55,7 +55,7 @@ end else begin
 			RV_C_LW:       instr_out = RV_NOZ_LW | (rd_s << RV_RD_LSB) | (rs1_s << RV_RS1_LSB)
 				| ({instr_in[5], instr_in[12:10], instr_in[6], 2'b00} << 20);
 			RV_C_SW:       instr_out = RV_NOZ_SW | (rs2_s << RV_RS2_LSB) | (rs1_s << RV_RS1_LSB)
-				| ({instr_in[11:10], instr_in[6], 2'b00} << 7) | (instr_in[12] << 25);
+				| ({instr_in[11:10], instr_in[6], 2'b00} << 7) | ({instr_in[5], instr_in[12]} << 25);
 			RV_C_ADDI:     instr_out = RV_NOZ_ADDI | (rd_l << RV_RD_LSB) | (rs1_l << RV_RS1_LSB) | imm_ci;
 			RV_C_JAL:      instr_out = RV_NOZ_JAL | (5'h1 << RV_RD_LSB) | imm_cj;
 			RV_C_J:        instr_out = RV_NOZ_JAL | (5'h0 << RV_RD_LSB) | imm_cj;
