@@ -1,5 +1,5 @@
 MODNAME=revive_cpu
-SRCS=revive_cpu.v revive_instr_decompress.v revive_alu.v regfile_1w2r.v
+SRCS=revive_cpu.v revive_instr_decompress.v revive_alu.v regfile_1w2r.v shift_rla.v
 
 YOSYS=yosys
 YOSYS_SMTBMC=$(YOSYS)-smtbmc

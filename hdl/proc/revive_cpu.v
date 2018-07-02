@@ -452,6 +452,7 @@ assign stall_cause_x = x_stall_raw;
 
 // Load-use hazard detection
 always @ (*) begin
+	x_stall_raw = 1'b0;
 	if (xm_memop < MEMOP_SW) begin
 		if (xm_rd && xm_rd == dx_rs1) begin
 			// Store addresses cannot be bypassed later, so there is no exception here.
@@ -460,8 +461,6 @@ always @ (*) begin
 			// Store data can be bypassed in M. Any other instructions must stall.
 			x_stall_raw = !(dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB);
 		end
-	end else begin
-		x_stall_raw = 1'b0;
 	end
 end
 
@@ -681,5 +680,9 @@ end else begin: nocache
 	assign wf_icache_rdata = 32'h0;
 end
 endgenerate
+
+`ifdef FORMAL
+`include "revive_formal.vh"
+`endif
 
 endmodule
