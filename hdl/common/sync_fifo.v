@@ -18,7 +18,6 @@
 // Synchronous FIFO
 //
 // No first-word-fallthrough.
-// (Note this gives 50% throughput for depth=2)
 // All outputs are registered, apart from read data, which is
 // combinationally decoded from internal register-based memory.
 // Depth must be power of 2, != 1
@@ -71,5 +70,26 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end
 end
+
+`ifdef FORMAL
+initial assume(!rst_n);
+always @ (posedge clk) begin
+	assume(!(w_en && full && !r_en));
+	assume(!(r_en && empty));
+	assume(rst_n);
+
+	assert((full) ~^ (level == DEPTH));
+	assert((empty) ~^ (level == 0));
+	assert(level <= DEPTH);
+	assert((w_ptr == r_ptr) ~^ (full || empty));
+
+	assert($past(r_en) || (r_data == $past(r_data) || $past(empty)));
+	assert($past(r_en) || level >= $past(level));
+	assert($past(w_en) || level <= $past(level));
+	assert(!($past(empty) && $past(w_en) && r_data != $past(w_data)));
+	assert(!($past(r_en) && r_ptr == $past(r_ptr)));
+	assert(!($past(w_en) && w_ptr == $past(w_ptr)));
+end
+`endif
 
 endmodule
