@@ -15,29 +15,62 @@
  *                                                                    *
  *********************************************************************/
 
-module revive_alu (
+module revive_alu #(
+	parameter W_DATA = 32
+) (
 	input  wire [3:0]  aluop,
-	input  wire [31:0] op_a,
-	input  wire [31:0] op_b,
-	output reg  [31:0] result,
+	input  wire [W_DATA-1:0] op_a,
+	input  wire [W_DATA-1:0] op_b,
+	output reg  [W_DATA-1:0] result,
 	output reg         zero
 );
 
 `include "alu_ops.vh"
 
-wire [31:0] sum  = op_a + op_b;
-wire [31:0] diff = op_a - op_b;
+function msb;
+input [W_DATA-1:0] x;
+begin
+	msb = x[W_DATA-1];
+end
+endfunction
 
-wire lt = $signed(op_a) < $signed(op_b);
-wire ltu = op_a < op_b;
+wire [W_DATA-1:0] sum  = op_a + op_b;
+wire [W_DATA-1:0] diff;
+wire borrow;
+assign {borrow, diff} = op_a - op_b;
 
-wire [63:0] op_a_sext = {{32{op_a[31]}}, op_a};
-wire [63:0] op_a_zext = {32'h0, op_a};
-wire [4:0] shamt = op_b[4:0];
+wire ltu = borrow;
+reg lt;
+always @ (*) begin
+	if (msb(op_b) && !msb(op_a)) begin
+		lt = 1'b0;
+	end else if (msb(op_a) && !msb(op_b)) begin
+		lt = 1'b1;
+	end else begin
+		lt = msb(diff);
+	end
+end
+
+wire [W_DATA-1:0] shift_dout;
+reg shift_right_nleft;
+reg shift_arith;
+
+shift_rla #(
+	.W_DATA(W_DATA),
+	.W_SHAMT(5)
+) shifter (
+	.din(op_a),
+	.shamt(op_b[4:0]),
+	.right_nleft(shift_right_nleft),
+	.arith(shift_arith),
+	.dout(shift_dout)
+);
 
 always @ (*) begin
+	shift_right_nleft = 1'b0;
+	shift_arith = 1'b0;
 	case (aluop)
-		ALUOP_ADD: begin result = sum; end
+		/*ALUOP_ADD*/default: begin result = sum; end
 		ALUOP_SUB: begin result = diff; end
 		ALUOP_LT:  begin result = lt; end
 		ALUOP_GE:  begin result = !lt; end
@@ -46,11 +79,35 @@ always @ (*) begin
 		ALUOP_AND: begin result = op_a & op_b; end
 		ALUOP_OR:  begin result = op_a | op_b; end
 		ALUOP_XOR: begin result = op_a ^ op_b; end
-		ALUOP_SRL: begin result = op_a_zext[shamt +: 32]; end
-		ALUOP_SRA: begin result = op_a_sext[shamt +: 32]; end
-		ALUOP_SLL: begin result = op_a << shamt; end
+		ALUOP_SRL: begin shift_right_nleft = 1'b1; result = shift_dout; end
+		ALUOP_SRA: begin shift_right_nleft = 1'b1; shift_arith = 1'b1; result = shift_dout; end
+		ALUOP_SLL: begin result = shift_dout; end
 	endcase
 	zero = !result;
 end
+
+`ifdef FORMAL
+// Really we're just interested in the shifts and comparisons, as these are
+// the nontrivial ones. However, easier to test everything!
+
+wire clk;
+always @ (posedge clk) begin
+	case(aluop)
+	default: begin end
+	ALUOP_ADD: assert(result == op_a + op_b);
+	ALUOP_SUB: assert(result == op_a - op_b);
+	ALUOP_LT:  assert(result == $signed(op_a) < $signed(op_b));
+	ALUOP_GE:  assert(result == $signed(op_a) >= $signed(op_b));
+	ALUOP_LTU: assert(result == op_a < op_b);
+	ALUOP_GEU: assert(result == op_a >= op_b);
+	ALUOP_AND: assert(result == (op_a & op_b));
+	ALUOP_OR:  assert(result == (op_a | op_b));
+	ALUOP_XOR: assert(result == (op_a ^ op_b));
+	ALUOP_SRL: assert(result == op_a >> op_b[4:0]);
+	ALUOP_SRA: assert($signed(result) == $signed(op_a) >>> $signed(op_b[4:0]));
+	ALUOP_SLL: assert(result == op_a << op_b[4:0]);
+	endcase
+end
+`endif
 
 endmodule
