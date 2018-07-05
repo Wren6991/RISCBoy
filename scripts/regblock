@@ -345,13 +345,13 @@ class VerilogWriter(RegBlockVisitor):
 			v.logic_comb.append("{}_ren = __{}_ren;".format(fname, rname))
 		if f.access in ["rw"]:
 			v.decls.append("assign {}_rdata = {}_o;".format(fname, fname))
-			v.logic_rst.append("{}_o <= {}'h0;".format(fname, f.msb - f.lsb + 1))
+			v.logic_rst.append("{}_o <= {}'h{:x};".format(fname, f.width, f.resetval))
 			v.logic_clk.append("if (__{}_wen)".format(rname))
 			v.logic_clk.append("\t{}_o <= {}_wdata;".format(fname, fname))
 		if f.access in ["sc"]:
 			v.logic_comb.append("{0}_o = {0}_wdata & {{{1}{{__{2}_wen}}}};".format(fname, f.width, rname))
 		if f.access in ["ro", "wf"]:
-			v.decls.append("assign {}_rdata = {}'h{};".format(fname, f.width, hex(f.resetval)[2:]))
+			v.decls.append("assign {}_rdata = {}'h{:x};".format(fname, f.width, f.resetval))
 
 	def post_field(self, f):
 		pass
@@ -439,6 +439,8 @@ if __name__ == "__main__":
 		sfile = sys.stdin
 	else:
 		sfile = open(args.src)
+	rb = RegBlock.load(sfile)
+
 	if args.verilog is not None or args.all:
 		if args.verilog == "-":
 			vfile = sys.stdout
@@ -453,7 +455,7 @@ if __name__ == "__main__":
 			hfile = open(change_ext(args.src, ".h"), "w")
 		else:
 			hfile = open(args.cheader, "w")
-	rb = RegBlock.load(sfile)
+
 	if vfile is not None:
 		vw = VerilogWriter()
 		rb.accept(vw)
