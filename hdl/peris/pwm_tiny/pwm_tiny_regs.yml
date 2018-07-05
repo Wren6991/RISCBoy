@@ -1,0 +1,12 @@
+name: pwm_tiny
+bus: apb
+addr: 16
+data: 32
+regs:
+  - name: ctrl
+    info: PWM control register
+    bits:
+      - {b: [7, 0], name: val, access: rw}
+      - {b: [15,8], name: div, access: rw, rst: 1}
+      - {b: 31, name: en, access: rw, info: "Enable PWM (reset when low)"}
+      - {b: 30, name: inv, access: rw, info: "Invert output"}
