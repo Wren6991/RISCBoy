@@ -242,6 +242,7 @@ class Verilog:
 		strs.append("endmodule\n")
 		return "\n".join(strs)
 
+
 class VerilogWriter(RegBlockVisitor):
 	def __init__(self):
 		self.v = Verilog()
@@ -355,6 +356,7 @@ class VerilogWriter(RegBlockVisitor):
 	def post_field(self, f):
 		pass
 
+
 # C header generation
 
 class HeaderWriter(RegBlockVisitor):
@@ -418,29 +420,37 @@ class HeaderWriter(RegBlockVisitor):
 	def post_field(self, f):
 		pass
 
-
+def change_ext(fname, ext):
+	return ".".join(fname.split(".")[0:-1] + [ext.strip(".")])
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(prog="regblock")
+	parser = argparse.ArgumentParser()
 	parser.add_argument("src", help="Source file to read from (pass - for stdin)")
 	parser.add_argument("--verilog", "-v", help="Verilog file to write to (pass - for stdout)")
 	parser.add_argument("--cheader", "-c", help="C header file to write to (pass - for stdout)")
+	parser.add_argument("--all", "-a", action="store_true", help="Generate all output types, with default filenames")
 	args = parser.parse_args()
 	sfile = None
 	vfile = None
 	hfile = None
+	if args.src == "-" and args.all:
+		exit("Cannot use --all with stdin input")
 	if args.src == "-":
 		sfile = sys.stdin
 	else:
 		sfile = open(args.src)
-	if args.verilog is not None:
-		if (args.verilog == "-"):
+	if args.verilog is not None or args.all:
+		if args.verilog == "-":
 			vfile = sys.stdout
+		elif args.verilog is None:
+			vfile = open(change_ext(args.src, ".v"), "w")
 		else:
 			vfile = open(args.verilog, "w")
-	if args.cheader is not None:
+	if args.cheader is not None or args.all:
 		if (args.cheader == "-"):
 			hfile = sys.stdout
+		elif args.verilog is None:
+			hfile = open(change_ext(args.src, ".h"), "w")
 		else:
 			hfile = open(args.cheader, "w")
 	rb = RegBlock.load(sfile)
