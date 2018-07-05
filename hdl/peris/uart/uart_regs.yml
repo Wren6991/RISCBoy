@@ -6,27 +6,25 @@ regs:
   - name: csr
     info: "Control and status register"
     bits:
-      - {b: 0, name: en, access: rw}
-      - {b: 1, name: busy, access: rov}
-      - {b: 2, name: txie, info: "Enable TX FIFO interrupt", access: rw}
-      - {b: 3, name: rxie, info: "Enable RX FIFO interrupt", access: rw}
+      - {b: 0, name: en, access: rw,
+        info: "UART runs when en is high. Synchronous reset (excluding FIFOs) when low."}
+      - {b: 1, name: busy, access: rov, info: "UART TX is still sending data"}
+      - {b: 2, name: txie, access: rw, info: "Enable TX FIFO interrupt"}
+      - {b: 3, name: rxie, access: rw, info: "Enable RX FIFO interrupt"}
   - name: div
-    info: "Clock divider"
+    info: "Clock divider control fields"
     bits:
-      - {b: [31, 8], name: int, access: rw}
+      - {b: [17, 8], name: int, access: rw}
       - {b: [7, 0], name: frac, access: rw}
-  - name: tfstat
-    info: "TX FIFO status"
+  - name: fstat
+    info: "FIFO status register"
     bits:
-      - {b: [7, 0], name: level, access: rov}
-      - {b: 31, name: full, access: rov}
-      - {b: 30, name: empty, access: rov}
-  - name: rfstat
-    info: "RX FIFO status"
-    bits:
-      - {b: [7, 0], name: level, access: rov}
-      - {b: 31, name: full, access: rov}
-      - {b: 30, name: empty, access: rov}
+      - {b: [7, 0], name: txlevel, access: rov}
+      - {b: 8, name: txfull, access: rov}
+      - {b: 9, name: txempty, access: rov}
+      - {b: [23, 16], name: rxlevel, access: rov}
+      - {b: 24, name: rxfull, access: rov}
+      - {b: 25, name: rxempty, access: rov}
   - name: tx
     info: "TX data FIFO"
     bits:
