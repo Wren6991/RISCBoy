@@ -14,7 +14,7 @@ regs:
   - name: div
     info: "Clock divider control fields"
     bits:
-      - {b: [17, 8], name: int, access: rw}
+      - {b: [17, 8], name: int, access: rw, rst: 0x1}
       - {b: [7, 0], name: frac, access: rw}
   - name: fstat
     info: "FIFO status register"

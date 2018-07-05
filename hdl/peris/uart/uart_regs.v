@@ -140,7 +140,7 @@ always @ (posedge clk or negedge rst_n) begin
 		csr_en_o <= 1'h0;
 		csr_txie_o <= 1'h0;
 		csr_rxie_o <= 1'h0;
-		div_int_o <= 10'h0;
+		div_int_o <= 10'h1;
 		div_frac_o <= 8'h0;
 	end else begin
 		if (__csr_wen)
