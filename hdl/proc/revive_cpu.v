@@ -691,7 +691,7 @@ always @ (posedge clk or negedge rst_n) begin
 		if (w_jump_now) begin
 			w_fetchaddr <= (w_jump_target & ~32'h3) + 3'h4;
 			wf_jump_unaligned <= w_jump_target[1];
-		end else if (ahb_req_i && !ahb_req_d) begin
+		end else if (ahb_req_i && !ahb_req_d && !stall_cause_ahb_d) begin
 			w_fetchaddr <= w_fetchaddr + 3'h4;
 		end
 	end
