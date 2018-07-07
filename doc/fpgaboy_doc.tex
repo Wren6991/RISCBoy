@@ -1,15 +1,16 @@
 \documentclass{article}
 
-\usepackage{caption}
-\usepackage{csquotes}
-\usepackage[margin=0.7in]{geometry}
 \usepackage{graphicx}
-\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
 \usepackage{rotating}
 \usepackage{float}
+\usepackage[margin=0.8in]{geometry}
 \usepackage[section]{placeins}
+\usepackage[hidelinks]{hyperref}
 \usepackage{sectsty}
 \sectionfont{\clearpage}
+\usepackage{csquotes}
+\MakeOuterQuote{"}
 
 \setlength{\parskip}{0.3em}
 \usepackage{xcolor}
@@ -25,7 +26,6 @@
 	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
 }
 
-
 \title{FPGABoy Documentation}
 \author{Luke Wren}
 
@@ -37,7 +37,7 @@
 \newpage
 \pagenumbering{arabic}
 
-\section{What?}
+\section{Introduction}
 
 FPGABoy is an open source portable games console, designed from scratch. It is also...
 \begin{itemize}
@@ -45,14 +45,15 @@ FPGABoy is an open source portable games console, designed from scratch. It is a
 \item Designed with KiCAD open source PCB editor
 \item An open source CPU, graphics and bus architecture
 \item Based on the RISC-V open source instruction set
-\item Synthesised and taped out with iCEStorm open source FPGA toolchain
+\item Synthesised, placed and routed with iCEStorm open source FPGA toolchain
+\item It's open source
 \end{itemize}
 
 \begin{displayquote}
 \textit{If you say open source one more time I'm gonna nut instantly} - Oscar Wilde
 \end{displayquote}
 
-\subsection{Logic Design}
+\subsection{Digital Design}
 
 \begin{figure}[!htb]
 \caption{System-level architecture}
@@ -61,32 +62,39 @@ FPGABoy is an open source portable games console, designed from scratch. It is a
 \includegraphics[width=0.7\textwidth]{diagrams/system_arch.pdf}
 \end{figure}
 
-The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and flipflops. The logic was designed from scratch, using synthesisable Verilog. This includes:
+The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and flipflops. The logic was designed in synthesisable Verilog, with no dependencies on FPGA vendor IP (or anything else); the contents of this GitHub repository could be taped out onto a chip. This includes:
+
 \begin{itemize}
 \item RV32IC-compatible 32-bit CPU design
 	\begin{itemize}
 	\item RISC-V instruction set
 	\item 32I: base integer ISA profile
 	\item C: compressed instruction extension, for higher code density
+	\item Vectored interrupts (save/restore of PC, RA only)
+	\item 5-stage pipeline, similar to textbook RISC
+	\item Single AHB-lite master port
 	\end{itemize}
 \item Graphics pipeline
 	\begin{itemize}
 	\item Don't expect much, it's about as powerful as a Gameboy Advance
 	\item Includes some MODE7-like functionality which allows drawing perspective-mapped textured planes, by providing per-scanline affine texture transformation. Think MarioKart
 	\end{itemize}
-\item AHB Lite 3.0-compatible multi-master busfabric
-\item Other peripherals
+\item AMBA 3 AHB-lite compatible multi-master busfabric
+\item Peripherals:
 	\begin{itemize}
-	\item External SRAM controller
-	\item Display controller
 	\item DMA master
+	\item External asynchronous SRAM controller (GS74116 or similar)
+	\item Display controller (ILI9341)
+	\item SPI flash controller with direct memory-mapped access
+	\item GPIO (bitbanging, peripheral muxing)
 	\item Interrupt controller
-	\item GPIO controller (buttons!)
-	\item Serial port etc.
+	\item UART
+	\item PWM
+	\item Basic audio: voices + samples, noise-shaped PWM output
 	\end{itemize}
 \end{itemize}
 
-Some attempt is made in this document to describe the operation of these hardware blocks, but if you are looking for nitty-gritty detail, the best documentation is the files ending with \texttt{.v}.
+Some attempt is made in this document to describe the operation of these blocks, but if you are looking for nitty-gritty detail, the best documentation is the files ending with \texttt{.v}.
 
 That a free synthesis tool can cram all this logic into one of the cheapest FPGAs on the market is tremendously impressive. Hopefully we will one day have a situation similar to software compilers, where free tools such as GCC are industry standards.
 
@@ -119,8 +127,9 @@ The iCE40-HX8k FPGA is packaged in a 256-pin 0.8mm BGA, which \textit{can be} re
 
 \subsection{Licensing}
 
-The Verilog source to this project has no dependencies, and is distributed under the DWTFPL version 3. This is a very... permissive open-source licence, and its text should be included in full at the top of the source files.
+The Verilog source to this project has no dependencies, and is distributed under the DWTFPL version 3. This is a \textit{very} permissive open-source licence, and its text is included in full at the top of the source files. This license is very similar to the original DWTFPL, which more readers may be familiar with, but has an added indemnification clause.
 
+This license is also known by its more formal name, as the "Do What The Fuck You Want To And Don't Blame Us Public License".
 
 \section{CPU Architecture}
 
@@ -383,7 +392,7 @@ All stages stall on HREADY low, no matter which internal master instigated the c
 Besides HREADY low, each stage may stall for the following reasons:
 
 \begin{itemize}
-	\item \texttt{F}: 
+	\item \texttt{F}:
 	\begin{itemize}
 		\item Fetch buffer underflow (after losing busmaster arbitration)
 		\item  Stall in \texttt{X}
@@ -418,7 +427,7 @@ And the flushing mechanisms for each stage are as follows:
 
 Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to \textit{natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
 
-The RISC-V base ISA sizes instructions in 32-bit parcels, which must be 32-bit aligned; the compressed instruction extension relaxes this constraint to 16 and 16 bits. Data accesses range in size from single bytes to the machine word size, with no alignment requirements. 
+The RISC-V base ISA sizes instructions in 32-bit parcels, which must be 32-bit aligned; the compressed instruction extension relaxes this constraint to 16 and 16 bits. Data accesses range in size from single bytes to the machine word size, with no alignment requirements.
 
 ReVive uses AHB-lite for its bus interface. AHB-lite requires alignment of all accesses; this simplifies AHB-lite compatible hardware. The drawback for us is that, when programmers request a single unaligned access, the ReVive hardware must carry this out as multiple aligned accesses of smaller size. To avoid adding additional complexity to the CPU state machine, we handle this problem in two parts:
 
@@ -462,7 +471,147 @@ This section lists ideas of potential improvements which are waiting for synthes
 	\end{itemize}
 \end{itemize}
 
+\section{Bus Fabric and Memory Subsystem}
+
+Bus fabric is digital plumbing. A master, such as a processor, performs a read or write on some address; the bus fabric routes the transaction to the correct slave device, and routes the response back. FPGABoy implements two bus fabric standards:
+
+\begin{itemize}
+\item AMBA 3 AHB-lite connects masters to high-performance devices such as SRAM controllers
+\item AMBA 3 APB connects to simple devices such as a UART
+\end{itemize}
+
+Figure \ref{diagram:crossbar_structure} shows the structure of the AHB-lite crossbar (\texttt{ahbl\_crossbar.v}). The crossbar is shown in context in figure \ref{diagram:system_arch}. An independent AHB-lite datapath connects each of $m$ masters to each of $n$ slaves. One master can address one slave at a time, and one slave can be in data-phase with one master at a time; subject to these constraints, up to $\min(m,n)$ independent transfers can take place in a single machine clock cycle.
+
+Some claim AHB-lite does not "support" multi-master arbitration. These people lack imagination: motorbikes do not "support" wheelies by design, but are excellent at it.
+
+\begin{figure}[!htb]
+\centering
+\caption{Module-level structure of AHB-lite crossbar} \includegraphics[width=0.6\textwidth]{diagrams/crossbar_structure.pdf}
+\label{diagram:crossbar_structure}
+\end{figure}
+
+Each master is under the illusion that it is the only master in the system, but that slaves sometimes take longer to respond. During this waiting period, the slave may actually have fielded multiple transactions from higher-priority masters; this interaction handled by the slave's AHB-lite arbiter, and is transparent to the masters.
+
+One of the crossbar's slave ports is attached to an AHBL-APB bridge. This bridge appears as a slave to the AHB portion of the bus fabric, and as a master to the APB portion. There are three main benefits to this scheme:
+
+\begin{itemize}
+	\item APB is fundamentally simpler
+	\begin{itemize}
+		\item This keeps peripheral gate count down
+		\item The peripherals on the APB bus do not need the full AHB-lite bandwidth anyway
+	\end{itemize}
+	\item Fewer AHB-lite slaves
+	\begin{itemize}
+		\item There is a nonlinear area scaling associated with adding slaves to the AHB-lite fabric
+		\item This would also add extra gate delays to a fairly critical data path
+	\end{itemize}
+	\item One APB master
+	\begin{itemize}
+		\item AHB-lite masters get arbitrated down to one inside the AHB-lite crossbar. APB slaves do not care who is addressing them.
+		\item Different masters accessing different APB slaves will have to queue to use the bridge, even though they could theoretically proceed simultaneously
+		\item However, area/complexity vs performance tradeoff is more than worth it for slow peripherals
+		\item Multi-master APB is easy to implement, but never used in practice, due to the above tradeoff
+	\end{itemize}
+\end{itemize}
+
+The splitter and arbiter modules in the AHB-lite crossbar can also be used on their own. Arbitrary multi-layer busfabric topologies should be possible with these two components.
+
+\subsection{AHB-lite Primer}
+
+For a full understanding of the bus standard used by FPGABoy, read through ARM's AMBA 3 AHB-lite spec. This document is mirrored in the \texttt{reference} folder in the GitHub repository, and gives a clear and comprehensive breakdown of AHB-lite. However, if you are feeling brave, the following overview should provide sufficient understanding of the standard to read through the Verilog.
+
+AHB-lite is an asymmetric bus standard: masters assert transactions onto the bus, and slaves assert responses. Each transaction can be either a read or a write. The standard requires all transactions to be naturally aligned, i.e. the modulo of address and transfer size is zero. This is in tension with the RISC-V ISA which allows any transaction to have byte-alignment, so the load-store logic in the CPU may translate load/store instructions into multiple AHB-lite transactions.
+
+AHB-lite has separate data paths for read and write. This reflects a move away from tristate logic in ASIC bus designs, and a lack of tristate logic in FPGAs.
+
+AHB-lite transactions take place in two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus (\texttt{hrdata} and \texttt{hwdata}), but not both.
+
+The central conceit of AHB-lite is that these two phases are \textit{pipelined}. Whilst the master is asserting or accepting data for an earlier transaction (currently in data phase), it concurrently asserts address and control information for a later transaction (currently in address phase). As is generally the case with pipelining, the goal is to enable higher clock frequencies with undiminished work-per-clock.
+
+\begin{figure}[H]
+\centering
+\caption{A simple AHB-lite example}
+\includegraphics[width=0.9\textwidth]{waves/ahbl_basic.pdf}
+\label{diagram:ahbl_basic}
+\end{figure}
+
+In figure \ref{diagram:ahbl_basic}, a master carries out two AHB-lite transactions: a write to address A, followed by a read from address B. Only a subset of AHB-lite signals are shown on the diagram.
+
+The first three signals -- \texttt{htrans}, \texttt{haddr}, and \texttt{hwrite} -- are address phase, driven by the master; the others are data phase. \texttt{htrans} indicates the type of transaction the master next wishes to perform; allowed values are \texttt{IDLE}, \texttt{NSEQ} (non-sequential), \texttt{SEQ} and BUSY. The masters on FPGABoy only use \texttt{IDLE} and \texttt{NSEQ}. \texttt{hwrite} indicates the direction of the transaction, and \texttt{addr} the address (which is used for slave selection based on system memory map, and local address mapping inside of slaves).
+
+\texttt{hready} signifies the end of the current data phase. As a result, the current address-phase transaction proceeds into data phase. Each slave has a signal called \texttt{hreadyout}, indicating that \textit{it} is ready, and the bus fabric selects the \texttt{hreadyout} of the current data-phase slave to be the global \texttt{hready}.
+
+Initially, the bus is at rest. The master is asserting \texttt{IDLE} transactions. An \texttt{IDLE} data phase always completes in a single cycle. Therefore, the address phase for the first transaction -- write to address A -- also completes in a single cycle. When \texttt{htrans} is \texttt{IDLE}, the address-phase signals shown here are unimportant.
+
+This slave needs two cycles to perform each data phase; perhaps it is an SRAM capable of running only at half the system clock speed. Therefore, \texttt{hready} is low for one cycle, and high for the second (last) cycle. The master drives \texttt{hwdata} for the duration of A's data phase, and waits for the slave to signal completion.
+
+After 2 cycles, the data phase for address A completes. This is also the end of B's address phase. The data on \texttt{hrdata} is considered \textit{invalid} until the slave signals \texttt{hready}. During B's data phase, the master signals \texttt{IDLE}, as it has no further transactions to carry out after the read from B.
+
+\subsection{Multi-Master Operation}
+
+In a single-master busfabric, \texttt{hready} is a global signal, which causes the entire AHB-lite state machine (masters, slaves, fabric, the lot) to advance. Where multiple masters are concerned, \texttt{hready} is more subtle; in one respect, it is a per-master stall signal. In any case, \texttt{hready} is the most interesting and important wire on an AHB-lite bus. Consider figure \ref{diagram:ahbl_mm_simult1}, where two masters attempt to access a single slave simultaneously. Assume that master 0 always wins address-phase arbitration:
+
+\begin{figure}[H]
+\centering
+\caption{Two masters access one slave.}
+\includegraphics[width=0.9\textwidth]{waves/ahbl_mm_simult1.pdf}
+\label{diagram:ahbl_mm_simult1}
+\end{figure}
+
+Again, we assume the slave requires 2 cycles to complete each data phase.
+
+If we look at each master's trace, there is no indication at all that there is more than one master in the system: they present an address, and subsequently the transaction completes. Likewise, the slave neither knows nor cares that there are multiple masters: it simply carries out transactions according to the address-phase signals it sees. All of the smoke, mirrors and machinery are inside of the arbiter.
+
+One odd feature of this trace is that, when the slave sees the address B, no master is asserting this address.
+
+\begin{enumerate}
+	\item Initially, both masters assert \texttt{IDLE}; \texttt{IDLE} data phases complete in one cycle
+	\item \texttt{IDLE} data phases are concurrent with A, B address phases, so these \textit{also} complete immediately
+	\item From the master 1's point of view, transaction B proceeds immediately to data phase.
+	\item From both the master 0's and the slave's point of view, transaction A proceeds immediately to data phase
+	\item Whilst the slave is in data phase for A, it is simultaneously in address phase for B
+	\item When A data phase completes, master 0 is signaled, and B proceeds to data phase at the slave
+	\item When B data phase completes, master 1 is signaled
+\end{enumerate}
+
+More concisely put, the first clock cycle of a given transaction's data phase may differ between the slave and master, but the \textit{last} cycle of that data phase is always the same clock cycle. This is a strong enough guarantee for correct operation.
+
+Based on this discussion, the AHB-lite arbiters need the facility to buffer one address-phase request, per master. A buffered request will be applied before any new requests from that master, but after any higher-priority requests. There is a nonzero hardware cost to this buffering, but there are clear engineering benefits to keeping this complexity confined to the arbiters, as they are the only component in the busfabric which is explicitly "multi master".
+
+\begin{figure}[H]
+\centering
+\caption{Two masters access one slave, with low-priority back-to-back}
+\includegraphics[width=0.9\textwidth]{waves/ahbl_mm_simult2.pdf}
+\label{diagram:ahbl_mm_simult2}
+\end{figure}
+
+Figure \ref{diagram:ahbl_mm_simult2} shows the same sequence of events as figure \ref{diagram:ahbl_mm_simult1}, except master 0 now performs two back-to-back transactions. Once B's address phase completes, the arbiter's request buffer is cleared, and the C request passes transparently through the arbiter to the slave. Again, the only indication to master 1 of any master 0 activity is increased latency.
+
+There is a different case which requires the arbiter's request buffer, shown in figure \ref{diagram:ahbl_mm_simult3}.
+
+\begin{figure}[H]
+\centering
+\caption{Simultaneous request buffer writes}
+\includegraphics[width=0.9\textwidth]{waves/ahbl_mm_simult3.pdf}
+\label{diagram:ahbl_mm_simult3}
+\end{figure}
+
+At the instant where D address phase is asserted, \texttt{hready0} is high, because master 0 previously asserted an \texttt{IDLE} transfer. However, the slave is not ready. In this case, the arbiter needs to buffer master 0's request, even though it is the highest-priority master. The buffered request is cleared once its slave address phase completes, as usual.
+
+There is one final case, for two masters accessing one slave, which is worth being aware of (figure \ref{diagram:ahbl_mm_latearrival}).
+
+\begin{figure}[H]
+\centering
+\caption{High-priority late arrival}
+\includegraphics[width=0.9\textwidth]{waves/ahbl_mm_latearrival.pdf}
+\label{diagram:ahbl_mm_latearrival}
+\end{figure}
+
+Whilst \texttt{hreadyout} is low, the C address briefly appears on the slave bus, before being replaced by the higher-priority D request. \textbf{This is a departure from the AHB-lite standard}, which stipulates the address must be constant during this time. This is deliberate, and could easily be amended. Slaves are generally insensitive to address-phase request during this time (as there is no performance benefit to latching AP before \texttt{hreadyout}, due to the way the bus operates), and this avoids a priority inversion, reducing average latency for higher-priority masters. If you find something that this breaks, write me an angry email! I would be genuinely curious to see such a slave.
+
 \section{Graphics Pipeline}
+
+The graphics pipeline is still at the whiteboard stage, and its final form will depend on how many gates are left over when the rest of the system is finished. However, it will look something like the following (potentially without the affine transform blocks):
 
 \begin{figure}[!htb]
 \centering
@@ -470,40 +619,6 @@ This section lists ideas of potential improvements which are waiting for synthes
 \includegraphics[width=0.9\textwidth]{diagrams/graphics.pdf}
 \end{figure}
 
-\section{Bus Fabric and Memory Subsystem}
-
-\begin{figure}[!htb]
-\centering
-\label{diagram:crossbar_structure}
-\caption{Module-level structure of AHBL crossbar}
-\includegraphics[width=0.6\textwidth]{diagrams/crossbar_structure.pdf}
-\end{figure}
-
-Figure \ref{diagram:crossbar_structure} shows the structure of the ahbl\_crossbar module (\texttt{hdl/busfabric/ahbl\_crossbar.v} in the code). To see how this fits into the overall system architecture, refer back to figure \ref{diagram:system_arch}, but in brief, it is used as a single-layer crossbar to connect the system masters, such as processor, to memories and peripherals. As shown, this module provides an independent AHB-lite datapath from each of $m$ masters to each of $n$ slaves. One master can address one slave at a time, and a slave can be in data-phase with one master at a time; subject to these constraints, up to $\min(m,n)$ independent data transfers can take place in a single machine clock cycle.
-
-The modules are parameterised, but for FPGABoy they are instantiated with 32-bit address and data path widths.
-
-\subsection{AHB-lite Brief Description}
-
-It is recommended to read through ARM's AMBA 3 AHB-lite spec before looking over the code. This is included in the \texttt{reference} folder in the GitHub repository. However, if you are feeling brave, what follows is a brief outline of AHB-lite's signals and timing, which may provide sufficient background to understand the following sections.
-
-AHB-lite is an asymmetric bus standard, where one or more masters assert transactions to one or more slaves. Each transaction can be either a read or a write. The size of a data cycle, encoded by \texttt{hsize}, is a power of two number of bytes, no larger than the width of the data bus. The standard requires all transactions to be naturally aligned, i.e. the modulo of address and transfer size is zero. This is in tension with the RISC-V ISA which allows transactions to have byte-alignment, so the load-store logic in the CPU may have to translate these into multiple AHB-lite transactions.
-
-AHB-lite has separate data paths for read and write. This represents a move away from tristate logic in ASIC bus designs, and a lack of tristate logic in FPGAs.
-
-AHB-lite transactions consist of two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus (\texttt{hrdata} and \texttt{hwdata}), but not both. The slave is able to insert wait states to extend the data phase, by deasserting the \texttt{hready\_resp} signal. \texttt{hready} indicates the final cycle of a data phase.
-
-The central conceit of AHB-lite is that these two phases are pipelined, and therefore can take place simultaneously. Whilst the master is asserting or accepting data for bus cycle 0 (currently in data phase), it concurrently asserts address and control information for bus cycle 1 (currently in address phase). To avoid cluster-headaches, the two phases are kept totally concurrent, so deassertion of \texttt{hready\_resp} by a slave will also extend the master's \textit{address} phase.
-
-
-\subsection{Bus Fabric Operation}
-
-\texttt{hready} is a signal which tells masters and slaves that the current data phase is over. On a single-master busfabric, this is a global signal. It always propagates down from the master end of the busfabric, and is generated by performing some kind of filtering on \texttt{hready\_resp}s from the slaves.
-
-\texttt{hready\_resp} (or \texttt{hreadyout} in some ARM docs) is a slave-driven signal indicating that this is the last cycle of the slave's current data phase.
-
-On a single-master busfabric, the master will mux in the \texttt{hready\_resp} from the slave currently in the data phase, and pass this down as hready.  In our multi-master busfabric, a splitter functions as a single-master busfabric in its own right; the difference is that the splitter's master ports are connected to slave ports on arbiters, instead of slave ports on the actual slaves.  However, there is the additional requirement that, if a splitter is not currently data-phase active, it should mux \texttt{hready\_resp} based on \textit{address-phase} select. This is because, unlike on a single master system, there is no guarantee that the first address phase request in a series of bus cycles will receive a zero-wait state \texttt{hready\_resp}, as the slave may be engaged by another master. (Note this is not strictly in line with the standard, which requires a zero-wait-state \texttt{OKAY} response to a preceding \texttt{IDLE} address phase request).
-
-
+The poker is a simple raster-synchronised coprocessor which can poke control registers at precise points during a scanline; similar to the Copper on an Amiga. This would be particularly powerful in conjunction with background affine transform!
 
 \end{document}

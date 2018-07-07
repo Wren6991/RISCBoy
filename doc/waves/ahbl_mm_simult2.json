@@ -1,0 +1,14 @@
+{config: {hscale: 2},
+ signal: [
+  {name: 'clk', wave: 'P.........'},
+  {name: 'htrans0', wave: '=.==......', data: ['IDLE', 'NSEQ', 'IDLE']},
+  {name: 'haddr0', wave: 'xx=xxxxxxx', data: ['A']},
+  {name: 'hready0', wave: '1..01.....'},
+  {name: 'htrans1', wave: '=.==...=..', data: ['IDLE', 'NSEQ', 'NSEQ', 'IDLE']},
+  {name: 'haddr1', wave: 'xx==...xxx', data: ['B', 'C']},
+  {name: 'hready1', wave: '1..0..101.'},
+  {name: 'htrans_slave', wave: '=.==.=....', data: ['IDLE', 'NSEQ', 'NSEQ', 'IDLE']},
+  {name: 'haddr_slave', wave: 'xx==.=.xxx', data: ['A', 'B', 'C']},
+  {name: 'hreadyout_slave', wave: '1..010101.'}
+]}
+
