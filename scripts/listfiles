@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+
+import shlex
+import os
+import sys
+import argparse
+import re
+
+help_str = """
+
+Tool for building file lists, into formats required by various tools.
+".f" files contain three types of command:
+
+file (filename)
+    adds a file to the list
+wildcard (.extension) (dir)
+    add all files with a given extension in a given directory
+list (filename)
+    recurse on another filelist file
+
+The idea is that each component in a project has a 
+.f file which lists all of the Verilog (e.g.) files
+for that component. Higher-level .f files will hierarchically
+include the lower-level ones.
+
+In this way, you can build large flat file lists to pass into the
+various tools, but never have to *write* large flat file lists.
+
+It also makes it easier to specify parts of your design hierarchy
+for a given tool. For example, if you just want to synthesise your
+CPU, you can run "listfiles cpu.f -f flat"
+"""
+
+def wildcard(dir, extension):
+	prev_dir = os.getcwd()
+	os.chdir(dir)
+	files = [os.path.abspath(f) for f in os.listdir() if os.path.splitext(f)[-1] == extension]
+	os.chdir(prev_dir)
+	return files
+
+def read_filelist(fname):
+	files = []
+	f = open(fname)
+	prev_dir = os.getcwd()
+	os.chdir(os.path.dirname(os.path.abspath(fname)))
+	for l in f.readlines():
+		l = l.split("#")[0].strip()
+		if l == "":
+			continue
+		words = shlex.split(l)
+		if words[0] == "file":
+			assert(len(words) == 2)
+			files.append(os.path.abspath(os.path.expandvars(words[1])))
+		elif words[0] == "wildcard":
+			assert(len(words) == 3)
+			files.extend(wildcard(os.path.expandvars(words[2]), words[1]))
+		elif words[0] == "list":
+			assert(len(words) == 2)
+			files.extend(read_filelist(os.path.expandvars(words[1])))
+		else:
+			raise Exception("Invalid command")
+	os.chdir(prev_dir)
+	return files
+
+formats = {
+	"isim": lambda fl: "verilog work {}\n".format(" ".join(fl)),
+	"flat": lambda fl: " ".join(fl) + "\n",
+	"make": lambda fl: "SRCS={}\n".format(" ".join(fl))
+}
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
+	parser.epilog = help_str
+	parser.add_argument("src", help="File list source file")
+	parser.add_argument("--format", "-f", help="Format to generate output in. Allowed: isim, make, flat (default)")
+	parser.add_argument("--relative", "-r", action="store_true", help="Use relative paths in output file")
+	parser.add_argument("--output", "-o", help="Output file name")
+	args = parser.parse_args()
+	if args.format is None:
+		args.format = "flat"
+	if args.output is None:
+		args.output = "files"
+	files = read_filelist(args.src)
+	# Uniquify whilst preserving order
+	files = list(dict.fromkeys(files))
+	if args.relative:
+		files = [os.path.relpath(f) for f in files]
+	if args.format not in formats:
+		sys.exit("Unknown format: " + arg.format)
+	ofile = open("files" if args.output is None else args.output, "w")
+	ofile.write(formats[args.format](files))

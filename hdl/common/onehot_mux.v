@@ -15,12 +15,11 @@
  *                                                                    *
  *********************************************************************/
 
-// A multiplexer, where the input is a bitmap of which channel is selected,
-// rather than an index.
-// Should be faster than a mux if this bitmap is already known, but the index is not
-// (e.g. in an address decoder)
+// Multiplex based on a bitmap selector, rather than an index selector.
+// Generates a fast and->or mux structure rather than a tree of dmuxes.
+// The selector must be one-hot, else the result is meaningless.
 
-module bitmap_mux #(
+module onehot_mux #(
 	parameter N_INPUTS = 2,
 	parameter W_INPUT = 32
 ) (
@@ -29,28 +28,18 @@ module bitmap_mux #(
 	output wire [W_INPUT-1:0]          out
 );
 
+integer i;
 
-// This produces an  n * m  2:1 AND array
-// and n  m:1 OR gates.
-// OR gates are actually produced in the form of a max-imbalance tree,
-// but synthesis can be trusted to flatten this down.
-
-integer i, j;
-
-reg [W_INPUT-1:0] masked_data [N_INPUTS-1:0];
-reg [W_INPUT-1:0] mux_accum   [N_INPUTS:0];
-
+reg [W_INPUT-1:0] mux_accum;
 
 always @ (*) begin
-	mux_accum[0] = {W_INPUT{1'b0}};
-	for (i = 0; i < W_INPUT; i = i + 1) begin
-		for (j = 0; j < N_INPUTS; j = j + 1) begin
-			masked_data[j][i] = in[j * W_INPUT + i] & sel[j];
-			mux_accum[j+1][i] = mux_accum[j][i] | masked_data[j][i];
-		end
+	mux_accum = {W_INPUT{1'b0}};
+	for (i = 0; i < N_INPUTS; i = i + 1) begin
+		mux_accum = mux_accum |
+			(in[i * W_INPUT +: W_INPUT] & {W_INPUT[sel[i]});
 	end
 end
 
-assign out = mux_accum[N_INPUTS];
+assign out = mux_accum;
 
 endmodule

@@ -120,7 +120,7 @@ end
 assign ahblm_hwdata = {N_PORTS{ahbls_hwdata}};
 assign ahblm_hready = {N_PORTS{ahbls_hready}};
 
-bitmap_mux #(
+onehot_mux #(
 	.N_INPUTS(N_PORTS),
 	.W_INPUT(W_DATA)
 ) hrdata_mux (
@@ -133,7 +133,7 @@ bitmap_mux #(
 wire hready_resp_muxed;
 assign ahbls_hready_resp = hready_resp_muxed || (ahbls_htrans == HTRANS_IDLE && !slave_sel_d);
 
-bitmap_mux #(
+onehot_mux #(
 	.N_INPUTS(N_PORTS),
 	.W_INPUT(1)
 ) hready_resp_mux (
@@ -142,8 +142,7 @@ bitmap_mux #(
 	.out(hready_resp_muxed)
 );
 
-
-bitmap_mux #(
+onehot_mux #(
 	.N_INPUTS(N_PORTS),
 	.W_INPUT(1)
 ) hresp_mux (

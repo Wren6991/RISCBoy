@@ -8,7 +8,9 @@ list = open("testlist")
 all_passed = True
 
 for testname in list:
-	testname = testname.strip()
+	testname = testname.strip().split("#")[0]
+	if testname == "":
+		continue
 	sys.stdout.write("Running test {:<30}".format(testname))
 	sys.stdout.flush()
 	try:

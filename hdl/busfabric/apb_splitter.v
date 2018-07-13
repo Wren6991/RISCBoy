@@ -44,7 +44,7 @@ assign apbm_penable = slave_mask & {N_SLAVES{apbs_penable}};
 assign apbm_pwrite = slave_mask & {N_SLAVES{apbs_pwrite}};
 assign apbm_pwdata = {N_SLAVES{apbs_pwdata}};
 
-bitmap_mux #(
+onehot_mux #(
 	.N_INPUTS(N_SLAVES),
 	.W_INPUT(W_DATA)
 ) prdata_mux (

@@ -32,10 +32,10 @@ tbman_regs inst_tbman_regs
 	.apbs_prdata  (apbs_prdata),
 	.apbs_pready  (apbs_pready),
 	.apbs_pslverr (apbs_pslverr),
-	.print__o     (print_o),
-	.print__wen   (print_wen),
-	.exit__o      (exit_o),
-	.exit__wen    (exit_wen)
+	.print_o      (print_o),
+	.print_wen    (print_wen),
+	.exit_o       (exit_o),
+	.exit_wen     (exit_wen)
 );
 
 generate

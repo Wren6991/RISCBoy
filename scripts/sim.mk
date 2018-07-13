@@ -1,5 +1,5 @@
 TOP ?= tb
-SRCS ?= $(wildcard *.v)
+DOTF ?= $(TOP).f
 SIMNAME?=simulation
 
 SIM_VARS = PLATFORM=lin64 LD_LIBRARY_PATH=$XILINX/lib/$PLATFORM
@@ -19,7 +19,7 @@ gui: build
 
 build:
 	mkdir -p sim
-	$(SCRIPTS)/makeprj $(SRCS)
+	$(SCRIPTS)/listfiles -rf isim $(DOTF) -o sim.prj
 	(cd sim; $(FUSE) -prj ../sim.prj $(TOP) -o $(SIMNAME))
 
 clean::

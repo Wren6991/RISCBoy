@@ -139,7 +139,6 @@ class Field:
 
 	def accept(self, visitor):
 		visitor.pre(self)
-		visitor.post(self)
 
 # Base class for various useful lumps of functionality
 # which are applied as traversals on a regblock description tree
@@ -356,9 +355,6 @@ class VerilogWriter(RegBlockVisitor):
 		if f.access in ["ro", "wf"]:
 			v.decls.append("assign {}_rdata = {}'h{:x};".format(fname, f.width, f.resetval))
 
-	def post_field(self, f):
-		pass
-
 
 # C header generation
 
@@ -419,9 +415,6 @@ class HeaderWriter(RegBlockVisitor):
 			if i in range(f.lsb, f.msb + 1):
 				mask = mask | (1 << i)
 		lines.append("#define {}_MASK {:#x}".format(fname, mask))
-
-	def post_field(self, f):
-		pass
 
 def change_ext(fname, ext):
 	return ".".join(fname.split(".")[0:-1] + [ext.strip(".")])

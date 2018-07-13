@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="81" />
+   <WVObjectSize size="85" />
    <wvobject fp_name="divider17" type="divider">
       <obj_property name="label">Top Level</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -85,30 +85,42 @@
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="divider41" type="divider">
-      <obj_property name="label">Global</obj_property>
+      <obj_property name="label">Control</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/stall_cause_ahb" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">stall_cause_ahb</obj_property>
-      <obj_property name="ObjectShortName">stall_cause_ahb</obj_property>
+   <wvobject fp_name="/tb/cpu0/stall_cause_ahb_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">stall_cause_ahb_i</obj_property>
+      <obj_property name="ObjectShortName">stall_cause_ahb_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/stall_cause_x" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">stall_cause_x</obj_property>
-      <obj_property name="ObjectShortName">stall_cause_x</obj_property>
+   <wvobject fp_name="/tb/cpu0/stall_cause_ahb_d" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">stall_cause_ahb_d</obj_property>
+      <obj_property name="ObjectShortName">stall_cause_ahb_d</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/ahb_req_d" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">ahb_req_d</obj_property>
-      <obj_property name="ObjectShortName">ahb_req_d</obj_property>
+   <wvobject fp_name="/tb/cpu0/ahb_active_dph_i" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahb_active_dph_i</obj_property>
+      <obj_property name="ObjectShortName">ahb_active_dph_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/ahb_req_i" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">ahb_req_i</obj_property>
-      <obj_property name="ObjectShortName">ahb_req_i</obj_property>
+   <wvobject fp_name="/tb/cpu0/ahb_active_dph_d" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahb_active_dph_d</obj_property>
+      <obj_property name="ObjectShortName">ahb_active_dph_d</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/flush_d_x" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">flush_d_x</obj_property>
       <obj_property name="ObjectShortName">flush_d_x</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_stall" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_stall</obj_property>
+      <obj_property name="ObjectShortName">d_stall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/x_stall" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">x_stall</obj_property>
+      <obj_property name="ObjectShortName">x_stall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/m_stall" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">m_stall</obj_property>
+      <obj_property name="ObjectShortName">m_stall</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/w_jump_now" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">w_jump_now</obj_property>
@@ -299,12 +311,16 @@
       <obj_property name="ObjectShortName">f_buf_level[2:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/f_buf_level_next" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">f_buf_level_next[3:0]</obj_property>
-      <obj_property name="ObjectShortName">f_buf_level_next[3:0]</obj_property>
+      <obj_property name="ElementShortName">f_buf_level_next[2:0]</obj_property>
+      <obj_property name="ObjectShortName">f_buf_level_next[2:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/f_fetch_req_prev" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">f_fetch_req_prev</obj_property>
       <obj_property name="ObjectShortName">f_fetch_req_prev</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/f_has_fresh_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">f_has_fresh_data</obj_property>
+      <obj_property name="ObjectShortName">f_has_fresh_data</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/f_fetch_req" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">f_fetch_req</obj_property>
@@ -459,9 +475,9 @@
          <obj_property name="ObjectShortName">f_buf[0]</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/d_bubble" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">d_bubble</obj_property>
-      <obj_property name="ObjectShortName">d_bubble</obj_property>
+   <wvobject fp_name="/tb/cpu0/d_cir_empty" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_cir_empty</obj_property>
+      <obj_property name="ObjectShortName">d_cir_empty</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/d_jump" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">d_jump</obj_property>

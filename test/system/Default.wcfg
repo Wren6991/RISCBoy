@@ -9,10 +9,11 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="44" />
-   <wave_markers>
-      <marker time="4628533000" label="" />
-   </wave_markers>
+   <WVObjectSize size="45" />
+   <wvobject fp_name="/tb/trace_addr0" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">trace_addr0</obj_property>
+      <obj_property name="ObjectShortName">trace_addr0</obj_property>
+   </wvobject>
    <wvobject fp_name="group176" type="group">
       <obj_property name="label">Processor</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -71,6 +72,10 @@
       <wvobject fp_name="/tb/dut/inst_revive_cpu/wf_jumped" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">wf_jumped</obj_property>
          <obj_property name="ObjectShortName">wf_jumped</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_revive_cpu/flush_d_x" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">flush_d_x</obj_property>
+         <obj_property name="ObjectShortName">flush_d_x</obj_property>
       </wvobject>
       <wvobject fp_name="divider177" type="divider">
          <obj_property name="label">Fetch Path</obj_property>
@@ -591,8 +596,8 @@
       <obj_property name="ObjectShortName">wen[3:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/dut/sram0/sram/addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">addr[15:0]</obj_property>
-      <obj_property name="ObjectShortName">addr[15:0]</obj_property>
+      <obj_property name="ElementShortName">addr[16:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[16:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/dut/sram0/sram/wdata" type="array" db_ref_id="1">

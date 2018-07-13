@@ -17,3 +17,7 @@
 	lw x12, (x1)
 	lh x13, (x1)
 	lhu x14, (x1)
+
+
+halt:
+	j halt

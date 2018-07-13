@@ -1,4 +1,4 @@
-include ../filelist.mk
+DOTF=../tb.f
 
 ASM_SRC=qbf.S
 

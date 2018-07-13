@@ -24,17 +24,16 @@ initial begin
 		init_mem[RAM_BASE + i] = 8'h0;
 	$readmemh("../ram_init.hex", init_mem);
 	for (i = 0; i < RAM_DEPTH; i = i + 1) begin
-		if (i < 100)
-			$display("ram: %h, %h, %h, %h", init_mem[RAM_BASE + i * 4 + 0], init_mem[RAM_BASE + i * 4 + 1], init_mem[RAM_BASE + i * 4 + 2], init_mem[RAM_BASE + i * 4 + 3]);
 		dut.sram0.sram.\has_byte_enable.byte_mem[0].mem [i] = init_mem[RAM_BASE + i * 4 + 0];
 		dut.sram0.sram.\has_byte_enable.byte_mem[1].mem [i] = init_mem[RAM_BASE + i * 4 + 1];
 		dut.sram0.sram.\has_byte_enable.byte_mem[2].mem [i] = init_mem[RAM_BASE + i * 4 + 2];
 		dut.sram0.sram.\has_byte_enable.byte_mem[3].mem [i] = init_mem[RAM_BASE + i * 4 + 3];
 	end
 
-
 	#(10 * CLK_PERIOD);
 	rst_n = 1'b1;
 end
+
+wire trace_addr0 = dut.proc0_haddr == 32'h20008dfc;
 
 endmodule

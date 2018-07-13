@@ -15,6 +15,11 @@ ARACHNE=arachne-pnr
 
 all: synth
 
+srcs.mk: Makefile $(DOTF)
+	$(SCRIPTS)/listfiles -f make -o srcs.mk $(DOTF)
+
+-include srcs.mk
+
 $(CHIPNAME).blif: $(SRCS)
 	$(YOSYS) -p $(SYNTH_CMD) $(SRCS)
 
@@ -32,3 +37,4 @@ prog: $(CHIPNAME).bin
 
 clean::
 	rm -f $(CHIPNAME).blif $(CHIPNAME).asc $(CHIPNAME).bin
+	rm -f srcs.mk
