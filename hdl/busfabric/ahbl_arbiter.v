@@ -69,8 +69,9 @@ module ahbl_arbiter #(
 
 integer i;
 
-// "actual" is a mux between the saved signal, if valid, else the live signal on the port
+// "actual" is a mux between the buffered signal, if valid, else the live signal on the port
 
+reg [N_PORTS-1:0]        buf_valid;
 reg [W_ADDR-1:0]         buf_haddr      [0:N_PORTS-1];
 reg                      buf_hwrite     [0:N_PORTS-1];
 reg [1:0]                buf_htrans     [0:N_PORTS-1];
@@ -89,7 +90,7 @@ reg [N_PORTS-1:0]        actual_hmastlock;
 
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
-		if (buf_htrans[i][1]) begin
+		if (buf_valid[i]) begin
 			actual_haddr     [i * W_ADDR +: W_ADDR] = buf_haddr     [i];
 			actual_hwrite    [i]                    = buf_hwrite    [i];
 			actual_htrans    [i * 2 +: 2]           = buf_htrans    [i];
@@ -123,9 +124,66 @@ end
 
 onehot_priority #(
 	.W_INPUT(N_PORTS)
-) (
+) arb_priority (
 	.in(mast_req_a),
 	.out(mast_gnt_a)
+);
+
+// AHB State Machine
+
+reg [N_PORTS-1:0] mast_gnt_d;
+assign dst_hready = mast_gnt_d ? |(src_hready & mast_gnt_d) : 1'b1;
+
+wire [N_PORTS-1:0] mast_aphase_ends = mast_req_a & src_hready;
+wire [N_PORTS-1:0] buf_wen = mast_aphase_ends & ~(mast_gnt_a & {N_PORTS{dst_hready}});
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mast_gnt_d <= {N_PORTS{1'b0}};
+		for (i = 0; i < N_PORTS; i = i + 1) begin
+			{buf_valid[i], buf_haddr[i], buf_hwrite[i], buf_htrans[i], buf_hsize[i],
+				buf_hburst[i], buf_hprot[i], buf_hmastlock[i]} <= {(W_ADDR + 15){1'b0}};
+		end
+	end else begin
+		if (dst_hready) begin
+			mast_gnt_d <= mast_gnt_a;
+			buf_valid <= buf_valid & ~mast_gnt_a;
+		end
+		for (i = 0; i < N_PORTS; i = i + 1) begin
+			if (buf_wen[i]) begin
+				buf_valid    [i] <= 1'b1;
+				buf_htrans   [i] <= src_htrans[i * 2 +: 2];
+				buf_haddr    [i] <= src_haddr    [i * W_ADDR +: W_ADDR];
+				buf_hwrite   [i] <= src_hwrite   [i];
+				buf_hsize    [i] <= src_hsize    [i * 3 +: 3];
+				buf_hburst   [i] <= src_hburst   [i * 3 +: 3];
+				buf_hprot    [i] <= src_hprot    [i * 4 +: 4];
+				buf_hmastlock[i] <= src_hmastlock[i];
+			end
+		end
+	end
+end
+
+// Data-phase signal passthrough
+
+// Master being in dphase with arbiter is separate (looser) condition than arbiter
+// being in (that master's) dphase with slave (which is indicated by mast_gnt_d)
+wire [N_PORTS-1:0] mast_in_dphase = buf_valid | mast_gnt_d;
+
+// There are two reasons to report ready:
+// - the master is currently not in data phase with the arbiter (IDLE)
+// - the master is in data phase with both arbiter and slave, and slave is ready
+assign src_hready_resp = ~mast_in_dphase | (mast_gnt_d & {N_PORTS{dst_hready_resp}});
+assign src_hresp = mast_gnt_d & {N_PORTS{dst_hresp}};
+assign src_hrdata = {N_PORTS{dst_hrdata}};
+
+onehot_mux #(
+	.W_INPUT(W_DATA),
+	.N_INPUTS(N_PORTS)
+) hwdata_mux (
+	.in(src_hwdata),
+	.sel(mast_gnt_d),
+	.out(dst_hwdata)
 );
 
 // Pass through address-phase signals based on grant
@@ -191,57 +249,6 @@ onehot_mux #(
 	.in(actual_hmastlock),
 	.sel(mast_gnt_a),
 	.out(dst_hmastlock)
-);
-
-// AHB State Machine
-
-reg [N_PORTS-1:0] mast_req_d;
-reg [N_PORTS-1:0] mast_gnt_d;
-
-assign dst_hready =
-	mast_gnt_d ? |(src_hready & mast_gnt_d) :
-	mast_gnt_a ? |(src_hready & mast_gnt_a) : 1'b1;
-
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		mast_gnt_d <= {N_PORTS{1'b0}};
-		mast_req_d <= {N_PORTS{1'b0}};
-		for (i = 0; i < N_PORTS; i = i + 1) begin
-			{buf_haddr[i], buf_hwrite[i], buf_htrans[i], buf_hsize[i],
-				buf_hburst[i], buf_hprot[i], buf_hmastlock[i]} <= {(W_ADDR + 14){1'b0}};
-		end
-	end else begin
-		if (dst_hready) begin
-			mast_gnt_d <= mast_gnt_a;
-			mast_req_d <= mast_req_a;
-		end
-		for (i = 0; i < N_PORTS; i = i + 1) begin
-			if (src_hready[i]) begin
-				buf_haddr     [i] <= src_haddr     [i * W_ADDR +: W_ADDR];
-				buf_hwrite    [i] <= src_hwrite    [i];
-				buf_htrans    [i] <= src_htrans    [i * 2 +: 2];
-				buf_hsize     [i] <= src_hsize     [i * 3 +: 3];
-				buf_hburst    [i] <= src_hburst    [i * 3 +: 3];
-				buf_hprot     [i] <= src_hprot     [i * 4 +: 4];
-				buf_hmastlock [i] <= src_hmastlock [i];
-			end
-		end
-	end
-end
-
-// Data-phase signal passthrough
-
-assign src_hrdata = {N_PORTS{dst_hrdata}};
-
-assign src_hready_resp = 
-
-onehot_mux #(
-	.W_INPUT(W_DATA),
-	.N_INPUTS(N_PORTS)
-) hwdata_mux (
-	.in(src_hwdata),
-	.sel(mast_gnt_d),
-	.out(dst_hwdata)
 );
 
 endmodule

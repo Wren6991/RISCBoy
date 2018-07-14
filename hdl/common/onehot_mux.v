@@ -35,8 +35,7 @@ reg [W_INPUT-1:0] mux_accum;
 always @ (*) begin
 	mux_accum = {W_INPUT{1'b0}};
 	for (i = 0; i < N_INPUTS; i = i + 1) begin
-		mux_accum = mux_accum |
-			(in[i * W_INPUT +: W_INPUT] & {W_INPUT[sel[i]});
+		mux_accum = mux_accum | (in[i * W_INPUT +: W_INPUT] & {W_INPUT{sel[i]}});
 	end
 end
 
