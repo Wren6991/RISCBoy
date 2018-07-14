@@ -1,4 +1,4 @@
-SRCS=$(HDL)/common/sync_fifo.v tb.v
+DOTF=tb.f
 
 include $(SCRIPTS)/sim.mk
 
