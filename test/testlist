@@ -1,8 +1,8 @@
-#ahb_sync_sram
-#ahbl_splitter
-#ahbl_arbiter
-#ahbl_crossbar
-#sync_fifo
+ahb_sync_sram
+ahbl_splitter
+ahbl_arbiter
+ahbl_crossbar
+sync_fifo
 execution/fibonacci
 execution/branch
 execution/loadstore
@@ -10,3 +10,4 @@ execution/factorial
 execution/gcd
 execution/quick_brown_fox
 system/helloworld
+system/float_tiny
