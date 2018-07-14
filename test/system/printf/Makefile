@@ -1,4 +1,4 @@
-SRCS=$(HDL)/proc $(HDL)/busfabric $(HDL)/mem/ahb_sync_sram.v $(HDL)/mem/sram_sync.v $(HDL)/peris/tbman $(HDL)/fpgaboy_core ../tb.v
+DOTF=../tb.f
 
 include $(SCRIPTS)/sim.mk
 

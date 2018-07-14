@@ -40,15 +40,6 @@ module ahb_sync_sram #(
 
 integer i;
 
-// synthesis translate_off
-/*initial begin
-	if ($clog2(W_DATA) + 1 != $clog2(W_DATA + 1) || W_DATA < 16) begin
-		$display("Error: ahb_sync_sram: W_DATA must be power of two, and >= 16");
-		$finish(2);
-	end
-end*/
-// synthesis translate_on
-
 // This should be localparam but ISIM won't allow the $clog2 call for localparams
 // because of "reasons"
 parameter W_SRAM_ADDR = $clog2(DEPTH);
@@ -117,7 +108,7 @@ end
 reg [1:0] state;
 reg [W_ADDR-1:0] haddr_d;
 
-assign ahbls_hready_resp = !(state == STATE_WRITE && ahbls_htrans[1] && !ahbls_hwrite);
+assign ahbls_hready_resp = state != STATE_WRITE;
 assign ahbls_hresp = 1'b0;
 
 wire [W_ADDR-1:0] sram_addr_full = state == STATE_WRITE ? haddr_d : ahbls_haddr;
