@@ -1,6 +1,17 @@
-module tbman #(
-	parameter SIMULATION = 1
-) (
+// Testbench Manager
+//
+// Lets you:
+// - print out to the simulation console
+// - halt simulation, with an exit code
+//
+// Via an APB interface.
+//
+// It also has a read-only register with the values of some Verilog defines,
+// e.g. FPGA, SIM, which allows software to ascertain which platform it is
+// running on and act accordingly.
+// (e.g. print to sim console in sim, print to UART on FPGA)
+
+module tbman (
 	input wire clk,
 	input wire rst_n,
 
@@ -19,48 +30,64 @@ wire [7:0]  print_o;
 wire        print_wen;
 wire [31:0] exit_o;
 wire        exit_wen;
+wire        defines_sim;
+wire        defines_fpga;
 
 tbman_regs inst_tbman_regs
 (
-	.clk          (clk),
-	.rst_n        (rst_n),
-	.apbs_psel    (apbs_psel),
-	.apbs_penable (apbs_penable),
-	.apbs_pwrite  (apbs_pwrite),
-	.apbs_paddr   (apbs_paddr),
-	.apbs_pwdata  (apbs_pwdata),
-	.apbs_prdata  (apbs_prdata),
-	.apbs_pready  (apbs_pready),
-	.apbs_pslverr (apbs_pslverr),
-	.print_o      (print_o),
-	.print_wen    (print_wen),
-	.exit_o       (exit_o),
-	.exit_wen     (exit_wen)
+	.clk            (clk),
+	.rst_n          (rst_n),
+	.apbs_psel      (apbs_psel),
+	.apbs_penable   (apbs_penable),
+	.apbs_pwrite    (apbs_pwrite),
+	.apbs_paddr     (apbs_paddr),
+	.apbs_pwdata    (apbs_pwdata),
+	.apbs_prdata    (apbs_prdata),
+	.apbs_pready    (apbs_pready),
+	.apbs_pslverr   (apbs_pslverr),
+	.print_o        (print_o),
+	.print_wen      (print_wen),
+	.exit_o         (exit_o),
+	.exit_wen       (exit_wen),
+	.defines_sim_i  (defines_sim),
+	.defines_fpga_i (defines_fpga)
 );
 
-generate
-if (SIMULATION) begin: has_tbman
 
-	reg [0:1023] print_str = 1024'h0;
-	integer print_ptr = 0;
+// Testbench only: sim print and sim exit
 
-	always @ (posedge clk) begin
-		if (print_wen) begin
-			if (print_o == "\n") begin
-				$display("TBMAN: %s", print_str);
-				print_str = 1024'h0;
-				print_ptr = 0;
-			end else begin
-				print_str[print_ptr * 8 +: 8] = print_o;
-				print_ptr = print_ptr + 1;
-			end
-		end
-		if (exit_wen) begin
-			$display("TBMAN: CPU requested termination, exit code %d", exit_o);
-			$finish;
+`ifdef SIM
+reg [0:1023] print_str = 1024'h0;
+integer print_ptr = 0;
+
+always @ (posedge clk) begin
+	if (print_wen) begin
+		if (print_o == "\n") begin
+			$display("TBMAN: %s", print_str);
+			print_str = 1024'h0;
+			print_ptr = 0;
+		end else begin
+			print_str[print_ptr * 8 +: 8] = print_o;
+			print_ptr = print_ptr + 1;
 		end
 	end
-
+	if (exit_wen) begin
+		$display("TBMAN: CPU requested termination, exit code %d", exit_o);
+		$finish;
+	end
 end
-endgenerate
+`endif
+
+`ifdef SIM
+assign defines_sim = 1'b1;
+`else
+assign defines_sim = 1'b0;
+`endif
+
+`ifdef FPGA
+assign defines_fpga = 1'b1;
+`else
+assign defines_fpga = 1'b0;
+`endif
+
 endmodule

@@ -11,3 +11,8 @@ regs:
     info: "Write simulation exit condition here"
     bits:
       - {b: [31, 0], access: wf}
+  - name: defines
+    info: "The values of some Verilog defines (e.g. whether this is a simulation)"
+    bits:
+      - {b: 0, name: sim, access: rov}
+      - {b: 1, name: fpga, access: rov}

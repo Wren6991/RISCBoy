@@ -30,8 +30,8 @@ module uart_mini #(
 	output wire dreq
 );
 
-parameter W_FLEVEL = $clog2(FIFO_DEPTH);
-parameter W_OVER = $clog2(FIFO_DEPTH);
+parameter W_FLEVEL = $clog2(FIFO_DEPTH + 1);
+parameter W_OVER = $clog2(OVERSAMPLE);
 
 // 10 bits with 8x oversample will get us from a 72 MHz sysclk
 // to a little below 9600 baud. Who cares about slower speeds
@@ -47,7 +47,7 @@ wire                txfifo_full;
 wire                txfifo_empty;
 wire [W_FLEVEL-1:0] txfifo_level;
 
-wire                rxfifo_wen;
+reg                 rxfifo_wen;
 wire [7:0]          rxfifo_rdata;
 wire                rxfifo_ren;
 wire                rxfifo_full;

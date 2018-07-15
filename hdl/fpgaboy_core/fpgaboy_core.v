@@ -17,14 +17,16 @@
 
 // fpgaboy_core contains the full system, except for 
 // Clock, Reset and Power (CRaP)
-// which lives in the chip/fpga top level
+// which lives in the chip/fpga/testbench top level
 
 
 module fpgaboy_core #(
-	parameter SIMULATION = 1
+	localparam N_PADS = 16
 ) (
 	input wire clk,
-	input wire rst_n
+	input wire rst_n,
+
+	inout wire [15:0] gpio
 );
 
 localparam W_ADDR = 32;
@@ -90,6 +92,27 @@ wire [W_DATA-1:0]  tbman_pwdata;
 wire               tbman_pready;
 wire [W_DATA-1:0]  tbman_prdata;
 wire               tbman_pslverr;
+
+wire [W_PADDR-1:0] uart_paddr;
+wire               uart_psel;
+wire               uart_penable;
+wire               uart_pwrite;
+wire [W_DATA-1:0]  uart_pwdata;
+wire               uart_pready;
+wire [W_DATA-1:0]  uart_prdata;
+wire               uart_pslverr;
+
+wire               uart_tx;
+wire               uart_rx;
+
+wire [W_PADDR-1:0] gpio_paddr;
+wire               gpio_psel;
+wire               gpio_penable;
+wire               gpio_pwrite;
+wire [W_DATA-1:0]  gpio_pwdata;
+wire               gpio_pready;
+wire [W_DATA-1:0]  gpio_prdata;
+wire               gpio_pslverr;
 
 // =============================================================================
 //  Masters
@@ -186,9 +209,9 @@ ahbl_to_apb #(
 apb_splitter #(
 	.W_ADDR(W_PADDR),
 	.W_DATA(W_DATA),
-	.N_SLAVES(1),
-	.ADDR_MAP(16'hf000),
-	.ADDR_MASK(16'hf000)
+	.N_SLAVES(3),
+	.ADDR_MAP (48'hf000_1000_0000),
+	.ADDR_MASK(48'hf000_f000_f000)
 ) inst_apb_splitter (
 	.apbs_paddr   (bridge_paddr),
 	.apbs_psel    (bridge_psel),
@@ -198,14 +221,14 @@ apb_splitter #(
 	.apbs_pready  (bridge_pready),
 	.apbs_prdata  (bridge_prdata),
 	.apbs_pslverr (bridge_pslverr),
-	.apbm_paddr   ({tbman_paddr  }),
-	.apbm_psel    ({tbman_psel   }),
-	.apbm_penable ({tbman_penable}),
-	.apbm_pwrite  ({tbman_pwrite }),
-	.apbm_pwdata  ({tbman_pwdata }),
-	.apbm_pready  ({tbman_pready }),
-	.apbm_prdata  ({tbman_prdata }),
-	.apbm_pslverr ({tbman_pslverr})
+	.apbm_paddr   ({tbman_paddr   , uart_paddr   , gpio_paddr  }),
+	.apbm_psel    ({tbman_psel    , uart_psel    , gpio_psel   }),
+	.apbm_penable ({tbman_penable , uart_penable , gpio_penable}),
+	.apbm_pwrite  ({tbman_pwrite  , uart_pwrite  , gpio_pwrite }),
+	.apbm_pwdata  ({tbman_pwdata  , uart_pwdata  , gpio_pwdata }),
+	.apbm_pready  ({tbman_pready  , uart_pready  , gpio_pready }),
+	.apbm_prdata  ({tbman_prdata  , uart_prdata  , gpio_prdata }),
+	.apbm_pslverr ({tbman_pslverr , uart_pslverr , gpio_pslverr})
 );
 
 
@@ -216,7 +239,7 @@ apb_splitter #(
 ahb_sync_sram #(
 	.W_DATA(W_DATA),
 	.W_ADDR(W_ADDR),
-	.DEPTH(1 << 17) // 2^17 words = 0.5 MiB
+	.DEPTH(1 << 7) // 2^17 words = 0.5 MiB
 ) sram0 (
 	.clk               (clk),
 	.rst_n             (rst_n),
@@ -233,10 +256,7 @@ ahb_sync_sram #(
 	.ahbls_hrdata      (sram0_hrdata)
 );
 
-
-tbman #(
-	.SIMULATION(SIMULATION)
-) inst_tbman (
+tbman inst_tbman (
 	.clk              (clk),
 	.rst_n            (rst_n),
 	.apbs_psel        (tbman_psel),
@@ -249,6 +269,43 @@ tbman #(
 	.apbs_pslverr     (tbman_pslverr)
 );
 
+uart_mini #(
+	.FIFO_DEPTH(2),
+	.OVERSAMPLE(8)
+) inst_uart_mini (
+	.clk          (clk),
+	.rst_n        (rst_n),
+	.apbs_psel    (uart_psel),
+	.apbs_penable (uart_penable),
+	.apbs_pwrite  (uart_pwrite),
+	.apbs_paddr   (uart_paddr),
+	.apbs_pwdata  (uart_pwdata),
+	.apbs_prdata  (uart_prdata),
+	.apbs_pready  (uart_pready),
+	.apbs_pslverr (uart_pslverr),
+	.rx           (uart_rx),
+	.tx           (uart_tx),
+	.irq          (),
+	.dreq         ()
+);
 
+
+gpio #(
+	.N_PADS(N_PADS)
+) inst_gpio (
+	.clk          (clk),
+	.rst_n        (rst_n),
+	.apbs_psel    (gpio_psel),
+	.apbs_penable (gpio_penable),
+	.apbs_pwrite  (gpio_pwrite),
+	.apbs_paddr   (gpio_paddr),
+	.apbs_pwdata  (gpio_pwdata),
+	.apbs_prdata  (gpio_prdata),
+	.apbs_pready  (gpio_pready),
+	.apbs_pslverr (gpio_pslverr),
+	.pads         (gpio),
+	.uart_tx      (uart_tx),
+	.uart_rx      (uart_rx)
+);
 
 endmodule

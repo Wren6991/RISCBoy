@@ -5,7 +5,6 @@ data: 32
 params:
   W_DIV_INT: 10
   W_DIV_FRAC: 8
-  W_FLEVEL: 2
 regs:
   - name: csr
     info: Control and status register
@@ -23,10 +22,10 @@ regs:
   - name: fstat
     info: FIFO status register
     bits:
-      - {b: [W_FLEVEL - 1, 0], name: txlevel, access: rov}
+      - {b: [7, 0], name: txlevel, access: rov}
       - {b: 8, name: txfull, access: rov}
       - {b: 9, name: txempty, access: rov}
-      - {b: [W_FLEVEL - 1 + 16, 16], name: rxlevel, access: rov}
+      - {b: [23, 16], name: rxlevel, access: rov}
       - {b: 24, name: rxfull, access: rov}
       - {b: 25, name: rxempty, access: rov}
   - name: tx

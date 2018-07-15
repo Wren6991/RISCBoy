@@ -10,3 +10,8 @@ export PROJ_ROOT=`pwd`
 export SCRIPTS=$PROJ_ROOT/scripts
 export HDL=$PROJ_ROOT/hdl
 
+# Add scripts to PATH, for convenience (e.g. listfiles, regblock)
+# Makefiles do not rely on this, but it's handy if you use the 
+# tools manually.
+
+export PATH="$PATH:$SCRIPTS"

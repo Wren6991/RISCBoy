@@ -14,6 +14,7 @@
 
 #define TBMAN_PRINT_OFFS 0
 #define TBMAN_EXIT_OFFS 4
+#define TBMAN_DEFINES_OFFS 8
 
 /*******************************************************************************
 *                                    PRINT                                     *
@@ -36,5 +37,20 @@
 #define TBMAN_EXIT_LSB  0
 #define TBMAN_EXIT_BITS 32
 #define TBMAN_EXIT_MASK 0xffffffff
+
+/*******************************************************************************
+*                                   DEFINES                                    *
+*******************************************************************************/
+
+// The values of some Verilog defines (e.g. whether this is a simulation)
+
+// Field DEFINES_SIM
+#define TBMAN_DEFINES_SIM_LSB  0
+#define TBMAN_DEFINES_SIM_BITS 1
+#define TBMAN_DEFINES_SIM_MASK 0x1
+// Field DEFINES_FPGA
+#define TBMAN_DEFINES_FPGA_LSB  1
+#define TBMAN_DEFINES_FPGA_BITS 1
+#define TBMAN_DEFINES_FPGA_MASK 0x2
 
 #endif // _TBMAN_REGS_H_

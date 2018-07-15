@@ -30,10 +30,10 @@ module uart_regs (
 	output reg  csr_rxie_o,
 	output reg [9:0] div_int_o,
 	output reg [7:0] div_frac_o,
-	input wire [1:0] fstat_txlevel_i,
+	input wire [7:0] fstat_txlevel_i,
 	input wire  fstat_txfull_i,
 	input wire  fstat_txempty_i,
-	input wire [1:0] fstat_rxlevel_i,
+	input wire [7:0] fstat_rxlevel_i,
 	input wire  fstat_rxfull_i,
 	input wire  fstat_rxempty_i,
 	output reg [7:0] tx_o,
@@ -91,19 +91,19 @@ wire [31:0] __div_rdata = {14'h0, div_int_rdata, div_frac_rdata};
 assign div_int_rdata = div_int_o;
 assign div_frac_rdata = div_frac_o;
 
-wire [1:0] fstat_txlevel_wdata = wdata[1:0];
-wire [1:0] fstat_txlevel_rdata;
+wire [7:0] fstat_txlevel_wdata = wdata[7:0];
+wire [7:0] fstat_txlevel_rdata;
 wire  fstat_txfull_wdata = wdata[8];
 wire  fstat_txfull_rdata;
 wire  fstat_txempty_wdata = wdata[9];
 wire  fstat_txempty_rdata;
-wire [1:0] fstat_rxlevel_wdata = wdata[17:16];
-wire [1:0] fstat_rxlevel_rdata;
+wire [7:0] fstat_rxlevel_wdata = wdata[23:16];
+wire [7:0] fstat_rxlevel_rdata;
 wire  fstat_rxfull_wdata = wdata[24];
 wire  fstat_rxfull_rdata;
 wire  fstat_rxempty_wdata = wdata[25];
 wire  fstat_rxempty_rdata;
-wire [31:0] __fstat_rdata = {6'h0, fstat_rxempty_rdata, fstat_rxfull_rdata, 6'h0, fstat_rxlevel_rdata, 6'h0, fstat_txempty_rdata, fstat_txfull_rdata, 6'h0, fstat_txlevel_rdata};
+wire [31:0] __fstat_rdata = {6'h0, fstat_rxempty_rdata, fstat_rxfull_rdata, fstat_rxlevel_rdata, 6'h0, fstat_txempty_rdata, fstat_txfull_rdata, fstat_txlevel_rdata};
 assign fstat_txlevel_rdata = fstat_txlevel_i;
 assign fstat_txfull_rdata = fstat_txfull_i;
 assign fstat_txempty_rdata = fstat_txempty_i;
