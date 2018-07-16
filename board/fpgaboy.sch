@@ -1,36 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:fpgaboy_parts
+EESchema Schematic File Version 4
 LIBS:fpgaboy-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
@@ -45,73 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L iCE40-HX8K-CT256 U1
-U 1 1 5A7F9BBB
-P 14900 4800
-F 0 "U1" H 15100 5050 60  0000 L CNN
-F 1 "iCE40-HX8K-CT256" H 15100 4950 60  0000 L CNN
-F 2 "fpgaboy_parts:BGA_256_0.8mm" H 14900 4800 60  0001 C CNN
-F 3 "" H 14900 4800 60  0001 C CNN
-	1    14900 4800
-	1    0    0    -1  
-$EndComp
-$Comp
-L iCE40-HX8K-CT256 U1
-U 2 1 5A7F9C59
-P 1400 800
-F 0 "U1" H 1600 1050 60  0000 L CNN
-F 1 "iCE40-HX8K-CT256" H 1600 950 60  0000 L CNN
-F 2 "fpgaboy_parts:BGA_256_0.8mm" H 1400 800 60  0001 C CNN
-F 3 "" H 1400 800 60  0001 C CNN
-	2    1400 800 
-	1    0    0    -1  
-$EndComp
-$Comp
-L iCE40-HX8K-CT256 U1
-U 3 1 5A7F9CA1
-P 3000 800
-F 0 "U1" H 3200 1050 60  0000 L CNN
-F 1 "iCE40-HX8K-CT256" H 3200 950 60  0000 L CNN
-F 2 "fpgaboy_parts:BGA_256_0.8mm" H 3000 800 60  0001 C CNN
-F 3 "" H 3000 800 60  0001 C CNN
-	3    3000 800 
-	1    0    0    -1  
-$EndComp
-$Comp
-L iCE40-HX8K-CT256 U1
-U 4 1 5A7F9CE8
-P 4600 800
-F 0 "U1" H 4800 1050 60  0000 L CNN
-F 1 "iCE40-HX8K-CT256" H 4800 950 60  0000 L CNN
-F 2 "fpgaboy_parts:BGA_256_0.8mm" H 4600 800 60  0001 C CNN
-F 3 "" H 4600 800 60  0001 C CNN
-	4    4600 800 
-	1    0    0    -1  
-$EndComp
-$Comp
-L iCE40-HX8K-CT256 U1
-U 5 1 5A7F9D34
-P 6400 850
-F 0 "U1" H 6600 1100 60  0000 L CNN
-F 1 "iCE40-HX8K-CT256" H 6600 1000 60  0000 L CNN
-F 2 "fpgaboy_parts:BGA_256_0.8mm" H 6400 850 60  0001 C CNN
-F 3 "" H 6400 850 60  0001 C CNN
-	5    6400 850 
-	1    0    0    -1  
-$EndComp
-$Comp
-L iCE40-HX8K-CT256 U1
-U 6 1 5A7F9D81
-P 14750 7250
-F 0 "U1" H 14950 7500 60  0000 L CNN
-F 1 "iCE40-HX8K-CT256" H 14950 7400 60  0000 L CNN
-F 2 "fpgaboy_parts:BGA_256_0.8mm" H 14750 7250 60  0001 C CNN
-F 3 "" H 14750 7250 60  0001 C CNN
-	6    14750 7250
-	1    0    0    -1  
-$EndComp
-$Comp
-L NCP1532 U2
+L fpgaboy-rescue:NCP1532 U2
 U 1 1 5A7F9DE1
 P 13550 1250
 F 0 "U2" H 13550 1700 51  0000 C CNN
@@ -122,7 +26,7 @@ F 3 "" H 13550 1250 51  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L BQ21040 U3
+L fpgaboy-rescue:BQ21040 U3
 U 1 1 5A7FA07A
 P 14650 3400
 F 0 "U3" H 14650 3700 51  0000 C CNN
@@ -133,7 +37,7 @@ F 3 "" H 14650 3400 51  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +BATT #PWR01
+L fpgaboy-rescue:+BATT #PWR01
 U 1 1 5A7FA0E3
 P 15300 3150
 F 0 "#PWR01" H 15300 3000 50  0001 C CNN
@@ -144,7 +48,7 @@ F 3 "" H 15300 3150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +BATT #PWR02
+L fpgaboy-rescue:+BATT #PWR02
 U 1 1 5A7FA145
 P 12550 800
 F 0 "#PWR02" H 12550 650 50  0001 C CNN
@@ -155,7 +59,7 @@ F 3 "" H 12550 800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C2
+L fpgaboy-rescue:C C2
 U 1 1 5A7FA2D9
 P 13900 3400
 F 0 "C2" H 13925 3500 50  0000 L CNN
@@ -166,7 +70,7 @@ F 3 "" H 13900 3400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR03
+L fpgaboy-rescue:+5V #PWR03
 U 1 1 5A7FA3C6
 P 13900 3100
 F 0 "#PWR03" H 13900 2950 50  0001 C CNN
@@ -177,7 +81,7 @@ F 3 "" H 13900 3100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR04
+L fpgaboy-rescue:GND #PWR04
 U 1 1 5A7FA405
 P 13900 4000
 F 0 "#PWR04" H 13900 3750 50  0001 C CNN
@@ -188,7 +92,7 @@ F 3 "" H 13900 4000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R6
+L fpgaboy-rescue:R R6
 U 1 1 5A7FA51B
 P 15300 3800
 F 0 "R6" V 15380 3800 50  0000 C CNN
@@ -199,7 +103,7 @@ F 3 "" H 15300 3800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R7
+L fpgaboy-rescue:R R7
 U 1 1 5A7FA5A0
 P 15500 3800
 F 0 "R7" V 15580 3800 50  0000 C CNN
@@ -210,7 +114,7 @@ F 3 "" H 15500 3800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR05
+L fpgaboy-rescue:GND #PWR05
 U 1 1 5A7FA643
 P 15300 4000
 F 0 "#PWR05" H 15300 3750 50  0001 C CNN
@@ -221,7 +125,7 @@ F 3 "" H 15300 4000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR06
+L fpgaboy-rescue:GND #PWR06
 U 1 1 5A7FA66F
 P 15500 4000
 F 0 "#PWR06" H 15500 3750 50  0001 C CNN
@@ -232,7 +136,7 @@ F 3 "" H 15500 4000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L LED D1
+L fpgaboy-rescue:LED D1
 U 1 1 5A7FA7E3
 P 15850 3500
 F 0 "D1" H 15850 3600 50  0000 C CNN
@@ -243,7 +147,7 @@ F 3 "" H 15850 3500 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R8
+L fpgaboy-rescue:R R8
 U 1 1 5A7FA8DE
 P 15850 3800
 F 0 "R8" V 15930 3800 50  0000 C CNN
@@ -254,7 +158,7 @@ F 3 "" H 15850 3800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Tie_point TP1
+L fpgaboy-rescue:Tie_point TP1
 U 1 1 5A7FAA71
 P 13700 2200
 F 0 "TP1" H 13700 2300 60  0000 C CNN
@@ -265,7 +169,7 @@ F 3 "" H 13700 2200 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C1
+L fpgaboy-rescue:C C1
 U 1 1 5A7FAC3C
 P 12550 1150
 F 0 "C1" H 12575 1250 50  0000 L CNN
@@ -276,7 +180,7 @@ F 3 "" H 12550 1150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GNDPWR #PWR07
+L fpgaboy-rescue:GNDPWR #PWR07
 U 1 1 5A7FAD11
 P 12550 2150
 F 0 "#PWR07" H 12550 1950 50  0001 C CNN
@@ -287,7 +191,7 @@ F 3 "" H 12550 2100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L SWITCH_SPST SW1
+L fpgaboy-rescue:SWITCH_SPST SW1
 U 1 1 5A7FB663
 P 11800 1550
 F 0 "SW1" H 11800 1400 60  0000 C CNN
@@ -298,7 +202,7 @@ F 3 "" H 11800 1550 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +BATT #PWR08
+L fpgaboy-rescue:+BATT #PWR08
 U 1 1 5A7FB6BE
 P 11350 800
 F 0 "#PWR08" H 11350 650 50  0001 C CNN
@@ -309,7 +213,7 @@ F 3 "" H 11350 800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R1
+L fpgaboy-rescue:R R1
 U 1 1 5A7FB7A8
 P 12300 1850
 F 0 "R1" V 12380 1850 50  0000 C CNN
@@ -320,7 +224,7 @@ F 3 "" H 12300 1850 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR09
+L fpgaboy-rescue:GND #PWR09
 U 1 1 5A7FB897
 P 12300 2150
 F 0 "#PWR09" H 12300 1900 50  0001 C CNN
@@ -333,7 +237,7 @@ $EndComp
 Text Label 14300 1250 0    60   ~ 0
 ~POR
 $Comp
-L L L1
+L fpgaboy-rescue:L L1
 U 1 1 5A7FBA82
 P 14550 700
 F 0 "L1" V 14500 700 50  0000 C CNN
@@ -344,7 +248,7 @@ F 3 "" H 14550 700 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R2
+L fpgaboy-rescue:R R2
 U 1 1 5A7FBB7D
 P 14800 900
 F 0 "R2" V 14880 900 50  0000 C CNN
@@ -355,7 +259,7 @@ F 3 "" H 14800 900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C3
+L fpgaboy-rescue:C C3
 U 1 1 5A7FBBF6
 P 15050 900
 F 0 "C3" H 15075 1000 50  0000 L CNN
@@ -366,7 +270,7 @@ F 3 "" H 15050 900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R3
+L fpgaboy-rescue:R R3
 U 1 1 5A7FBC78
 P 14800 1300
 F 0 "R3" V 14880 1300 50  0000 C CNN
@@ -377,7 +281,7 @@ F 3 "" H 14800 1300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR010
+L fpgaboy-rescue:GND #PWR010
 U 1 1 5A7FBD1A
 P 14800 1500
 F 0 "#PWR010" H 14800 1250 50  0001 C CNN
@@ -388,7 +292,7 @@ F 3 "" H 14800 1500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C5
+L fpgaboy-rescue:C C5
 U 1 1 5A7FBF08
 P 15300 900
 F 0 "C5" H 15325 1000 50  0000 L CNN
@@ -401,7 +305,7 @@ $EndComp
 Text Notes 14550 3000 0    60   ~ 0
 Charger
 $Comp
-L GNDPWR #PWR011
+L fpgaboy-rescue:GNDPWR #PWR011
 U 1 1 5A7FC9B1
 P 15300 1500
 F 0 "#PWR011" H 15300 1300 50  0001 C CNN
@@ -412,7 +316,7 @@ F 3 "" H 15300 1450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR012
+L fpgaboy-rescue:+3V3 #PWR012
 U 1 1 5A7FCC0E
 P 15500 650
 F 0 "#PWR012" H 15500 500 50  0001 C CNN
@@ -423,7 +327,7 @@ F 3 "" H 15500 650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PWR_FLAG #FLG013
+L fpgaboy-rescue:PWR_FLAG #FLG013
 U 1 1 5A7FCC4E
 P 15800 700
 F 0 "#FLG013" H 15800 795 50  0001 C CNN
@@ -434,7 +338,7 @@ F 3 "" H 15800 700 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L L L2
+L fpgaboy-rescue:L L2
 U 1 1 5A7FCF36
 P 14550 1850
 F 0 "L2" V 14500 1850 50  0000 C CNN
@@ -445,7 +349,7 @@ F 3 "" H 14550 1850 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R4
+L fpgaboy-rescue:R R4
 U 1 1 5A7FCF3C
 P 14800 2050
 F 0 "R4" V 14880 2050 50  0000 C CNN
@@ -456,7 +360,7 @@ F 3 "" H 14800 2050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C4
+L fpgaboy-rescue:C C4
 U 1 1 5A7FCF42
 P 15050 2050
 F 0 "C4" H 15075 2150 50  0000 L CNN
@@ -467,7 +371,7 @@ F 3 "" H 15050 2050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R5
+L fpgaboy-rescue:R R5
 U 1 1 5A7FCF48
 P 14800 2450
 F 0 "R5" V 14880 2450 50  0000 C CNN
@@ -478,7 +382,7 @@ F 3 "" H 14800 2450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR014
+L fpgaboy-rescue:GND #PWR014
 U 1 1 5A7FCF4E
 P 14800 2650
 F 0 "#PWR014" H 14800 2400 50  0001 C CNN
@@ -489,7 +393,7 @@ F 3 "" H 14800 2650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C6
+L fpgaboy-rescue:C C6
 U 1 1 5A7FCF54
 P 15300 2050
 F 0 "C6" H 15325 2150 50  0000 L CNN
@@ -500,7 +404,7 @@ F 3 "" H 15300 2050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GNDPWR #PWR015
+L fpgaboy-rescue:GNDPWR #PWR015
 U 1 1 5A7FCF5A
 P 15300 2650
 F 0 "#PWR015" H 15300 2450 50  0001 C CNN
@@ -511,7 +415,7 @@ F 3 "" H 15300 2600 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PWR_FLAG #FLG016
+L fpgaboy-rescue:PWR_FLAG #FLG016
 U 1 1 5A7FCF73
 P 15800 1850
 F 0 "#FLG016" H 15800 1945 50  0001 C CNN
@@ -522,7 +426,7 @@ F 3 "" H 15800 1850 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +1V2 #PWR017
+L fpgaboy-rescue:+1V2 #PWR017
 U 1 1 5A7FD12A
 P 15500 1800
 F 0 "#PWR017" H 15500 1650 50  0001 C CNN
@@ -533,7 +437,7 @@ F 3 "" H 15500 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR018
+L fpgaboy-rescue:GND #PWR018
 U 1 1 5A7FD6FB
 P 13500 2350
 F 0 "#PWR018" H 13500 2100 50  0001 C CNN
@@ -544,7 +448,7 @@ F 3 "" H 13500 2350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GNDPWR #PWR019
+L fpgaboy-rescue:GNDPWR #PWR019
 U 1 1 5A7FD772
 P 13900 2350
 F 0 "#PWR019" H 13900 2150 50  0001 C CNN
@@ -555,7 +459,7 @@ F 3 "" H 13900 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_01X02 P1
+L fpgaboy-rescue:CONN_01X02 P1
 U 1 1 5A7FE90C
 P 13600 3400
 F 0 "P1" H 13600 3550 50  0000 C CNN
@@ -566,7 +470,7 @@ F 3 "" H 13600 3400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +BATT #PWR020
+L fpgaboy-rescue:+BATT #PWR020
 U 1 1 5A7FEB8D
 P 13400 3100
 F 0 "#PWR020" H 13400 2950 50  0001 C CNN
@@ -577,7 +481,7 @@ F 3 "" H 13400 3100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR021
+L fpgaboy-rescue:GND #PWR021
 U 1 1 5A7FEBEC
 P 13400 4000
 F 0 "#PWR021" H 13400 3750 50  0001 C CNN
@@ -585,193 +489,6 @@ F 1 "GND" H 13400 3850 50  0000 C CNN
 F 2 "" H 13400 4000 50  0000 C CNN
 F 3 "" H 13400 4000 50  0000 C CNN
 	1    13400 4000
-	1    0    0    -1  
-$EndComp
-$Comp
-L +1V2 #PWR022
-U 1 1 5A7FFA46
-P 14050 5050
-F 0 "#PWR022" H 14050 4900 50  0001 C CNN
-F 1 "+1V2" H 14050 5190 50  0000 C CNN
-F 2 "" H 14050 5050 50  0000 C CNN
-F 3 "" H 14050 5050 50  0000 C CNN
-	1    14050 5050
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C7
-U 1 1 5A7FFF86
-P 14450 5700
-F 0 "C7" H 14475 5800 50  0000 L CNN
-F 1 "1u" H 14475 5600 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603" H 14488 5550 50  0001 C CNN
-F 3 "" H 14450 5700 50  0000 C CNN
-	1    14450 5700
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR023
-U 1 1 5A800218
-P 14450 5900
-F 0 "#PWR023" H 14450 5650 50  0001 C CNN
-F 1 "GND" H 14450 5750 50  0000 C CNN
-F 2 "" H 14450 5900 50  0000 C CNN
-F 3 "" H 14450 5900 50  0000 C CNN
-	1    14450 5900
-	1    0    0    -1  
-$EndComp
-$Comp
-L R R9
-U 1 1 5A8002D1
-P 14250 5200
-F 0 "R9" V 14330 5200 50  0000 C CNN
-F 1 "100" V 14250 5200 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603" V 14180 5200 50  0001 C CNN
-F 3 "" H 14250 5200 50  0000 C CNN
-	1    14250 5200
-	0    1    1    0   
-$EndComp
-$Comp
-L GND #PWR024
-U 1 1 5A800679
-P 14850 5900
-F 0 "#PWR024" H 14850 5650 50  0001 C CNN
-F 1 "GND" H 14850 5750 50  0000 C CNN
-F 2 "" H 14850 5900 50  0000 C CNN
-F 3 "" H 14850 5900 50  0000 C CNN
-	1    14850 5900
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3V3 #PWR025
-U 1 1 5A800B1A
-P 14650 5050
-F 0 "#PWR025" H 14650 4900 50  0001 C CNN
-F 1 "+3V3" H 14650 5190 50  0000 C CNN
-F 2 "" H 14650 5050 50  0000 C CNN
-F 3 "" H 14650 5050 50  0000 C CNN
-	1    14650 5050
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3V3 #PWR026
-U 1 1 5A800FB7
-P 14700 7150
-F 0 "#PWR026" H 14700 7000 50  0001 C CNN
-F 1 "+3V3" H 14700 7290 50  0000 C CNN
-F 2 "" H 14700 7150 50  0000 C CNN
-F 3 "" H 14700 7150 50  0000 C CNN
-	1    14700 7150
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3V3 #PWR027
-U 1 1 5A801EA1
-P 6100 6050
-F 0 "#PWR027" H 6100 5900 50  0001 C CNN
-F 1 "+3V3" H 6100 6190 50  0000 C CNN
-F 2 "" H 6100 6050 50  0000 C CNN
-F 3 "" H 6100 6050 50  0000 C CNN
-	1    6100 6050
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3V3 #PWR028
-U 1 1 5A80214A
-P 4350 5600
-F 0 "#PWR028" H 4350 5450 50  0001 C CNN
-F 1 "+3V3" H 4350 5740 50  0000 C CNN
-F 2 "" H 4350 5600 50  0000 C CNN
-F 3 "" H 4350 5600 50  0000 C CNN
-	1    4350 5600
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3V3 #PWR029
-U 1 1 5A802232
-P 2600 6000
-F 0 "#PWR029" H 2600 5850 50  0001 C CNN
-F 1 "+3V3" H 2600 6140 50  0000 C CNN
-F 2 "" H 2600 6000 50  0000 C CNN
-F 3 "" H 2600 6000 50  0000 C CNN
-	1    2600 6000
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3V3 #PWR030
-U 1 1 5A80231B
-P 1000 6000
-F 0 "#PWR030" H 1000 5850 50  0001 C CNN
-F 1 "+3V3" H 1000 6140 50  0000 C CNN
-F 2 "" H 1000 6000 50  0000 C CNN
-F 3 "" H 1000 6000 50  0000 C CNN
-	1    1000 6000
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C10
-U 1 1 5A802B2A
-P 15350 6400
-F 0 "C10" H 15375 6500 50  0000 L CNN
-F 1 "0.1u" H 15375 6300 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603" H 15388 6250 50  0001 C CNN
-F 3 "" H 15350 6400 50  0000 C CNN
-	1    15350 6400
-	1    0    0    -1  
-$EndComp
-$Comp
-L C C9
-U 1 1 5A802D15
-P 15150 6400
-F 0 "C9" H 15175 6500 50  0000 L CNN
-F 1 "0.1u" H 15175 6300 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603" H 15188 6250 50  0001 C CNN
-F 3 "" H 15150 6400 50  0000 C CNN
-	1    15150 6400
-	1    0    0    1   
-$EndComp
-$Comp
-L C C8
-U 1 1 5A802DB0
-P 14950 6400
-F 0 "C8" H 14975 6500 50  0000 L CNN
-F 1 "0.1u" H 14975 6300 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603" H 14988 6250 50  0001 C CNN
-F 3 "" H 14950 6400 50  0000 C CNN
-	1    14950 6400
-	1    0    0    1   
-$EndComp
-$Comp
-L C C11
-U 1 1 5A802E2F
-P 15550 6400
-F 0 "C11" H 15575 6500 50  0000 L CNN
-F 1 "0.1u" H 15575 6300 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603" H 15588 6250 50  0001 C CNN
-F 3 "" H 15550 6400 50  0000 C CNN
-	1    15550 6400
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR031
-U 1 1 5A8037BA
-P 15550 6650
-F 0 "#PWR031" H 15550 6400 50  0001 C CNN
-F 1 "GND" H 15550 6500 50  0000 C CNN
-F 2 "" H 15550 6650 50  0000 C CNN
-F 3 "" H 15550 6650 50  0000 C CNN
-	1    15550 6650
-	1    0    0    -1  
-$EndComp
-$Comp
-L +1V2 #PWR032
-U 1 1 5A80382B
-P 15550 6150
-F 0 "#PWR032" H 15550 6000 50  0001 C CNN
-F 1 "+1V2" H 15550 6290 50  0000 C CNN
-F 2 "" H 15550 6150 50  0000 C CNN
-F 3 "" H 15550 6150 50  0000 C CNN
-	1    15550 6150
 	1    0    0    -1  
 $EndComp
 Text Label 9450 8350 0    60   ~ 0
@@ -806,42 +523,6 @@ Text Label 9450 9750 0    60   ~ 0
 SRAM_DQ15
 Text Label 9450 9850 0    60   ~ 0
 SRAM_DQ16
-Text Label 7900 8550 2    60   ~ 0
-SRAM_A0
-Text Label 7900 8650 2    60   ~ 0
-SRAM_A1
-Text Label 7900 8750 2    60   ~ 0
-SRAM_A2
-Text Label 7900 8850 2    60   ~ 0
-SRAM_A3
-Text Label 7900 8950 2    60   ~ 0
-SRAM_A4
-Text Label 7900 9050 2    60   ~ 0
-SRAM_A5
-Text Label 7900 9150 2    60   ~ 0
-SRAM_A6
-Text Label 7900 9250 2    60   ~ 0
-SRAM_A7
-Text Label 7900 9350 2    60   ~ 0
-SRAM_A8
-Text Label 7900 9450 2    60   ~ 0
-SRAM_A9
-Text Label 7900 9550 2    60   ~ 0
-SRAM_A10
-Text Label 7900 9650 2    60   ~ 0
-SRAM_A11
-Text Label 7900 9750 2    60   ~ 0
-SRAM_A12
-Text Label 7900 9850 2    60   ~ 0
-SRAM_A13
-Text Label 7900 9950 2    60   ~ 0
-SRAM_A14
-Text Label 7900 10050 2    60   ~ 0
-SRAM_A15
-Text Label 7900 10150 2    60   ~ 0
-SRAM_A16
-Text Label 7900 10250 2    60   ~ 0
-SRAM_A17
 Text Label 9450 10050 0    60   ~ 0
 SRAM_~CE
 Text Label 9450 10150 0    60   ~ 0
@@ -853,7 +534,7 @@ SRAM_~UB
 Text Label 9450 10450 0    60   ~ 0
 SRAM_~LB
 $Comp
-L +3V3 #PWR033
+L fpgaboy-rescue:+3V3 #PWR033
 U 1 1 5A805CA1
 P 8050 7800
 F 0 "#PWR033" H 8050 7650 50  0001 C CNN
@@ -864,7 +545,7 @@ F 3 "" H 8050 7800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR034
+L fpgaboy-rescue:GND #PWR034
 U 1 1 5A805F14
 P 8050 10900
 F 0 "#PWR034" H 8050 10650 50  0001 C CNN
@@ -874,86 +555,8 @@ F 3 "" H 8050 10900 50  0000 C CNN
 	1    8050 10900
 	1    0    0    -1  
 $EndComp
-Text Label 6350 850  2    59   ~ 0
-SRAM_DQ1
-Text Label 6350 950  2    59   ~ 0
-SRAM_DQ2
-Text Label 6350 1050 2    59   ~ 0
-SRAM_DQ3
-Text Label 6350 1150 2    59   ~ 0
-SRAM_DQ4
-Text Label 6350 1250 2    59   ~ 0
-SRAM_DQ5
-Text Label 6350 1350 2    59   ~ 0
-SRAM_DQ6
-Text Label 6350 1450 2    59   ~ 0
-SRAM_DQ7
-Text Label 6350 1550 2    59   ~ 0
-SRAM_DQ8
-Text Label 6350 1650 2    59   ~ 0
-SRAM_DQ9
-Text Label 6350 1750 2    59   ~ 0
-SRAM_DQ10
-Text Label 6350 1850 2    59   ~ 0
-SRAM_DQ11
-Text Label 6350 1950 2    59   ~ 0
-SRAM_DQ12
-Text Label 6350 2050 2    59   ~ 0
-SRAM_DQ13
-Text Label 6350 2150 2    59   ~ 0
-SRAM_DQ14
-Text Label 6350 2250 2    59   ~ 0
-SRAM_DQ15
-Text Label 6350 2350 2    59   ~ 0
-SRAM_DQ16
-Text Label 6350 3850 2    59   ~ 0
-SRAM_A0
-Text Label 6350 3950 2    59   ~ 0
-SRAM_A1
-Text Label 6350 4050 2    59   ~ 0
-SRAM_A2
-Text Label 6350 4150 2    59   ~ 0
-SRAM_A3
-Text Label 6350 4250 2    59   ~ 0
-SRAM_A4
-Text Label 6350 4350 2    59   ~ 0
-SRAM_A5
-Text Label 6350 4450 2    59   ~ 0
-SRAM_A6
-Text Label 6350 4550 2    59   ~ 0
-SRAM_A7
-Text Label 6350 4650 2    59   ~ 0
-SRAM_A8
-Text Label 6350 4750 2    59   ~ 0
-SRAM_A9
-Text Label 6350 4850 2    59   ~ 0
-SRAM_A10
-Text Label 6350 4950 2    59   ~ 0
-SRAM_A11
-Text Label 6350 5050 2    59   ~ 0
-SRAM_A12
-Text Label 6350 5150 2    59   ~ 0
-SRAM_A13
-Text Label 6350 5250 2    59   ~ 0
-SRAM_A14
-Text Label 6350 5350 2    59   ~ 0
-SRAM_A15
-Text Label 6350 5450 2    59   ~ 0
-SRAM_A16
-Text Label 6350 5550 2    59   ~ 0
-SRAM_A17
-Text Label 6350 2750 2    60   ~ 0
-SRAM_~CE
-Text Label 6350 2850 2    60   ~ 0
-SRAM_~WE
-Text Label 6350 2950 2    60   ~ 0
-SRAM_~OE
-Text Label 6350 3050 2    60   ~ 0
-SRAM_~UB
-Text Label 6350 3150 2    60   ~ 0
-SRAM_~LB
 $Comp
-L GS74116AGP/ U4
+L fpgaboy-rescue:GS74116AGP_ U4
 U 1 1 5A80A674
 P 8700 9400
 F 0 "U4" H 8700 8050 60  0000 C CNN
@@ -965,7 +568,7 @@ F 3 "" H 8700 9400 60  0001 C CNN
 $EndComp
 NoConn ~ 9200 10550
 $Comp
-L FT2232H U5
+L fpgaboy-rescue:FT2232H U5
 U 1 1 5A80DF6A
 P 10050 4000
 F 0 "U5" H 10050 3900 59  0000 C CNN
@@ -976,7 +579,7 @@ F 3 "" H 6900 7850 59  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L ILI9341 P2
+L fpgaboy-rescue:ILI9341 P2
 U 1 1 5A80E415
 P 2300 9350
 F 0 "P2" H 2300 8300 59  0000 C CNN
@@ -991,7 +594,7 @@ NoConn ~ 1950 10100
 NoConn ~ 1950 10000
 NoConn ~ 1950 9900
 $Comp
-L +BATT #PWR035
+L fpgaboy-rescue:+BATT #PWR035
 U 1 1 5A80EECF
 P 1300 9350
 F 0 "#PWR035" H 1300 9200 50  0001 C CNN
@@ -1002,7 +605,7 @@ F 3 "" H 1300 9350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R11
+L fpgaboy-rescue:R R11
 U 1 1 5A80FC60
 P 1500 9500
 F 0 "R11" V 1550 9700 50  0000 C CNN
@@ -1013,7 +616,7 @@ F 3 "" H 1500 9500 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R12
+L fpgaboy-rescue:R R12
 U 1 1 5A80FD18
 P 1500 9600
 F 0 "R12" V 1550 9800 50  0000 C CNN
@@ -1024,7 +627,7 @@ F 3 "" H 1500 9600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R13
+L fpgaboy-rescue:R R13
 U 1 1 5A80FD8F
 P 1500 9700
 F 0 "R13" V 1550 9900 50  0000 C CNN
@@ -1035,7 +638,7 @@ F 3 "" H 1500 9700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R14
+L fpgaboy-rescue:R R14
 U 1 1 5A80FDF6
 P 1500 9800
 F 0 "R14" V 1550 10000 50  0000 C CNN
@@ -1048,7 +651,7 @@ $EndComp
 Text Notes 2750 9650 0    59   ~ 0
 Multiple resistors helps\nbacklight uniformity\n
 $Comp
-L Q_NMOS_GSD Q1
+L fpgaboy-rescue:Q_NMOS_GSD Q1
 U 1 1 5A810C45
 P 1200 10050
 F 0 "Q1" H 1400 10100 50  0000 L CNN
@@ -1059,7 +662,7 @@ F 3 "" H 1200 10050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR036
+L fpgaboy-rescue:GND #PWR036
 U 1 1 5A8114BD
 P 1300 10450
 F 0 "#PWR036" H 1300 10200 50  0001 C CNN
@@ -1070,7 +673,7 @@ F 3 "" H 1300 10450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R10
+L fpgaboy-rescue:R R10
 U 1 1 5A81164D
 P 950 10250
 F 0 "R10" V 1030 10250 50  0000 C CNN
@@ -1085,7 +688,7 @@ LCD_PWM
 Text Notes 650  10950 0    59   ~ 0
 Any small signal NMOS is fine.\nThis one was just cheap in small qty\n
 $Comp
-L GND #PWR037
+L fpgaboy-rescue:GND #PWR037
 U 1 1 5A81223C
 P 1850 10450
 F 0 "#PWR037" H 1850 10200 50  0001 C CNN
@@ -1096,7 +699,7 @@ F 3 "" H 1850 10450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR038
+L fpgaboy-rescue:+3V3 #PWR038
 U 1 1 5A812746
 P 1900 8250
 F 0 "#PWR038" H 1900 8100 50  0001 C CNN
@@ -1107,7 +710,7 @@ F 3 "" H 1900 8250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C12
+L fpgaboy-rescue:C C12
 U 1 1 5A8127DB
 P 2800 9000
 F 0 "C12" H 2825 9100 50  0000 L CNN
@@ -1118,7 +721,7 @@ F 3 "" H 2800 9000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C13
+L fpgaboy-rescue:C C13
 U 1 1 5A812A18
 P 3000 9000
 F 0 "C13" H 3025 9100 50  0000 L CNN
@@ -1129,7 +732,7 @@ F 3 "" H 3000 9000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR039
+L fpgaboy-rescue:+3V3 #PWR039
 U 1 1 5A812AB7
 P 2800 8800
 F 0 "#PWR039" H 2800 8650 50  0001 C CNN
@@ -1140,7 +743,7 @@ F 3 "" H 2800 8800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +BATT #PWR040
+L fpgaboy-rescue:+BATT #PWR040
 U 1 1 5A812B49
 P 3000 8800
 F 0 "#PWR040" H 3000 8650 50  0001 C CNN
@@ -1151,7 +754,7 @@ F 3 "" H 3000 8800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR041
+L fpgaboy-rescue:GND #PWR041
 U 1 1 5A812BDB
 P 2800 9200
 F 0 "#PWR041" H 2800 8950 50  0001 C CNN
@@ -1162,7 +765,7 @@ F 3 "" H 2800 9200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR042
+L fpgaboy-rescue:GND #PWR042
 U 1 1 5A812C6D
 P 3000 9200
 F 0 "#PWR042" H 3000 8950 50  0001 C CNN
@@ -1189,7 +792,7 @@ Display Connector\n
 Text Notes 8650 7800 0    59   ~ 0
 SRAM\n
 $Comp
-L C C14
+L fpgaboy-rescue:C C14
 U 1 1 5A814728
 P 10150 9300
 F 0 "C14" H 10175 9400 50  0000 L CNN
@@ -1200,7 +803,7 @@ F 3 "" H 10150 9300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR043
+L fpgaboy-rescue:+3V3 #PWR043
 U 1 1 5A81472E
 P 10150 9100
 F 0 "#PWR043" H 10150 8950 50  0001 C CNN
@@ -1211,7 +814,7 @@ F 3 "" H 10150 9100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR044
+L fpgaboy-rescue:GND #PWR044
 U 1 1 5A814734
 P 10150 9500
 F 0 "#PWR044" H 10150 9250 50  0001 C CNN
@@ -1222,7 +825,7 @@ F 3 "" H 10150 9500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C15
+L fpgaboy-rescue:C C15
 U 1 1 5A8149F9
 P 10400 9300
 F 0 "C15" H 10425 9400 50  0000 L CNN
@@ -1233,7 +836,7 @@ F 3 "" H 10400 9300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR045
+L fpgaboy-rescue:+3V3 #PWR045
 U 1 1 5A8149FF
 P 10400 9100
 F 0 "#PWR045" H 10400 8950 50  0001 C CNN
@@ -1244,7 +847,7 @@ F 3 "" H 10400 9100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR046
+L fpgaboy-rescue:GND #PWR046
 U 1 1 5A814A05
 P 10400 9500
 F 0 "#PWR046" H 10400 9250 50  0001 C CNN
@@ -1259,7 +862,7 @@ USB_DM
 Text Label 9100 4750 2    59   ~ 0
 USB_DP
 $Comp
-L R R15
+L fpgaboy-rescue:R R15
 U 1 1 5A81586D
 P 8950 4950
 F 0 "R15" V 9030 4950 50  0000 C CNN
@@ -1270,7 +873,7 @@ F 3 "" H 8950 4950 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR047
+L fpgaboy-rescue:GND #PWR047
 U 1 1 5A815C55
 P 8500 5000
 F 0 "#PWR047" H 8500 4750 50  0001 C CNN
@@ -1292,12 +895,10 @@ NoConn ~ 9200 5750
 NoConn ~ 9200 5950
 Text Label 9100 5650 2    59   ~ 0
 CLK_OSC
-Text Label 4500 900  2    60   ~ 0
-~POR
 Text Label 13100 2450 2    60   ~ 0
 ~POR
 $Comp
-L +3V3 #PWR048
+L fpgaboy-rescue:+3V3 #PWR048
 U 1 1 5A80F38A
 P 13250 2050
 F 0 "#PWR048" H 13250 1900 50  0001 C CNN
@@ -1308,7 +909,7 @@ F 3 "" H 13250 2050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R18
+L fpgaboy-rescue:R R18
 U 1 1 5A80F425
 P 13250 2250
 F 0 "R18" V 13330 2250 50  0000 C CNN
@@ -1319,7 +920,7 @@ F 3 "" H 13250 2250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR049
+L fpgaboy-rescue:+3V3 #PWR049
 U 1 1 5A81029C
 P 8850 1800
 F 0 "#PWR049" H 8850 1650 50  0001 C CNN
@@ -1330,7 +931,7 @@ F 3 "" H 8850 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C17
+L fpgaboy-rescue:C C17
 U 1 1 5A810312
 P 8600 2000
 F 0 "C17" H 8625 2100 50  0000 L CNN
@@ -1341,7 +942,7 @@ F 3 "" H 8600 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR050
+L fpgaboy-rescue:GND #PWR050
 U 1 1 5A8106B1
 P 8600 2200
 F 0 "#PWR050" H 8600 1950 50  0001 C CNN
@@ -1352,7 +953,7 @@ F 3 "" H 8600 2200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +1V8 #PWR051
+L fpgaboy-rescue:+1V8 #PWR051
 U 1 1 5A810F19
 P 9100 1800
 F 0 "#PWR051" H 9100 1650 50  0001 C CNN
@@ -1363,7 +964,7 @@ F 3 "" H 9100 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PWR_FLAG #FLG052
+L fpgaboy-rescue:PWR_FLAG #FLG052
 U 1 1 5A810F91
 P 9300 1700
 F 0 "#FLG052" H 9300 1795 50  0001 C CNN
@@ -1374,7 +975,7 @@ F 3 "" H 9300 1700 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C20
+L fpgaboy-rescue:C C20
 U 1 1 5A811448
 P 9100 2750
 F 0 "C20" H 9125 2850 50  0000 L CNN
@@ -1385,7 +986,7 @@ F 3 "" H 9100 2750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C19
+L fpgaboy-rescue:C C19
 U 1 1 5A811671
 P 8900 2750
 F 0 "C19" H 8925 2850 50  0000 L CNN
@@ -1396,7 +997,7 @@ F 3 "" H 8900 2750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR053
+L fpgaboy-rescue:GND #PWR053
 U 1 1 5A811B00
 P 9100 3000
 F 0 "#PWR053" H 9100 2750 50  0001 C CNN
@@ -1407,7 +1008,7 @@ F 3 "" H 9100 3000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +1V8 #PWR054
+L fpgaboy-rescue:+1V8 #PWR054
 U 1 1 5A8121AC
 P 9950 1450
 F 0 "#PWR054" H 9950 1300 50  0001 C CNN
@@ -1418,7 +1019,7 @@ F 3 "" H 9950 1450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR055
+L fpgaboy-rescue:+3V3 #PWR055
 U 1 1 5A812718
 P 10400 1450
 F 0 "#PWR055" H 10400 1300 50  0001 C CNN
@@ -1429,7 +1030,7 @@ F 3 "" H 10400 1450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR056
+L fpgaboy-rescue:GND #PWR056
 U 1 1 5A81360D
 P 10350 6700
 F 0 "#PWR056" H 10350 6450 50  0001 C CNN
@@ -1440,7 +1041,7 @@ F 3 "" H 10350 6700 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C16
+L fpgaboy-rescue:C C16
 U 1 1 5A81431D
 P 8550 950
 F 0 "C16" H 8575 1050 50  0000 L CNN
@@ -1451,7 +1052,7 @@ F 3 "" H 8550 950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C18
+L fpgaboy-rescue:C C18
 U 1 1 5A8143F0
 P 8750 950
 F 0 "C18" H 8775 1050 50  0000 L CNN
@@ -1462,7 +1063,7 @@ F 3 "" H 8750 950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C21
+L fpgaboy-rescue:C C21
 U 1 1 5A8144A6
 P 9400 950
 F 0 "C21" H 9425 1050 50  0000 L CNN
@@ -1473,7 +1074,7 @@ F 3 "" H 9400 950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C22
+L fpgaboy-rescue:C C22
 U 1 1 5A814577
 P 9650 950
 F 0 "C22" H 9675 1050 50  0000 L CNN
@@ -1484,7 +1085,7 @@ F 3 "" H 9650 950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR057
+L fpgaboy-rescue:GND #PWR057
 U 1 1 5A8148A1
 P 8550 1150
 F 0 "#PWR057" H 8550 900 50  0001 C CNN
@@ -1495,7 +1096,7 @@ F 3 "" H 8550 1150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR058
+L fpgaboy-rescue:GND #PWR058
 U 1 1 5A814993
 P 8750 1150
 F 0 "#PWR058" H 8750 900 50  0001 C CNN
@@ -1506,7 +1107,7 @@ F 3 "" H 8750 1150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR059
+L fpgaboy-rescue:GND #PWR059
 U 1 1 5A814A46
 P 9400 1150
 F 0 "#PWR059" H 9400 900 50  0001 C CNN
@@ -1517,7 +1118,7 @@ F 3 "" H 9400 1150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR060
+L fpgaboy-rescue:GND #PWR060
 U 1 1 5A814AF9
 P 9650 1150
 F 0 "#PWR060" H 9650 900 50  0001 C CNN
@@ -1528,7 +1129,7 @@ F 3 "" H 9650 1150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R17
+L fpgaboy-rescue:R R17
 U 1 1 5A8157A6
 P 9200 750
 F 0 "R17" V 9300 750 50  0000 C CNN
@@ -1539,7 +1140,7 @@ F 3 "" H 9200 750 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R16
+L fpgaboy-rescue:R R16
 U 1 1 5A815BBC
 P 8350 750
 F 0 "R16" V 8450 750 50  0000 C CNN
@@ -1550,7 +1151,7 @@ F 3 "" H 8350 750 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L +3V3 #PWR061
+L fpgaboy-rescue:+3V3 #PWR061
 U 1 1 5A816A37
 P 9000 700
 F 0 "#PWR061" H 9000 550 50  0001 C CNN
@@ -1561,7 +1162,7 @@ F 3 "" H 9000 700 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR062
+L fpgaboy-rescue:+3V3 #PWR062
 U 1 1 5A816AF0
 P 8150 700
 F 0 "#PWR062" H 8150 550 50  0001 C CNN
@@ -1572,7 +1173,7 @@ F 3 "" H 8150 700 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L USB_OTG P3
+L fpgaboy-rescue:USB_OTG P3
 U 1 1 5A810563
 P 8950 3800
 F 0 "P3" H 9275 3675 50  0000 C CNN
@@ -1587,7 +1188,7 @@ USB_DM
 Text Label 8550 3800 2    59   ~ 0
 USB_DP
 $Comp
-L +5V #PWR063
+L fpgaboy-rescue:+5V #PWR063
 U 1 1 5A811188
 P 8600 3500
 F 0 "#PWR063" H 8600 3350 50  0001 C CNN
@@ -1598,7 +1199,7 @@ F 3 "" H 8600 3500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C23
+L fpgaboy-rescue:C C23
 U 1 1 5A8113A6
 P 8000 3800
 F 0 "C23" H 8025 3900 50  0000 L CNN
@@ -1609,7 +1210,7 @@ F 3 "" H 8000 3800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR064
+L fpgaboy-rescue:+5V #PWR064
 U 1 1 5A811704
 P 8000 3500
 F 0 "#PWR064" H 8000 3350 50  0001 C CNN
@@ -1620,7 +1221,7 @@ F 3 "" H 8000 3500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR065
+L fpgaboy-rescue:GND #PWR065
 U 1 1 5A811887
 P 8600 4250
 F 0 "#PWR065" H 8600 4000 50  0001 C CNN
@@ -1631,7 +1232,7 @@ F 3 "" H 8600 4250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR066
+L fpgaboy-rescue:GND #PWR066
 U 1 1 5A811982
 P 8000 4250
 F 0 "#PWR066" H 8000 4000 50  0001 C CNN
@@ -1642,7 +1243,7 @@ F 3 "" H 8000 4250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R19
+L fpgaboy-rescue:R R19
 U 1 1 5A811A41
 P 8450 3900
 F 0 "R19" V 8530 3900 50  0000 C CNN
@@ -1653,7 +1254,7 @@ F 3 "" H 8450 3900 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR067
+L fpgaboy-rescue:GND #PWR067
 U 1 1 5A811DED
 P 8250 4250
 F 0 "#PWR067" H 8250 4000 50  0001 C CNN
@@ -1664,7 +1265,7 @@ F 3 "" H 8250 4250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR068
+L fpgaboy-rescue:GND #PWR068
 U 1 1 5A812EA6
 P 9050 4250
 F 0 "#PWR068" H 9050 4000 50  0001 C CNN
@@ -1721,23 +1322,8 @@ NoConn ~ 10850 5550
 NoConn ~ 10850 5650
 NoConn ~ 10850 5850
 NoConn ~ 10850 5950
-NoConn ~ 14900 5600
-Text Label 1300 800  2    60   ~ 0
-UART_TX
-Text Label 1300 900  2    60   ~ 0
-UART_RX
-Text Label 1300 1200 2    60   ~ 0
-UART_RTS
-Text Label 1300 1400 2    60   ~ 0
-UART_CTS
-Text Label 1300 1600 2    60   ~ 0
-UART_DTR
-Text Label 1300 1800 2    60   ~ 0
-UART_DSR
-Text Label 1300 2000 2    60   ~ 0
-UART_DCD
 $Comp
-L 93LC56B U6
+L fpgaboy-rescue:93LC56B U6
 U 1 1 5A81E78D
 P 12300 5400
 F 0 "U6" H 12300 5100 60  0000 C CNN
@@ -1748,7 +1334,7 @@ F 3 "" H 12300 5400 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R22
+L fpgaboy-rescue:R R22
 U 1 1 5A81EB35
 P 12800 5000
 F 0 "R22" V 12880 5000 50  0000 C CNN
@@ -1759,7 +1345,7 @@ F 3 "" H 12800 5000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R23
+L fpgaboy-rescue:R R23
 U 1 1 5A81ECC7
 P 13000 5000
 F 0 "R23" V 13080 5000 50  0000 C CNN
@@ -1770,7 +1356,7 @@ F 3 "" H 13000 5000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R25
+L fpgaboy-rescue:R R25
 U 1 1 5A81ED9F
 P 13200 5000
 F 0 "R25" V 13280 5000 50  0000 C CNN
@@ -1781,7 +1367,7 @@ F 3 "" H 13200 5000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR069
+L fpgaboy-rescue:+3V3 #PWR069
 U 1 1 5A81EFEE
 P 12800 4650
 F 0 "#PWR069" H 12800 4500 50  0001 C CNN
@@ -1792,7 +1378,7 @@ F 3 "" H 12800 4650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R24
+L fpgaboy-rescue:R R24
 U 1 1 5A81F9A0
 P 13000 5550
 F 0 "R24" V 13080 5550 50  0000 C CNN
@@ -1810,7 +1396,7 @@ Text Label 13350 5450 0    59   ~ 0
 FT_EEDATA
 NoConn ~ 11850 5350
 $Comp
-L +3V3 #PWR070
+L fpgaboy-rescue:+3V3 #PWR070
 U 1 1 5A821134
 P 11800 4650
 F 0 "#PWR070" H 11800 4500 50  0001 C CNN
@@ -1821,7 +1407,7 @@ F 3 "" H 11800 4650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR071
+L fpgaboy-rescue:GND #PWR071
 U 1 1 5A821554
 P 11800 5750
 F 0 "#PWR071" H 11800 5500 50  0001 C CNN
@@ -1832,7 +1418,7 @@ F 3 "" H 11800 5750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C24
+L fpgaboy-rescue:C C24
 U 1 1 5A82172F
 P 11600 5550
 F 0 "C24" H 11625 5650 50  0000 L CNN
@@ -1855,7 +1441,7 @@ Wire Wire Line
 Wire Wire Line
 	15300 3150 15300 3250
 Wire Wire Line
-	15200 3250 15850 3250
+	15200 3250 15300 3250
 Wire Wire Line
 	15200 3550 15300 3550
 Wire Wire Line
@@ -1885,9 +1471,9 @@ Connection ~ 12550 950
 Wire Wire Line
 	12700 1100 12950 1100
 Wire Wire Line
-	12550 800  12550 1000
+	12550 800  12550 950 
 Wire Wire Line
-	12550 1400 12950 1400
+	12550 1400 12700 1400
 Wire Wire Line
 	12700 1100 12700 1400
 Connection ~ 12700 1400
@@ -1907,18 +1493,18 @@ Wire Wire Line
 Wire Wire Line
 	14150 1250 14300 1250
 Wire Wire Line
-	12550 1300 12550 2150
+	12550 1300 12550 1400
 Wire Wire Line
 	15300 1050 15300 1500
 Wire Wire Line
 	15050 1100 15050 1050
 Wire Wire Line
-	14150 1100 15050 1100
+	14150 1100 14800 1100
 Wire Wire Line
-	14800 1050 14800 1150
+	14800 1050 14800 1100
 Connection ~ 14800 1100
 Wire Wire Line
-	14700 700  15800 700 
+	14700 700  14800 700 
 Wire Wire Line
 	15300 750  15300 700 
 Connection ~ 15300 700 
@@ -1936,12 +1522,12 @@ Wire Wire Line
 Wire Wire Line
 	15050 2250 15050 2200
 Wire Wire Line
-	14150 2250 15050 2250
+	14150 2250 14800 2250
 Wire Wire Line
-	14800 2200 14800 2300
+	14800 2200 14800 2250
 Connection ~ 14800 2250
 Wire Wire Line
-	14700 1850 15800 1850
+	14700 1850 14800 1850
 Wire Wire Line
 	15300 1900 15300 1850
 Connection ~ 15300 1850
@@ -1975,78 +1561,11 @@ Wire Wire Line
 Wire Wire Line
 	15500 1850 15500 1800
 Wire Wire Line
-	12250 1550 12950 1550
+	12250 1550 12300 1550
 Wire Wire Line
 	13400 3100 13400 3350
 Wire Wire Line
 	13400 3450 13400 4000
-Wire Wire Line
-	14050 5400 14900 5400
-Wire Wire Line
-	14050 5050 14050 5400
-Wire Wire Line
-	14450 5200 14450 5550
-Wire Wire Line
-	14400 5200 14900 5200
-Wire Wire Line
-	14900 5300 14450 5300
-Connection ~ 14450 5300
-Wire Wire Line
-	14450 5850 14450 5900
-Wire Wire Line
-	14100 5200 14050 5200
-Connection ~ 14050 5200
-Connection ~ 14450 5200
-Wire Wire Line
-	14850 4800 14850 5900
-Wire Wire Line
-	14850 4800 14900 4800
-Wire Wire Line
-	14900 4900 14850 4900
-Connection ~ 14850 4900
-Wire Wire Line
-	14900 5000 14850 5000
-Connection ~ 14850 5000
-Wire Wire Line
-	14900 5500 14650 5500
-Wire Wire Line
-	14650 5500 14650 5050
-Wire Wire Line
-	14700 7150 14700 7650
-Wire Wire Line
-	6100 6050 6400 6050
-Wire Wire Line
-	4350 5600 4600 5600
-Wire Wire Line
-	2600 6000 3000 6000
-Wire Wire Line
-	1000 6000 1400 6000
-Wire Wire Line
-	14950 6250 14950 6200
-Wire Wire Line
-	14950 6200 15550 6200
-Wire Wire Line
-	15550 6150 15550 6250
-Connection ~ 15550 6200
-Wire Wire Line
-	15350 6250 15350 6200
-Connection ~ 15350 6200
-Wire Wire Line
-	15150 6250 15150 6200
-Connection ~ 15150 6200
-Wire Wire Line
-	14950 6550 14950 6600
-Wire Wire Line
-	14950 6600 15550 6600
-Wire Wire Line
-	15550 6550 15550 6650
-Wire Wire Line
-	15350 6550 15350 6600
-Connection ~ 15350 6600
-Wire Wire Line
-	15150 6550 15150 6600
-Connection ~ 15150 6600
-Connection ~ 15550 6600
 Wire Wire Line
 	9200 8350 9450 8350
 Wire Wire Line
@@ -2080,42 +1599,6 @@ Wire Wire Line
 Wire Wire Line
 	9200 9850 9450 9850
 Wire Wire Line
-	8200 8550 7900 8550
-Wire Wire Line
-	8200 8650 7900 8650
-Wire Wire Line
-	8200 8750 7900 8750
-Wire Wire Line
-	8200 8850 7900 8850
-Wire Wire Line
-	8200 8950 7900 8950
-Wire Wire Line
-	8200 9050 7900 9050
-Wire Wire Line
-	8200 9150 7900 9150
-Wire Wire Line
-	8200 9250 7900 9250
-Wire Wire Line
-	8200 9350 7900 9350
-Wire Wire Line
-	8200 9450 7900 9450
-Wire Wire Line
-	8200 9550 7900 9550
-Wire Wire Line
-	8200 9650 7900 9650
-Wire Wire Line
-	8200 9750 7900 9750
-Wire Wire Line
-	8200 9850 7900 9850
-Wire Wire Line
-	8200 9950 7900 9950
-Wire Wire Line
-	8200 10050 7900 10050
-Wire Wire Line
-	8200 10150 7900 10150
-Wire Wire Line
-	8200 10250 7900 10250
-Wire Wire Line
 	9200 10050 9450 10050
 Wire Wire Line
 	9200 10150 9450 10150
@@ -2126,97 +1609,16 @@ Wire Wire Line
 Wire Wire Line
 	9200 10450 9450 10450
 Wire Wire Line
-	8050 8350 8200 8350
-Wire Wire Line
-	8050 7800 8050 8350
+	8050 7800 8050 8250
 Wire Wire Line
 	8200 8250 8050 8250
-Connection ~ 8050 8250
 Wire Wire Line
 	8200 10450 8050 10450
 Wire Wire Line
-	8050 10450 8050 10900
+	8050 10450 8050 10550
 Wire Wire Line
 	8200 10550 8050 10550
 Connection ~ 8050 10550
-Wire Wire Line
-	6400 850  6350 850 
-Wire Wire Line
-	6400 950  6350 950 
-Wire Wire Line
-	6400 1050 6350 1050
-Wire Wire Line
-	6400 1150 6350 1150
-Wire Wire Line
-	6400 1250 6350 1250
-Wire Wire Line
-	6400 1350 6350 1350
-Wire Wire Line
-	6400 1450 6350 1450
-Wire Wire Line
-	6400 1550 6350 1550
-Wire Wire Line
-	6400 1650 6350 1650
-Wire Wire Line
-	6400 1750 6350 1750
-Wire Wire Line
-	6400 1850 6350 1850
-Wire Wire Line
-	6400 1950 6350 1950
-Wire Wire Line
-	6400 2050 6350 2050
-Wire Wire Line
-	6400 2150 6350 2150
-Wire Wire Line
-	6400 2250 6350 2250
-Wire Wire Line
-	6400 2350 6350 2350
-Wire Wire Line
-	6400 3850 6350 3850
-Wire Wire Line
-	6400 3950 6350 3950
-Wire Wire Line
-	6400 4050 6350 4050
-Wire Wire Line
-	6400 4150 6350 4150
-Wire Wire Line
-	6400 4250 6350 4250
-Wire Wire Line
-	6400 4350 6350 4350
-Wire Wire Line
-	6400 4450 6350 4450
-Wire Wire Line
-	6400 4550 6350 4550
-Wire Wire Line
-	6400 4650 6350 4650
-Wire Wire Line
-	6400 4750 6350 4750
-Wire Wire Line
-	6400 4850 6350 4850
-Wire Wire Line
-	6400 4950 6350 4950
-Wire Wire Line
-	6400 5050 6350 5050
-Wire Wire Line
-	6400 5150 6350 5150
-Wire Wire Line
-	6400 5250 6350 5250
-Wire Wire Line
-	6400 5350 6350 5350
-Wire Wire Line
-	6400 5450 6350 5450
-Wire Wire Line
-	6400 5550 6350 5550
-Wire Wire Line
-	6400 2750 6350 2750
-Wire Wire Line
-	6400 2850 6350 2850
-Wire Wire Line
-	6400 2950 6350 2950
-Wire Wire Line
-	6400 3050 6350 3050
-Wire Wire Line
-	6400 3150 6350 3150
 Wire Wire Line
 	1650 9500 1950 9500
 Wire Wire Line
@@ -2228,7 +1630,7 @@ Wire Wire Line
 Wire Wire Line
 	1350 9500 1300 9500
 Wire Wire Line
-	1300 9500 1300 9850
+	1300 9500 1300 9600
 Wire Wire Line
 	1350 9800 1300 9800
 Connection ~ 1300 9800
@@ -2243,19 +1645,19 @@ Wire Wire Line
 Wire Wire Line
 	1300 9400 1950 9400
 Wire Wire Line
-	1300 10250 1300 10450
+	1300 10250 1300 10400
 Wire Wire Line
 	1300 10400 950  10400
 Connection ~ 1300 10400
 Wire Wire Line
-	900  10050 1000 10050
+	900  10050 950  10050
 Wire Wire Line
 	950  10050 950  10100
 Connection ~ 950  10050
 Wire Wire Line
 	1950 9200 1850 9200
 Wire Wire Line
-	1850 8500 1850 10450
+	1850 8500 1850 9200
 Wire Wire Line
 	1950 9300 1900 9300
 Wire Wire Line
@@ -2316,8 +1718,6 @@ Wire Wire Line
 Wire Wire Line
 	9100 5100 9050 5100
 Wire Wire Line
-	4600 900  4500 900 
-Wire Wire Line
 	13250 2050 13250 2100
 Wire Wire Line
 	13250 2400 13250 2450
@@ -2326,7 +1726,7 @@ Wire Wire Line
 Wire Wire Line
 	8850 2250 9200 2250
 Wire Wire Line
-	8850 1800 8850 2250
+	8850 1800 8850 1850
 Wire Wire Line
 	8850 1850 8600 1850
 Connection ~ 8850 1850
@@ -2335,7 +1735,7 @@ Wire Wire Line
 Wire Wire Line
 	9100 2350 9200 2350
 Wire Wire Line
-	9100 1800 9100 2600
+	9100 1800 9100 1900
 Connection ~ 9100 2350
 Wire Wire Line
 	9300 1700 9300 1900
@@ -2346,7 +1746,7 @@ Wire Wire Line
 	8900 2550 8900 2600
 Connection ~ 9100 2550
 Wire Wire Line
-	9100 2900 9100 3000
+	9100 2900 9100 2950
 Wire Wire Line
 	9100 2950 8900 2950
 Wire Wire Line
@@ -2355,9 +1755,9 @@ Connection ~ 9100 2950
 Wire Wire Line
 	8900 2550 9100 2550
 Wire Wire Line
-	9950 1450 9950 1700
+	9950 1450 9950 1500
 Wire Wire Line
-	9850 1500 10050 1500
+	9850 1500 9950 1500
 Wire Wire Line
 	9850 1500 9850 1700
 Connection ~ 9950 1500
@@ -2366,7 +1766,7 @@ Wire Wire Line
 Wire Wire Line
 	10400 1500 10400 1450
 Wire Wire Line
-	10250 1500 10550 1500
+	10250 1500 10350 1500
 Wire Wire Line
 	10250 1500 10250 1700
 Wire Wire Line
@@ -2381,9 +1781,9 @@ Connection ~ 10450 1500
 Wire Wire Line
 	9650 6500 9650 6600
 Wire Wire Line
-	9650 6600 10350 6600
+	9650 6600 9750 6600
 Wire Wire Line
-	10350 6500 10350 6700
+	10350 6500 10350 6600
 Connection ~ 10350 6600
 Wire Wire Line
 	10250 6500 10250 6600
@@ -2412,14 +1812,14 @@ Wire Wire Line
 Wire Wire Line
 	9650 1150 9650 1100
 Wire Wire Line
-	8500 750  8950 750 
+	8500 750  8550 750 
 Wire Wire Line
 	8750 750  8750 800 
 Wire Wire Line
 	8550 800  8550 750 
 Connection ~ 8550 750 
 Wire Wire Line
-	9350 750  9800 750 
+	9350 750  9400 750 
 Wire Wire Line
 	9650 750  9650 800 
 Wire Wire Line
@@ -2498,27 +1898,13 @@ Wire Wire Line
 Wire Wire Line
 	10850 4650 10950 4650
 Wire Wire Line
-	1400 800  1300 800 
+	12750 5250 12800 5250
 Wire Wire Line
-	1400 900  1300 900 
+	12750 5350 13000 5350
 Wire Wire Line
-	1400 1200 1300 1200
+	12800 4650 12800 4750
 Wire Wire Line
-	1400 1400 1300 1400
-Wire Wire Line
-	1400 1600 1300 1600
-Wire Wire Line
-	1400 1800 1300 1800
-Wire Wire Line
-	1400 2000 1300 2000
-Wire Wire Line
-	12750 5250 13350 5250
-Wire Wire Line
-	12750 5350 13350 5350
-Wire Wire Line
-	12800 4650 12800 4850
-Wire Wire Line
-	12800 4750 13200 4750
+	12800 4750 13000 4750
 Wire Wire Line
 	13200 4750 13200 4850
 Connection ~ 12800 4750
@@ -2541,12 +1927,12 @@ Wire Wire Line
 Wire Wire Line
 	13300 5550 13300 5450
 Wire Wire Line
-	12750 5450 13350 5450
+	12750 5450 13200 5450
 Connection ~ 13300 5450
 Wire Wire Line
 	11800 5450 11850 5450
 Wire Wire Line
-	11800 4650 11800 5450
+	11800 4650 11800 5250
 Connection ~ 11800 5250
 Wire Wire Line
 	11850 5550 11800 5550
@@ -2555,7 +1941,7 @@ Wire Wire Line
 Wire Wire Line
 	11850 5250 11800 5250
 $Comp
-L +3V3 #PWR072
+L fpgaboy-rescue:+3V3 #PWR072
 U 1 1 5A823066
 P 11600 5350
 F 0 "#PWR072" H 11600 5200 50  0001 C CNN
@@ -2566,7 +1952,7 @@ F 3 "" H 11600 5350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR073
+L fpgaboy-rescue:GND #PWR073
 U 1 1 5A82313A
 P 11600 5750
 F 0 "#PWR073" H 11600 5500 50  0001 C CNN
@@ -2581,7 +1967,7 @@ Wire Wire Line
 Wire Wire Line
 	11600 5700 11600 5750
 $Comp
-L S25FL132K U7
+L fpgaboy-rescue:S25FL132K U7
 U 1 1 5A824511
 P 12600 7550
 F 0 "U7" H 12600 7250 60  0000 C CNN
@@ -2598,7 +1984,7 @@ Wire Wire Line
 Wire Wire Line
 	12100 7700 12100 8100
 $Comp
-L GND #PWR074
+L fpgaboy-rescue:GND #PWR074
 U 1 1 5A824F56
 P 12100 8100
 F 0 "#PWR074" H 12100 7850 50  0001 C CNN
@@ -2609,7 +1995,7 @@ F 3 "" H 12100 8100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13050 7600 13550 7600
+	13050 7600 13400 7600
 Wire Wire Line
 	13050 7700 13550 7700
 Text Label 13550 7600 0    60   ~ 0
@@ -2621,11 +2007,11 @@ FLASH_MISO
 Wire Wire Line
 	11600 7500 12150 7500
 Wire Wire Line
-	11600 7400 12150 7400
+	11600 7400 11900 7400
 Text Label 11600 7400 2    60   ~ 0
 FLASH_CS
 $Comp
-L R R21
+L fpgaboy-rescue:R R21
 U 1 1 5A827EAA
 P 12100 7050
 F 0 "R21" V 12180 7050 50  0000 C CNN
@@ -2636,7 +2022,7 @@ F 3 "" H 12100 7050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R20
+L fpgaboy-rescue:R R20
 U 1 1 5A82816B
 P 11900 7050
 F 0 "R20" V 11980 7050 50  0000 C CNN
@@ -2647,7 +2033,7 @@ F 3 "" H 11900 7050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R26
+L fpgaboy-rescue:R R26
 U 1 1 5A8282A3
 P 13200 7050
 F 0 "R26" V 13280 7050 50  0000 C CNN
@@ -2658,7 +2044,7 @@ F 3 "" H 13200 7050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R27
+L fpgaboy-rescue:R R27
 U 1 1 5A8283D8
 P 13400 7050
 F 0 "R27" V 13480 7050 50  0000 C CNN
@@ -2684,7 +2070,7 @@ Wire Wire Line
 Wire Wire Line
 	13400 6850 13400 6900
 Wire Wire Line
-	11900 6850 13400 6850
+	11900 6850 12100 6850
 Wire Wire Line
 	12100 6850 12100 6900
 Wire Wire Line
@@ -2694,7 +2080,7 @@ Wire Wire Line
 	12600 6850 12600 6750
 Connection ~ 12600 6850
 $Comp
-L +3V3 #PWR075
+L fpgaboy-rescue:+3V3 #PWR075
 U 1 1 5A8295DB
 P 12600 6750
 F 0 "#PWR075" H 12600 6600 50  0001 C CNN
@@ -2711,26 +2097,8 @@ Connection ~ 13200 6850
 Connection ~ 13400 7600
 Wire Wire Line
 	13200 7500 13050 7500
-Wire Wire Line
-	14700 7650 14750 7650
-Wire Wire Line
-	14750 7250 14600 7250
-Wire Wire Line
-	14750 7350 14600 7350
-Wire Wire Line
-	14750 7450 14600 7450
-Wire Wire Line
-	14750 7550 14600 7550
-Text Label 14600 7250 2    60   ~ 0
-FLASH_MOSI
-Text Label 14600 7350 2    60   ~ 0
-FLASH_MISO
-Text Label 14600 7450 2    60   ~ 0
-FLASH_SCK
-Text Label 14600 7550 2    60   ~ 0
-FLASH_CS
 $Comp
-L C C25
+L fpgaboy-rescue:C C25
 U 1 1 5A82E1D6
 P 11850 7900
 F 0 "C25" H 11875 8000 50  0000 L CNN
@@ -2741,7 +2109,7 @@ F 3 "" H 11850 7900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR076
+L fpgaboy-rescue:+3V3 #PWR076
 U 1 1 5A82E1DC
 P 11850 7700
 F 0 "#PWR076" H 11850 7550 50  0001 C CNN
@@ -2752,7 +2120,7 @@ F 3 "" H 11850 7700 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR077
+L fpgaboy-rescue:GND #PWR077
 U 1 1 5A82E1E2
 P 11850 8100
 F 0 "#PWR077" H 11850 7850 50  0001 C CNN
@@ -2766,113 +2134,85 @@ Wire Wire Line
 	11850 7700 11850 7750
 Wire Wire Line
 	11850 8050 11850 8100
-Text Label 1300 5100 2    59   ~ 0
-LCD_RESET
-Text Label 1300 5200 2    59   ~ 0
-LCD_SDL
-Text Label 1300 5300 2    59   ~ 0
-LCD_D/C
-Text Label 1300 5400 2    59   ~ 0
-LCD_CS
-Text Label 1300 5500 2    59   ~ 0
-LCD_SDA
-Text Label 1300 5600 2    59   ~ 0
-LCD_SDL
-Text Label 1300 5700 2    59   ~ 0
-LCD_PWM
-Wire Wire Line
-	1400 5100 1300 5100
-Wire Wire Line
-	1400 5200 1300 5200
-Wire Wire Line
-	1400 5300 1300 5300
-Wire Wire Line
-	1400 5400 1300 5400
-Wire Wire Line
-	1400 5500 1300 5500
-Wire Wire Line
-	1400 5600 1300 5600
-Wire Wire Line
-	1400 5700 1300 5700
 $Comp
-L DSC60XX U8
+L fpgaboy-rescue:DSC60XX U8
 U 1 1 5A831101
-P 5250 6500
-F 0 "U8" H 5250 6300 60  0000 C CNN
-F 1 "DSC60XX" H 5250 6700 60  0000 C CNN
-F 2 "fpgaboy_parts:LGA4_1.6x1.2mm" H 5250 6500 60  0001 C CNN
-F 3 "" H 5250 6500 60  0001 C CNN
-	1    5250 6500
+P 5250 7650
+F 0 "U8" H 5250 7450 60  0000 C CNN
+F 1 "DSC60XX" H 5250 7850 60  0000 C CNN
+F 2 "fpgaboy_parts:LGA4_1.6x1.2mm" H 5250 7650 60  0001 C CNN
+F 3 "" H 5250 7650 60  0001 C CNN
+	1    5250 7650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5750 6450 5700 6450
+	5750 7600 5700 7600
 Wire Wire Line
-	5750 6050 5750 6450
+	5750 7200 5750 7250
 $Comp
-L +3V3 #PWR078
+L fpgaboy-rescue:+3V3 #PWR078
 U 1 1 5A831410
-P 5750 6050
-F 0 "#PWR078" H 5750 5900 50  0001 C CNN
-F 1 "+3V3" H 5750 6190 50  0000 C CNN
-F 2 "" H 5750 6050 50  0000 C CNN
-F 3 "" H 5750 6050 50  0000 C CNN
-	1    5750 6050
+P 5750 7200
+F 0 "#PWR078" H 5750 7050 50  0001 C CNN
+F 1 "+3V3" H 5750 7340 50  0000 C CNN
+F 2 "" H 5750 7200 50  0000 C CNN
+F 3 "" H 5750 7200 50  0000 C CNN
+	1    5750 7200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5750 6100 4750 6100
+	5750 7250 4750 7250
 Wire Wire Line
-	4750 6100 4750 6450
+	4750 7250 4750 7450
 Wire Wire Line
-	4750 6450 4800 6450
-Connection ~ 5750 6100
+	4750 7600 4800 7600
+Connection ~ 5750 7250
 Wire Wire Line
-	5700 6550 5800 6550
-Text Label 5800 6550 0    60   ~ 0
+	5700 7700 5800 7700
+Text Label 5800 7700 0    60   ~ 0
 CLK_OSC
 Wire Wire Line
-	4800 6550 4750 6550
+	4800 7700 4750 7700
 Wire Wire Line
-	4750 6550 4750 6950
+	4750 7700 4750 7850
 $Comp
-L GND #PWR079
+L fpgaboy-rescue:GND #PWR079
 U 1 1 5A831C7C
-P 4750 6950
-F 0 "#PWR079" H 4750 6700 50  0001 C CNN
-F 1 "GND" H 4750 6800 50  0000 C CNN
-F 2 "" H 4750 6950 50  0000 C CNN
-F 3 "" H 4750 6950 50  0000 C CNN
-	1    4750 6950
+P 4750 8100
+F 0 "#PWR079" H 4750 7850 50  0001 C CNN
+F 1 "GND" H 4750 7950 50  0000 C CNN
+F 2 "" H 4750 8100 50  0000 C CNN
+F 3 "" H 4750 8100 50  0000 C CNN
+	1    4750 8100
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C26
+L fpgaboy-rescue:C C26
 U 1 1 5A831D6C
-P 4550 6500
-F 0 "C26" H 4575 6600 50  0000 L CNN
-F 1 "0.1u" H 4575 6400 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0603" H 4588 6350 50  0001 C CNN
-F 3 "" H 4550 6500 50  0000 C CNN
-	1    4550 6500
+P 4550 7650
+F 0 "C26" H 4575 7750 50  0000 L CNN
+F 1 "0.1u" H 4575 7550 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0603" H 4588 7500 50  0001 C CNN
+F 3 "" H 4550 7650 50  0000 C CNN
+	1    4550 7650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4550 6300 4750 6300
-Connection ~ 4750 6300
+	4550 7450 4750 7450
+Connection ~ 4750 7450
 Wire Wire Line
-	4550 6700 4750 6700
-Connection ~ 4750 6700
+	4550 7850 4750 7850
+Connection ~ 4750 7850
 Wire Wire Line
-	4550 6300 4550 6350
+	4550 7450 4550 7500
 Wire Wire Line
-	4550 6650 4550 6700
-Text Notes 4900 6950 0    60   ~ 0
+	4550 7800 4550 7850
+Text Notes 4900 8100 0    60   ~ 0
 12MHz MEMS oscillator
 Text Notes 6300 8700 0    60   ~ 0
 Buttons
 $Comp
-L CONN_01X12 P?
+L fpgaboy-rescue:CONN_01X12 P?
 U 1 1 5A92DF3A
 P 6500 9450
 F 0 "P?" H 6500 10100 50  0000 C CNN
@@ -2885,12 +2225,12 @@ $EndComp
 Wire Wire Line
 	6300 8900 6200 8900
 Wire Wire Line
-	6200 8900 6200 10100
+	6200 8900 6200 10000
 Wire Wire Line
 	6300 10000 6200 10000
 Connection ~ 6200 10000
 $Comp
-L GND #PWR?
+L fpgaboy-rescue:GND #PWR?
 U 1 1 5A92E42C
 P 6200 10100
 F 0 "#PWR?" H 6200 9850 50  0001 C CNN
@@ -2940,44 +2280,714 @@ Text Label 6100 9800 2    60   ~ 0
 GPIO_SW8
 Text Label 6100 9900 2    60   ~ 0
 GPIO_SW9
-Text Label 4500 1400 2    60   ~ 0
+Wire Wire Line
+	15300 3250 15850 3250
+Wire Wire Line
+	12550 950  12550 1000
+Wire Wire Line
+	12700 1400 12950 1400
+Wire Wire Line
+	12550 1400 12550 2150
+Wire Wire Line
+	12850 1550 12950 1550
+Wire Wire Line
+	12300 1550 12850 1550
+Wire Wire Line
+	14800 1100 15050 1100
+Wire Wire Line
+	14800 1100 14800 1150
+Wire Wire Line
+	15300 700  15500 700 
+Wire Wire Line
+	15050 700  15300 700 
+Wire Wire Line
+	14800 700  15050 700 
+Wire Wire Line
+	15500 700  15800 700 
+Wire Wire Line
+	14800 2250 15050 2250
+Wire Wire Line
+	14800 2250 14800 2300
+Wire Wire Line
+	15300 1850 15500 1850
+Wire Wire Line
+	15050 1850 15300 1850
+Wire Wire Line
+	14800 1850 15050 1850
+Wire Wire Line
+	15500 1850 15800 1850
+Wire Wire Line
+	8050 10550 8050 10900
+Wire Wire Line
+	1300 9800 1300 9850
+Wire Wire Line
+	1300 9700 1300 9800
+Wire Wire Line
+	1300 9600 1300 9700
+Wire Wire Line
+	1300 10400 1300 10450
+Wire Wire Line
+	950  10050 1000 10050
+Wire Wire Line
+	1850 9200 1850 10450
+Wire Wire Line
+	8850 1850 8850 2250
+Wire Wire Line
+	9100 2350 9100 2550
+Wire Wire Line
+	9100 1900 9100 2350
+Wire Wire Line
+	9100 2550 9100 2600
+Wire Wire Line
+	9100 2950 9100 3000
+Wire Wire Line
+	9950 1500 9950 1700
+Wire Wire Line
+	9950 1500 10050 1500
+Wire Wire Line
+	10400 1500 10450 1500
+Wire Wire Line
+	10350 1500 10400 1500
+Wire Wire Line
+	10450 1500 10550 1500
+Wire Wire Line
+	10350 6600 10350 6700
+Wire Wire Line
+	10250 6600 10350 6600
+Wire Wire Line
+	10150 6600 10250 6600
+Wire Wire Line
+	10050 6600 10150 6600
+Wire Wire Line
+	9950 6600 10050 6600
+Wire Wire Line
+	9850 6600 9950 6600
+Wire Wire Line
+	9750 6600 9850 6600
+Wire Wire Line
+	8550 750  8750 750 
+Wire Wire Line
+	9400 750  9650 750 
+Wire Wire Line
+	9650 750  9800 750 
+Wire Wire Line
+	8750 750  8950 750 
+Wire Wire Line
+	12800 4750 12800 4850
+Wire Wire Line
+	13000 4750 13200 4750
+Wire Wire Line
+	12800 5250 13350 5250
+Wire Wire Line
+	13000 5350 13350 5350
+Wire Wire Line
+	13200 5450 13300 5450
+Wire Wire Line
+	13300 5450 13350 5450
+Wire Wire Line
+	11800 5250 11800 5450
+Wire Wire Line
+	11900 7400 12150 7400
+Wire Wire Line
+	12100 6850 12600 6850
+Wire Wire Line
+	12600 6850 13100 6850
+Wire Wire Line
+	13100 6850 13200 6850
+Wire Wire Line
+	13200 6850 13400 6850
+Wire Wire Line
+	13400 7600 13550 7600
+Wire Wire Line
+	5750 7250 5750 7600
+Wire Wire Line
+	4750 7450 4750 7600
+Wire Wire Line
+	4750 7850 4750 8100
+Wire Wire Line
+	6200 10000 6200 10100
+$Comp
+L fpgaboy_parts:iCE40-HX8k-BG121 U?
+U 1 1 5B6F1F11
+P 6100 1600
+F 0 "U?" H 6050 1950 50  0000 L CNN
+F 1 "iCE40-HX8k-BG121" H 5800 2050 50  0000 L CNN
+F 2 "" H 5500 -1950 50  0001 C CNN
+F 3 "" H 5500 -1950 50  0001 C CNN
+	1    6100 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy_parts:iCE40-HX8k-BG121 U?
+U 2 1 5B6F2190
+P 1950 1600
+F 0 "U?" H 1900 1950 50  0000 L CNN
+F 1 "iCE40-HX8k-BG121" H 1650 2050 50  0000 L CNN
+F 2 "" H 1350 -1950 50  0001 C CNN
+F 3 "" H 1350 -1950 50  0001 C CNN
+	2    1950 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy_parts:iCE40-HX8k-BG121 U?
+U 3 1 5B717681
+P 1950 4350
+F 0 "U?" H 1900 4700 50  0000 L CNN
+F 1 "iCE40-HX8k-BG121" H 1650 4800 50  0000 L CNN
+F 2 "" H 1350 800 50  0001 C CNN
+F 3 "" H 1350 800 50  0001 C CNN
+	3    1950 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy_parts:iCE40-HX8k-BG121 U?
+U 4 1 5B717C0D
+P 4000 1600
+F 0 "U?" H 3900 1950 50  0000 L CNN
+F 1 "iCE40-HX8k-BG121" H 3650 2050 50  0000 L CNN
+F 2 "" H 3400 -1950 50  0001 C CNN
+F 3 "" H 3400 -1950 50  0001 C CNN
+	4    4000 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy_parts:iCE40-HX8k-BG121 U?
+U 5 1 5B73D47D
+P 3950 4400
+F 0 "U?" H 3900 4800 50  0000 L CNN
+F 1 "iCE40-HX8k-BG121" H 3600 4900 50  0000 L CNN
+F 2 "" H 3350 850 50  0001 C CNN
+F 3 "" H 3350 850 50  0001 C CNN
+	5    3950 4400
+	1    0    0    -1  
+$EndComp
+Text Label 3300 4350 2    60   ~ 0
+SRAM_DQ11
+Text Label 3300 4450 2    60   ~ 0
+SRAM_DQ12
+Text Label 3300 4550 2    60   ~ 0
+SRAM_DQ13
+Text Label 3300 4650 2    60   ~ 0
+SRAM_DQ14
+Text Label 3300 4750 2    60   ~ 0
+SRAM_DQ15
+Text Label 3300 4850 2    60   ~ 0
+SRAM_DQ16
+Wire Wire Line
+	3550 4350 3300 4350
+Wire Wire Line
+	3550 4450 3300 4450
+Wire Wire Line
+	3550 4550 3300 4550
+Wire Wire Line
+	3550 4650 3300 4650
+Wire Wire Line
+	3550 4750 3300 4750
+Wire Wire Line
+	3550 4850 3300 4850
+Wire Wire Line
+	3550 4250 3450 4250
+Wire Wire Line
+	3450 4250 3450 4150
+Wire Wire Line
+	3550 4150 3450 4150
+Connection ~ 3450 4150
+Wire Wire Line
+	3450 4150 3450 4000
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5B8D935B
+P 3450 4000
+F 0 "#PWR?" H 3450 3850 50  0001 C CNN
+F 1 "+3V3" H 3450 4140 50  0000 C CNN
+F 2 "" H 3450 4000 50  0000 C CNN
+F 3 "" H 3450 4000 50  0000 C CNN
+	1    3450 4000
+	1    0    0    -1  
+$EndComp
+Text Label 3300 2200 2    60   ~ 0
+SRAM_DQ1
+Text Label 3300 2300 2    60   ~ 0
+SRAM_DQ2
+Text Label 3300 2400 2    60   ~ 0
+SRAM_DQ3
+Text Label 3300 2500 2    60   ~ 0
+SRAM_DQ4
+Text Label 3300 2600 2    60   ~ 0
+SRAM_DQ5
+Text Label 3300 2700 2    60   ~ 0
+SRAM_DQ6
+Text Label 3300 2800 2    60   ~ 0
+SRAM_DQ7
+Text Label 3300 2900 2    60   ~ 0
+SRAM_DQ8
+Text Label 3300 3000 2    60   ~ 0
+SRAM_DQ9
+Text Label 3300 3100 2    60   ~ 0
+SRAM_DQ10
+Wire Wire Line
+	3550 2200 3300 2200
+Wire Wire Line
+	3550 2300 3300 2300
+Wire Wire Line
+	3550 2400 3300 2400
+Wire Wire Line
+	3550 2500 3300 2500
+Wire Wire Line
+	3550 2600 3300 2600
+Wire Wire Line
+	3550 2700 3300 2700
+Wire Wire Line
+	3550 2800 3300 2800
+Wire Wire Line
+	3550 2900 3300 2900
+Wire Wire Line
+	3550 3000 3300 3000
+Wire Wire Line
+	3550 3100 3300 3100
+Text Label 7900 8550 2    60   ~ 0
+SRAM_A0
+Text Label 7900 8650 2    60   ~ 0
+SRAM_A1
+Text Label 7900 8750 2    60   ~ 0
+SRAM_A2
+Text Label 7900 8850 2    60   ~ 0
+SRAM_A3
+Text Label 7900 8950 2    60   ~ 0
+SRAM_A4
+Text Label 7900 9050 2    60   ~ 0
+SRAM_A5
+Text Label 7900 9150 2    60   ~ 0
+SRAM_A6
+Text Label 7900 9250 2    60   ~ 0
+SRAM_A7
+Text Label 7900 9350 2    60   ~ 0
+SRAM_A8
+Text Label 7900 9450 2    60   ~ 0
+SRAM_A9
+Text Label 7900 9550 2    60   ~ 0
+SRAM_A10
+Text Label 7900 9650 2    60   ~ 0
+SRAM_A11
+Text Label 7900 9750 2    60   ~ 0
+SRAM_A12
+Text Label 7900 9850 2    60   ~ 0
+SRAM_A13
+Text Label 7900 9950 2    60   ~ 0
+SRAM_A14
+Text Label 7900 10050 2    60   ~ 0
+SRAM_A15
+Text Label 7900 10150 2    60   ~ 0
+SRAM_A16
+Text Label 7900 10250 2    60   ~ 0
+SRAM_A17
+Wire Wire Line
+	8200 8550 7900 8550
+Wire Wire Line
+	8200 8650 7900 8650
+Wire Wire Line
+	8200 8750 7900 8750
+Wire Wire Line
+	8200 8850 7900 8850
+Wire Wire Line
+	8200 8950 7900 8950
+Wire Wire Line
+	8200 9050 7900 9050
+Wire Wire Line
+	8200 9150 7900 9150
+Wire Wire Line
+	8200 9250 7900 9250
+Wire Wire Line
+	8200 9350 7900 9350
+Wire Wire Line
+	8200 9450 7900 9450
+Wire Wire Line
+	8200 9550 7900 9550
+Wire Wire Line
+	8200 9650 7900 9650
+Wire Wire Line
+	8200 9750 7900 9750
+Wire Wire Line
+	8200 9850 7900 9850
+Wire Wire Line
+	8200 9950 7900 9950
+Wire Wire Line
+	8200 10050 7900 10050
+Wire Wire Line
+	8200 10150 7900 10150
+Wire Wire Line
+	8200 10250 7900 10250
+Wire Wire Line
+	3550 4950 3300 4950
+Wire Wire Line
+	3550 5050 3300 5050
+Wire Wire Line
+	3550 5150 3300 5150
+Wire Wire Line
+	3550 5250 3300 5250
+Wire Wire Line
+	3550 5350 3300 5350
+Wire Wire Line
+	3550 5450 3300 5450
+Wire Wire Line
+	3550 5550 3300 5550
+Wire Wire Line
+	3550 5650 3300 5650
+Wire Wire Line
+	3550 5750 3300 5750
+Wire Wire Line
+	3550 5850 3300 5850
+Wire Wire Line
+	3550 5950 3300 5950
+Wire Wire Line
+	3550 6050 3300 6050
+Wire Wire Line
+	3550 6150 3300 6150
+Wire Wire Line
+	3550 6250 3300 6250
+Wire Wire Line
+	3550 6350 3300 6350
+Wire Wire Line
+	3550 6450 3300 6450
+Wire Wire Line
+	3550 6550 3300 6550
+Wire Wire Line
+	3550 6650 3300 6650
+Text Label 3300 4950 2    50   ~ 0
+SRAM_A0
+Text Label 3300 5050 2    50   ~ 0
+SRAM_A1
+Text Label 3300 5150 2    50   ~ 0
+SRAM_A2
+Text Label 3300 5250 2    50   ~ 0
+SRAM_A3
+Text Label 3300 5350 2    50   ~ 0
+SRAM_A4
+Text Label 3300 5450 2    50   ~ 0
+SRAM_A5
+Text Label 3300 5550 2    50   ~ 0
+SRAM_A6
+Text Label 3300 5650 2    50   ~ 0
+SRAM_A7
+Text Label 3300 5750 2    50   ~ 0
+SRAM_A8
+Text Label 3300 5850 2    50   ~ 0
+SRAM_A9
+Text Label 3300 5950 2    50   ~ 0
+SRAM_A10
+Text Label 3300 6050 2    50   ~ 0
+SRAM_A11
+Text Label 3300 6150 2    50   ~ 0
+SRAM_A12
+Text Label 3300 6250 2    50   ~ 0
+SRAM_A13
+Text Label 3300 6350 2    50   ~ 0
+SRAM_A14
+Text Label 3300 6450 2    50   ~ 0
+SRAM_A15
+Text Label 3300 6550 2    50   ~ 0
+SRAM_A16
+Text Label 3300 6650 2    50   ~ 0
+SRAM_A17
+Text Label 1350 5550 2    59   ~ 0
+LCD_RESET
+Text Label 1350 5650 2    59   ~ 0
+LCD_SDL
+Text Label 1350 5750 2    59   ~ 0
+LCD_D/C
+Text Label 1350 5850 2    59   ~ 0
+LCD_CS
+Text Label 1350 5950 2    59   ~ 0
+LCD_SDA
+Text Label 1350 6050 2    59   ~ 0
+LCD_SDL
+Wire Wire Line
+	1550 6050 1350 6050
+Wire Wire Line
+	1550 5550 1350 5550
+Wire Wire Line
+	1550 5650 1350 5650
+Wire Wire Line
+	1550 5750 1350 5750
+Wire Wire Line
+	1550 5850 1350 5850
+Wire Wire Line
+	1550 5950 1350 5950
+Wire Wire Line
+	1550 5450 1350 5450
+Text Label 1350 5450 2    50   ~ 0
+LCD_PWM
+Wire Wire Line
+	5800 1700 5700 1700
+Wire Wire Line
+	5700 1700 5700 1600
+$Comp
+L fpgaboy-rescue:+1V2 #PWR?
+U 1 1 5BAD7E14
+P 5700 1200
+F 0 "#PWR?" H 5700 1050 50  0001 C CNN
+F 1 "+1V2" H 5700 1340 50  0000 C CNN
+F 2 "" H 5700 1200 50  0000 C CNN
+F 3 "" H 5700 1200 50  0000 C CNN
+	1    5700 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5BAD7EA9
+P 5450 1200
+F 0 "#PWR?" H 5450 1050 50  0001 C CNN
+F 1 "+3V3" H 5450 1340 50  0000 C CNN
+F 2 "" H 5450 1200 50  0000 C CNN
+F 3 "" H 5450 1200 50  0000 C CNN
+	1    5450 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5450 1200 5450 1800
+Wire Wire Line
+	5450 1900 5800 1900
+Wire Wire Line
+	5800 1800 5450 1800
+Connection ~ 5450 1800
+Wire Wire Line
+	5450 1800 5450 1900
+Wire Wire Line
+	5800 1600 5700 1600
+Connection ~ 5700 1600
+Wire Wire Line
+	5700 1600 5700 1500
+Wire Wire Line
+	5800 1500 5700 1500
+Connection ~ 5700 1500
+Wire Wire Line
+	5700 1500 5700 1400
+Wire Wire Line
+	5800 1400 5700 1400
+Connection ~ 5700 1400
+Wire Wire Line
+	5700 1400 5700 1200
+$Comp
+L fpgaboy-rescue:C C?
+U 1 1 5BBDF18F
+P 5250 2300
+F 0 "C?" H 5275 2400 50  0000 L CNN
+F 1 "1u" H 5275 2200 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0603" H 5288 2150 50  0001 C CNN
+F 3 "" H 5250 2300 50  0000 C CNN
+	1    5250 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R?
+U 1 1 5BBDF289
+P 5000 2100
+F 0 "R?" V 5100 2100 50  0000 C CNN
+F 1 "10" V 5000 2100 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 4930 2100 50  0001 C CNN
+F 3 "" H 5000 2100 50  0000 C CNN
+	1    5000 2100
+	0    1    1    0   
+$EndComp
+$Comp
+L fpgaboy-rescue:C C?
+U 1 1 5BC4B97A
+P 5500 2300
+F 0 "C?" H 5525 2400 50  0000 L CNN
+F 1 "1u" H 5525 2200 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0603" H 5538 2150 50  0001 C CNN
+F 3 "" H 5500 2300 50  0000 C CNN
+	1    5500 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R?
+U 1 1 5BC4BA84
+P 5000 1900
+F 0 "R?" V 5100 1900 50  0000 C CNN
+F 1 "10" V 5000 1900 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 4930 1900 50  0001 C CNN
+F 3 "" H 5000 1900 50  0000 C CNN
+	1    5000 1900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5150 1900 5250 1900
+Wire Wire Line
+	5250 1900 5250 2000
+Wire Wire Line
+	5250 2000 5800 2000
+Wire Wire Line
+	5150 2100 5500 2100
+Wire Wire Line
+	5250 2150 5250 2000
+Connection ~ 5250 2000
+Wire Wire Line
+	5500 2150 5500 2100
+Connection ~ 5500 2100
+Wire Wire Line
+	5500 2100 5800 2100
+Wire Wire Line
+	5250 2450 5250 2500
+Wire Wire Line
+	5500 2450 5500 2500
+Wire Wire Line
+	4850 1900 4800 1900
+Wire Wire Line
+	4800 1200 4800 1900
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5BE4179A
+P 4800 1200
+F 0 "#PWR?" H 4800 1050 50  0001 C CNN
+F 1 "+3V3" H 4800 1340 50  0000 C CNN
+F 2 "" H 4800 1200 50  0000 C CNN
+F 3 "" H 4800 1200 50  0000 C CNN
+	1    4800 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 1900 4800 2100
+Wire Wire Line
+	4800 2100 4850 2100
+Connection ~ 4800 1900
+Wire Wire Line
+	5800 2200 5700 2200
+Wire Wire Line
+	5700 2200 5700 2300
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5BEB4E82
+P 5700 3450
+F 0 "#PWR?" H 5700 3200 50  0001 C CNN
+F 1 "GND" H 5700 3300 50  0000 C CNN
+F 2 "" H 5700 3450 50  0000 C CNN
+F 3 "" H 5700 3450 50  0000 C CNN
+	1    5700 3450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5800 3300 5700 3300
+Connection ~ 5700 3300
+Wire Wire Line
+	5700 3300 5700 3450
+Wire Wire Line
+	5800 3200 5700 3200
+Connection ~ 5700 3200
+Wire Wire Line
+	5700 3200 5700 3300
+Wire Wire Line
+	5700 3100 5800 3100
+Connection ~ 5700 3100
+Wire Wire Line
+	5700 3100 5700 3200
+Wire Wire Line
+	5800 2300 5700 2300
+Connection ~ 5700 2300
+Wire Wire Line
+	5700 2300 5700 2400
+Wire Wire Line
+	5800 2400 5700 2400
+Wire Wire Line
+	5800 2500 5700 2500
+Wire Wire Line
+	5800 2600 5700 2600
+Wire Wire Line
+	5800 2700 5700 2700
+Wire Wire Line
+	5800 2800 5700 2800
+Wire Wire Line
+	5800 2900 5700 2900
+Wire Wire Line
+	5800 3000 5700 3000
+Connection ~ 5700 2400
+Wire Wire Line
+	5700 2400 5700 2500
+Connection ~ 5700 2500
+Connection ~ 5700 2600
+Connection ~ 5700 2700
+Connection ~ 5700 2800
+Connection ~ 5700 2900
+Connection ~ 5700 3000
+Wire Wire Line
+	5500 2500 5250 2500
+Wire Wire Line
+	5700 2500 5700 2600
+Wire Wire Line
+	5700 2600 5700 2700
+Wire Wire Line
+	5700 2700 5700 2800
+Wire Wire Line
+	5700 2800 5700 2900
+Wire Wire Line
+	5700 2900 5700 3000
+Wire Wire Line
+	5700 3000 5700 3100
+Wire Wire Line
+	5250 2500 5250 3450
+Connection ~ 5250 2500
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5C0227DA
+P 5250 3450
+F 0 "#PWR?" H 5250 3200 50  0001 C CNN
+F 1 "GND" H 5250 3300 50  0000 C CNN
+F 2 "" H 5250 3450 50  0000 C CNN
+F 3 "" H 5250 3450 50  0000 C CNN
+	1    5250 3450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1550 4450 1350 4450
+Wire Wire Line
+	1550 4550 1350 4550
+Wire Wire Line
+	1550 4650 1350 4650
+Wire Wire Line
+	1550 4750 1350 4750
+Wire Wire Line
+	1550 4850 1350 4850
+Wire Wire Line
+	1550 4950 1350 4950
+Wire Wire Line
+	1550 5050 1350 5050
+Wire Wire Line
+	1550 5150 1350 5150
+Wire Wire Line
+	1550 5250 1350 5250
+Wire Wire Line
+	1550 5350 1350 5350
+Text Label 1350 4450 2    60   ~ 0
 GPIO_SW0
-Wire Wire Line
-	4600 1400 4500 1400
-Wire Wire Line
-	4600 1500 4500 1500
-Wire Wire Line
-	4600 1600 4500 1600
-Wire Wire Line
-	4600 1700 4500 1700
-Wire Wire Line
-	4600 1800 4500 1800
-Wire Wire Line
-	4600 1900 4500 1900
-Wire Wire Line
-	4600 2000 4500 2000
-Wire Wire Line
-	4600 2100 4500 2100
-Wire Wire Line
-	4600 2200 4500 2200
-Wire Wire Line
-	4600 2300 4500 2300
-Text Label 4500 1500 2    60   ~ 0
+Text Label 1350 4550 2    60   ~ 0
 GPIO_SW1
-Text Label 4500 1600 2    60   ~ 0
+Text Label 1350 4650 2    60   ~ 0
 GPIO_SW2
-Text Label 4500 1700 2    60   ~ 0
+Text Label 1350 4750 2    60   ~ 0
 GPIO_SW3
-Text Label 4500 1800 2    60   ~ 0
+Text Label 1350 4850 2    60   ~ 0
 GPIO_SW4
-Text Label 4500 1900 2    60   ~ 0
+Text Label 1350 4950 2    60   ~ 0
 GPIO_SW5
-Text Label 4500 2000 2    60   ~ 0
+Text Label 1350 5050 2    60   ~ 0
 GPIO_SW6
-Text Label 4500 2100 2    60   ~ 0
+Text Label 1350 5150 2    60   ~ 0
 GPIO_SW7
-Text Label 4500 2300 2    60   ~ 0
-GPIO_SW9
-Text Label 4500 2200 2    60   ~ 0
+Text Label 1350 5250 2    60   ~ 0
 GPIO_SW8
+Text Label 1350 5350 2    60   ~ 0
+GPIO_SW9
+Text Notes 3300 850  0    50   ~ 0
+FPGA
+$Comp
+L fpgaboy_parts:iCE40-HX8k-BG121 U?
+U 6 1 5C16E979
+P 6150 4350
+F 0 "U?" H 6100 4700 50  0000 L CNN
+F 1 "iCE40-HX8k-BG121" H 5850 4800 50  0000 L CNN
+F 2 "" H 5550 800 50  0001 C CNN
+F 3 "" H 5550 800 50  0001 C CNN
+	6    6150 4350
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

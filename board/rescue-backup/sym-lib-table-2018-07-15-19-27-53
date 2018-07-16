@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name fpgaboy-rescue)(type Legacy)(uri ${KIPRJMOD}/fpgaboy-rescue.lib)(options "")(descr ""))
+  (lib (name fpgaboy_parts)(type Legacy)(uri ${KIPRJMOD}/fpgaboy_parts.lib)(options "")(descr ""))
+)

@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name fpgaboy_parts)(type Legacy)(uri /home/luke/proj/fpgaboy/board/fpgaboy_parts.lib)(options "")(descr ""))
+)
