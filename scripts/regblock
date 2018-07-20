@@ -39,7 +39,7 @@ class RegBlock:
 		param_dict = {"W_DATA": y["data"]}
 		if ("params" in y):
 			param_dict = {**param_dict, **y["params"]}
-		param_resolve = lambda x: x if type(x) is int else eval(x, {**param_dict})
+		param_resolve = lambda x: x if type(x) is int else int(eval(x, {**param_dict}))
 		# Expand any generate blocks (one level only)
 		reglist = []
 		for i, rspec in enumerate(y["regs"]):

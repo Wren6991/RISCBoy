@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+from threading import Thread, Lock, Semaphore
+import os
+import subprocess
+
+class ThreadPool:
+	def __init__(self, thread_count=1):
+		# lambda captures self in its closure
+		self.threads = [Thread(target=lambda: self._threadtask()) for i in range(thread_count)]
+		self._lock = Lock()
+		self._tasklist = []
+		self._unjoined_tasks = 0
+		self._in_sem = Semaphore(value=0)
+		self._out_sem = Semaphore(value=0)
+		for thread in self.threads:
+			thread.setDaemon(True)
+			thread.start()
+	def queue_task(self, task):
+		self.tasklist.append(task)
+		self._lock.acquire()
+		self._unjoined_tasks += 1
+		self._lock.release()
+		self._in_sem.release()
+	def wait_all(self):
+		unjoined_tasks = self._unjoined_tasks
+		for i in range(unjoined_tasks):
+			self._out_sem.acquire()
+		self._lock.acquire()
+		self._unjoined_tasks -= unjoined_tasks
+		self._lock.release()
+	@property
+	def tasklist(self):
+	    return self._tasklist
+	def _threadtask(self):
+		while True:
+			self._in_sem.acquire()
+			self._tasklist.pop(0)()
+			self._out_sem.release()
+
+test_status = []
+
+def simtask(dirname):
+	def f():
+		print("Starting simulation in directory {}".format(dirname))
+		result = subprocess.run(["make", "-C", dirname, "clean"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		if result.returncode != 0:
+			print("Failed to clean directory {}".format(dirname))
+			test_status.append((dirname, False))
+			return
+		result = subprocess.run(["make", "-C", dirname, "sim"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		output = result.stdout.decode("utf-8")
+		with open("{}/sim_log".format(dirname), "w") as logfile:
+			logfile.write(output)
+		passed = (not "FAILED" in output) and ("PASSED" in output)
+		print("Simulation complete for {}. Test {}.".format(dirname, "passed" if passed else "failed"))
+		test_status.append((dirname, passed))
+	return f
+
+if __name__ == "__main__":
+	tp = ThreadPool(12)
+	print(">>> Queueing tasks")
+	with open("testlist") as testlist:
+		for line in testlist.readlines():
+			line = line.strip()
+			if line.startswith("#"):
+				continue
+			tp.queue_task(simtask(line))
+	tp.wait_all()
+	print(">>> All tasks complete")
+	print(">>> Status:")
+	all_passed = True
+	test_status.sort()
+	for stat in test_status:
+		print(stat[0].ljust(40) + ("\033[1;32m[PASSED]\033[0;0m" if stat[1] else "\033[1;31m[FAILED]\033[0;0m"))
+		all_passed = all_passed and stat[1]
+
+	if all_passed:
+		print("All tests passed!")
+	else:
+		print("Some tests failed. See the status output and individual test logs for more details.")
