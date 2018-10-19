@@ -135,17 +135,7 @@ This license is also known by its more formal name, as the "Do What The Fuck You
 
 ReVive is a 32-bit processor based on the RISC-V instruction set architecture. It yearns for the glory days of games programming, when NULL pointers were just pointers to the start of ROM, and programmers were real programmers who wrote their \textit{own} polygon rasterisers, dammit. Targeting a small FPGA, ReVive sits mostly in the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass.
 
-Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core. Not shown is:
-\begin{itemize}
-\item The full and specific contents of the pipeline registers
-\item Interrupt entry/exit hardware
-\item The ready/valid handshakes on pipe stages which allow them to NOP later stages, and stall prior ones
-\item Stall-generation logic
-\item Pipeline flushing signals for branch mispredict
-\item Hardware for supporting unaligned loads/stores (carried out as multiple bus cycles)
-\end{itemize}
-
-Overall this is a standard RISC-style pipeline. The tall blue boxes represent the registers at the boundaries of two pipe stages. The nomenclature used in the diagram is:
+Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core; overall, this is a standard RISC-style scalar pipeline. The tall blue boxes represent the registers at the boundary of two pipe stages. The nomenclature used in the diagram is:
 
 \begin{itemize}
 \item \texttt{F}: fetch
@@ -162,12 +152,9 @@ Branches are speculated, according to the static prediction scheme described in 
 \item Forward branches predicted not taken; the ISA manual advises compilers should put more-likely code on this path.
 \end{itemize}
 
-The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The small size allows it to fit into the pipeline in an interesting place, without imbalance.
+The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. The stall and fetch logic inside the processor needs to be carefully arranged, to avoid any combinatorial paths from e.g. \texttt{hready} to \texttt{htrans}; besides the timing issues caused by forcing data-phase and address-phase logic into the same clock cycle, this can cause combinatorial loops with poorly-designed slaves and busfabric.
 
-\begin{displayquote}
-\textit{It's not the size, mate, it's how you use it.} - Austin Powers, Goldmember
-\end{displayquote}
-
+If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The small size allows it to fit into the pipeline in an interesting place, without imbalance.
 
 \newpage
 
@@ -185,11 +172,11 @@ The processor has one AHB-lite busmaster, arbitrating internally between instruc
 
 \subsection{Fetch Logic}
 
-\texttt{F} always provides \texttt{D} with 32 bits of fresh instruction data, in the canonical RISC-V order (halfword-wise little-endian). There are four sources:
+In the absence of loads/stores or AHB stalls, \texttt{F} provides \texttt{D} with 32 bits of fresh instruction data, on every clock cycle. It assembles this from four sources:
 
 \begin{itemize}
 \item AHB busmaster with access to system memory map
-\item \texttt{ICACHE}. A small, fully-associative cache with random eviction
+\item \texttt{ICACHE}. A tiny, fully-associative cache with random eviction
 \item An \texttt{F}-local buffer containing up to 32 bits of fetched, unused instruction data
 \item The second halfword of the current instruction register of \texttt{D}, in the case that \texttt{D} found the last instruction to be 16-bit
 \end{itemize}
