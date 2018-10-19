@@ -46,9 +46,8 @@ module revive_cpu #(
 `include "rv_opcodes.vh"
 `include "alu_ops.vh"
 
-// NB: usage of semicolon
 `ifdef FORMAL
-`define ASSERT(x) assert(x);
+`define ASSERT(x) assert(x)
 `else
 `define ASSERT(x)
 `endif
@@ -97,6 +96,9 @@ wire [W_ADDR-1:0] ahb_haddr_i;
 reg ahb_active_dph_i;
 reg ahb_active_dph_d;
 
+// It is *vital* that hready is not part of htrans' input cone
+// (both for timing reasons, and to avoid combinatorial loops with poorly designed
+// slaves/busfabric). Cannot use these signals in anything htrans related.
 assign stall_cause_ahb_i = ahb_active_dph_i && !ahblm_hready;
 assign stall_cause_ahb_d = ahb_active_dph_d && !ahblm_hready;
 
@@ -194,7 +196,7 @@ always @ (posedge clk or negedge rst_n) begin
 		f_fetch_req_prev <= 1'b0;
 	end else begin
 		// Indicates either overflow or underflow; either way, shouldn't happen
-		`ASSERT(f_buf_level_next <= 4)
+		`ASSERT(f_buf_level_next <= 4);
 		// Latch req_prev high whilst a fetch is stalled
 		f_fetch_req_prev <= w_jump_now || f_fetch_req || stall_cause_ahb_i;
 		f_buf_level <= f_buf_level_next;
@@ -425,7 +427,11 @@ reg [W_DATA-1:0]    mw_result;
 
 regfile_1w2r #(
 	.FAKE_DUALPORT(0),
+`ifdef SIM
 	.RESET_REGS(1),
+`else
+	.RESET_REGS(0),
+`endif
 	.N_REGS(N_REGS),
 	.W_DATA(W_DATA)
 ) inst_regfile_1w2r (
@@ -557,42 +563,44 @@ end
 
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
-	`ASSERT(!(m_stall && flush_d_x)) // bubble insertion logic below is broken otherwise
 	if (!rst_n) begin
 		{xm_jump_target, xm_jump} <= {(W_ADDR + 1){1'b0}};
 		xm_result <= {W_DATA{1'b0}};
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
-	end else if (!m_stall) begin
-		{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
-		xm_result <= x_alu_result;
-		xm_memop <= dx_memop;
-		if (x_stall || flush_d_x) begin
-			// Insert bubble
-			xm_rd <= {W_REGADDR{1'b0}};
-			xm_jump <= 1'b0;
-			xm_memop <= MEMOP_NONE;
-		end else begin
-			case (dx_branchcond)
-				BCOND_ALWAYS: begin
-					xm_jump <= 1'b1;
-					xm_jump_target <= x_taken_jump_target;
-				end
-				BCOND_ZERO: begin
-					// For branches, we are either taking a branch late, or recovering from 
-					// an incorrectly taken branch, depending on sign of branch offset.
-					xm_jump <= x_alu_zero ^ dx_imm[31];
-					xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
-				end
-				BCOND_NZERO: begin
-					xm_jump <= !x_alu_zero ^ dx_imm[31];
-					xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
-				end
-				default: begin
-					xm_jump <= 1'b0;
-					xm_jump_target <= x_rs2_bypass;	// (ab)use this pathway to pass store data
-				end
-			endcase
+	end else begin
+		`ASSERT(!(m_stall && flush_d_x);) // bubble insertion logic below is broken otherwise
+		if (!m_stall) begin
+			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
+			xm_result <= x_alu_result;
+			xm_memop <= dx_memop;
+			if (x_stall || flush_d_x) begin
+				// Insert bubble
+				xm_rd <= {W_REGADDR{1'b0}};
+				xm_jump <= 1'b0;
+				xm_memop <= MEMOP_NONE;
+			end else begin
+				case (dx_branchcond)
+					BCOND_ALWAYS: begin
+						xm_jump <= 1'b1;
+						xm_jump_target <= x_taken_jump_target;
+					end
+					BCOND_ZERO: begin
+						// For branches, we are either taking a branch late, or recovering from 
+						// an incorrectly taken branch, depending on sign of branch offset.
+						xm_jump <= x_alu_zero ^ dx_imm[31];
+						xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
+					end
+					BCOND_NZERO: begin
+						xm_jump <= !x_alu_zero ^ dx_imm[31];
+						xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
+					end
+					default: begin
+						xm_jump <= 1'b0;
+						xm_jump_target <= x_rs2_bypass;	// (ab)use this pathway to pass store data
+					end
+				endcase
+			end
 		end
 	end
 end
@@ -675,13 +683,13 @@ assign ahb_haddr_i = w_jump_now ? w_jump_target & ~32'h3 : w_fetchaddr;
 assign ahb_req_i = f_fetch_req || w_jump_now;
 
 always @ (posedge clk or negedge rst_n) begin
-	`ASSERT(!(w_jump_now && ahb_req_d))
 	if (!rst_n) begin
 		wf_icache_valid <= 1'b0;
 		w_fetchaddr <= RESET_VECTOR;
 		wf_jump_unaligned <= 1'b0;
 		wf_jumped <= 1'b0;
 	end else if (!stall_cause_ahb_i) begin
+		`ASSERT(!(w_jump_now && ahb_req_d);)
 		// Can deassert this safely once ifetch has won arbitration
 		if (ahb_active_dph_i)
 			wf_jump_unaligned <= 1'b0;
