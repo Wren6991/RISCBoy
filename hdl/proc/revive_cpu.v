@@ -21,7 +21,6 @@
 
 module revive_cpu #(
 	parameter RESET_VECTOR = 32'h0000_0000,
-	parameter CACHE_DEPTH = 0,
 	localparam W_ADDR = 32,
 	localparam W_DATA = 32
 ) (
@@ -141,14 +140,9 @@ end
 
 localparam W_FBUF = 64;
 
-wire [W_DATA-1:0] wf_icache_rdata;
-reg               wf_icache_valid;
 reg               wf_jump_unaligned;
 reg               wf_jumped;
 
-wire [W_ADDR-1:0] f_icache_waddr;
-wire [W_DATA-1:0] f_icache_wdata;
-wire              f_icache_wen;
 reg  [W_FBUF-1:0] f_buf;
 reg  [2:0]        f_buf_level;
 reg  [2:0]        f_buf_level_next;
@@ -157,8 +151,7 @@ reg               f_fetch_req;
 reg               f_fetch_req_prev;
 wire              df_instr_is_32bit;
 
-wire f_has_fresh_data = f_fetch_req_prev &&
-	((ahb_active_dph_i && ahblm_hready) || wf_icache_valid);
+wire f_has_fresh_data = f_fetch_req_prev && (ahb_active_dph_i && ahblm_hready);
 
 // Halfwords consumed by D this cycle:
 wire [1:0]        f_instr_loss =
@@ -175,7 +168,7 @@ always @ (*) begin
 	f_fetch_req = f_buf_level_next < 3'h4;
 end
 
-wire [W_DATA-1:0] f_fetch_data = wf_icache_valid ? wf_icache_rdata : ahblm_hrdata;
+wire [W_DATA-1:0] f_fetch_data = ahblm_hrdata;
 
 reg [W_DATA+W_FBUF-1:0] f_data_buf_concat;
 always @ (*) begin
@@ -670,9 +663,6 @@ end
 // Always fetches from consecutive word-aligned addresses.
 // Instruction alignment is handled in the fetch buffer in F
 
-wire [W_ADDR-1:0] w_icache_raddr;
-wire              w_icache_valid;
-
 reg  [W_ADDR-1:0] w_fetchaddr;
 
 assign w_jump_now = xm_jump || (d_jump && !ahb_req_d);
@@ -684,7 +674,6 @@ assign ahb_req_i = f_fetch_req || w_jump_now;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		wf_icache_valid <= 1'b0;
 		w_fetchaddr <= RESET_VECTOR;
 		wf_jump_unaligned <= 1'b0;
 		wf_jumped <= 1'b0;
@@ -694,7 +683,6 @@ always @ (posedge clk or negedge rst_n) begin
 		if (ahb_active_dph_i)
 			wf_jump_unaligned <= 1'b0;
 
-		wf_icache_valid <= w_icache_valid;
 		wf_jumped <= w_jump_now;
 		if (w_jump_now) begin
 			w_fetchaddr <= (w_jump_target & ~32'h3) + 3'h4;
@@ -717,30 +705,6 @@ always @ (posedge clk or negedge rst_n) begin
 		wx_rd <= mw_rd;
 	end
 end
-
-generate
-if (CACHE_DEPTH) begin: cache
-	cache_ro_full_assoc #(
-		.W_DATA(W_DATA),
-		.W_ADDR(W_ADDR),
-		.N_ENTRIES(CACHE_DEPTH)
-	) icache (
-		.clk(clk),
-		.rst_n(rst_n),
-
-		.raddr(w_icache_raddr),
-		.rdata(wf_icache_rdata),
-		.rvalid(w_icache_valid),
-
-		.waddr(f_icache_waddr),
-		.wdata(f_icache_wdata),
-		.wen(f_icache_wen)
-	);
-end else begin: nocache
-	assign w_icache_valid = 1'b0;
-	assign wf_icache_rdata = 32'h0;
-end
-endgenerate
 
 `ifdef FORMAL
 `include "revive_formal.vh"
