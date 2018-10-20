@@ -9,10 +9,12 @@ import re
 help_str = """
 
 Tool for building file lists, into formats required by various tools.
-".f" files contain three types of command:
+".f" files contain four types of command:
 
 file (filename)
     adds a file to the list
+include (dir)
+	add a directory to include path, if output format supports this
 wildcard (.extension) (dir)
     add all files with a given extension in a given directory
 list (filename)
@@ -40,6 +42,7 @@ def wildcard(dir, extension):
 
 def read_filelist(fname):
 	files = []
+	includes = []
 	f = open(fname)
 	prev_dir = os.getcwd()
 	os.chdir(os.path.dirname(os.path.abspath(fname)))
@@ -51,6 +54,9 @@ def read_filelist(fname):
 		if words[0] == "file":
 			assert(len(words) == 2)
 			files.append(os.path.abspath(os.path.expandvars(words[1])))
+		elif words[0] == "include":
+			assert(len(words) == 2)
+			includes.append(os.path.abspath(os.path.expandvars(words[1])))
 		elif words[0] == "wildcard":
 			assert(len(words) == 3)
 			files.extend(wildcard(os.path.expandvars(words[2]), words[1]))
@@ -60,12 +66,12 @@ def read_filelist(fname):
 		else:
 			raise Exception("Invalid command")
 	os.chdir(prev_dir)
-	return files
+	return (files, includes)
 
 formats = {
-	"isim": lambda fl: "verilog work {}\n".format(" ".join(fl)),
-	"flat": lambda fl: " ".join(fl) + "\n",
-	"make": lambda fl: "SRCS={}\n".format(" ".join(fl))
+	"isim": lambda f, i: "verilog work {}\n".format(" ".join(fl)),
+	"flat": lambda f, i: " ".join(f) + "\n",
+	"make": lambda f, i: "SRCS={}\nINCDIRS={}\n".format(" ".join(f), " ".join(i))
 }
 
 if __name__ == "__main__":
@@ -80,12 +86,13 @@ if __name__ == "__main__":
 		args.format = "flat"
 	if args.output is None:
 		args.output = "files"
-	files = read_filelist(args.src)
+	files, includes = read_filelist(args.src)
 	# Uniquify whilst preserving order
-	files = list(dict.fromkeys(files))
+	func = lambda l: list(dict.fromkeys(l))
 	if args.relative:
-		files = [os.path.relpath(f) for f in files]
+		func = lambda l, func=func: [os.path.relpath(f) for f in func(l)]
+	files, includes = map(func, (files, includes))
 	if args.format not in formats:
 		sys.exit("Unknown format: " + arg.format)
 	ofile = open("files" if args.output is None else args.output, "w")
-	ofile.write(formats[args.format](files))
+	ofile.write(formats[args.format](files, includes))
