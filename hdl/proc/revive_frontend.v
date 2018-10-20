@@ -98,7 +98,7 @@ always @ (posedge clk or negedge rst_n) begin
 		fetch_addr <= {W_ADDR{1'b0}}; // TODO: reset vectoring
 	end else begin
 		if (jump_target_vld) begin
-			fetch_addr <= jump_target + 3'h4;
+			fetch_addr <= {jump_target[W_ADDR-1:2], 2'b00} + 3'h4;
 		end else if (mem_addr_vld) begin
 			fetch_addr <= fetch_addr + 3'h4;
 		end
@@ -128,8 +128,24 @@ end
 // Using the non-registered version of pending_fetches would improve FIFO
 // utilisation, but create a combinatorial path from hready to address phase!
 // TODO: for systems with small FIFOs this might be an interesting tradeoff. Parameter?
-wire fetch_stall = fifo_full || fifo_almost_full && pending_fetches || pending_fetches > 2'h1;
+wire fetch_stall = fifo_full
+	|| fifo_almost_full && pending_fetches
+	|| pending_fetches > 2'h1;
 assign mem_addr_vld = jump_target_vld || !fetch_stall;
+
+reg unaligned_jump_reg;
+wire unaligned_jump_comb = jump_target_vld && jump_target[1:0];
+wire unaligned_jump = unaligned_jump_reg || unaligned_jump_comb;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (rst_n) begin
+		unaligned_jump_reg <= 1'b0;
+	end else begin
+		unaligned_jump_reg <= unaligned_jump_reg
+			&& !(mem_data_vld && !pending_flush_ctr)
+			|| unaligned_jump_comb;
+	end
+end
 
 // ----------------------------------------------------------------------------
 // Instruction assembly yard (IMUX)
@@ -140,15 +156,17 @@ reg halfword_buf_vld;
 wire [W_DATA-1:0] fetch_data = fifo_empty ? mem_data : fifo_rdata;
 wire fetch_data_vld = !fifo_empty || (mem_data_vld && !pending_flush_ctr);
 
-// CIR LSBs have 3 sources, on cycles where they change:
+// CIR LSBs have 4 sources, on cycles where they change:
 // - CIR MSBs (instr was 16 bit)
 // - Halfword buffer (instr was 32 bit and hwb valid)
 // - Fetch LSBs (instr was 32 bit and hwb nonvalid)
-// CIR MSBs also have 3:
+// - Fetch MSBs (unaligned jump)
+// CIR MSBs have 3:
 // - Halfword buffer (instr was 16-bit and hwb valid)
 // - Fetch LSBs (16-bit instr and hwb nonvalid, 32-bit and hwb valid)
 // - Fetch MSBs (32-bit instr and hwb nonvalid)
-
+// For unaligned jump/flush, CIR MSBs will always be invalid, so
+// we don't care about its value in this case.
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		cir <= 32'h0;
@@ -156,22 +174,22 @@ always @ (posedge clk or negedge rst_n) begin
 		halfword_buf <= {W_BUNDLE{1'b0}};
 		halfword_buf_vld <= 1'b0;
 	end else begin
-		if (cir_rdy) begin
-			// Update LSBs
-			if (cir_rdy[1] && !halfword_buf_vld)
-				cir[0 +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
-			else if (cir_rdy[1])
-				cir[0 +: W_BUNDLE <= halfword_buf;
-			else
-				cir[0 +: W_BUNDLE] <=  cir[W_BUNDLE +: W_BUNDLE];
-			// Update MSBs
-			if (cir_rdy[1] ~^ halfword_buf_vld)
-				cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
-			else if (cir_rdy[1])
-				cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
-			else
-				cir[W_BUNDLE +: W_BUNDLE] <= halfword_buf;
+		// Update CIR contents
+		if (cir_rdy || jump_target_vld || unaligned_jump_reg) begin
+			case (1'b1)
+				unaligned_jump                  : cir[0 +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
+				cir_rdy[1] && !halfword_buf_vld : cir[0 +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
+				cir_rdy[1]                      : cir[0 +: W_BUNDLE] <= halfword_buf;
+				default                         : cir[0 +: W_BUNDLE] <= cir[W_BUNDLE +: W_BUNDLE];
+			endcase
+			case (1'b1)
+				cir_rdy[1] ~^ halfword_buf_vld  : cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
+				cir_rdy[1]                      : cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
+				default                         : cir[W_BUNDLE +: W_BUNDLE] <= halfword_buf;
+			endcase
 		end
+		// Update CIR flags
+		
 	end
 end
 
