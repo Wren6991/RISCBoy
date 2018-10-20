@@ -1,6 +1,6 @@
 // Minimum gatecount implementation for the three shifts
 
-module shift_rla #(
+module hazard5_shift_rla #(
 	parameter W_DATA = 32,
 	parameter W_SHAMT = 5
 ) (

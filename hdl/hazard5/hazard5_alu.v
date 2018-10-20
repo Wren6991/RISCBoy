@@ -15,14 +15,14 @@
  *                                                                    *
  *********************************************************************/
 
-module revive_alu #(
+module hazard5_alu #(
 	parameter W_DATA = 32
 ) (
-	input  wire [3:0]  aluop,
+	input  wire [3:0]        aluop,
 	input  wire [W_DATA-1:0] op_a,
 	input  wire [W_DATA-1:0] op_b,
 	output reg  [W_DATA-1:0] result,
-	output reg         zero
+	output reg               zero
 );
 
 `include "alu_ops.vh"
@@ -55,7 +55,7 @@ wire [W_DATA-1:0] shift_dout;
 reg shift_right_nleft;
 reg shift_arith;
 
-shift_rla #(
+hazard5_shift_rla #(
 	.W_DATA(W_DATA),
 	.W_SHAMT(5)
 ) shifter (

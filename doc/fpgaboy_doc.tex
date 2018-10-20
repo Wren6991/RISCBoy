@@ -62,7 +62,7 @@ FPGABoy is an open source portable games console, designed from scratch. It is a
 \includegraphics[width=0.7\textwidth]{diagrams/system_arch.pdf}
 \end{figure}
 
-The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and flipflops. The logic was designed in synthesisable Verilog, with no dependencies on FPGA vendor IP (or anything else); the contents of this GitHub repository could be taped out onto a chip. This includes:
+The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and flipflops. The logic was designed in synthesisable Verilog, with no dependencies on FPGA vendor IP; the contents of this GitHub repository could be taped out onto a chip. This includes:
 
 \begin{itemize}
 \item RV32IC-compatible 32-bit CPU design
@@ -133,7 +133,7 @@ This license is also known by its more formal name, as the "Do What The Fuck You
 
 \section{CPU Architecture}
 
-ReVive is a 32-bit processor based on the RISC-V instruction set architecture. It yearns for the glory days of games programming, when NULL pointers were just pointers to the start of ROM, and programmers were real programmers who wrote their \textit{own} polygon rasterisers, dammit. Targeting a small FPGA, ReVive sits mostly in the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass.
+Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. Targeting a small FPGA, Hazard5 sits close to the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass. Such a \textit{RISC} core has many hazards.
 
 Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core; overall, this is a standard RISC-style scalar pipeline. The tall blue boxes represent the registers at the boundary of two pipe stages. The nomenclature used in the diagram is:
 
@@ -162,7 +162,7 @@ If \texttt{F} hits the instruction cache (which has room for 16 compressed instr
 	\begin{sideways}
 		\begin{minipage}{\textheight}
 			\includegraphics[width=\textheight]{diagrams/cpu_full.pdf}
-			\captionof{figure}{ReVive architectural block diagram}
+			\captionof{figure}{Hazard5 architectural block diagram}
 			\label{diagram:cpu_pipeline}
 		\end{minipage}
 	\end{sideways}
@@ -262,7 +262,7 @@ Extreme care is required to avoid this pitfall. This sequence does not occur dur
 
 \subsubsection{Program Counter}
 
-ReVive does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. It is used exclusively for the first fetch cycle of jumps/branches, the link value in \texttt{JAL(R)}, and branch mispredict recovery.
+Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. It is used exclusively for the first fetch cycle of jumps/branches, the link value in \texttt{JAL(R)}, and branch mispredict recovery.
 
 \texttt{W} fetches instruction data from consecutive word-aligned addresses, as described in section \ref{section:jumps}. \texttt{F} has \textit{flow} control, and can inhibit \texttt{W}'s address phase on any given cycle; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, during non-sequential execution, it does require a \texttt{PC} value. Bits [31:2] are used to set the new fetch address, and bit 1 is used to determine whether the first instruction is aligned or unaligned with the fetch. The difference is outlined in section \ref{section:jumps}: essentially, on an unaligned jump, the first 16 bits of the fetch data are ignored, and the hardware scrabbles to put together a valid instruction.
 
@@ -335,7 +335,7 @@ Upon jumping, we need some mechanism to invalidate parts of the pipeline: this i
 
 \subsection{Operand Bypass}
 
-ReVive provides a multiplexed operand bypass (forwarding) network. Register writes by a given instruction must always be visible to later instructions, even \textit{before} the first instruction reaches the register writeback stage. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
+Hazard5 provides a multiplexed operand bypass (forwarding) network. Register writes by a given instruction must always be visible to later instructions, even \textit{before} the first instruction reaches the register writeback stage. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
 
 This removes, or at least shortens, read-after-write data hazards in the pipeline, and allows us to approach one clock-per-instruction execution rates. Without bypassing, only one instruction could be present in $\left\{ \texttt{D}, \texttt{X}, \texttt{M}, \texttt{W} \right\}$ at a time, giving a CPI of 4.
 
@@ -416,7 +416,7 @@ Alignment is the constraint that the address of a memory access be equal to zero
 
 The RISC-V base ISA sizes instructions in 32-bit parcels, which must be 32-bit aligned; the compressed instruction extension relaxes this constraint to 16 and 16 bits. Data accesses range in size from single bytes to the machine word size, with no alignment requirements.
 
-ReVive uses AHB-lite for its bus interface. AHB-lite requires alignment of all accesses; this simplifies AHB-lite compatible hardware. The drawback for us is that, when programmers request a single unaligned access, the ReVive hardware must carry this out as multiple aligned accesses of smaller size. To avoid adding additional complexity to the CPU state machine, we handle this problem in two parts:
+Hazard5 uses AHB-lite for its bus interface. AHB-lite requires alignment of all accesses; this simplifies AHB-lite compatible hardware. The drawback for us is that, when programmers request a single unaligned access, the Hazard5 hardware must carry this out as multiple aligned accesses of smaller size. To avoid adding additional complexity to the CPU state machine, we handle this problem in two parts:
 
 \begin{itemize}
 	\item The CPU proceeds with an unaligned AHB transfer, blissfully unaware of the alignment requirements. This is already significantly complex.
@@ -439,7 +439,7 @@ We are able to simplify the CPU operation by reusing the existing AHB stall logi
 
 \subsection{Interrupts}
 
-ReVive has a single interrupt, implemented using the early jump hardware (\texttt{D}-triggered jumps). Upon raising of the interrrupt flag, the processor will abruptly jump to a predefined location (current plan is just to have this as a module parameter -- TODO). No state is saved on interrupt entry, except for the link register and the \texttt{PC}; the link register is overwritten with a magic value of \texttt{0xffffffff}, and a \texttt{jalr} to this address (most likely a \texttt{ret}) will trigger a jump back to the saved \texttt{PC}, and restoration of the stashed link register. This return is handled by the mispredict recovery hardware: \texttt{M} will see the magic jump value, initiating a jump to \texttt{PC} and swapping the stashed link register into the pipeline result register (making it visible to the bypass network).
+Hazard5 has a single interrupt, implemented using the early jump hardware (\texttt{D}-triggered jumps). Upon raising of the interrrupt flag, the processor will abruptly jump to a predefined location (current plan is just to have this as a module parameter -- TODO). No state is saved on interrupt entry, except for the link register and the \texttt{PC}; the link register is overwritten with a magic value of \texttt{0xffffffff}, and a \texttt{jalr} to this address (most likely a \texttt{ret}) will trigger a jump back to the saved \texttt{PC}, and restoration of the stashed link register. This return is handled by the mispredict recovery hardware: \texttt{M} will see the magic jump value, initiating a jump to \texttt{PC} and swapping the stashed link register into the pipeline result register (making it visible to the bypass network).
 
 It's up to the ISR to save any registers it uses. This may be a simple shell handler which saves the registers (caller- and callee-saved!) before dispatching out to a C function for each interrupt source. However, \textit{extremely} fast ISRs (2 cycle entry, 4 cycle exit) can be written by saving only those registers actually used.
 

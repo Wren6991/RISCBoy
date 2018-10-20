@@ -15,11 +15,11 @@
  *                                                                    *
  *********************************************************************/
 
-// ReVive CPU core
+// Hazard5 CPU core
 // See the documentation
 // Don't worry if you don't understand it -- I don't either
 
-module revive_cpu #(
+module hazard5_cpu #(
 	parameter RESET_VECTOR = 32'h0000_0000,
 	localparam W_ADDR = 32,
 	localparam W_DATA = 32
@@ -418,7 +418,7 @@ end
 reg [W_REGADDR-1:0] mw_rd;
 reg [W_DATA-1:0]    mw_result;
 
-regfile_1w2r #(
+hazard5_regfile_1w2r #(
 	.FAKE_DUALPORT(0),
 `ifdef SIM
 	.RESET_REGS(1),
@@ -443,7 +443,7 @@ regfile_1w2r #(
 );
 
 
-revive_instr_decompress #(
+hazard5_instr_decompress #(
 	.PASSTHROUGH(0)
 ) decomp (
 	.instr_in(f_buf[31:0]),
@@ -598,7 +598,7 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-revive_alu alu (
+hazard5_alu alu (
 	.aluop  (dx_aluop),
 	.op_a   (x_op_a),
 	.op_b   (x_op_b),
@@ -707,7 +707,7 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 `ifdef FORMAL
-`include "revive_formal.vh"
+`include "hazard5_formal.vh"
 `endif
 
 endmodule

@@ -1,4 +1,4 @@
-module revive_instr_decompress #(
+module hazard5_instr_decompress #(
 	parameter PASSTHROUGH = 0
 ) (
 	input wire [31:0] instr_in,
