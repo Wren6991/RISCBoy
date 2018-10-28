@@ -32,8 +32,8 @@ module hazard5_frontend #(
 	// => decode is providing live feedback on the CIR it is decoding,
 	//    which we fetched previously
 	output reg  [31:0]       cir,
-	output reg  [1:0]        cir_vld, // this is a mask, not a count
-	input wire  [1:0]        cir_rdy  // likewise
+	output reg  [1:0]        cir_vld, // number of halfwords
+	input wire  [1:0]        cir_req  // number of halfwords
 );
 
 
@@ -99,23 +99,23 @@ assign fifo_rdata = fifo_mem[fifo_rptr];
 
 reg        mem_addr_hold;
 reg  [1:0] pending_fetches;
-reg  [1:0] pending_flush_ctr;
+reg  [1:0] ctr_flush_pending;
 wire [1:0] pending_fetches_next = pending_fetches + (mem_addr_vld && mem_addr_rdy) - mem_data_vld;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mem_addr_hold <= 1'b0;
 		pending_fetches <= 2'h0;
-		pending_flush_ctr <= 2'h0;
+		ctr_flush_pending <= 2'h0;
 	end else begin
-		`ASSERT(pending_flush_ctr <= pending_fetches);
+		`ASSERT(ctr_flush_pending <= pending_fetches);
 		mem_addr_hold <= mem_addr_vld && !mem_addr_rdy;
 		pending_fetches <= pending_fetches_next;
-		if (jump_target_vld) begin
+		if (jump_target_vld && jump_target_rdy) begin
 			// If the jump request goes straight to the bus, exclude from flush count
-			pending_flush_ctr <= pending_fetches_next - !mem_addr_hold;
-		end else if (pending_flush_ctr && mem_data_vld) begin
-			pending_flush_ctr <= pending_flush_ctr - 1'b1;
+			ctr_flush_pending <= pending_fetches_next - !mem_addr_hold;
+		end else if (ctr_flush_pending && mem_data_vld) begin
+			ctr_flush_pending <= ctr_flush_pending - 1'b1;
 		end
 	end
 end
@@ -140,7 +140,6 @@ end
 wire fetch_stall = fifo_full
 	|| fifo_almost_full && pending_fetches
 	|| pending_fetches > 2'h1;
-assign mem_addr_vld = jump_target_vld || !fetch_stall;
 
 reg unaligned_jump_reg;
 wire unaligned_jump_comb = jump_target_vld && jump_target[1:0];
@@ -151,7 +150,7 @@ always @ (posedge clk or negedge rst_n) begin
 		unaligned_jump_reg <= 1'b0;
 	end else begin
 		unaligned_jump_reg <= unaligned_jump_reg
-			&& !(mem_data_vld && !pending_flush_ctr)
+			&& !(mem_data_vld && !ctr_flush_pending)
 			|| unaligned_jump_comb;
 	end
 end
@@ -161,11 +160,12 @@ end
 always @ (*) begin
 	mem_addr = {W_ADDR{1'b0}};
 	mem_addr_vld = 1'b1;
+	mem_size = 1'b1; // almost all accesses are 32 bit
 	case (1'b1)
-		mem_addr_hold       : begin mem_addr = fetch_addr; end
-		jump_target_vld     : begin mem_addr = jump_target; end
-		jump_target_buf_vld : begin mem_addr = jump_target_buf; end
-		default             : begin mem_addr_vld = 1'b0; end
+		mem_addr_hold   : begin mem_addr = {fetch_addr[W_ADDR-1:2], unaligned_jump, 1'b0}; mem_size = !unaligned_jump; end
+		jump_target_vld : begin mem_addr = jump_target; mem_size = !unaligned_jump; mem_size = !unaligned_jump; end
+		!fetch_stall    : begin mem_addr = fetch_addr; end
+		default         : begin mem_addr_vld = 1'b0; end
 	endcase
 end
 
@@ -176,7 +176,7 @@ reg [W_BUNDLE-1:0] halfword_buf;
 reg halfword_buf_vld;
 
 wire [W_DATA-1:0] fetch_data = fifo_empty ? mem_data : fifo_rdata;
-wire fetch_data_vld = !fifo_empty || (mem_data_vld && !pending_flush_ctr);
+wire fetch_data_vld = !fifo_empty || (mem_data_vld && !ctr_flush_pending);
 
 // CIR LSBs have 4 sources, on cycles where they change:
 // - CIR MSBs (instr was 16 bit)
