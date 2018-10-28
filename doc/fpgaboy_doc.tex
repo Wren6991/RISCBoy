@@ -42,7 +42,7 @@
 FPGABoy is an open source portable games console, designed from scratch. It is also...
 \begin{itemize}
 \item An open source PCB layout
-\item Designed with KiCAD open source PCB editor
+\item Designed with KiCAD open source PCB software
 \item An open source CPU, graphics and bus architecture
 \item Based on the RISC-V open source instruction set
 \item Synthesised, placed and routed with iCEStorm open source FPGA toolchain
@@ -133,9 +133,9 @@ This license is also known by its more formal name, as the "Do What The Fuck You
 
 \section{CPU Architecture}
 
-Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. Targeting a small FPGA, Hazard5 sits close to the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass. Such a \textit{RISC} core has many hazards.
+Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. Targeting a small FPGA, Hazard5 sits close to the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass.
 
-Figure \ref{diagram:cpu_pipeline} shows a simplified block diagram of the core; overall, this is a standard RISC-style scalar pipeline. The tall blue boxes represent the registers at the boundary of two pipe stages. The nomenclature used in the diagram is:
+People familiar with the textbook 5-stage RISC pipeline will find Hazard5 mostly straightforward. We will use the following symbols to refer to the 5 stages:
 
 \begin{itemize}
 \item \texttt{F}: fetch
@@ -152,121 +152,46 @@ Branches are speculated, according to the static prediction scheme described in 
 \item Forward branches predicted not taken; the ISA manual advises compilers should put more-likely code on this path.
 \end{itemize}
 
-The processor has one AHB-lite busmaster, arbitrating internally between instruction fetch and data load/store. The stall and fetch logic inside the processor needs to be carefully arranged, to avoid any combinatorial paths from e.g. \texttt{hready} to \texttt{htrans}; besides the timing issues caused by forcing data-phase and address-phase logic into the same clock cycle, this can cause combinatorial loops with poorly-designed slaves and busfabric.
+The processor has one AHB-lite busmaster, shared by instruction fetch and data load/store. Processor internals must have no combinational paths from the AHBL data phase to address phase; \texttt{hready} requires the most care, as it interfaces directly to the processor's stall logic. Putting the logic and routing for the two phases in series bloats timing, and may create a combinatorial loop if the slave or busfabric is also poorly designed.
 
-If \texttt{F} hits the instruction cache (which has room for 16 compressed instructions, 8 words), no AHB request is issued. The ideal use case for \texttt{ICACHE} is a function like \texttt{memcpy}: the inner loop executes from cache only, leaving the busmaster free for loads and stores. The small size allows it to fit into the pipeline in an interesting place, without imbalance.
 
-\newpage
+% \newpage
 
-\begin{center}
-	\begin{sideways}
-		\begin{minipage}{\textheight}
-			\includegraphics[width=\textheight]{diagrams/cpu_full.pdf}
-			\captionof{figure}{Hazard5 architectural block diagram}
-			\label{diagram:cpu_pipeline}
-		\end{minipage}
-	\end{sideways}
-\end{center}
+% \begin{center}
+% 	\begin{sideways}
+% 		\begin{minipage}{\textheight}
+% 			\includegraphics[width=\textheight]{diagrams/cpu_full.pdf}
+% 			\captionof{figure}{Hazard5 architectural block diagram}
+% 			\label{diagram:cpu_pipeline}
+% 		\end{minipage}
+% 	\end{sideways}
+% \end{center}
 
-\newpage
+% \newpage
 
-\subsection{Fetch Logic}
+\subsection{Front End}
 
-In the absence of loads/stores or AHB stalls, \texttt{F} provides \texttt{D} with 32 bits of fresh instruction data, on every clock cycle. It assembles this from four sources:
-
-\begin{itemize}
-\item AHB busmaster with access to system memory map
-\item \texttt{ICACHE}. A tiny, fully-associative cache with random eviction
-\item An \texttt{F}-local buffer containing up to 32 bits of fetched, unused instruction data
-\item The second halfword of the current instruction register of \texttt{D}, in the case that \texttt{D} found the last instruction to be 16-bit
-\end{itemize}
-
-The pipeline register \texttt{F} writes to, containing the 32 fresh instruction bits, is referred to internally as current instruction register or \texttt{CIR}.
-
-AHB instructions fetches are \textit{always} word-sized, word-aligned. Internal buffering and muxes take care of building unaligned instruction bundles from this aligned data stream.
-
-\subsubsection{The Fetch Buffer}
-\label{section:fetch_buffer}
-
-Upon request, \texttt{F} can receive 32 bits of instruction data in a given cycle, via AHB or ICACHE. This request has a one-cycle latency. In the same cycle, \texttt{F} will consume 16 or 32 bits to refill \texttt{CIR}, based on the size of the instruction currently being decoded (which can quickly be ascertained by inspecting the two least-significant bits).
-
-The combination of request latency, and sometimes receiving more data than we need, suggests a need for buffering in the fetch stage. But how much? And what is the optimal rule for deciding whether to make a fetch request? Looking at the information we have to hand in a given cycle:
+The front end consists of stage \texttt{F} and part of stage \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
 
 \begin{itemize}
-	\item $b_n$, the current buffer level in halfwords
-	\item $i_n$, the size of the instruction currently being decoded
-	\item $f_{n-1}$, whether we made a fetch request on the previous cycle
+	\item No combinational path from AHB-lite data-phase to address-phase (e.g. \texttt{hready} $\to$ \texttt{htrans})
+	\item AHB-lite compliant: no unaligned transfers, no deassertion or change of active requests
+	\item Provide up to 32 bits of instruction data per clock in steady state, even if instructions are unaligned
+	\item 0-cycle jump/flush to AHB address phase assertion (with minimal logic on this path)
+	\item No performance penalty for unaligned jump to 16-bit instruction; ex
+	\item Attempt to maintain performance when competing with the load/store unit and AHBL busmaster peers, without relying on caches
 \end{itemize}
 
-we can come up with the following update rule for the buffer level on the next cycle:
+A RISC-V instruction stream is not naturally aligned, by which we mean instruction address modulo instruction size is not always zero. The front end spends buffering and logic on the common case of sequential execution.
 
-\[ b_{n+1} = b_n - i_n + 2f_{n-1} \]
-
-And our task is to choose $f_n$ such that $b_n$ stays between 0 and the smallest possible positive integer. We can clearly rule out 0 as a possiblity for the buffer size, and can also rule out 1, since a fetch is required if $b_{n+1} = 1$ to avoid underflow if the next instruction is 32-bit, and this fetch will cause overflow if the next instruction is 16-bit.
-
-However, 2 halfwords works, if we apply the rule that we request a fetch on cycle $n$ if $b_{n+1} < 2$: if $b_{n+1} = 2$,  $b_{n+2}$ would then be 0 or 1, and any other value for $b_{n+1}$ could not cause overflow since buffer level cannot increase by more than 1 per cycle. Since 2 is a lower bound, it is the optimal size for the buffer, and this rule is also optimal.
-
-At start of day, we initialise the \texttt{CIR} and the fetch buffer with a 32-bit \texttt{nop} each, the buffer level to 2, and $f_{n-1}$ to zero (since there \textit{was} no previous cycle to fetch on!). According to our rule, \texttt{F} will request a fetch on the first cycle (which will be from the reset vector), kicking off an AHB address phase; \texttt{D} will decode a \texttt{nop} on this cycle, the \texttt{CIR} will be refilled with the \texttt{nop} from the buffer, and the buffer level will go to zero. On the next cycle, \texttt{D} will decode the second \texttt{nop}, and \texttt{CIR} will be refilled again, this time with the instruction data from AHB. The buffer level will remain at 0. We have reached our execution steady state, from reset, without having any special purpose logic to handle reset. We have just chosen our flipflop reset values carefully.
-
-There is one extra case where we may expect to need more than two halfwords of buffering: what happens if an AHB dataphase completes whilst \texttt{D} is stalled? We would have a surplus of data, and would either have to drop some fetch data and restart that fetch (at a cost of 2 cycles), or would require up to an extra word of buffering. The resolution is to examine the cases where \texttt{D} is actually stalled: either this is due to a low \texttt{hready} -- in which case \textit{by definition} this is not the last cycle of a data phase -- or we are stalled on a RAW hazard between \texttt{X} and \texttt{M}. This will only happen if the instruction in \texttt{M} is a load. On the previous cycle, this load was in \texttt{X}, where it would have won arbitration over the code fetch address phase -- hence, there cannot be data arriving in \texttt{F} on the current cycle, and no extra buffering is required.
-
-\subsubsection{Sequential Code}
-
-In sequential code, the \texttt{ICACHE} will be queried every cycle (unless the fetch buffer is full), during \texttt{W}, as to whether it has the next aligned word. We are able to guarantee that all AHB and \texttt{ICACHE} accesses are word aligned due to the operation of the fetch buffer in \texttt{F}.
-
-The query response is combinatorial, and is used to decide whether to assert an AHB access during the address phase. Successful queries will result in cached read data appearing on the next clock edge, for use by \texttt{F}.
-
-\texttt{F} is concurrent with the AHB data phase, except for a small muxing layer at the end which assembles the instruction word from AHB data, buffered data and cached data.
-
-Following an unsuccessful \texttt{ICACHE} query, \texttt{F} will write the AHB data into the cache, evicting one word of its present contents. \textit{The same address must not appear more than once in the cache}, as the query logic is based on a non-priority sum of product encoder.
-
-
-\subsubsection{Jumps}
-\label{section:jumps}
-
-When jumping or taking a branch, \texttt{F} invalidates its fetch buffer, and ignores present \texttt{CIR} contents. Aligned jumps are otherwise no different from sequential code: \texttt{ICACHE} is queried with the jump address, and AHB supplies the data if \texttt{ICACHE} does not have it.
-
-Unaligned jumps (i.e., halfword-aligned but not word-aligned) are more painful, as we may need to perform two accesses to fetch the required data:
-
-\begin{enumerate}
-	\item \texttt{W} queries the cache with the address of the word containing the first instruction halfword
-	\begin{itemize}
-		\item If we hit \texttt{ICACHE}, we issue an AHB read to fetch the \textit{second} word in parallel with reading out from the cache
-		\item If we miss, we issue an AHB read to fetch the first word from system memory.
-	\end{itemize}
-	\item On the next cycle, we have either 32 or 64 bits of fetch data available to \texttt{F}, depending on cache hit/miss
-	\begin{itemize}
-		\item The first halfword is useless
-		\item If we have only 32 bits, then we put the second halfword into \texttt{CIR}, and assert a flag to inform \texttt{D} that only this halfword is valid
-		\item If we have 64 bits, we forward the middle two halfwords to \texttt{CIR}, and stash the final halfword in the fetch buffer. Normal execution resumes.
-	\end{itemize}
-	\item If \texttt{CIR} was half-valid:
-		\begin{itemize}
-			\item \texttt{D} reports instruction was 16-bit: we got away with it.
-			\item \texttt{D} reports 32-bit instruction: \texttt{D} stalls, \texttt{F} sends a full \texttt{CIR} based on new fetch data from this cycle.
-		\end{itemize}
-\end{enumerate}
-
-\subsubsection{ICACHE Writeback}
-
-The encoder logic used in the cache lookup does not give correct output if a tag appears multiple times in the cache (however, it is smaller/faster as a result). There is a behaviour pattern that could put \texttt{ICACHE} into an invalid state if we fetched from the same address on consecutive cycles:
-
-\begin{enumerate}
-	\item Miss on first cycle; \texttt{W} performs an AHB address phase.
-	\item Writeback data not visible until end of this cycle; \texttt{W} performs duplicate AHB address phase.
-	\item One copy of data has been written to \texttt{ICACHE}; another write is in progress. \texttt{W} hits \texttt{ICACHE} on this cycle, so no AHB address phase.
-	\item The second write has put \texttt{ICACHE} into an invalid state; fetch behaviour is undefined from this point.
-\end{enumerate}
-
-Extreme care is required to avoid this pitfall. This sequence does not occur during normal execution: sequential code fetches are to incrementing addresses, and jumps (including jump-to-self) have a penalty cycle, which prevents the double-write behaviour. However, stalls must be treated carefully.
 
 \subsubsection{Program Counter}
 
-Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. It is used exclusively for the first fetch cycle of jumps/branches, the link value in \texttt{JAL(R)}, and branch mispredict recovery.
+Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. \texttt{PC} is used exclusively for the link value in \texttt{JAL(R)}, mispredict recovery, and therefore lives in \texttt{D}.
 
 \texttt{W} fetches instruction data from consecutive word-aligned addresses, as described in section \ref{section:jumps}. \texttt{F} has \textit{flow} control, and can inhibit \texttt{W}'s address phase on any given cycle; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, during non-sequential execution, it does require a \texttt{PC} value. Bits [31:2] are used to set the new fetch address, and bit 1 is used to determine whether the first instruction is aligned or unaligned with the fetch. The difference is outlined in section \ref{section:jumps}: essentially, on an unaligned jump, the first 16 bits of the fetch data are ignored, and the hardware scrabbles to put together a valid instruction.
 
-The true \texttt{PC} lives in \texttt{D}, where it is incremented by 2 or 4 each cycle, depending on the size of the instruction currently in the \texttt{CIR}. The current values of \texttt{PC} and \texttt{PC\_next} both travel into the \texttt{D/X} pipe register, where they are used for relative jump target calculation, and mispredict recovery (later down the pipe, in \texttt{M}), respectively. It may be surprising that we need both of these values, rather than just looking one stage back in the pipeline to get the "next" value. We need to buffer both values because \texttt{D}'s \texttt{PC} is clobbered when we take a branch, so we can not use it for mispredict recovery.
+The current values of \texttt{PC} and \texttt{PC\_next} both travel on into the \texttt{D/X} pipe register, where they are used for relative jump target calculation (\texttt{X}), and mispredict recovery (later, in \texttt{M}), respectively. It may be surprising that M needs a copy of \texttt{PC\_next} in \texttt{X/M}, rather than just looking backward to \texttt{PC} in \texttt{D/X}. The motivating case is a falsely-nontaken branch followed immediately by a jump: the jump occurs whilst the mispredictee is in \texttt{X}, and one cycle later, the mispredictee in \texttt{M} would see the jump target in the \texttt{
 
 \subsubsection{Load/Store, Fetch Arbitration}
 
@@ -414,32 +339,11 @@ And the flushing mechanisms for each stage are as follows:
 
 Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to \textit{natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
 
-The RISC-V base ISA sizes instructions in 32-bit parcels, which must be 32-bit aligned; the compressed instruction extension relaxes this constraint to 16 and 16 bits. Data accesses range in size from single bytes to the machine word size, with no alignment requirements.
-
-Hazard5 uses AHB-lite for its bus interface. AHB-lite requires alignment of all accesses; this simplifies AHB-lite compatible hardware. The drawback for us is that, when programmers request a single unaligned access, the Hazard5 hardware must carry this out as multiple aligned accesses of smaller size. To avoid adding additional complexity to the CPU state machine, we handle this problem in two parts:
-
-\begin{itemize}
-	\item The CPU proceeds with an unaligned AHB transfer, blissfully unaware of the alignment requirements. This is already significantly complex.
-	\item An additional busfabric component -- the \textit{aligner} -- sits between the CPU master port and the busfabric crossbar
-	\begin{itemize}
-		\item Single unaligned accesses by the aligner's master trigger multiple aligned accesses to its slave
-		\item The aligner stalls its master using \texttt{HREADYOUT} during until the last bus cycle, whereupon it passes through the slave's \texttt{HREADYOUT}
-		\item A shift register inside the aligner collates the results of multiple reads, or provides data for multiple writes
-	\end{itemize}
-\end{itemize}
-
-We are able to simplify the CPU operation by reusing the existing AHB stall logic, although we may lose some speed by outsourcing the alignment logic. It's expected that this component will live inside a top-level CPU wrapper.
-
-\begin{figure}[!htb]
-\centering
-\label{diagram:unaligned_accesses}
-\caption{Aligner busfabric component}
-\includegraphics[width=0.4\textwidth]{diagrams/unaligned_accesses.pdf}
-\end{figure}
+RV-C instruction streams are not naturally aligned. We spend extra buffering and logic on optimising the common case of sequential execution, which allows full instruction throughput for every case except unaligned jumps to 32-bit instructions. For load/stores there aren't any such easily-optimised patterns, and we could add considerable complexity adding unaligned access hardware, while still incurring heavy penalties relative to aligned accesses. As a result, we don't support unaligned load/stores in hardware, but rather via trap to a software routine.
 
 \subsection{Interrupts}
 
-Hazard5 has a single interrupt, implemented using the early jump hardware (\texttt{D}-triggered jumps). Upon raising of the interrrupt flag, the processor will abruptly jump to a predefined location (current plan is just to have this as a module parameter -- TODO). No state is saved on interrupt entry, except for the link register and the \texttt{PC}; the link register is overwritten with a magic value of \texttt{0xffffffff}, and a \texttt{jalr} to this address (most likely a \texttt{ret}) will trigger a jump back to the saved \texttt{PC}, and restoration of the stashed link register. This return is handled by the mispredict recovery hardware: \texttt{M} will see the magic jump value, initiating a jump to \texttt{PC} and swapping the stashed link register into the pipeline result register (making it visible to the bypass network).
+Hazard5 has vectored interrupts, implemented using the early jump hardware (\texttt{D}-triggered jumps). Upon raising of the interrrupt flag, the processor will abruptly jump to a predefined location (current plan is just to have this as a module parameter -- TODO). No state is saved on interrupt entry, except for the link register and the \texttt{PC}; the link register is overwritten with a magic value of \texttt{0xffffffff}, and a \texttt{jalr} to this address (most likely a \texttt{ret}) will trigger a jump back to the saved \texttt{PC}, and restoration of the stashed link register. This return is handled by the mispredict recovery hardware: \texttt{M} will see the magic jump value, initiating a jump to \texttt{PC} and swapping the stashed link register into the pipeline result register (making it visible to the bypass network).
 
 It's up to the ISR to save any registers it uses. This may be a simple shell handler which saves the registers (caller- and callee-saved!) before dispatching out to a C function for each interrupt source. However, \textit{extremely} fast ISRs (2 cycle entry, 4 cycle exit) can be written by saving only those registers actually used.
 
@@ -469,7 +373,7 @@ Bus fabric is digital plumbing. A master, such as a processor, requests a read o
 
 Figure \ref{diagram:crossbar_structure} shows the structure of the AHB-lite crossbar (\texttt{ahbl\_crossbar.v}). The crossbar is shown in context in figure \ref{diagram:system_arch}. An independent AHB-lite datapath connects each of $m$ masters to each of $n$ slaves. One master can address one slave at a time, and one slave can be in data-phase with one master at a time; subject to these constraints, up to $\min(m,n)$ independent transfers can take place in a single machine clock cycle.
 
-Some claim AHB-lite does not "support" multi-master arbitration. These people lack imagination: motorbikes do not "support" wheelies by design, but are excellent at it.
+Some claim AHB-lite does not "support" multi-master arbitration. Their problem is a lack of enthusiasm: motorbikes do not "support" wheelies by design, but are excellent at it.
 
 \begin{figure}[!htb]
 \centering
