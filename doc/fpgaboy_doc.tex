@@ -133,9 +133,7 @@ This license is also known by its more formal name, as the "Do What The Fuck You
 
 \section{CPU Architecture}
 
-Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. Targeting a small FPGA, Hazard5 sits close to the embedded design space -- RV32IC is an austere instruction set. It does make some concessions to performance, such as a 5-stage pipeline with full bypass.
-
-People familiar with the textbook 5-stage RISC pipeline will find Hazard5 mostly straightforward. We will use the following symbols to refer to the 5 stages:
+Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. Those familiar with the textbook 5-stage RISC pipeline will find Hazard5 mostly straightforward, but hopefully will still find some interesting tricks. We will use the following symbols to refer to the 5 stages:
 
 \begin{itemize}
 \item \texttt{F}: fetch
@@ -171,45 +169,74 @@ The processor has one AHB-lite busmaster, shared by instruction fetch and data l
 
 \subsection{Front End}
 
-The front end consists of stage \texttt{F} and part of stage \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
+The front end consists of stage \texttt{F} and an additional stage which performs the AHB address phase, and can be considered part of \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
 
 \begin{itemize}
 	\item No combinational path from AHB-lite data-phase to address-phase (e.g. \texttt{hready} $\to$ \texttt{htrans})
 	\item AHB-lite compliant: no unaligned transfers, no deassertion or change of active requests
 	\item Provide up to 32 bits of instruction data per clock in steady state, even if instructions are unaligned
 	\item 0-cycle jump/flush to AHB address phase assertion (with minimal logic on this path)
-	\item No performance penalty for unaligned jump to 16-bit instruction; ex
-	\item Attempt to maintain performance when competing with the load/store unit and AHBL busmaster peers, without relying on caches
+	\item No performance penalty for unaligned jump to 16-bit instruction
+	\item Attempt to maintain performance when competing with the load/store unit and AHB-lite busmaster peers
 \end{itemize}
 
-A RISC-V instruction stream is not naturally aligned, by which we mean instruction address modulo instruction size is not always zero. The front end spends buffering and logic on the common case of sequential execution.
+A RISC-V *C instruction stream is not naturally-aligned, by which we mean instruction address modulo instruction size is not always zero. This complicates the front end considerably, and we spend gates here to optimise the common case of sequential execution, and to lessen the effects of fetch starvation due to load-store activity.
 
+To meet these constraints, the frontend performs almost exclusively word accesses, which must be aligned. The only exception is a jump (or similar, e.g. mispredict recovery) to a non-word-aligned address. In this case, a halfword fetch from the target address is performed.
+
+\subsubsection{Prefetch Queue}
+
+The frontend queues up fresh instruction data which is waiting to be decoded. The pipelined nature of AHB-lite means that the bus transfers run ahead of \texttt{D} by at least two clocks, and the prefetch queue is able to buffer these in-flight transfers if \texttt{D} stalls against a later pipe stage. The queue also decouples \texttt{D}'s stall logic (which is a function of \texttt{hready}) from the address phase request, and finally, the queue helps keep \texttt{D} supplied with instructions while the busmaster is busy with load/stores from \texttt{X}.
+
+There are three parts to the queue:
+
+\begin{itemize}
+	\item A 32-bit FIFO. The depth is configurable, and can be as little as 1 word.
+	\item A halfword buffer which may store the higher-addressed half of a recently-popped FIFO word
+	\item The upper half of the current instruction register (\texttt{CIR}), if the previous instruction was 32-bit
+\end{itemize}
+
+These three sources should service the majority of instruction fetches, and fresh bus data is written only to the FIFO. However, in the case of jumps, flushes, and other fetch starvation, bus data can be forwarded directly to \texttt{CIR}.
 
 \subsubsection{Program Counter}
 
-Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. \texttt{PC} is used exclusively for the link value in \texttt{JAL(R)}, mispredict recovery, and therefore lives in \texttt{D}.
+Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. \texttt{PC} is used exclusively for the link value in \texttt{JAL(R)}, mispredict recovery, and PC-relative addressing; it is physically located in \texttt{D}.
 
-\texttt{W} fetches instruction data from consecutive word-aligned addresses, as described in section \ref{section:jumps}. \texttt{F} has \textit{flow} control, and can inhibit \texttt{W}'s address phase on any given cycle; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, during non-sequential execution, it does require a \texttt{PC} value. Bits [31:2] are used to set the new fetch address, and bit 1 is used to determine whether the first instruction is aligned or unaligned with the fetch. The difference is outlined in section \ref{section:jumps}: essentially, on an unaligned jump, the first 16 bits of the fetch data are ignored, and the hardware scrabbles to put together a valid instruction.
+\texttt{W} fetches instruction data from consecutive word-aligned addresses, paced by backpressure from the instruction FIFO; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, as a special case, \texttt{W} \textit{does} need the full jump target address (which becomes the new \texttt{PC}), as unaligned jumps require special attention.
 
-The current values of \texttt{PC} and \texttt{PC\_next} both travel on into the \texttt{D/X} pipe register, where they are used for relative jump target calculation (\texttt{X}), and mispredict recovery (later, in \texttt{M}), respectively. It may be surprising that M needs a copy of \texttt{PC\_next} in \texttt{X/M}, rather than just looking backward to \texttt{PC} in \texttt{D/X}. The motivating case is a falsely-nontaken branch followed immediately by a jump: the jump occurs whilst the mispredictee is in \texttt{X}, and one cycle later, the mispredictee in \texttt{M} would see the jump target in the \texttt{
+The current values of \texttt{PC} and \texttt{PC\_next} both travel on into the \texttt{D/X} pipe register, where they are used for relative jump target calculation (\texttt{X}), and mispredict recovery (later, in \texttt{M}), respectively. It may be surprising that M needs a copy of \texttt{PC\_next} in \texttt{X/M}, rather than just looking backward to \texttt{PC} in \texttt{D/X}. The motivating case is a falsely-nontaken branch followed immediately by a jump: the jump occurs whilst the mispredictee is in \texttt{X}, and one cycle later, the mispredictee in \texttt{M} would see the jump target in the
 
-\subsubsection{Load/Store, Fetch Arbitration}
+\subsubsection{Arbitration of Fetch and Load/Store}
+\label{section:fetch_ls_arb}
 
-The single AHB master port asserts transactions from two sources: the fetch unit, whose address phase is in \texttt{W}, and the load/store unit, whose address phase is in \texttt{X}. The arbitration rule is that load/store wins over fetch, \textit{unless} a jump is triggered by \texttt{M}, in which case fetch wins. (This includes mispredict recoveries).
+The single AHB master port asserts transactions from two sources: the frontend, whose address phase is in \texttt{W}, and the load/store unit, whose address phase is in \texttt{X}. Frontend requests may be linear or non-linear (e.g jumps). The rules are:
 
-The rationale for the main rule is that arbitrating either way can cause a bubble to appear in the pipeline, either after \texttt{F} or after \texttt{X}. However:
+\begin{enumerate}
+	\item If a jump/exception is asserted by \texttt{D}, or a jump/branch/mispredict recovery by \texttt{M}, this wins.
+	\begin{itemize}
+		\item The jump will always insert a fetch bubble due to the pipelined nature of AHB-lite
+		\item A stalled load/store in \texttt{X} will then execute in this bubble
+		\item This saves a cycle
+	\end{itemize}
+	\item Otherwise, if a load/store is asserted by \texttt{X}, this wins.
+	\begin{itemize}
+		\item Stalling instruction fetch \textit{may} be covered by the prefetch queue, in which case we've lost nothing
+		\item Stalling a load/store will always increase execution time
+		\item If instead \texttt{X} stalled, and instruction fetch ran ahead, what would we do with the fetched instructions?
+	\end{itemize}
+	\item Otherwise, perform any other access requested by the frontend.
+	\begin{itemize}
+		\item Always Be Fetching
+	\end{itemize}
+\end{enumerate}
 
-\begin{itemize}
-	\item \texttt{F} may still be able to cover the next fetch cycle with its buffer contents, in which case we don't lose any cycles
-	\item Stalling \texttt{X} on AHB contention also stalls previous stages, including \texttt{F}; \texttt{F} needs to buffer the AHB transaction which will occur during this stall.
-\end{itemize}
+\subsubsection{Instruction Barrier (FENCE.I)}
 
-The rationale for the exception is that a late jump/branch should invalidate newer instructions in the pipeline, so it doesn't make sense for \texttt{X} to be given preferential access to a resource in this case, let alone be allowed to have side effects on system memory.
+As described in section \ref{section:fetch_ls_arb}, jumps have highest-priority access to the bus master. This means there is opportunity for ordering issues with self-modifying code: a store to an address, followed by a jump to that address, will cause the \textit{pre-store} value to be executed. This is allowed by the RISC-V memory model, and software must use the FENCE.I instruction to ensure the logically-earlier store is retired before the jump target is fetched.
 
-On cycles where code fetch loses arbitration, \texttt{F} does \textit{not} set its flag which indicates an AHB address phase took place ($f_n \to f_{n-1}$). On the next cycle, \texttt{F} looks at next buffer level, $b_{n+1}$ (see section \ref{section:fetch_buffer}), and inserts a pipe bubble if this value is negative.
+Another way to trip over this ordering issue is for straight-line code to write to instruction addresses which will be imminently executed, and therefore exist in the prefetch queue. This cannot be solved by decoding FENCE.I as a nop, and requires special handling.
 
-Note that this creates some oddities in instruction flows for long strings of loads/stores: the load/store unit will remain active, blocking the fetch port, until the bubbles created by \texttt{F} reach it. The fetch unit will then win until the bubbles have elapsed. This shouldn't affect performance (the busmaster is always occupied, so memory is the bottleneck), it's just a bit weird.
-
+Hazard5 decodes FENCE.I as "jump to \texttt{PC} + 4". The jump invalidates the prefetch queue, and the following instruction will be re-fetched from memory.
 
 \subsection{Jumps and Branches}
 
@@ -341,13 +368,17 @@ Alignment is the constraint that the address of a memory access be equal to zero
 
 RV-C instruction streams are not naturally aligned. We spend extra buffering and logic on optimising the common case of sequential execution, which allows full instruction throughput for every case except unaligned jumps to 32-bit instructions. For load/stores there aren't any such easily-optimised patterns, and we could add considerable complexity adding unaligned access hardware, while still incurring heavy penalties relative to aligned accesses. As a result, we don't support unaligned load/stores in hardware, but rather via trap to a software routine.
 
-\subsection{Interrupts}
+\subsection{Interrupts and Exceptions}
 
-Hazard5 has vectored interrupts, implemented using the early jump hardware (\texttt{D}-triggered jumps). Upon raising of the interrrupt flag, the processor will abruptly jump to a predefined location (current plan is just to have this as a module parameter -- TODO). No state is saved on interrupt entry, except for the link register and the \texttt{PC}; the link register is overwritten with a magic value of \texttt{0xffffffff}, and a \texttt{jalr} to this address (most likely a \texttt{ret}) will trigger a jump back to the saved \texttt{PC}, and restoration of the stashed link register. This return is handled by the mispredict recovery hardware: \texttt{M} will see the magic jump value, initiating a jump to \texttt{PC} and swapping the stashed link register into the pipeline result register (making it visible to the bypass network).
+This section is very much still TBD. (TODO)
 
-It's up to the ISR to save any registers it uses. This may be a simple shell handler which saves the registers (caller- and callee-saved!) before dispatching out to a C function for each interrupt source. However, \textit{extremely} fast ISRs (2 cycle entry, 4 cycle exit) can be written by saving only those registers actually used.
+Hazard5 will have non-nested priority vectored interrupts, with no register saving, apart from \texttt{ra} (\texttt{x2}; link/return address register) and the \texttt{PC}. Interrupts and exceptions will be implemented with the early jump hardware, so behave as a \texttt{D}-sourced jump.
 
-Note that this model requires the stack pointer to be valid at all times. Software must set the stack pointer before unmasking interrupts in the external interrupt controller.
+Interrupts/exceptions are implemented as a jump into the vector table. The table is a block of aligned 32-bit instructions, which will most likely be JAL, meaning ISRs must be within $\pm$1 MiB of the vector table. As well as jumping into the table, the interrupt hardware stashes the \texttt{PC} and \texttt{ra} into shadow registers; the second requires a register file read, and the pipeline slot of the (victim) instruction in \texttt{D} is used to perform this read. \texttt{PC} is immediately clobbered by the jump into the table, and \texttt{ra} is clobbered with the magic value 0xffffffff, which is otherwise an invalid return address as its LSB is set.
+
+Upon encountering a \texttt{jalr} to 0xffffffff (most likely a \texttt{ret}), the saved \texttt{PC} and \texttt{ra} are saved.
+
+Consequently, ISRs may not generate exceptions, such as unaligned accesses. TODO: should have some kind of non-returning hardfault exception to deal with things like this.
 
 \subsection{Possible Performance Gains}
 
@@ -530,13 +561,6 @@ Splitters will filter their slaves' \texttt{hreadyout}s based on which is curren
 
 Splitters will fan their \texttt{hready} signal out to all of their slaves; a low \texttt{hready} directed at a slave you are not engaged with is harmless.
 
-\subsection{Synchronous SRAM Controller}
-
-An irritating fact of life for low-latency AHB-lite SRAM controllers is that there will always be some logic and routing delays at the start of the AHB-lite address phase, and the same at the end of the data phase. For single-cycle operation, the SRAM proper must occupy one of these two clock cycles, and that AHB-lite phase will inevitably end up as your critical data path; your AHB-lite pipeline ends up poorly balanced.
-
-To improve system clock rate, FPGABoy runs the AHB state machine for the SRAM controller on the positive edge of the system clock, but runs the SRAM itself on the negative edge. The address-to-Q time of the SRAM is amortised over the two clock cycles which constitute an AHB-lite SRAM access.
-
-This choice has an impact on the timing of the controller, and on the nature of the write-to-read structural hazard that most AHB-lite controllers will cover with a single buffer. It also places more strenuous constraints on clock duty cycle, but this is less of an issue at low speeds, due to the effects of the PLL output divider (on iCE40).
 
 \section{Graphics Pipeline}
 
