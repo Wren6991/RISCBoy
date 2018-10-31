@@ -133,7 +133,7 @@ This license is also known by its more formal name, as the "Do What The Fuck You
 
 \section{CPU Architecture}
 
-Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. Those familiar with the textbook 5-stage RISC pipeline will find Hazard5 mostly straightforward, but hopefully will still find some interesting tricks. We will use the following symbols to refer to the 5 stages:
+Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. It accesses the system through a single AMBA 3 AHB-lite master port. Those familiar with the textbook 5-stage RISC pipeline will find Hazard5 mostly straightforward, but hopefully will still find some interesting tricks. We will use the following symbols to refer to the 5 stages:
 
 \begin{itemize}
 \item \texttt{F}: fetch
@@ -143,14 +143,15 @@ Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. 
 \item \texttt{W}: register writeback, fetch address generation
 \end{itemize}
 
-Branches are speculated, according to the static prediction scheme described in the RV ISA manual:
+
+Hazard5 supports the RV32IC instruction set, which is variable-width. The narrower instructions help the core to maintain instruction throughput whilst sharing bus access between fetch and load/store; RV-C reduces fetch bandwidth by around 25\%.
+
+Branches are speculated, but there is no dynamic branch predictor. Instead, we use static prediction scheme described in the RV ISA manual:
 
 \begin{itemize}
 \item Backward branches predicted taken; hopefully, loops run at least twice on average.
 \item Forward branches predicted not taken; the ISA manual advises compilers should put more-likely code on this path.
 \end{itemize}
-
-The processor has one AHB-lite busmaster, shared by instruction fetch and data load/store. Processor internals must have no combinational paths from the AHBL data phase to address phase; \texttt{hready} requires the most care, as it interfaces directly to the processor's stall logic. Putting the logic and routing for the two phases in series bloats timing, and may create a combinatorial loop if the slave or busfabric is also poorly designed.
 
 
 % \newpage
@@ -167,7 +168,10 @@ The processor has one AHB-lite busmaster, shared by instruction fetch and data l
 
 % \newpage
 
-\subsection{Front End}
+
+TODO: frontend and backend diagrams
+\subsection{Frontend}
+\label{section:frontend}
 
 The front end consists of stage \texttt{F} and an additional stage which performs the AHB address phase, and can be considered part of \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
 
@@ -193,7 +197,7 @@ There are three parts to the queue:
 \begin{itemize}
 	\item A 32-bit FIFO. The depth is configurable, and can be as little as 1 word.
 	\item A halfword buffer which may store the higher-addressed half of a recently-popped FIFO word
-	\item The upper half of the current instruction register (\texttt{CIR}), if the previous instruction was 32-bit
+	\item The upper half of the current instruction register (\texttt{CIR}), if the previous instruction was 16-bit
 \end{itemize}
 
 These three sources should service the majority of instruction fetches, and fresh bus data is written only to the FIFO. However, in the case of jumps, flushes, and other fetch starvation, bus data can be forwarded directly to \texttt{CIR}.
@@ -202,9 +206,7 @@ These three sources should service the majority of instruction fetches, and fres
 
 Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. \texttt{PC} is used exclusively for the link value in \texttt{JAL(R)}, mispredict recovery, and PC-relative addressing; it is physically located in \texttt{D}.
 
-\texttt{W} fetches instruction data from consecutive word-aligned addresses, paced by backpressure from the instruction FIFO; \texttt{W} never requires the value of \texttt{PC} during normal operation. However, as a special case, \texttt{W} \textit{does} need the full jump target address (which becomes the new \texttt{PC}), as unaligned jumps require special attention.
-
-The current values of \texttt{PC} and \texttt{PC\_next} both travel on into the \texttt{D/X} pipe register, where they are used for relative jump target calculation (\texttt{X}), and mispredict recovery (later, in \texttt{M}), respectively. It may be surprising that M needs a copy of \texttt{PC\_next} in \texttt{X/M}, rather than just looking backward to \texttt{PC} in \texttt{D/X}. The motivating case is a falsely-nontaken branch followed immediately by a jump: the jump occurs whilst the mispredictee is in \texttt{X}, and one cycle later, the mispredictee in \texttt{M} would see the jump target in the
+The frontend fetches instruction data from consecutive word-aligned addresses, paced by backpressure from the instruction FIFO; \texttt{PC} is not involved. However, as a special case, it \textit{does} need the full jump target address (which becomes the new \texttt{PC}), as unaligned jumps require special attention.
 
 \subsubsection{Arbitration of Fetch and Load/Store}
 \label{section:fetch_ls_arb}
@@ -212,13 +214,12 @@ The current values of \texttt{PC} and \texttt{PC\_next} both travel on into the 
 The single AHB master port asserts transactions from two sources: the frontend, whose address phase is in \texttt{W}, and the load/store unit, whose address phase is in \texttt{X}. Frontend requests may be linear or non-linear (e.g jumps). The rules are:
 
 \begin{enumerate}
-	\item If a jump/exception is asserted by \texttt{D}, or a jump/branch/mispredict recovery by \texttt{M}, this wins.
+	\item If a jump or mispredict recovery is asserted by \texttt{M}, this wins.
 	\begin{itemize}
-		\item The jump will always insert a fetch bubble due to the pipelined nature of AHB-lite
-		\item A stalled load/store in \texttt{X} will then execute in this bubble
-		\item This saves a cycle
+		\item Any requests from earlier stages are logically later in program order.
+		\item If \texttt{M} wants to jump then these instructions are being executed in error, so should certainly not be permitted to access the bus.
 	\end{itemize}
-	\item Otherwise, if a load/store is asserted by \texttt{X}, this wins.
+	\item Else if a load/store is asserted by \texttt{X}, this wins.
 	\begin{itemize}
 		\item Stalling instruction fetch \textit{may} be covered by the prefetch queue, in which case we've lost nothing
 		\item Stalling a load/store will always increase execution time
@@ -230,15 +231,7 @@ The single AHB master port asserts transactions from two sources: the frontend, 
 	\end{itemize}
 \end{enumerate}
 
-\subsubsection{Instruction Barrier (FENCE.I)}
-
-As described in section \ref{section:fetch_ls_arb}, jumps have highest-priority access to the bus master. This means there is opportunity for ordering issues with self-modifying code: a store to an address, followed by a jump to that address, will cause the \textit{pre-store} value to be executed. This is allowed by the RISC-V memory model, and software must use the FENCE.I instruction to ensure the logically-earlier store is retired before the jump target is fetched.
-
-Another way to trip over this ordering issue is for straight-line code to write to instruction addresses which will be imminently executed, and therefore exist in the prefetch queue. This cannot be solved by decoding FENCE.I as a nop, and requires special handling.
-
-Hazard5 decodes FENCE.I as "jump to \texttt{PC} + 4". The jump invalidates the prefetch queue, and the following instruction will be re-fetched from memory.
-
-\subsection{Jumps and Branches}
+\subsubsection{Jumps and Branches}
 
 Due to the pipelined nature of AHB, we are unable to jump or to take branches in fewer than 2 cycles (without some fairly sophisticated prediction):
 
@@ -285,6 +278,12 @@ Branch mispredict & 4 \\
 
 Upon jumping, we need some mechanism to invalidate parts of the pipeline: this is described in section \ref{section:stalling_flushing}.
 
+\subsubsection{Instruction Barrier (FENCE.I)}
+
+If the program stores to instruction addresses which will be imminently executed, and therefore exist in the prefetch queue, the stale instruction will be executed.. This cannot be solved by decoding FENCE.I as a nop, and requires special handling.
+
+Hazard5 decodes FENCE.I as "jump to \texttt{PC} + 4". The jump invalidates the prefetch queue, and the following instruction will be re-fetched from memory.
+
 \subsection{Operand Bypass}
 
 Hazard5 provides a multiplexed operand bypass (forwarding) network. Register writes by a given instruction must always be visible to later instructions, even \textit{before} the first instruction reaches the register writeback stage. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
@@ -324,49 +323,59 @@ The upshot is:
 \subsection{Pipeline Stalling and Flushing}
 \label{section:stalling_flushing}
 
-Our terminology: stalling means a pipeline stage, along with prior stages, does not advance its state until some blocking condition has cleared. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
+Our terminology: stalling means a pipeline stage does not advance its state until some blocking condition has cleared. The instruction residing in this stage will not progress to the next stage, and the previous stage will not write \textit{its} instruction into this stage. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
 
-All stages stall on HREADY low, no matter which internal master instigated the current data phase. TODO: this is non-optimal. For example, if code fetch is stalled, stages \texttt{D,X,M} could still proceed. This would save one cycle in the case that \texttt{X} is stalled in a RAW hazard on \texttt{M}. We may save \textit{some} cycles on a jump/branch which would cause the current fetch data phase to be ignored; however, AHB does not allow us to assert a new address whilst the current address phase is in progress, so the whole pipe would still stall on the code fetch once the jump/branch is ready to be asserted. For now it seems best to proceed with the simple option.
+The frontend is decoupled from other stages' stall logic via the prefetch queue. This is important: \texttt{hready} is an input to that stall logic, and the the frontend's address-phase request must not be a function of \texttt{hready}.
 
-Besides HREADY low, each stage may stall for the following reasons:
+The frontend may not be able to immediately accept a jump request, which may cause other pipe stages to stall if it is low. One cause is the frontend holding an existing address-phase request stable until the cycle \textit{after} \texttt{hready}, which is required for AHB-lite compliance.
+
+For the backend, the stall logic is more intricate, as signals such as \texttt{hready} are used in-cycle to determine whether an instruction progresses to the next pipeline stage:
 
 \begin{itemize}
-	\item \texttt{F}:
+	\item \texttt{D}:
 	\begin{itemize}
-		\item Fetch buffer underflow (after losing busmaster arbitration)
-		\item  Stall in \texttt{X}
+		\item \texttt{CIR} does not contain a valid instruction (either no data, or half of a 32-bit instruction)
+		\item \texttt{D} asserts jump, but frontend rejects the jump request
+		\item \texttt{X} is stalled
 	\end{itemize}
-	\item \texttt{D}: stall in \texttt{X}
-	\item \texttt{X}: RAW hazard on \texttt{M}
-	\item \texttt{M}: only on HREADY
-	\item \texttt{W}:
+	\item \texttt{X}:
 	\begin{itemize}
-		\item Writeback: only on HREADY
-		\item PC generation: stalls when \texttt{X} is stalled.
+		\item \texttt{hready} low and \texttt{X} address-phase request asserted
+		\item RAW hazard on \texttt{M}
+		\item \texttt{M} is stalled
 	\end{itemize}
+	\item \texttt{M}:
+	\begin{itemize}
+		\item \texttt{hready} low and data-phase active
+		\item \texttt{M} asserts jump, but frontend rejects the jump request
+	\end{itemize}
+	\item \texttt{W}: does not stall
 \end{itemize}
 
-Pipeline bubbles are inserted into a pipe register by the rightmost stage in the stall chain. This stage creates the bubble by zeroing out the destination register field, memory op field, and any other fields which cause side effects. Under the above stall policy, only \texttt{X} will need to create bubbles: this ends up a single bubble, on an \texttt{M} $\to$ \texttt{X} RAW hazard.
+If a given stage is stalled, but the following stage is not, it must insert a bubble. Bubbles are created by zeroing out control fields, such as \texttt{rd}, so that the following stage will have no side effects on the next cycle.
 
 There are two cases where we must flush:
 
 \begin{itemize}
-	\item Branch/jump taken from \texttt{D}; must flush \texttt{F}.
-	\item Jump/mispredict taken from \texttt{M}; must flush \texttt{F}, \texttt{D}, \texttt{X}
+	\item Branch/jump taken from \texttt{D}; frontend invalidates prefetched data
+	\item Jump/mispredict taken from \texttt{M}; must flush frontend, \texttt{D}, \texttt{X}
 \end{itemize}
 
 And the flushing mechanisms for each stage are as follows:
 \begin{itemize}
-	\item \texttt{F}: Write a flag in \texttt{F/D} which causes \texttt{D} to perform a render-safe on the next cycle (nopping out the instruction which was being fetched on the previous cycle), using the same method described below. We also set the instruction buffer level to zero.
 	\item \texttt{D}: destination register \texttt{rd} cleared, which makes result invisible to register file and operand bypass. \texttt{memop}, \texttt{branchcond} pipe flags are cleared.
-	\item \texttt{X}: same as \texttt{D} (except for \texttt{branchcond}, which terminates here).
+	\item \texttt{X}: same as \texttt{D} (except for \texttt{branchcond}, which does not pass on to \texttt{M} anyway.
 \end{itemize}
+
+Flushing and bubble insertion are very similar; flushing is like multiple stages inserting bubbles into each other, clobbering any contained instructions.
 
 \subsection{Unaligned Memory Accesses}
 
 Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to \textit{natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
 
-RV-C instruction streams are not naturally aligned. We spend extra buffering and logic on optimising the common case of sequential execution, which allows full instruction throughput for every case except unaligned jumps to 32-bit instructions. For load/stores there aren't any such easily-optimised patterns, and we could add considerable complexity adding unaligned access hardware, while still incurring heavy penalties relative to aligned accesses. As a result, we don't support unaligned load/stores in hardware, but rather via trap to a software routine.
+The frontend goes to some length (section \ref{section:frontend}) to maintain high throughput. RV-C instruction streams are \textit{always} unaligned, and \textit{every} instruction must be fetched before it is executed, so Amdahl says it's worth it.
+
+As load/stores are less than 100\% of all instructions, and generally much less than 100\% of these are unaligned, Hazard5 does not have hardware support for unaligned load/stores. These are trapped (TODO) and handled in software if and when they occur.
 
 \subsection{Interrupts and Exceptions}
 
@@ -385,6 +394,14 @@ Consequently, ISRs may not generate exceptions, such as unaligned accesses. TODO
 This section lists ideas of potential improvements which are waiting for synthesis + timing reports before I make a decision, or waiting for a decent regression test suite and working processor before I make complex changes.
 
 \begin{itemize}
+	\item If a jump/exception is asserted by \texttt{D}, or a jump/branch/mispredict recovery by \texttt{M}, code fetch wins over a load/store.
+	\begin{itemize}
+		\item The jump will always insert a fetch bubble due to the pipelined nature of AHB-lite
+		\item A stalled load/store in \texttt{X} will then execute in this bubble
+		\item This saves a cycle
+		\item However, as jumps may write a link address back to the register file, and \texttt{X} is stalled, the jump must remain in \texttt{D} so that it eventually progresses down the pipeline. However, its "jump" side effect needs to be disabled once the actual jump has taken place.
+		\item For now we probably have worse IPC losses, e.g. 4-cycle \texttt{ret} (\texttt{jalr}) and high branch mispredict rate.
+	\end{itemize}
 	\item The load/store address is generated by the ALU, which needs to mux its inputs and its operation. However, the inputs will always be rd1 and imm, and the operation is always add, so consider a hardwired adder to improve AHB timing.
 	\item There is a large amount of muxing required at the end of the AHB data phase in \texttt{F}. It may be possible to move some of this muxing over the cycle boundary into \texttt{D}.
 	\begin{itemize}
