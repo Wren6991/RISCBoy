@@ -32,9 +32,10 @@ module hazard5_frontend #(
 	// Note reg/wire distinction
 	// => decode is providing live feedback on the CIR it is decoding,
 	//    which we fetched previously
+	// This works OK because size is decoded from 2 LSBs of instruction, so cheap.
 	output reg  [31:0]       cir,
-	output reg  [1:0]        cir_vld, // number of halfwords
-	input wire  [1:0]        cir_req  // number of halfwords
+	output reg  [1:0]        cir_vld, // number of valid halfwords in CIR
+	input wire  [1:0]        cir_req  // number of halfwords D will have room for
 );
 
 
@@ -45,9 +46,9 @@ module hazard5_frontend #(
 `endif
 
 //synthesis translate_off
-initial if (W_DATA != 32) begin $display("Frontend requires 32-bit databus"); $finish; end
-initial if ((1 << $clog2(FIFO_DEPTH)) != FIFO_DEPTH) begin $display("Frontend FIFO depth must be power of 2"); $finish; end
-initial if (!FIFO_DEPTH) begin $display("Frontend FIFO depth must be > 0"); $finish; end
+initial if (W_DATA != 32) begin $error("Frontend requires 32-bit databus"); end
+initial if ((1 << $clog2(FIFO_DEPTH)) != FIFO_DEPTH) begin $error("Frontend FIFO depth must be power of 2"); end
+initial if (!FIFO_DEPTH) begin $error("Frontend FIFO depth must be > 0"); end
 //synthesis translate_on
 
 localparam W_BUNDLE = W_DATA / 2;
@@ -143,33 +144,40 @@ wire fetch_stall = fifo_full
 	|| pending_fetches > 2'h1;
 
 
-// CHANGE:
 // unaligned jump is handled in two different places:
 // - during address phase, offset may be applied to fetch_addr if hready was low when jump_vld was high
 // - during data phase, need to assemble CIR differently.
-reg unaligned_jump_reg;
-wire unaligned_jump_comb = jump_target_rdy && jump_target_vld && jump_target[1];
-wire unaligned_jump = unaligned_jump_reg || unaligned_jump_comb;
+
+wire unaligned_jump_now = jump_target_rdy && jump_target_vld && jump_target[1];
+reg unaligned_jump_aph;
+reg unaligned_jump_dph;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		unaligned_jump_reg <= 1'b0;
+		unaligned_jump_aph <= 1'b0;
+		unaligned_jump_dph <= 1'b0;
 	end else begin
-		unaligned_jump_reg <= unaligned_jump_reg
-			&& !(mem_data_vld && !ctr_flush_pending)
-			|| unaligned_jump_comb;
+		if (mem_addr_rdy) begin
+			unaligned_jump_aph <= 1'b0;
+		end
+		if (mem_data_vld && !ctr_flush_pending) begin
+			unaligned_jump_dph <= 1'b0;
+		end
+		if (unaligned_jump_now) begin
+			unaligned_jump_dph <= 1'b1;
+			unaligned_jump_aph <= !mem_addr_rdy;
+		end
 	end
 end
 
 // Combinatorially generate the address-phase request
-
 always @ (*) begin
 	mem_addr = {W_ADDR{1'b0}};
 	mem_addr_vld = 1'b1;
 	mem_size = 1'b1; // almost all accesses are 32 bit
 	case (1'b1)
-		mem_addr_hold   : begin mem_addr = {fetch_addr[W_ADDR-1:2], unaligned_jump_reg, 1'b0}; mem_size = !unaligned_jump_reg; end
-		jump_target_vld : begin mem_addr = jump_target; mem_size = !unaligned_jump; end
+		mem_addr_hold   : begin mem_addr = {fetch_addr[W_ADDR-1:2], unaligned_jump_aph, 1'b0}; mem_size = !unaligned_jump_aph; end
+		jump_target_vld : begin mem_addr = jump_target; mem_size = !unaligned_jump_now; end
 		!fetch_stall    : begin mem_addr = fetch_addr; end
 		default         : begin mem_addr_vld = 1'b0; end
 	endcase
@@ -177,14 +185,114 @@ end
 
 assign jump_target_rdy = !mem_addr_hold;
 
+
 // ----------------------------------------------------------------------------
 // Instruction assembly yard (IMUX)
 
-reg [W_BUNDLE-1:0] halfword_buf;
-reg halfword_buf_vld;
+/*------------+---------------------------------+-----------------------------------+-----------------------------------+
+| buf  \  req |                0                |               1                   |             2                     |
++-------------+---------------------------------+-----------------------------------+-----------------------------------+
+|      0      | Decode stalled, don't touch     | Shouldn't happen                  | Fill empty CIR                    |
+|             |                                 | (assert this)                     |                                   |
++-------------+---------------------------------+-----------------------------------+-----------------------------------+
+|      1      | Decode stalled, don't touch     | Tried to decode half of 32b.      | Decoded 16b instruction.          |
+|             |                                 | Need topup.                       | Want full refill.                 |
++-------------+---------------------------------+-----------------------------------+-----------------------------------+
+|      2      | Decode stalled, don't touch     | Decoded lower half as 16b.        | Full 32-bit CIR decoded.          |
+|             |                                 | Shift and topup.                  | Want full refill.                 |
++-------------+---------------------------------+-----------------------------------+-----------------------------------+
+|      3      | Decode stalled, don't touch     | Decoded lower hw as 16b.          | Full 32-bit CIR decoded.          |
+|             |                                 | Shift and topup.                  | Shift in from hwbuf and backfill. |
++-------------+---------------------------------+-----------------------------------+----------------------------------*/
 
 wire [W_DATA-1:0] fetch_data = fifo_empty ? mem_data : fifo_rdata;
 wire fetch_data_vld = !fifo_empty || (mem_data_vld && !ctr_flush_pending);
+
+// buf_level is the number of valid halfwords in {hwbuf, cir}.
+// cir_vld and hwbuf_vld are functions of this.
+reg [1:0] buf_level;
+reg [W_BUNDLE-1:0] hwbuf;
+reg hwbuf_vld;
+
+wire [1:0] instr_consumption = cir_req <= cir_vld ? cir_req : cir_vld;
+wire buf_level_next =
+	jump_target_vld || ctr_flush_pending ? 2'h0 :
+	fetch_data_vld && unaligned_jump_dph ? 2'h1 :
+	buf_level + {fetch_data_vld, 1'b0} - instr_consumption;
+
+
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		buf_level <= 2'h0;
+		hwbuf_vld <= 1'b0;
+		cir_vld <= 2'h0;
+		cir <= 32'h0;
+		hwbuf <= {W_BUNDLE{1'b0}};
+	end else begin
+		`ASSERT(cir_vld <= 2);
+		`ASSERT(cir_req <= 2);
+		`ASSERT(!(cir_vld == 0 && cir_req == 1));
+		// Update CIR flags
+		buf_level <= buf_level_next;
+		cir_vld <= buf_level_next & ~(buf_level_next >> 1'b1);
+		hwbuf_vld <= &buf_level_next;
+		// Update CIR contents
+		if (cir_req) begin
+			// LSBs
+			casez ({unaligned_jump_dph, cir_req, buf_level})
+				5'b1_??_?? : cir[0 +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
+				5'b0_?1_1? : cir[0 +: W_BUNDLE] <= cir[W_BUNDLE +: W_BUNDLE];
+                5'b0_1?_11 : cir[0 +: W_BUNDLE] <= hwbuf;
+                5'b0_1?_?? : cir[0 +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
+				default: begin end
+			endcase
+			// MSBs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // CIR LSBs have 4 sources, on cycles where they change:
 // - CIR MSBs (instr was 16 bit)
@@ -201,21 +309,21 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		cir <= 32'h0;
 		cir_vld <= 2'h0;
-		halfword_buf <= {W_BUNDLE{1'b0}};
-		halfword_buf_vld <= 1'b0;
+		hwbuf <= {W_BUNDLE{1'b0}};
+		hwbuf_vld <= 1'b0;
 	end else begin
 		// Update CIR contents
 		if (cir_rdy || jump_target_vld || unaligned_jump_reg) begin
 			case (1'b1)
-				unaligned_jump                  : cir[0 +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
-				cir_rdy[1] && !halfword_buf_vld : cir[0 +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
-				cir_rdy[1]                      : cir[0 +: W_BUNDLE] <= halfword_buf;
+				unaligned_jump_dph              : cir[0 +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
+				cir_rdy[1] && !hwbuf_vld : cir[0 +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
+				cir_rdy[1]                      : cir[0 +: W_BUNDLE] <= hwbuf;
 				default                         : cir[0 +: W_BUNDLE] <= cir[W_BUNDLE +: W_BUNDLE];
 			endcase
 			case (1'b1)
-				cir_rdy[1] ~^ halfword_buf_vld  : cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
+				cir_rdy[1] ~^ hwbuf_vld  : cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[0 +: W_BUNDLE];
 				cir_rdy[1]                      : cir[W_BUNDLE +: W_BUNDLE] <= fetch_data[W_BUNDLE +: W_BUNDLE];
-				default                         : cir[W_BUNDLE +: W_BUNDLE] <= halfword_buf;
+				default                         : cir[W_BUNDLE +: W_BUNDLE] <= hwbuf;
 			endcase
 		end
 		// Update CIR flags
