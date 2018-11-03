@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[notitlepage]{article}
 
 \usepackage{graphicx}
 \usepackage{caption}
@@ -28,12 +28,15 @@
 
 \title{FPGABoy Documentation}
 \author{Luke Wren}
+\makeatletter
+\newcommand*{\toccontents}{\@starttoc{toc}}
+\makeatother
 
 \begin{document}
 
 \pagenumbering{gobble}
 \maketitle
-\tableofcontents
+\toccontents
 \newpage
 \pagenumbering{arabic}
 
@@ -367,7 +370,7 @@ And the flushing mechanisms for each stage are as follows:
 	\item \texttt{X}: same as \texttt{D} (except for \texttt{branchcond}, which does not pass on to \texttt{M} anyway.
 \end{itemize}
 
-Flushing and bubble insertion are very similar; flushing is like multiple stages inserting bubbles into each other, clobbering any contained instructions.
+Flushing and bubble insertion are very similar in mechanism.
 
 \subsection{Unaligned Memory Accesses}
 
