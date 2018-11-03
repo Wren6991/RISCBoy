@@ -176,7 +176,14 @@ TODO: frontend and backend diagrams
 \subsection{Frontend}
 \label{section:frontend}
 
-The front end consists of stage \texttt{F} and an additional stage which performs the AHB address phase, and can be considered part of \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
+\begin{figure}[!htb]
+\centering
+\caption{Hazard5 Processor Frontend}
+\includegraphics[width=0.9\textwidth]{diagrams/cpu_frontend.pdf}
+\label{diagram:frontend}
+\end{figure}
+
+The frontend (figure \ref{diagram:frontend}) consists of stage \texttt{F} and an additional stage which performs the AHB address phase, and can be considered part of \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
 
 \begin{itemize}
 	\item No combinational path from AHB-lite data-phase to address-phase (e.g. \texttt{hready} $\to$ \texttt{htrans})
