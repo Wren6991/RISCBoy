@@ -23,6 +23,7 @@ module hazard5_frontend #(
 	// Jump/flush interface
 	// Processor may assert vld at any time. The request will not go through
 	// unless rdy is high. Processor *may* alter request during this time.
+	// Inputs must not be a function of hready.
 	input wire  [W_ADDR-1:0] jump_target,
 	input wire               jump_target_vld,
 	output wire              jump_target_rdy,
@@ -127,8 +128,8 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		fetch_addr <= {W_ADDR{1'b0}}; // TODO: reset vectoring
 	end else begin
-		if (jump_target_vld) begin
-			fetch_addr <= {jump_target[W_ADDR-1:2], 2'b00} + (mem_addr_hold ? 3'h0 : 3'h4);
+		if (jump_target_vld && jump_target_rdy) begin
+			fetch_addr <= {jump_target[W_ADDR-1:2], 2'b00} + (mem_addr_rdy ? 3'h4 : 3'h0);
 		end else if (mem_addr_vld && mem_addr_rdy) begin
 			fetch_addr <= fetch_addr + 3'h4;
 		end
@@ -141,12 +142,17 @@ wire fetch_stall = fifo_full
 	|| fifo_almost_full && pending_fetches
 	|| pending_fetches > 2'h1;
 
+
+// CHANGE:
+// unaligned jump is handled in two different places:
+// - during address phase, offset may be applied to fetch_addr if hready was low when jump_vld was high
+// - during data phase, need to assemble CIR differently.
 reg unaligned_jump_reg;
-wire unaligned_jump_comb = jump_target_vld && jump_target[1:0];
+wire unaligned_jump_comb = jump_target_rdy && jump_target_vld && jump_target[1];
 wire unaligned_jump = unaligned_jump_reg || unaligned_jump_comb;
 
 always @ (posedge clk or negedge rst_n) begin
-	if (rst_n) begin
+	if (!rst_n) begin
 		unaligned_jump_reg <= 1'b0;
 	end else begin
 		unaligned_jump_reg <= unaligned_jump_reg
@@ -162,12 +168,14 @@ always @ (*) begin
 	mem_addr_vld = 1'b1;
 	mem_size = 1'b1; // almost all accesses are 32 bit
 	case (1'b1)
-		mem_addr_hold   : begin mem_addr = {fetch_addr[W_ADDR-1:2], unaligned_jump, 1'b0}; mem_size = !unaligned_jump; end
-		jump_target_vld : begin mem_addr = jump_target; mem_size = !unaligned_jump; mem_size = !unaligned_jump; end
+		mem_addr_hold   : begin mem_addr = {fetch_addr[W_ADDR-1:2], unaligned_jump_reg, 1'b0}; mem_size = !unaligned_jump_reg; end
+		jump_target_vld : begin mem_addr = jump_target; mem_size = !unaligned_jump; end
 		!fetch_stall    : begin mem_addr = fetch_addr; end
 		default         : begin mem_addr_vld = 1'b0; end
 	endcase
 end
+
+assign jump_target_rdy = !mem_addr_hold;
 
 // ----------------------------------------------------------------------------
 // Instruction assembly yard (IMUX)
