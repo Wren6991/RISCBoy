@@ -25,7 +25,7 @@ module hazard5_alu #(
 	output reg               zero
 );
 
-`include "alu_ops.vh"
+`include "hazard5_ops.vh"
 
 function msb;
 input [W_DATA-1:0] x;

@@ -15,10 +15,6 @@
  *                                                                    *
  *********************************************************************/
 
-// Hazard5 CPU core
-// See the documentation
-// Don't worry if you don't understand it -- I don't either
-
 module hazard5_cpu #(
 	parameter RESET_VECTOR = 32'h0000_0000,
 	localparam W_ADDR = 32,
@@ -29,8 +25,6 @@ module hazard5_cpu #(
 	input wire                       rst_n,
 
 	// AHB-lite Master port
-	input  wire                      ahblm_hready,
-	input  wire                      ahblm_hresp,
 	output reg  [W_ADDR-1:0]         ahblm_haddr,
 	output reg                       ahblm_hwrite,
 	output reg  [1:0]                ahblm_htrans,
@@ -38,12 +32,14 @@ module hazard5_cpu #(
 	output wire [2:0]                ahblm_hburst,
 	output wire [3:0]                ahblm_hprot,
 	output wire                      ahblm_hmastlock,
+	input  wire                      ahblm_hready,
+	input  wire                      ahblm_hresp,
 	output reg  [W_DATA-1:0]         ahblm_hwdata,
 	input  wire [W_DATA-1:0]         ahblm_hrdata
 );
 
 `include "rv_opcodes.vh"
-`include "alu_ops.vh"
+`include "hazard5_ops.vh"
 
 `ifdef FORMAL
 `define ASSERT(x) assert(x)
@@ -56,10 +52,7 @@ localparam N_REGS = 32;
 parameter W_REGADDR = $clog2(N_REGS);
 localparam NOP_INSTR = 32'h13;	// addi x0, x0, 0
 
-// If F / M are stalling on an AHB instruction/data (i/d) access:
-wire stall_cause_ahb_i;
 wire stall_cause_ahb_d;
-// X may cause stalls due to load-use hazard
 wire stall_cause_x;
 wire stall_cause_d;
 wire flush_d_x;
@@ -72,33 +65,39 @@ wire w_jump_now;
 wire  [W_ADDR-1:0] w_jump_target;
 
 // ============================================================================
-//                                AHB Master
+//                              AHB-lite Master
 // ============================================================================
 
 localparam HTRANS_IDLE = 2'b00;
 localparam HTRANS_NSEQ = 2'b10;
+localparam HSIZE_WORD  = 3'd2;
+localparam HSIZE_HWORD = 3'd1;
+localparam HSIZE_BYTE  = 3'd0;
 
 // Tie off AHB signals we don't care about
 assign ahblm_hburst = 3'b000;	// HBURST_SINGLE
 assign ahblm_hprot = 4'b0011;	// Lie and say everything is non-cacheable non-bufferable privileged data access
 assign ahblm_hmastlock = 1'b0;	// Not supported by processor (or by slaves!)
 
-// These "regs" are all combinational signals from X or W
+// "regs" are all combinational signals from X.
 reg               ahb_req_d;
 reg  [W_ADDR-1:0] ahb_haddr_d;
 reg  [2:0]        ahb_hsize_d;
 reg               ahb_hwrite_d;
 wire              ahb_req_i;
+wire [2:0]        ahb_hsize_i;
 wire [W_ADDR-1:0] ahb_haddr_i;
 
 // Keep track of whether instr/data access is active in AHB dataphase.
 reg ahb_active_dph_i;
 reg ahb_active_dph_d;
 
+// Need to be aware of this here to apply arbitration rules
+wire m_jump_target_vld;
+
 // It is *vital* that hready is not part of htrans' input cone
 // (both for timing reasons, and to avoid combinatorial loops with poorly designed
 // slaves/busfabric). Cannot use these signals in anything htrans related.
-assign stall_cause_ahb_i = ahb_active_dph_i && !ahblm_hready;
 assign stall_cause_ahb_d = ahb_active_dph_d && !ahblm_hready;
 
 always @ (posedge clk or negedge rst_n) begin
@@ -138,77 +137,46 @@ end
 //                               Pipe Stage F
 // ============================================================================
 
-localparam W_FBUF = 64;
+wire [W_ADDR-1:0] m_jump_target;
+reg               d_jump_req;
+reg  [W_ADDR-1:0] d_jump_target;
+wire              f_jump_target_vld = d_jump_target_vld || m_jump_target_vld;
+wire [W_ADDR-1:0] f_jump_target = m_jump_target_vld ? m_jump_target : d_jump_target;
+wire              f_jump_rdy;
+wire              f_jump_now = f_jump_target_vld && f_jump_rdy;
 
-reg               wf_jump_unaligned;
-reg               wf_jumped;
+wire [31:0] fd_cir;
+wire [1:0] fd_cir_vld;
+wire [1:0] df_cir_use;
 
-reg  [W_FBUF-1:0] f_buf;
-reg  [2:0]        f_buf_level;
-reg  [2:0]        f_buf_level_next;
-reg  [1:0]        fd_cir_level;
-reg               f_fetch_req;
-reg               f_fetch_req_prev;
-wire              df_instr_is_32bit;
+wire f_mem_size;
+assign ahb_hsize_i = f_mem_size ? HSIZE_WORD : HSIZE_HWORD;
 
-wire f_has_fresh_data = f_fetch_req_prev && (ahb_active_dph_i && ahblm_hready);
+hazard5_frontend #(
+	.W_ADDR(W_ADDR),
+	.W_DATA(32),
+	.FIFO_DEPTH(1),
+	.RESET_VECTOR(RESET_VECTOR)
+) frontend (
+	.clk             (clk),
+	.rst_n           (rst_n),
 
-// Halfwords consumed by D this cycle:
-wire [1:0]        f_instr_loss =
-	d_stall ? 2'h0 :
-	fd_cir_level[1] ? 1'b1 + df_instr_is_32bit :
-	fd_cir_level[0] ? 1'b1 - df_instr_is_32bit : 2'h0;
+	.mem_size        (f_mem_size),
+	.mem_addr        (ahb_haddr_i),
+	.mem_addr_vld    (ahb_req_i),
+	.mem_addr_rdy    (mem_addr_rdy),
 
-always @ (*) begin
-	if (w_jump_now) begin
-		f_buf_level_next = 3'h0;
-	end else begin
-		f_buf_level_next = f_buf_level - f_instr_loss - wf_jump_unaligned + (f_has_fresh_data << 1);
-	end
-	f_fetch_req = f_buf_level_next < 3'h4;
-end
+	.mem_data        (ahblm_hrdata),
+	.mem_data_vld    (ahblm_hready && ahb_active_dph_i),
 
-wire [W_DATA-1:0] f_fetch_data = ahblm_hrdata;
+	.jump_target     (f_jump_target),
+	.jump_target_vld (f_jump_target_vld),
+	.jump_target_rdy (f_jump_rdy),
 
-reg [W_DATA+W_FBUF-1:0] f_data_buf_concat;
-always @ (*) begin
-	case (f_buf_level)
-		4: f_data_buf_concat = {f_fetch_data, f_buf};
-		3: f_data_buf_concat = {16'h0, f_fetch_data, f_buf[47:0]};
-		2: f_data_buf_concat = {32'h0, f_fetch_data, f_buf[31:0]};
-		1: f_data_buf_concat = {48'h0, f_fetch_data, f_buf[15:0]};
-		default: f_data_buf_concat = {64'h0, f_fetch_data};
-	endcase
-end
-
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		f_buf <= {W_FBUF{1'b0}};
-		f_buf_level <= 3'h0;
-		fd_cir_level <= 2'h0;
-		f_fetch_req_prev <= 1'b0;
-	end else begin
-		// Indicates either overflow or underflow; either way, shouldn't happen
-		`ASSERT(f_buf_level_next <= 4);
-		// Latch req_prev high whilst a fetch is stalled
-		f_fetch_req_prev <= w_jump_now || f_fetch_req || stall_cause_ahb_i;
-		f_buf_level <= f_buf_level_next;
-		if (f_buf_level_next > 3'h1) begin
-			fd_cir_level <= 2'h2;
-		end else begin
-			fd_cir_level <= f_buf_level_next;
-		end
-		if (wf_jumped) begin
-			if (wf_jump_unaligned) begin
-				f_buf <= {48'h0, f_fetch_data[31:16]};
-			end else begin
-				f_buf <= {32'h0, f_fetch_data[31:0]};
-			end
-		end else begin
-			f_buf <= f_data_buf_concat >> (16 * f_instr_loss);
-		end
-	end
-end
+	.cir             (fd_cir),
+	.cir_vld         (fd_cir_vld),
+	.cir_use         (df_cir_use)
+);
 
 // ============================================================================
 //                               Pipe Stage D
@@ -247,24 +215,24 @@ wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
 reg  [W_ADDR-1:0]    dx_mispredict_addr;
 
-reg d_jump;
+reg d_jump_req;
 reg [W_ADDR-1:0] d_jump_target;
 
-wire d_cir_empty = !fd_cir_level || (fd_cir_level == 1 && df_instr_is_32bit);
-assign stall_cause_d = d_cir_empty || (d_jump && !w_jump_now);
+wire d_cir_empty = !fd_cir_vld || (fd_cir_vld == 2'd1 && df_instr_is_32bit);
+assign stall_cause_d = d_cir_empty || (d_jump_req && !f_jump_rdy);
 assign d_stall = stall_cause_d || x_stall;
 
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
 always @ (*) begin
 	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BNE }: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLT }: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGE }: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLTU}: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGEU}: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'bz, RV_JAL }: begin d_jump = !d_cir_empty; d_jump_target = d_pc + d_imm_j; end
-	default: begin d_jump = 1'b0; d_jump_target = {W_ADDR{1'b0}}; end
+	{1'b1, RV_BEQ }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BNE }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLT }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGE }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BLTU}: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
+	{1'b1, RV_BGEU}: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
+	{1'bz, RV_JAL }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_j; end
+	default: begin d_jump_req = 1'b0; d_jump_target = {W_ADDR{1'b0}}; end
 	endcase
 end
 
@@ -506,12 +474,12 @@ always @ (*) begin
 	ahb_haddr_d = x_alu_result;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	case (dx_memop)
-		MEMOP_LW:  ahb_hsize_d = 3'h2;
-		MEMOP_SW:  ahb_hsize_d = 3'h2;
-		MEMOP_LH:  ahb_hsize_d = 3'h1;
-		MEMOP_LHU: ahb_hsize_d = 3'h1;
-		MEMOP_SH:  ahb_hsize_d = 3'h1;
-		default:   ahb_hsize_d = 3'h0;
+		MEMOP_LW:  ahb_hsize_d = HSIZE_WORD;
+		MEMOP_SW:  ahb_hsize_d = HSIZE_WORD;
+		MEMOP_LH:  ahb_hsize_d = HSIZE_HWORD;
+		MEMOP_LHU: ahb_hsize_d = HSIZE_HWORD;
+		MEMOP_SH:  ahb_hsize_d = HSIZE_HWORD;
+		default:   ahb_hsize_d = HSIZE_BYTE;
 	endcase
 end
 
@@ -616,6 +584,7 @@ reg [W_DATA-1:0]    m_wdata;
 assign m_stall = stall_cause_ahb_d;
 
 always @ (*) begin
+	// Local forwarding of store data
 	if (mw_rd && xm_rs2 == mw_rd) begin
 		m_wdata = mw_result;
 	end else begin
@@ -658,42 +627,7 @@ end
 //                               Pipe Stage W
 // ============================================================================
 
-// Contains AHB address phase for code fetches.
-// Always fetches from consecutive word-aligned addresses.
-// Instruction alignment is handled in the fetch buffer in F
-
-reg  [W_ADDR-1:0] w_fetchaddr;
-
-assign w_jump_now = xm_jump || (d_jump && !ahb_req_d);
-assign w_jump_target = xm_jump ? xm_jump_target : d_jump_target;
-assign flush_d_x = xm_jump;
-
-assign ahb_haddr_i = w_jump_now ? w_jump_target & ~32'h3 : w_fetchaddr;
-assign ahb_req_i = f_fetch_req || w_jump_now;
-
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		w_fetchaddr <= RESET_VECTOR;
-		wf_jump_unaligned <= 1'b0;
-		wf_jumped <= 1'b0;
-	end else if (!stall_cause_ahb_i) begin
-		`ASSERT(!(w_jump_now && ahb_req_d);)
-		// Can deassert this safely once ifetch has won arbitration
-		if (ahb_active_dph_i)
-			wf_jump_unaligned <= 1'b0;
-
-		wf_jumped <= w_jump_now;
-		if (w_jump_now) begin
-			w_fetchaddr <= (w_jump_target & ~32'h3) + 3'h4;
-			wf_jump_unaligned <= w_jump_target[1];
-		end else if (ahb_req_i && !ahb_req_d && !stall_cause_ahb_d) begin
-			w_fetchaddr <= w_fetchaddr + 3'h4;
-		end
-	end
-end
-
 // Update logic for extra bypass stage, replacing regfile internal bypass
-// (different stall condition to above)
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin

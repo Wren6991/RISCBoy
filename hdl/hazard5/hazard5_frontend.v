@@ -1,7 +1,8 @@
 module hazard5_frontend #(
-	parameter W_ADDR = 32,   // other sizes currently unsupported
-	parameter W_DATA = 32,   // other sizes currently unsupported
-	parameter FIFO_DEPTH = 2 // power of 2, >= 1
+	parameter W_ADDR = 32,     // other sizes currently unsupported
+	parameter W_DATA = 32,     // other sizes currently unsupported
+	parameter FIFO_DEPTH = 2,  // power of 2, >= 1
+	parameter RESET_VECTOR = 0
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -36,6 +37,7 @@ module hazard5_frontend #(
 	output reg  [31:0]       cir,
 	output reg  [1:0]        cir_vld, // number of valid halfwords in CIR
 	input wire  [1:0]        cir_use  // number of halfwords D intends to consume
+	                                  // *may* be a function of hready
 );
 
 
@@ -54,8 +56,9 @@ initial if (~|FIFO_DEPTH) begin $error("Frontend FIFO depth must be > 0"); end
 localparam W_BUNDLE = W_DATA / 2;
 localparam W_FIFO_PTR = $clog2(FIFO_DEPTH + 1);
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 // Fetch Queue (FIFO)
+// ============================================================================
 // This is a little different from either a normal sync fifo or sync fwft fifo
 // so it's worth implementing from scratch
 
@@ -94,8 +97,9 @@ end
 
 assign fifo_rdata = fifo_mem[fifo_rptr & ~FIFO_DEPTH];
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 // Fetch logic
+// ============================================================================
 
 // Keep track of some useful state of the memory interface
 
@@ -127,7 +131,7 @@ reg [W_ADDR-1:0] fetch_addr;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		fetch_addr <= {W_ADDR{1'b0}}; // TODO: reset vectoring
+		fetch_addr <= RESET_VECTOR;
 	end else begin
 		if (jump_target_vld && jump_target_rdy) begin
 			fetch_addr <= {jump_target[W_ADDR-1:2] + mem_addr_rdy, 2'b00};
@@ -186,9 +190,9 @@ end
 assign jump_target_rdy = !mem_addr_hold;
 
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 // Instruction assembly yard
-
+// ============================================================================
 
 // buf_level is the number of valid halfwords in {hwbuf, cir}.
 // cir_vld and hwbuf_vld are functions of this.
