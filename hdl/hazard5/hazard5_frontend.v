@@ -41,11 +41,11 @@ module hazard5_frontend #(
 );
 
 
-`ifdef FORMAL
-`define ASSERT(x) assert(x)
-`else
 `define ASSERT(x)
-`endif
+//synthesis translate_off
+`undef ASSERT
+`define ASSERT(x) assert(x)
+//synthesis translate_on
 
 //synthesis translate_off
 initial if (W_DATA != 32) begin $error("Frontend requires 32-bit databus"); end
@@ -87,8 +87,8 @@ always @ (posedge clk or negedge rst_n) begin
 			fifo_wptr <= fifo_wptr + 1'b1;
 			fifo_mem[fifo_wptr & ~FIFO_DEPTH] <= fifo_wdata;
 		end
-		if (jump_target_vld) begin
-			fifo_rptr <= fifo_wptr;
+		if (jump_target_vld && jump_target_rdy) begin
+			fifo_rptr <= fifo_wptr + fifo_push;
 		end else if (fifo_pop) begin
 			fifo_rptr <= fifo_rptr + 1'b1;
 		end
@@ -98,7 +98,7 @@ end
 assign fifo_rdata = fifo_mem[fifo_rptr & ~FIFO_DEPTH];
 
 // ============================================================================
-// Fetch logic
+// Fetch Request + State Logic
 // ============================================================================
 
 // Keep track of some useful state of the memory interface
@@ -106,7 +106,9 @@ assign fifo_rdata = fifo_mem[fifo_rptr & ~FIFO_DEPTH];
 reg        mem_addr_hold;
 reg  [1:0] pending_fetches;
 reg  [1:0] ctr_flush_pending;
-wire [1:0] pending_fetches_next = pending_fetches + (mem_addr_vld && mem_addr_rdy) - mem_data_vld;
+wire [1:0] pending_fetches_next = pending_fetches + (mem_addr_vld && !mem_addr_hold) - mem_data_vld;
+
+assign fifo_push = mem_data_vld && ~|ctr_flush_pending;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -115,10 +117,11 @@ always @ (posedge clk or negedge rst_n) begin
 		ctr_flush_pending <= 2'h0;
 	end else begin
 		`ASSERT(ctr_flush_pending <= pending_fetches);
+		`ASSERT(pending_fetches < 2'd3);
 		mem_addr_hold <= mem_addr_vld && !mem_addr_rdy;
 		pending_fetches <= pending_fetches_next;
 		if (jump_target_vld && jump_target_rdy) begin
-			// If the jump request goes straight to the bus, exclude from flush count
+			// If jump request immediately presented to bus, must exclude from flush count
 			ctr_flush_pending <= pending_fetches_next - !mem_addr_hold;
 		end else if (|ctr_flush_pending && mem_data_vld) begin
 			ctr_flush_pending <= ctr_flush_pending - 1'b1;
@@ -237,7 +240,7 @@ always @ (posedge clk or negedge rst_n) begin
 		`ASSERT(cir_vld <= 2);
 		`ASSERT(cir_use <= 2);
 		`ASSERT(cir_use <= cir_vld);
-		`ASSERT(!(cir_vld == 0 && cir_req == 1));
+		`ASSERT(!(cir_vld == 0 && cir_use == 1));
 		// Update CIR flags
 		buf_level <= buf_level_next;
 		cir_vld <= buf_level_next & ~(buf_level_next >> 1'b1);

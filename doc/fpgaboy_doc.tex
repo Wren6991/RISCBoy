@@ -194,9 +194,9 @@ The frontend (figure \ref{diagram:frontend}) consists of stage \texttt{F} and an
 	\item Attempt to maintain performance when competing with the load/store unit and AHB-lite busmaster peers
 \end{itemize}
 
-A RISC-V *C instruction stream is not naturally-aligned, by which we mean instruction address modulo instruction size is not always zero. This complicates the front end considerably, and we spend gates here to optimise the common case of sequential execution, and to lessen the effects of fetch starvation due to load-store activity.
-
 To meet these constraints, the frontend performs almost exclusively word accesses, which must be aligned. The only exception is a jump (or similar, e.g. mispredict recovery) to a non-word-aligned address. In this case, a halfword fetch from the target address is performed.
+
+A RISC-V *C instruction stream is not naturally-aligned, by which we mean instruction address modulo instruction size is not always zero. This complicates the front end considerably, and we spend gates here to optimise the common case of sequential execution, and to lessen the effects of fetch starvation due to load-store activity.
 
 \subsubsection{Prefetch Queue}
 

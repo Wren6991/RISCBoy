@@ -41,11 +41,11 @@ module hazard5_cpu #(
 `include "rv_opcodes.vh"
 `include "hazard5_ops.vh"
 
-`ifdef FORMAL
-`define ASSERT(x) assert(x)
-`else
 `define ASSERT(x)
-`endif
+// synthesis translate_off
+`undef ASSERT
+`define ASSERT(x) assert(x)
+//synthesis translate_on
 
 localparam N_REGS = 32;
 // should be localparam but ISIM can't cope
@@ -182,23 +182,6 @@ hazard5_frontend #(
 //                               Pipe Stage D
 // ============================================================================
 
-wire [31:0]          d_instr;
-wire                 d_invalid_16bit;
-reg                  d_invalid_32bit;
-wire                 d_invalid = d_invalid_16bit || d_invalid_32bit;
-reg  [W_ADDR-1:0]    d_pc;
-wire [W_ADDR-1:0]    d_pc_next = d_pc + (df_instr_is_32bit ? 3'h4 : 3'h2);
-
-wire [W_REGADDR-1:0] d_rs1 = d_instr[19:15];
-wire [W_REGADDR-1:0] d_rs2 = d_instr[24:20];
-wire [W_REGADDR-1:0] d_rd  = d_instr[11: 7];
-
-// Decode various immmediate formats
-wire [31:0] d_imm_i = {{21{d_instr[31]}}, d_instr[30:20]};
-wire [31:0] d_imm_s = {{21{d_instr[31]}}, d_instr[30:25], d_instr[11:7]};
-wire [31:0] d_imm_b = {{20{d_instr[31]}}, d_instr[7], d_instr[30:25], d_instr[11:8], 1'b0};
-wire [31:0] d_imm_u = {d_instr[31:12], {12{1'b0}}};
-wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[30:21], 1'b0};
 
 reg  [W_DATA-1:0]    dx_imm;
 reg  [W_REGADDR-1:0] dx_rs1;
@@ -215,14 +198,54 @@ wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
 reg  [W_ADDR-1:0]    dx_mispredict_addr;
 
-reg d_jump_req;
-reg [W_ADDR-1:0] d_jump_target;
-
-wire d_cir_empty = !fd_cir_vld || (fd_cir_vld == 2'd1 && df_instr_is_32bit);
+wire d_cir_empty = !fd_cir_vld || (fd_cir_vld == 2'd1 && d_instr_is_32bit);
 assign stall_cause_d = d_cir_empty || (d_jump_req && !f_jump_rdy);
 assign d_stall = stall_cause_d || x_stall;
 
+// Expand compressed instructions, and tell F how much instr data we are using
+
+wire [31:0] d_instr;
+wire        d_instr_is_32bit;
+wire        d_invalid_16bit;
+reg         d_invalid_32bit;
+wire        d_invalid = d_invalid_16bit || d_invalid_32bit;
+
+hazard5_instr_decompress #(
+	.PASSTHROUGH(0)
+) decomp (
+	.instr_in(fd_cir),
+	.instr_is_32bit(d_instr_is_32bit),
+	.instr_out(d_instr),
+	.invalid(d_invalid_16bit)
+);
+
+wire d_starved = ~|fd_cir_vld || fd_cir_vld[0] && d_instr_is_32bit;
+assign df_cir_use =
+	d_starved || d_stall ? 2'h0 :
+	d_instr_is_32bit ? 2'h2 : 2'h1;
+
+
+// Various D-local regs/wires
+reg  [W_ADDR-1:0]    d_pc;
+wire [W_ADDR-1:0]    d_pc_next = d_pc + (d_instr_is_32bit ? 3'h4 : 3'h2);
+
+wire [W_REGADDR-1:0] d_rs1 = d_instr[19:15];
+wire [W_REGADDR-1:0] d_rs2 = d_instr[24:20];
+wire [W_REGADDR-1:0] d_rd  = d_instr[11: 7];
+
+// Decode various immmediate formats
+wire [31:0] d_imm_i = {{21{d_instr[31]}}, d_instr[30:20]};
+wire [31:0] d_imm_s = {{21{d_instr[31]}}, d_instr[30:25], d_instr[11:7]};
+wire [31:0] d_imm_b = {{20{d_instr[31]}}, d_instr[7], d_instr[30:25], d_instr[11:8], 1'b0};
+wire [31:0] d_imm_u = {d_instr[31:12], {12{1'b0}}};
+wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[30:21], 1'b0};
+
+// Jump decode
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
+
+reg d_jump_req;
+reg [W_ADDR-1:0] d_jump_target;
+
 always @ (*) begin
 	casez ({d_instr[31], d_instr})
 	{1'b1, RV_BEQ }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
@@ -236,6 +259,7 @@ always @ (*) begin
 	endcase
 end
 
+// TODO: refactor the two big case statements (potential size gains?)
 always @ (*) begin
 	casez (d_instr)
 	RV_BEQ:     d_invalid_32bit = 1'b0;
@@ -408,17 +432,6 @@ hazard5_regfile_1w2r #(
 	.wdata  (mw_result),
 	.wen    (|mw_rd)
 );
-
-
-hazard5_instr_decompress #(
-	.PASSTHROUGH(0)
-) decomp (
-	.instr_in(f_buf[31:0]),
-	.instr_is_32bit(df_instr_is_32bit),
-	.instr_out(d_instr),
-	.invalid(d_invalid_16bit)
-);
-
 
 // ============================================================================
 //                               Pipe Stage X
