@@ -40,7 +40,7 @@ module hazard5_frontend #(
 	                                  // *may* be a function of hready
 );
 
-
+`undef ASSERT
 `define ASSERT(x)
 //synthesis translate_off
 `undef ASSERT
@@ -73,7 +73,7 @@ wire fifo_almost_full = fifo_level == FIFO_DEPTH - 1;
 
 wire fifo_push;
 wire fifo_pop;
-wire [W_DATA-1:0] fifo_wdata;
+wire [W_DATA-1:0] fifo_wdata = mem_data;
 wire [W_DATA-1:0] fifo_rdata;
 
 always @ (posedge clk or negedge rst_n) begin
@@ -121,8 +121,7 @@ always @ (posedge clk or negedge rst_n) begin
 		mem_addr_hold <= mem_addr_vld && !mem_addr_rdy;
 		pending_fetches <= pending_fetches_next;
 		if (jump_target_vld && jump_target_rdy) begin
-			// If jump request immediately presented to bus, must exclude from flush count
-			ctr_flush_pending <= pending_fetches_next - !mem_addr_hold;
+			ctr_flush_pending <= pending_fetches - mem_data_vld;
 		end else if (|ctr_flush_pending && mem_data_vld) begin
 			ctr_flush_pending <= ctr_flush_pending - 1'b1;
 		end
@@ -137,7 +136,8 @@ always @ (posedge clk or negedge rst_n) begin
 		fetch_addr <= RESET_VECTOR;
 	end else begin
 		if (jump_target_vld && jump_target_rdy) begin
-			fetch_addr <= {jump_target[W_ADDR-1:2] + mem_addr_rdy, 2'b00};
+			// Pre-increment if OUR request is going through
+			fetch_addr <= {jump_target[W_ADDR-1:2] + (mem_addr_rdy && !mem_addr_hold), 2'b00};
 		end else if (mem_addr_vld && mem_addr_rdy) begin
 			fetch_addr <= fetch_addr + 3'h4;
 		end
@@ -203,6 +203,9 @@ reg [1:0] buf_level;
 reg [W_BUNDLE-1:0] hwbuf;
 reg hwbuf_vld;
 
+wire [W_DATA-1:0] fetch_data = fifo_empty ? mem_data : fifo_rdata;
+wire fetch_data_vld = !fifo_empty || (mem_data_vld && ~|ctr_flush_pending);
+
 // Shift any recycled instruction data down to backfill D's consumption
 // We don't care about anything which is invalid or will be overlaid with fresh data,
 // so choose these values in a way that minimises muxes
@@ -211,8 +214,6 @@ wire [3*W_BUNDLE-1:0] instr_data_shifted =
 	cir_use[0] ? {hwbuf, hwbuf, cir[W_BUNDLE +: W_BUNDLE]} :
 	             {hwbuf, cir};
 
-wire [W_DATA-1:0] fetch_data = fifo_empty ? mem_data : fifo_rdata;
-wire fetch_data_vld = !fifo_empty || (mem_data_vld && ~|ctr_flush_pending);
 
 // Overlay fresh fetch data onto the shifted/recycled instruction data
 // Again, if something won't be looked at, generate cheapest possible garbage.
@@ -224,10 +225,13 @@ wire [3*W_BUNDLE-1:0] instr_data_plus_fetch =
 	level_next_no_fetch[0] ? {fetch_data, instr_data_shifted[0 +: W_BUNDLE]} :
 	                         {instr_data_shifted[2*W_BUNDLE +: W_BUNDLE], fetch_data};
 
+wire cir_must_refill = !level_next_no_fetch[1];
+assign fifo_pop = cir_must_refill && !fifo_empty;
+
 wire [1:0] buf_level_next =
 	jump_target_vld || |ctr_flush_pending ? 2'h0 :
 	fetch_data_vld && unaligned_jump_dph ? 2'h1 :
-	buf_level + {fetch_data_vld, 1'b0} - cir_use;
+	buf_level + {cir_must_refill && fetch_data_vld, 1'b0} - cir_use;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin

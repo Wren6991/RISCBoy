@@ -42,7 +42,7 @@ module hazard5_cpu #(
 `include "hazard5_ops.vh"
 
 `define ASSERT(x)
-// synthesis translate_off
+//synthesis translate_off
 `undef ASSERT
 `define ASSERT(x) assert(x)
 //synthesis translate_on
@@ -88,16 +88,21 @@ wire              ahb_req_i;
 wire [2:0]        ahb_hsize_i;
 wire [W_ADDR-1:0] ahb_haddr_i;
 
+
+// Arbitrate requests from competing sources
+wire m_jump_req;
+wire ahb_gnt_i;
+wire ahb_gnt_d;
+
+assign {ahb_gnt_i, ahb_gnt_d} =
+	m_jump_req ? 2'b10 :
+	ahb_req_d  ? 2'b01 :
+	ahb_req_i  ? 2'b10 :
+	             2'b00 ;
+
 // Keep track of whether instr/data access is active in AHB dataphase.
 reg ahb_active_dph_i;
 reg ahb_active_dph_d;
-
-// Need to be aware of this here to apply arbitration rules
-wire m_jump_target_vld;
-
-// It is *vital* that hready is not part of htrans' input cone
-// (both for timing reasons, and to avoid combinatorial loops with poorly designed
-// slaves/busfabric). Cannot use these signals in anything htrans related.
 assign stall_cause_ahb_d = ahb_active_dph_d && !ahblm_hready;
 
 always @ (posedge clk or negedge rst_n) begin
@@ -105,29 +110,26 @@ always @ (posedge clk or negedge rst_n) begin
 		ahb_active_dph_i <= 1'b0;
 		ahb_active_dph_d <= 1'b0;
 	end else if (ahblm_hready) begin
-		case (1'b1)
-			ahb_req_d: {ahb_active_dph_i, ahb_active_dph_d} <= 2'b01;
-			ahb_req_i: {ahb_active_dph_i, ahb_active_dph_d} <= 2'b10;
-			default:   {ahb_active_dph_i, ahb_active_dph_d} <= 2'b00;
-		endcase
+		ahb_active_dph_i <= ahb_req_i;
+		ahb_active_dph_d <= ahb_req_d;
 	end
 end
 
 // Address-phase signal passthrough
 always @ (*) begin
-	if (ahb_req_d) begin
+	if (ahb_gnt_d) begin
 		ahblm_htrans = HTRANS_NSEQ;
 		ahblm_haddr  = ahb_haddr_d;
 		ahblm_hsize  = ahb_hsize_d;
 		ahblm_hwrite = ahb_hwrite_d;
-	end else if (ahb_req_i) begin
+	end else if (ahb_gnt_i) begin
 		ahblm_htrans = HTRANS_NSEQ;
 		ahblm_haddr  = ahb_haddr_i;
-		ahblm_hsize  = 3'h2;
+		ahblm_hsize  = ahb_hsize_i;
 		ahblm_hwrite = 1'b0;
 	end else begin
 		ahblm_htrans = HTRANS_IDLE;
-		ahblm_haddr  = {W_ADDR{1'b0}};
+		ahblm_haddr  = {W_ADDR{1'b0}}; // TODO: make this the same as one of the others to save gates?
 		ahblm_hsize  = 3'h0;
 		ahblm_hwrite = 1'b0;
 	end
@@ -140,10 +142,11 @@ end
 wire [W_ADDR-1:0] m_jump_target;
 reg               d_jump_req;
 reg  [W_ADDR-1:0] d_jump_target;
-wire              f_jump_target_vld = d_jump_target_vld || m_jump_target_vld;
-wire [W_ADDR-1:0] f_jump_target = m_jump_target_vld ? m_jump_target : d_jump_target;
+
+wire              f_jump_req = d_jump_req || m_jump_req;
+wire [W_ADDR-1:0] f_jump_target = m_jump_req ? m_jump_target : d_jump_target;
 wire              f_jump_rdy;
-wire              f_jump_now = f_jump_target_vld && f_jump_rdy;
+wire              f_jump_now = f_jump_req && f_jump_rdy;
 
 wire [31:0] fd_cir;
 wire [1:0] fd_cir_vld;
@@ -170,7 +173,7 @@ hazard5_frontend #(
 	.mem_data_vld    (ahblm_hready && ahb_active_dph_i),
 
 	.jump_target     (f_jump_target),
-	.jump_target_vld (f_jump_target_vld),
+	.jump_target_vld (f_jump_req),
 	.jump_target_rdy (f_jump_rdy),
 
 	.cir             (fd_cir),
@@ -198,7 +201,7 @@ wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
 reg  [W_ADDR-1:0]    dx_mispredict_addr;
 
-wire d_cir_empty = !fd_cir_vld || (fd_cir_vld == 2'd1 && d_instr_is_32bit);
+wire d_cir_empty = ~|fd_cir_vld || (fd_cir_vld == 2'd1 && d_instr_is_32bit);
 assign stall_cause_d = d_cir_empty || (d_jump_req && !f_jump_rdy);
 assign d_stall = stall_cause_d || x_stall;
 
@@ -227,7 +230,7 @@ assign df_cir_use =
 
 // Various D-local regs/wires
 reg  [W_ADDR-1:0]    d_pc;
-wire [W_ADDR-1:0]    d_pc_next = d_pc + (d_instr_is_32bit ? 3'h4 : 3'h2);
+wire [W_ADDR-1:0]    d_pc_next = d_pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
 
 wire [W_REGADDR-1:0] d_rs1 = d_instr[19:15];
 wire [W_REGADDR-1:0] d_rs2 = d_instr[24:20];
@@ -243,9 +246,6 @@ wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[3
 // Jump decode
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
 
-reg d_jump_req;
-reg [W_ADDR-1:0] d_jump_target;
-
 always @ (*) begin
 	casez ({d_instr[31], d_instr})
 	{1'b1, RV_BEQ }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
@@ -259,7 +259,7 @@ always @ (*) begin
 	endcase
 end
 
-// TODO: refactor the two big case statements (potential size gains?)
+// TODO: refactor the two big case statements
 always @ (*) begin
 	casez (d_instr)
 	RV_BEQ:     d_invalid_32bit = 1'b0;
@@ -469,10 +469,10 @@ assign x_stall = stall_cause_x || m_stall;
 always @ (*) begin
 	x_stall_raw = 1'b0;
 	if (xm_memop < MEMOP_SW) begin
-		if (xm_rd && xm_rd == dx_rs1) begin
+		if (|xm_rd && xm_rd == dx_rs1) begin
 			// Store addresses cannot be bypassed later, so there is no exception here.
 			x_stall_raw = 1'b1;
-		end else if (xm_rd && xm_rd == dx_rs2) begin
+		end else if (|xm_rd && xm_rd == dx_rs2) begin
 			// Store data can be bypassed in M. Any other instructions must stall.
 			x_stall_raw = !(dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB);
 		end
@@ -483,7 +483,7 @@ end
 always @ (*) begin
 	// M stall should not gate AHB request, as htrans assertion
 	// should depend combinatorially on hready
-	ahb_req_d = !(dx_memop & 4'h8) && !stall_cause_x && !flush_d_x;
+	ahb_req_d = ~|(dx_memop & 4'h8) && !stall_cause_x && !flush_d_x;
 	ahb_haddr_d = x_alu_result;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	case (dx_memop)
@@ -498,7 +498,7 @@ end
 
 // ALU operand muxes and bypass
 always @ (*) begin
-	if (!dx_rs1) begin
+	if (~|dx_rs1) begin
 		x_rs1_bypass = {W_DATA{1'b0}};
 	end else if (xm_rd == dx_rs1) begin
 		x_rs1_bypass = xm_result;
@@ -509,7 +509,7 @@ always @ (*) begin
 	end else begin
 		x_rs1_bypass = dx_rdata1;
 	end
-	if (!dx_rs2) begin
+	if (~|dx_rs2) begin
 		x_rs2_bypass = {W_DATA{1'b0}};
 	end else if (xm_rd == dx_rs2) begin
 		x_rs2_bypass = xm_result;
@@ -542,7 +542,7 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 	end else begin
-		`ASSERT(!(m_stall && flush_d_x);) // bubble insertion logic below is broken otherwise
+		`ASSERT(!(m_stall && flush_d_x)) // bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
 			xm_result <= x_alu_result;
@@ -594,11 +594,14 @@ reg [1:0]           m_shift;
 reg [W_DATA-1:0]    m_rdata_shift;
 reg [W_DATA-1:0]    m_wdata;
 
-assign m_stall = stall_cause_ahb_d;
+assign m_jump_req = xm_jump;
+assign m_jump_target = xm_jump_target;
+
+assign m_stall = stall_cause_ahb_d || (m_jump_req && !f_jump_rdy);
 
 always @ (*) begin
 	// Local forwarding of store data
-	if (mw_rd && xm_rs2 == mw_rd) begin
+	if (~|mw_rd && xm_rs2 == mw_rd) begin
 		m_wdata = mw_result;
 	end else begin
 		m_wdata = xm_jump_target;

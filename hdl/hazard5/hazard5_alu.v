@@ -72,10 +72,10 @@ always @ (*) begin
 	case (aluop)
 		/*ALUOP_ADD*/default: begin result = sum; end
 		ALUOP_SUB: begin result = diff; end
-		ALUOP_LT:  begin result = lt; end
-		ALUOP_GE:  begin result = !lt; end
-		ALUOP_LTU: begin result = ltu; end
-		ALUOP_GEU: begin result = !ltu; end
+		ALUOP_LT:  begin result = {{W_DATA-1{1'b0}}, lt}; end
+		ALUOP_GE:  begin result = {{W_DATA-1{1'b0}}, !lt}; end
+		ALUOP_LTU: begin result = {{W_DATA-1{1'b0}}, ltu}; end
+		ALUOP_GEU: begin result = {{W_DATA-1{1'b0}}, !ltu}; end
 		ALUOP_AND: begin result = op_a & op_b; end
 		ALUOP_OR:  begin result = op_a | op_b; end
 		ALUOP_XOR: begin result = op_a ^ op_b; end

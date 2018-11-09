@@ -42,7 +42,7 @@ localparam MEMOP_SH   = 4'h6;
 localparam MEMOP_SB   = 4'h7;
 localparam MEMOP_NONE = 4'h8;
 
-localparam BCOND_NEVER  = 3'h0;
-localparam BCOND_ALWAYS = 3'h1;
-localparam BCOND_ZERO   = 3'h2;
-localparam BCOND_NZERO  = 3'h3;
+localparam BCOND_NEVER  = 2'h0;
+localparam BCOND_ALWAYS = 2'h1;
+localparam BCOND_ZERO   = 2'h2;
+localparam BCOND_NZERO  = 2'h3;
