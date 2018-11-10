@@ -152,7 +152,7 @@ assign ahb_hsize_i = f_mem_size ? HSIZE_WORD : HSIZE_HWORD;
 hazard5_frontend #(
 	.W_ADDR(W_ADDR),
 	.W_DATA(32),
-	.FIFO_DEPTH(1),
+	.FIFO_DEPTH(2),
 	.RESET_VECTOR(RESET_VECTOR)
 ) frontend (
 	.clk             (clk),
@@ -631,8 +631,14 @@ always @ (posedge clk or negedge rst_n) begin
 	end else if (!m_stall) begin
 		//synthesis translate_off
 		// TODO: proper exception support
-		if (xm_except_invalid_instr)
+		if (xm_except_invalid_instr) begin
 			$display("Invalid instruction!");
+			$finish;
+		end
+		if (ahblm_hresp) begin
+			$display("Bus fault!");
+			$finish;
+		end
 		//synthesis translate_on
 		mw_rd <= xm_rd;
 		case (xm_memop)

@@ -118,7 +118,7 @@ wire               gpio_pslverr;
 //  Masters
 // =============================================================================
 
-revive_cpu #(
+hazard5_cpu #(
 	.RESET_VECTOR(32'h20000000),
 	.CACHE_DEPTH(0)
 ) inst_revive_cpu (
