@@ -70,9 +70,9 @@ localparam HSIZE_HWORD = 3'd1;
 localparam HSIZE_BYTE  = 3'd0;
 
 // Tie off AHB signals we don't care about
-assign ahblm_hburst = 3'b000;	// HBURST_SINGLE
-assign ahblm_hprot = 4'b0011;	// Lie and say everything is non-cacheable non-bufferable privileged data access
-assign ahblm_hmastlock = 1'b0;	// Not supported by processor (or by slaves!)
+assign ahblm_hburst = 3'b000;   // HBURST_SINGLE
+assign ahblm_hprot = 4'b0011;   // Lie and say everything is non-cacheable non-bufferable privileged data access
+assign ahblm_hmastlock = 1'b0;  // Not supported by processor (or by slaves!)
 
 // "regs" are all combinational signals from X.
 reg               ahb_req_d;
@@ -104,8 +104,8 @@ always @ (posedge clk or negedge rst_n) begin
 		ahb_active_dph_i <= 1'b0;
 		ahb_active_dph_d <= 1'b0;
 	end else if (ahblm_hready) begin
-		ahb_active_dph_i <= ahb_req_i;
-		ahb_active_dph_d <= ahb_req_d;
+		ahb_active_dph_i <= ahb_gnt_i;
+		ahb_active_dph_d <= ahb_gnt_d;
 	end
 end
 
