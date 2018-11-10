@@ -62,14 +62,16 @@ def read_filelist(fname):
 			files.extend(wildcard(os.path.expandvars(words[2]), words[1]))
 		elif words[0] == "list":
 			assert(len(words) == 2)
-			files.extend(read_filelist(os.path.expandvars(words[1])))
+			newfiles, newincludes = read_filelist(os.path.expandvars(words[1]))
+			files.extend(newfiles)
+			includes.extend(newincludes)
 		else:
 			raise Exception("Invalid command")
 	os.chdir(prev_dir)
 	return (files, includes)
 
 formats = {
-	"isim": lambda f, i: "verilog work {}\n".format(" ".join(fl)),
+	"isim": lambda f, i: "verilog work {} {}\n".format(" ".join(f), " ".join("-i " + inc for inc in i)),
 	"flat": lambda f, i: " ".join(f) + "\n",
 	"make": lambda f, i: "SRCS={}\nINCDIRS={}\n".format(" ".join(f), " ".join(i))
 }
@@ -87,6 +89,7 @@ if __name__ == "__main__":
 	if args.output is None:
 		args.output = "files"
 	files, includes = read_filelist(args.src)
+	print((files, includes))
 	# Uniquify whilst preserving order
 	func = lambda l: list(dict.fromkeys(l))
 	if args.relative:

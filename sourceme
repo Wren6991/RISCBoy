@@ -15,3 +15,7 @@ export HDL=$PROJ_ROOT/hdl
 # tools manually.
 
 export PATH="$PATH:$SCRIPTS"
+
+# Other tools
+
+export PATH="$PATH:/opt/riscv/bin"
