@@ -9,20 +9,23 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="55" />
+   <WVObjectSize size="68" />
+   <wave_markers>
+      <marker time="217750000" label="" />
+   </wave_markers>
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/clk" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/rst_n" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rst_n</obj_property>
       <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/frontend/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/ahblm_haddr" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">ahblm_haddr[31:0]</obj_property>
@@ -106,10 +109,6 @@
       <obj_property name="ElementShortName">cir_use[1:0]</obj_property>
       <obj_property name="ObjectShortName">cir_use[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/fifo_level" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fifo_level[0:0]</obj_property>
-      <obj_property name="ObjectShortName">fifo_level[0:0]</obj_property>
-   </wvobject>
    <wvobject fp_name="divider55" type="divider">
       <obj_property name="label">Frontend FIFO</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -159,11 +158,20 @@
       <obj_property name="ElementShortName">fifo_rptr[0:0]</obj_property>
       <obj_property name="ObjectShortName">fifo_rptr[0:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb/cpu0/frontend/fifo_level" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_level[0:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_level[0:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="divider56" type="divider">
       <obj_property name="label">Frontend Logic</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/frontend/fetch_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fetch_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fetch_addr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/mem_addr_hold" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">mem_addr_hold</obj_property>
@@ -214,10 +222,6 @@
       <obj_property name="ElementShortName">buf_level_next[1:0]</obj_property>
       <obj_property name="ObjectShortName">buf_level_next[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/cir_vld" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">cir_vld[1:0]</obj_property>
-      <obj_property name="ObjectShortName">cir_vld[1:0]</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/hwbuf_vld" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">hwbuf_vld</obj_property>
       <obj_property name="ObjectShortName">hwbuf_vld</obj_property>
@@ -226,6 +230,14 @@
       <obj_property name="ElementShortName">hwbuf[15:0]</obj_property>
       <obj_property name="ObjectShortName">hwbuf[15:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/frontend/cir_vld" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cir_vld[1:0]</obj_property>
+      <obj_property name="ObjectShortName">cir_vld[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/frontend/cir_use" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cir_use[1:0]</obj_property>
+      <obj_property name="ObjectShortName">cir_use[1:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/cir" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">cir[31:0]</obj_property>
@@ -240,11 +252,6 @@
       <obj_property name="ElementShortName">cir_must_refill</obj_property>
       <obj_property name="ObjectShortName">cir_must_refill</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/fetch_addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fetch_addr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">fetch_addr[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/instr_data_shifted" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">instr_data_shifted[47:0]</obj_property>
       <obj_property name="ObjectShortName">instr_data_shifted[47:0]</obj_property>
@@ -254,5 +261,62 @@
       <obj_property name="ElementShortName">instr_data_plus_fetch[47:0]</obj_property>
       <obj_property name="ObjectShortName">instr_data_plus_fetch[47:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider58" type="divider">
+      <obj_property name="label">Decode</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_pc" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_pc" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_pc[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_pc_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_pc_next[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d_pc_next[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_starved" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_starved</obj_property>
+      <obj_property name="ObjectShortName">d_starved</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_invalid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_invalid</obj_property>
+      <obj_property name="ObjectShortName">d_invalid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_stall" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_stall</obj_property>
+      <obj_property name="ObjectShortName">d_stall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_jump_req" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">d_jump_req</obj_property>
+      <obj_property name="ObjectShortName">d_jump_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_jump_target" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_jump_target[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d_jump_target[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_rd" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_rd[4:0]</obj_property>
+      <obj_property name="ObjectShortName">d_rd[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_rs1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_rs1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">d_rs1[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_rs2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_rs2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">d_rs2[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
 </wave_config>

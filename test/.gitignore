@@ -2,4 +2,5 @@ sim
 *.prj
 *.elf
 *.hex
+*.log
 

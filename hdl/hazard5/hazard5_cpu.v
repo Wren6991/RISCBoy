@@ -59,9 +59,6 @@ wire d_stall;
 wire x_stall;
 wire m_stall;
 
-wire w_jump_now;
-wire  [W_ADDR-1:0] w_jump_target;
-
 // ============================================================================
 //                              AHB-lite Master
 // ============================================================================
@@ -317,8 +314,8 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 	end else if (!x_stall) begin
-		if (w_jump_now) begin
-			d_pc <= w_jump_target;
+		if (f_jump_now) begin
+			d_pc <= f_jump_target;
 			dx_pc <= d_pc;
 		end else if (d_stall) begin
 			d_pc <= d_pc;

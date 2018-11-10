@@ -122,6 +122,7 @@ always @ (posedge clk or negedge rst_n) begin
 	end else begin
 		`ASSERT(ctr_flush_pending <= pending_fetches);
 		`ASSERT(pending_fetches < 2'd3);
+		`ASSERT(!(mem_data_vld && !pending_fetches));
 		mem_addr_hold <= mem_addr_vld && !mem_addr_rdy;
 		pending_fetches <= pending_fetches_next;
 		if (jump_target_vld && jump_target_rdy) begin
