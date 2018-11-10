@@ -110,7 +110,9 @@ reg  [1:0] pending_fetches;
 reg  [1:0] ctr_flush_pending;
 wire [1:0] pending_fetches_next = pending_fetches + (mem_addr_vld && !mem_addr_hold) - mem_data_vld;
 
-assign fifo_push = mem_data_vld && ~|ctr_flush_pending;
+wire cir_must_refill;
+// If fetch data is forwarded past the FIFO, ensure it is not also written to it.
+assign fifo_push = mem_data_vld && ~|ctr_flush_pending && !(cir_must_refill && fifo_empty);
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -236,7 +238,7 @@ wire [3*W_BUNDLE-1:0] instr_data_plus_fetch =
 	level_next_no_fetch[0] ? {fetch_data, instr_data_shifted[0 +: W_BUNDLE]} :
 	                         {instr_data_shifted[2*W_BUNDLE +: W_BUNDLE], fetch_data};
 
-wire cir_must_refill = !level_next_no_fetch[1];
+assign cir_must_refill = !level_next_no_fetch[1];
 assign fifo_pop = cir_must_refill && !fifo_empty;
 
 wire [1:0] buf_level_next =

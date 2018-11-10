@@ -1,3 +1,5 @@
 sim
 *.prj
+*.elf
+*.hex
 
