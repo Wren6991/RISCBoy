@@ -196,6 +196,7 @@ wire [W_DATA-1:0]    dx_rdata1;	// Registered internally in regfile
 wire [W_DATA-1:0]    dx_rdata2;
 reg  [W_ADDR-1:0]    dx_pc;
 reg  [W_ADDR-1:0]    dx_mispredict_addr;
+reg                  dx_except_invalid_instr;
 
 wire d_cir_empty = ~|fd_cir_vld || (fd_cir_vld == 2'd1 && d_instr_is_32bit);
 
@@ -303,6 +304,7 @@ always @ (*) begin
 	endcase
 end
 
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		{dx_imm, dx_rs1, dx_rs2, dx_rd} <= {(W_DATA + 3 * W_REGADDR){1'b0}};
@@ -315,6 +317,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_mispredict_addr <= {W_ADDR{1'b0}};
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
+		dx_except_invalid_instr <= 1'b0;
 	end else if (!x_stall) begin
 		if (f_jump_now) begin
 			d_pc <= f_jump_target;
@@ -337,6 +340,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 		dx_mispredict_addr <= d_pc_next;
+		dx_except_invalid_instr <= 1'b0;
 
 		casez (d_instr)
 		RV_BEQ:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_SUB; dx_imm <= d_imm_b; dx_branchcond <= BCOND_ZERO;  end
@@ -379,17 +383,14 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
-		default:    begin
-			// synthesis translate_off
-			if (!d_cir_empty) $display("Invalid instruction! %h", d_instr);
-			// synthesis translate_on
-		end
+		default:    begin dx_except_invalid_instr <= 1'b1; end
 		endcase
 
 		if (d_stall || flush_d_x) begin
 			dx_branchcond <= BCOND_NEVER;
 			dx_memop <= MEMOP_NONE;
 			dx_rd <= 5'h0;
+			dx_except_invalid_instr <= 1'b0;
 			// Also need to clear rs1, rs2, due to a nasty sequence of events:
 			// Suppose we have a load, followed by a dependent branch, which is predicted taken
 			// - branch will stall in D until AHB master becomes free
@@ -455,6 +456,7 @@ reg  [W_DATA-1:0]    xm_result;
 reg  [W_ADDR-1:0]    xm_jump_target;
 reg                  xm_jump;
 reg  [W_MEMOP-1:0]   xm_memop;
+reg                  xm_except_invalid_instr;
 
 wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc);
 
@@ -538,6 +540,7 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_result <= {W_DATA{1'b0}};
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
+		xm_except_invalid_instr <= 1'b0;
 	end else begin
 		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
@@ -549,6 +552,7 @@ always @ (posedge clk or negedge rst_n) begin
 				xm_rd <= {W_REGADDR{1'b0}};
 				xm_jump <= 1'b0;
 				xm_memop <= MEMOP_NONE;
+				xm_except_invalid_instr <= 1'b0;
 			end else begin
 				case (dx_branchcond)
 					BCOND_ALWAYS: begin
@@ -570,6 +574,7 @@ always @ (posedge clk or negedge rst_n) begin
 						xm_jump_target <= x_rs2_bypass;	// (ab)use this pathway to pass store data
 					end
 				endcase
+				xm_except_invalid_instr <= dx_except_invalid_instr;
 			end
 		end
 	end
@@ -624,6 +629,11 @@ always @ (posedge clk or negedge rst_n) begin
 		mw_rd <= {W_REGADDR{1'b0}};
 		mw_result <= {W_DATA{1'b0}};
 	end else if (!m_stall) begin
+		//synthesis translate_off
+		// TODO: proper exception support
+		if (xm_except_invalid_instr)
+			$display("Invalid instruction!");
+		//synthesis translate_on
 		mw_rd <= xm_rd;
 		case (xm_memop)
 			MEMOP_LW:  mw_result <= m_rdata_shift;
