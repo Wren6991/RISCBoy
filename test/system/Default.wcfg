@@ -9,681 +9,293 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="45" />
-   <wvobject fp_name="/tb/trace_addr0" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">trace_addr0</obj_property>
-      <obj_property name="ObjectShortName">trace_addr0</obj_property>
-   </wvobject>
-   <wvobject fp_name="group176" type="group">
-      <obj_property name="label">Processor</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="divider189" type="divider">
-         <obj_property name="label">Control Path</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="BkColor">128 128 255</obj_property>
-         <obj_property name="TextColor">230 230 230</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/ahb_req_d" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ahb_req_d</obj_property>
-         <obj_property name="ObjectShortName">ahb_req_d</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/ahb_req_i" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ahb_req_i</obj_property>
-         <obj_property name="ObjectShortName">ahb_req_i</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/stall_cause_ahb" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">stall_cause_ahb</obj_property>
-         <obj_property name="ObjectShortName">stall_cause_ahb</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/stall_cause_d" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">stall_cause_d</obj_property>
-         <obj_property name="ObjectShortName">stall_cause_d</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/stall_cause_x" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">stall_cause_x</obj_property>
-         <obj_property name="ObjectShortName">stall_cause_x</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/clk" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk</obj_property>
-         <obj_property name="ObjectShortName">clk</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_jump" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">d_jump</obj_property>
-         <obj_property name="ObjectShortName">d_jump</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/w_fetchaddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">w_fetchaddr[31:0]</obj_property>
-         <obj_property name="ObjectShortName">w_fetchaddr[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/w_jump_now" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">w_jump_now</obj_property>
-         <obj_property name="ObjectShortName">w_jump_now</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/w_jump_target" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">w_jump_target[31:0]</obj_property>
-         <obj_property name="ObjectShortName">w_jump_target[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/wf_jump_unaligned" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">wf_jump_unaligned</obj_property>
-         <obj_property name="ObjectShortName">wf_jump_unaligned</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/wf_jumped" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">wf_jumped</obj_property>
-         <obj_property name="ObjectShortName">wf_jumped</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/flush_d_x" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">flush_d_x</obj_property>
-         <obj_property name="ObjectShortName">flush_d_x</obj_property>
-      </wvobject>
-      <wvobject fp_name="divider177" type="divider">
-         <obj_property name="label">Fetch Path</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="BkColor">128 128 255</obj_property>
-         <obj_property name="TextColor">230 230 230</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/proc0_htrans[1]" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">[1]</obj_property>
-         <obj_property name="ObjectShortName">proc0_htrans[1]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/proc0_haddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">proc0_haddr[31:0]</obj_property>
-         <obj_property name="ObjectShortName">proc0_haddr[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/proc0_hready" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">proc0_hready</obj_property>
-         <obj_property name="ObjectShortName">proc0_hready</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/proc0_hwrite" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">proc0_hwrite</obj_property>
-         <obj_property name="ObjectShortName">proc0_hwrite</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/proc0_hwdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">proc0_hwdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">proc0_hwdata[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/proc0_hrdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">proc0_hrdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">proc0_hrdata[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_jump_target" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">d_jump_target[31:0]</obj_property>
-         <obj_property name="ObjectShortName">d_jump_target[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">f_buf[63:0]</obj_property>
-         <obj_property name="ObjectShortName">f_buf[63:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf_level" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">f_buf_level[2:0]</obj_property>
-         <obj_property name="ObjectShortName">f_buf_level[2:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf_level_next" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">f_buf_level_next[3:0]</obj_property>
-         <obj_property name="ObjectShortName">f_buf_level_next[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/f_fetch_req" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">f_fetch_req</obj_property>
-         <obj_property name="ObjectShortName">f_fetch_req</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/f_fetch_req_prev" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">f_fetch_req_prev</obj_property>
-         <obj_property name="ObjectShortName">f_fetch_req_prev</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/f_instr_loss" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">f_instr_loss[1:0]</obj_property>
-         <obj_property name="ObjectShortName">f_instr_loss[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="divider178" type="divider">
-         <obj_property name="label">Decode</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="BkColor">128 128 255</obj_property>
-         <obj_property name="TextColor">230 230 230</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_pc" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">d_pc[31:0]</obj_property>
-         <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/df_instr_is_32bit" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">df_instr_is_32bit</obj_property>
-         <obj_property name="ObjectShortName">df_instr_is_32bit</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/fd_cir_level" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">fd_cir_level[1:0]</obj_property>
-         <obj_property name="ObjectShortName">fd_cir_level[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_bubble" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">d_bubble</obj_property>
-         <obj_property name="ObjectShortName">d_bubble</obj_property>
-      </wvobject>
-      <wvobject fp_name="vbus211" type="vbus" db_ref_id="1">
-         <obj_property name="label">CIR</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[31]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[31]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[31]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[30]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[30]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[30]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[29]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[29]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[29]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[28]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[28]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[28]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[27]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[27]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[27]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[26]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[26]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[26]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[25]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[25]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[25]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[24]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[24]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[24]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[23]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[23]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[23]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[22]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[22]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[22]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[21]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[21]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[21]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[20]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[20]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[20]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[19]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[19]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[19]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[18]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[18]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[18]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[17]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[17]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[17]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[16]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[16]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[16]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[15]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[15]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[15]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[14]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[14]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[14]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[13]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[13]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[13]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[12]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[12]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[12]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[11]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[11]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[11]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[10]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[10]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[10]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[9]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[9]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[9]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[8]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[8]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[8]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[7]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[7]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[7]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[6]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[6]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[6]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[5]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[5]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[5]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[4]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[4]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[4]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[3]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[3]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[3]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[2]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[2]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[2]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[1]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[1]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[1]</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/f_buf[0]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[0]</obj_property>
-            <obj_property name="ObjectShortName">f_buf[0]</obj_property>
-         </wvobject>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_instr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">d_instr[31:0]</obj_property>
-         <obj_property name="ObjectShortName">d_instr[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_instr_causes_jump" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">d_instr_causes_jump</obj_property>
-         <obj_property name="ObjectShortName">d_instr_causes_jump</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/d_invalid" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">d_invalid</obj_property>
-         <obj_property name="ObjectShortName">d_invalid</obj_property>
-      </wvobject>
-      <wvobject fp_name="divider179" type="divider">
-         <obj_property name="label">Execute</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="BkColor">128 128 255</obj_property>
-         <obj_property name="TextColor">230 230 230</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_pc" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_pc[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_pc[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_aluop" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_aluop[3:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_aluop[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_imm" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_imm[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_imm[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_memop" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_memop[3:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_memop[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_branchcond" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_branchcond[1:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_branchcond[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_mispredict_addr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_mispredict_addr[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_mispredict_addr[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_rd" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_rd[4:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_rd[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_rs1" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_rs1[4:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_rs1[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_rs2" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_rs2[4:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_rs2[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/flush_d_x" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">flush_d_x</obj_property>
-         <obj_property name="ObjectShortName">flush_d_x</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_rdata1" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_rdata1[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_rdata1[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_rdata2" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dx_rdata2[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dx_rdata2[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_rs1_bypass" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">x_rs1_bypass[31:0]</obj_property>
-         <obj_property name="ObjectShortName">x_rs1_bypass[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_rs2_bypass" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">x_rs2_bypass[31:0]</obj_property>
-         <obj_property name="ObjectShortName">x_rs2_bypass[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_op_a" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">x_op_a[31:0]</obj_property>
-         <obj_property name="ObjectShortName">x_op_a[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_op_b" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">x_op_b[31:0]</obj_property>
-         <obj_property name="ObjectShortName">x_op_b[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_alu_result" type="array" db_ref_id="1">
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="ElementShortName">x_alu_result[31:0]</obj_property>
-         <obj_property name="ObjectShortName">x_alu_result[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-         <obj_property name="label">x_alu_result</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_alu_zero" type="logic" db_ref_id="1">
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="ElementShortName">x_alu_zero</obj_property>
-         <obj_property name="ObjectShortName">x_alu_zero</obj_property>
-         <obj_property name="label">x_alu_zero</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_stall_raw" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">x_stall_raw</obj_property>
-         <obj_property name="ObjectShortName">x_stall_raw</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/x_taken_jump_target" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">x_taken_jump_target[31:0]</obj_property>
-         <obj_property name="ObjectShortName">x_taken_jump_target[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="divider188" type="divider">
-         <obj_property name="label">Memory</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="BkColor">128 128 255</obj_property>
-         <obj_property name="TextColor">230 230 230</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/m_rdata_shift" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">m_rdata_shift[31:0]</obj_property>
-         <obj_property name="ObjectShortName">m_rdata_shift[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/m_shift" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">m_shift[1:0]</obj_property>
-         <obj_property name="ObjectShortName">m_shift[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/m_wdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">m_wdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">m_wdata[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_jump" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_jump</obj_property>
-         <obj_property name="ObjectShortName">xm_jump</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_jump_target" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_jump_target[31:0]</obj_property>
-         <obj_property name="ObjectShortName">xm_jump_target[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_memop" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_memop[3:0]</obj_property>
-         <obj_property name="ObjectShortName">xm_memop[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_rd" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_rd[4:0]</obj_property>
-         <obj_property name="ObjectShortName">xm_rd[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_result" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_result[31:0]</obj_property>
-         <obj_property name="ObjectShortName">xm_result[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_rs1" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_rs1[4:0]</obj_property>
-         <obj_property name="ObjectShortName">xm_rs1[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_rs2" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">xm_rs2[4:0]</obj_property>
-         <obj_property name="ObjectShortName">xm_rs2[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="divider190" type="divider">
-         <obj_property name="label">Writeback</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="BkColor">128 128 255</obj_property>
-         <obj_property name="TextColor">230 230 230</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/mw_rd" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mw_rd[4:0]</obj_property>
-         <obj_property name="ObjectShortName">mw_rd[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/mw_result" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mw_result[31:0]</obj_property>
-         <obj_property name="ObjectShortName">mw_result[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/wx_rd" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">wx_rd[4:0]</obj_property>
-         <obj_property name="ObjectShortName">wx_rd[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_revive_cpu/wx_result" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">wx_result[31:0]</obj_property>
-         <obj_property name="ObjectShortName">wx_result[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-   </wvobject>
-   <wvobject fp_name="divider53" type="divider">
-      <obj_property name="label">AHB</obj_property>
+   <WVObjectSize size="64" />
+   <wvobject fp_name="divider57" type="divider">
+      <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/proc0_hready" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">proc0_hready</obj_property>
-      <obj_property name="ObjectShortName">proc0_hready</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/proc0_hresp" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">proc0_hresp</obj_property>
-      <obj_property name="ObjectShortName">proc0_hresp</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/proc0_haddr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">proc0_haddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">proc0_haddr[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hburst" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hburst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hburst[2:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/proc0_htrans" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">proc0_htrans[1:0]</obj_property>
-      <obj_property name="ObjectShortName">proc0_htrans[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/proc0_hsize" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">proc0_hsize[2:0]</obj_property>
-      <obj_property name="ObjectShortName">proc0_hsize[2:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_hready_resp" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_hready_resp</obj_property>
-      <obj_property name="ObjectShortName">bridge_hready_resp</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_hresp" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_hresp</obj_property>
-      <obj_property name="ObjectShortName">bridge_hresp</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_htrans" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_htrans[1:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_htrans[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_hsize" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_hsize[2:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_hsize[2:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_hwdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_hwdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_hwdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hprot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hprot[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hprot[3:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_hrdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_hrdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_hrdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hmastlock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hmastlock</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hmastlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hready</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hresp</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hrdata[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hready" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hready</obj_property>
-      <obj_property name="ObjectShortName">sram0_hready</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hready_resp" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hready_resp</obj_property>
-      <obj_property name="ObjectShortName">sram0_hready_resp</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hresp" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hresp</obj_property>
-      <obj_property name="ObjectShortName">sram0_hresp</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_haddr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_haddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">sram0_haddr[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_haddr[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hwrite" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hwrite</obj_property>
-      <obj_property name="ObjectShortName">sram0_hwrite</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hwrite</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_htrans" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_htrans[1:0]</obj_property>
-      <obj_property name="ObjectShortName">sram0_htrans[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hsize" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hsize[2:0]</obj_property>
-      <obj_property name="ObjectShortName">sram0_hsize[2:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hwdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hwdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">sram0_hwdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_htrans[1:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/sram0_hrdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">sram0_hrdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">sram0_hrdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hsize[2:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="divider55" type="divider">
-      <obj_property name="label">SRAM</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="BkColor">128 128 255</obj_property>
-      <obj_property name="TextColor">230 230 230</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0/sram/wen" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">wen[3:0]</obj_property>
-      <obj_property name="ObjectShortName">wen[3:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0/sram/addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">addr[16:0]</obj_property>
-      <obj_property name="ObjectShortName">addr[16:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0/sram/wdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/sram0/sram/rdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/ahblm_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahblm_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahblm_hwdata[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="divider54" type="divider">
-      <obj_property name="label">APB</obj_property>
+      <obj_property name="label">Frontend Interfaces</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_paddr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_paddr[15:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_paddr[15:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_size" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_size</obj_property>
+      <obj_property name="ObjectShortName">mem_size</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_addr[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_psel" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_psel</obj_property>
-      <obj_property name="ObjectShortName">bridge_psel</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_addr_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr_vld</obj_property>
+      <obj_property name="ObjectShortName">mem_addr_vld</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_penable" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_penable</obj_property>
-      <obj_property name="ObjectShortName">bridge_penable</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_addr_rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr_rdy</obj_property>
+      <obj_property name="ObjectShortName">mem_addr_rdy</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_pwrite" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_pwrite</obj_property>
-      <obj_property name="ObjectShortName">bridge_pwrite</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_pwdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_pwdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_pwdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_data[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_pready" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_pready</obj_property>
-      <obj_property name="ObjectShortName">bridge_pready</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_data_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_data_vld</obj_property>
+      <obj_property name="ObjectShortName">mem_data_vld</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_prdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_prdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">bridge_prdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/jump_target" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">jump_target[31:0]</obj_property>
+      <obj_property name="ObjectShortName">jump_target[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/bridge_pslverr" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">bridge_pslverr</obj_property>
-      <obj_property name="ObjectShortName">bridge_pslverr</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/jump_target_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">jump_target_vld</obj_property>
+      <obj_property name="ObjectShortName">jump_target_vld</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_paddr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_paddr[15:0]</obj_property>
-      <obj_property name="ObjectShortName">tbman_paddr[15:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/jump_target_rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">jump_target_rdy</obj_property>
+      <obj_property name="ObjectShortName">jump_target_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/cir_use" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cir_use[1:0]</obj_property>
+      <obj_property name="ObjectShortName">cir_use[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/cir" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cir[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cir[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_psel" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_psel</obj_property>
-      <obj_property name="ObjectShortName">tbman_psel</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/cir_vld" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cir_vld[1:0]</obj_property>
+      <obj_property name="ObjectShortName">cir_vld[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_penable" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_penable</obj_property>
-      <obj_property name="ObjectShortName">tbman_penable</obj_property>
+   <wvobject fp_name="divider55" type="divider">
+      <obj_property name="label">Frontend FIFO</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_pwrite" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_pwrite</obj_property>
-      <obj_property name="ObjectShortName">tbman_pwrite</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_almost_full" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_almost_full</obj_property>
+      <obj_property name="ObjectShortName">fifo_almost_full</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_pwdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_pwdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">tbman_pwdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_empty" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_empty</obj_property>
+      <obj_property name="ObjectShortName">fifo_empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_full" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_full</obj_property>
+      <obj_property name="ObjectShortName">fifo_full</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_level" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_level[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_level[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_pop" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_pop</obj_property>
+      <obj_property name="ObjectShortName">fifo_pop</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_push" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_push</obj_property>
+      <obj_property name="ObjectShortName">fifo_push</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_wdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_wdata[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_pready" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_pready</obj_property>
-      <obj_property name="ObjectShortName">tbman_pready</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_prdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_prdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">tbman_prdata[31:0]</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_rdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_rdata[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/tbman_pslverr" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">tbman_pslverr</obj_property>
-      <obj_property name="ObjectShortName">tbman_pslverr</obj_property>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_mem" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_mem[0:1,31:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_mem[0:1,31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_rptr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_rptr[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_rptr[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fifo_wptr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_wptr[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_wptr[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider56" type="divider">
+      <obj_property name="label">Frontend Logic</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/buf_level" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">buf_level[1:0]</obj_property>
+      <obj_property name="ObjectShortName">buf_level[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/buf_level_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">buf_level_next[1:0]</obj_property>
+      <obj_property name="ObjectShortName">buf_level_next[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/cir_must_refill" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cir_must_refill</obj_property>
+      <obj_property name="ObjectShortName">cir_must_refill</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/ctr_flush_pending" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ctr_flush_pending[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ctr_flush_pending[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fetch_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fetch_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fetch_addr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fetch_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fetch_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">fetch_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fetch_data_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fetch_data_vld</obj_property>
+      <obj_property name="ObjectShortName">fetch_data_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/fetch_stall" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">fetch_stall</obj_property>
+      <obj_property name="ObjectShortName">fetch_stall</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/hwbuf" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">hwbuf[15:0]</obj_property>
+      <obj_property name="ObjectShortName">hwbuf[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/hwbuf_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hwbuf_vld</obj_property>
+      <obj_property name="ObjectShortName">hwbuf_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/instr_data_plus_fetch" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">instr_data_plus_fetch[47:0]</obj_property>
+      <obj_property name="ObjectShortName">instr_data_plus_fetch[47:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/instr_data_shifted" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">instr_data_shifted[47:0]</obj_property>
+      <obj_property name="ObjectShortName">instr_data_shifted[47:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/level_next_no_fetch" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">level_next_no_fetch[1:0]</obj_property>
+      <obj_property name="ObjectShortName">level_next_no_fetch[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_addr_hold" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr_hold</obj_property>
+      <obj_property name="ObjectShortName">mem_addr_hold</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_addr_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr_r[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_addr_r[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_addr_vld_r" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr_vld_r</obj_property>
+      <obj_property name="ObjectShortName">mem_addr_vld_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/mem_size_r" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_size_r</obj_property>
+      <obj_property name="ObjectShortName">mem_size_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/pending_fetches" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pending_fetches[1:0]</obj_property>
+      <obj_property name="ObjectShortName">pending_fetches[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/pending_fetches_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">pending_fetches_next[1:0]</obj_property>
+      <obj_property name="ObjectShortName">pending_fetches_next[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/unaligned_jump_aph" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">unaligned_jump_aph</obj_property>
+      <obj_property name="ObjectShortName">unaligned_jump_aph</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/unaligned_jump_dph" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">unaligned_jump_dph</obj_property>
+      <obj_property name="ObjectShortName">unaligned_jump_dph</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/unaligned_jump_now" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">unaligned_jump_now</obj_property>
+      <obj_property name="ObjectShortName">unaligned_jump_now</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider58" type="divider">
+      <obj_property name="label">Decode</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider69" type="divider">
+      <obj_property name="label">Execute</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
 </wave_config>
