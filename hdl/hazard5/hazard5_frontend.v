@@ -68,7 +68,7 @@ reg [W_DATA-1:0] fifo_mem [0:FIFO_DEPTH-1];
 reg [W_FIFO_PTR-1:0] fifo_wptr;
 reg [W_FIFO_PTR-1:0] fifo_rptr;
 
-wire [W_FIFO_PTR-1:0] fifo_level = fifo_rptr - fifo_wptr;
+wire [W_FIFO_PTR-1:0] fifo_level = fifo_wptr - fifo_rptr;
 wire fifo_full = (fifo_wptr ^ fifo_rptr) == (1'b1 & {W_FIFO_PTR{1'b1}}) << (W_FIFO_PTR - 1);
 wire fifo_empty = fifo_wptr == fifo_rptr;
 wire fifo_almost_full = fifo_level == FIFO_DEPTH - 1;
@@ -243,7 +243,7 @@ assign cir_must_refill = !level_next_no_fetch[1];
 assign fifo_pop = cir_must_refill && !fifo_empty;
 
 wire [1:0] buf_level_next =
-	jump_target_vld || |ctr_flush_pending ? 2'h0 :
+	(jump_target_vld && jump_target_rdy) || |ctr_flush_pending ? 2'h0 :
 	fetch_data_vld && unaligned_jump_dph ? 2'h1 :
 	buf_level + {cir_must_refill && fetch_data_vld, 1'b0} - cir_use;
 
