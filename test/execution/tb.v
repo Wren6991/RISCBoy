@@ -24,7 +24,7 @@ wire [W_DATA-1:0]         hrdata;
 
 reg [7:0] init_mem [0:SRAM_SIZE_BYTES-1];
 
-revive_cpu #(
+hazard5_cpu #(
 	.RESET_VECTOR(32'h0000_0000)
 ) cpu0 (
 	.clk(clk),

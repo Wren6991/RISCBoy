@@ -41,20 +41,18 @@ module hazard5_cpu #(
 `include "rv_opcodes.vh"
 `include "hazard5_ops.vh"
 
-`define ASSERT(x)
-//synthesis translate_off
 `undef ASSERT
+`ifdef ENABLE_ASSERTIONS
 `define ASSERT(x) assert(x)
-//synthesis translate_on
+`else
+`define ASSERT(x)
+`endif
 
 localparam N_REGS = 32;
 // should be localparam but ISIM can't cope
 parameter W_REGADDR = $clog2(N_REGS);
 localparam NOP_INSTR = 32'h13;	// addi x0, x0, 0
 
-wire stall_cause_ahb_d;
-wire stall_cause_x;
-wire stall_cause_d;
 wire flush_d_x;
 
 wire d_stall;
@@ -103,7 +101,6 @@ assign {ahb_gnt_i, ahb_gnt_d} =
 // Keep track of whether instr/data access is active in AHB dataphase.
 reg ahb_active_dph_i;
 reg ahb_active_dph_d;
-assign stall_cause_ahb_d = ahb_active_dph_d && !ahblm_hready;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -167,7 +164,7 @@ hazard5_frontend #(
 	.mem_size        (f_mem_size),
 	.mem_addr        (ahb_haddr_i),
 	.mem_addr_vld    (ahb_req_i),
-	.mem_addr_rdy    (mem_addr_rdy),
+	.mem_addr_rdy    (ahblm_hready && ahb_gnt_i),
 
 	.mem_data        (ahblm_hrdata),
 	.mem_data_vld    (ahblm_hready && ahb_active_dph_i),
@@ -202,8 +199,9 @@ reg  [W_ADDR-1:0]    dx_pc;
 reg  [W_ADDR-1:0]    dx_mispredict_addr;
 
 wire d_cir_empty = ~|fd_cir_vld || (fd_cir_vld == 2'd1 && d_instr_is_32bit);
-assign stall_cause_d = d_cir_empty || (d_jump_req && !f_jump_rdy);
-assign d_stall = stall_cause_d || x_stall;
+
+assign d_stall = x_stall ||
+	d_cir_empty || (d_jump_req && !f_jump_rdy);
 
 // Expand compressed instructions, and tell F how much instr data we are using
 
@@ -319,7 +317,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 	end else if (!x_stall) begin
-		if (w_jump_now) begin 
+		if (w_jump_now) begin
 			d_pc <= w_jump_target;
 			dx_pc <= d_pc;
 		end else if (d_stall) begin
@@ -382,9 +380,9 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
-		default:    begin 
+		default:    begin
 			// synthesis translate_off
-			if (!d_cir_empty) $display("Invalid instruction! %h", d_instr); 
+			if (!d_cir_empty) $display("Invalid instruction! %h", d_instr);
 			// synthesis translate_on
 		end
 		endcase
@@ -462,8 +460,9 @@ reg  [W_MEMOP-1:0]   xm_memop;
 wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc);
 
 reg x_stall_raw;
-assign stall_cause_x = x_stall_raw;
-assign x_stall = stall_cause_x || m_stall;
+
+assign x_stall = m_stall ||
+	x_stall_raw || ahb_req_d && !(ahb_gnt_d && ahblm_hready);
 
 // Load-use hazard detection
 always @ (*) begin
@@ -481,9 +480,8 @@ end
 
 // AHB transaction request
 always @ (*) begin
-	// M stall should not gate AHB request, as htrans assertion
-	// should depend combinatorially on hready
-	ahb_req_d = ~|(dx_memop & 4'h8) && !stall_cause_x && !flush_d_x;
+	// Need to be careful not to use anything hready-sourced to gate htrans!
+	ahb_req_d = ~|(dx_memop & 4'h8) && !x_stall_raw && !flush_d_x;
 	ahb_haddr_d = x_alu_result;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	case (dx_memop)
@@ -542,7 +540,7 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 	end else begin
-		`ASSERT(!(m_stall && flush_d_x)) // bubble insertion logic below is broken otherwise
+		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
 			xm_result <= x_alu_result;
@@ -559,7 +557,7 @@ always @ (posedge clk or negedge rst_n) begin
 						xm_jump_target <= x_taken_jump_target;
 					end
 					BCOND_ZERO: begin
-						// For branches, we are either taking a branch late, or recovering from 
+						// For branches, we are either taking a branch late, or recovering from
 						// an incorrectly taken branch, depending on sign of branch offset.
 						xm_jump <= x_alu_zero ^ dx_imm[31];
 						xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
@@ -597,7 +595,7 @@ reg [W_DATA-1:0]    m_wdata;
 assign m_jump_req = xm_jump;
 assign m_jump_target = xm_jump_target;
 
-assign m_stall = stall_cause_ahb_d || (m_jump_req && !f_jump_rdy);
+assign m_stall = (ahb_active_dph_d && !ahblm_hready) || (m_jump_req && !f_jump_rdy);
 
 always @ (*) begin
 	// Local forwarding of store data

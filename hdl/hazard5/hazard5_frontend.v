@@ -41,20 +41,22 @@ module hazard5_frontend #(
 );
 
 `undef ASSERT
-`define ASSERT(x)
-//synthesis translate_off
-`undef ASSERT
+`ifdef ENABLE_ASSERTIONS
 `define ASSERT(x) assert(x)
-//synthesis translate_on
+`else
+`define ASSERT(x)
+`endif
 
-//synthesis translate_off
-initial if (W_DATA != 32) begin $error("Frontend requires 32-bit databus"); end
-initial if ((1 << $clog2(FIFO_DEPTH)) != FIFO_DEPTH) begin $error("Frontend FIFO depth must be power of 2"); end
-initial if (~|FIFO_DEPTH) begin $error("Frontend FIFO depth must be > 0"); end
-//synthesis translate_on
+// ISIM is a piece of wank and doesn't support $clog2 (properly) or $error
+
+// //synthesis translate_off
+// initial if (W_DATA != 32) begin $error("Frontend requires 32-bit databus"); end
+// initial if ((1 << $clog2(FIFO_DEPTH)) != FIFO_DEPTH) begin $error("Frontend FIFO depth must be power of 2"); end
+// initial if (~|FIFO_DEPTH) begin $error("Frontend FIFO depth must be > 0"); end
+// //synthesis translate_on
 
 localparam W_BUNDLE = W_DATA / 2;
-localparam W_FIFO_PTR = $clog2(FIFO_DEPTH + 1);
+parameter W_FIFO_PTR = $clog2(FIFO_DEPTH + 1);
 
 // ============================================================================
 // Fetch Queue (FIFO)
@@ -147,7 +149,7 @@ end
 // Using the non-registered version of pending_fetches would improve FIFO
 // utilisation, but create a combinatorial path from hready to address phase!
 wire fetch_stall = fifo_full
-	|| fifo_almost_full && |pending_fetches
+	|| fifo_almost_full && |pending_fetches    // TODO causes issue with depth 1: only one in flight, so bus rate halved.
 	|| pending_fetches > 2'h1;
 
 
@@ -178,15 +180,24 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 // Combinatorially generate the address-phase request
+
+reg [W_ADDR-1:0] mem_addr_r;
+reg mem_addr_vld_r;
+reg mem_size_r;
+
+assign mem_addr = mem_addr_r;
+assign mem_addr_vld = mem_addr_vld_r;
+assign mem_size = mem_size_r;
+
 always @ (*) begin
-	mem_addr = {W_ADDR{1'b0}};
-	mem_addr_vld = 1'b1;
-	mem_size = 1'b1; // almost all accesses are 32 bit
+	mem_addr_r = {W_ADDR{1'b0}};
+	mem_addr_vld_r = 1'b1;
+	mem_size_r = 1'b1; // almost all accesses are 32 bit
 	case (1'b1)
-		mem_addr_hold   : begin mem_addr = {fetch_addr[W_ADDR-1:2], unaligned_jump_aph, 1'b0}; mem_size = !unaligned_jump_aph; end
-		jump_target_vld : begin mem_addr = jump_target; mem_size = !unaligned_jump_now; end
-		!fetch_stall    : begin mem_addr = fetch_addr; end
-		default         : begin mem_addr_vld = 1'b0; end
+		mem_addr_hold   : begin mem_addr_r = {fetch_addr[W_ADDR-1:2], unaligned_jump_aph, 1'b0}; mem_size_r = !unaligned_jump_aph; end
+		jump_target_vld : begin mem_addr_r = jump_target; mem_size_r = !unaligned_jump_now; end
+		!fetch_stall    : begin mem_addr_r = fetch_addr; end
+		default         : begin mem_addr_vld_r = 1'b0; end
 	endcase
 end
 
