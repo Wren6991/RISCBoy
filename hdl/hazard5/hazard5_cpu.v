@@ -181,6 +181,21 @@ assign flush_d_x = m_jump_req && f_jump_rdy;
 //                               Pipe Stage D
 // ============================================================================
 
+// X-check on pieces of instruction which frontend claims are valid
+//synthesis translate_off
+always @ (posedge clk) begin
+	if (rst_n) begin
+		if (|fd_cir_vld && (^fd_cir[15:0] === 1'bx)) begin
+			$display("CIR LSBs are X, should be valid!");
+			$finish;
+		end
+		if (fd_cir_vld[1] && (^fd_cir ===1'bX)) begin
+			$display("CIR contains X, should be fully valid!");
+			$finish;
+		end
+	end
+end
+//synthesis translate_on
 
 reg  [W_DATA-1:0]    dx_imm;
 reg  [W_REGADDR-1:0] dx_rs1;
@@ -583,7 +598,6 @@ always @ (*) begin
 		MEMOP_SB: ahblm_hwdata = {4{m_wdata[7:0]}};
 		default:  ahblm_hwdata = 32'h0;
 	endcase
-	
 	// Pick out correct data from load access, and sign/unsign extend it.
 	// This is slightly cheaper than a normal shift:
 	case (xm_result[1:0])
@@ -618,6 +632,10 @@ always @ (posedge clk or negedge rst_n) begin
 			$display("Bus fault!");
 			$finish;
 		end
+		if (^ahblm_hwdata === 1'bX) begin
+			$display("Writing Xs to memory!");
+			$finish;
+		end
 		//synthesis translate_on
 		mw_rd <= xm_rd;
 		mw_result <= m_result;
@@ -630,6 +648,19 @@ end
 
 // mw_result and mw_rd register the most recent write to the register file,
 // so that X can bypass them in.
+
+wire w_reg_wen = |xm_rd && !m_stall;
+
+//synthesis translate_off
+always @ (posedge clk) begin
+	if (rst_n) begin
+		if (w_reg_wen && (^m_result === 1'bX)) begin
+			$display("Writing X to register file!");
+			$finish;
+		end
+	end
+end
+//synthesis translate_on
 
 hazard5_regfile_1w2r #(
 	.FAKE_DUALPORT(0),
@@ -652,7 +683,7 @@ hazard5_regfile_1w2r #(
 
 	.waddr  (xm_rd),
 	.wdata  (m_result),
-	.wen    (|xm_rd && !m_stall)
+	.wen    (w_reg_wen)
 );
 
 `ifdef FORMAL

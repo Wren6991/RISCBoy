@@ -30,7 +30,14 @@ $(APPNAME).hex: $(APPNAME).elf
 	$(OBJCOPY) -O verilog $(APPNAME).elf $(APPNAME).hex
 
 $(APPNAME).dis: $(APPNAME).elf
-	$(OBJDUMP) -d $(APPNAME).elf > $(APPNAME).dis
+	@echo ">>>>>>>>> Memory map:" > $(APPNAME).dis
+	@echo >> $(APPNAME).dis
+	$(OBJDUMP) -h $(APPNAME).elf >> $(APPNAME).dis
+	@echo >> $(APPNAME).dis
+	@echo ">>>>>>>>> Disassembly:" >> $(APPNAME).dis
+	@echo >> $(APPNAME).dis
+	$(OBJDUMP) -d $(APPNAME).elf >> $(APPNAME).dis
+
 
 compile: $(APPNAME).hex $(APPNAME).dis
 
