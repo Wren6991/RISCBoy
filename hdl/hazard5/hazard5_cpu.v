@@ -592,7 +592,6 @@ hazard5_alu alu (
 //                               Pipe Stage M
 // ============================================================================
 
-reg [1:0]           m_shift;
 reg [W_DATA-1:0]    m_rdata_shift;
 reg [W_DATA-1:0]    m_wdata;
 
@@ -614,14 +613,13 @@ always @ (*) begin
 		MEMOP_SB: ahblm_hwdata = {4{m_wdata[7:0]}};
 		default:  ahblm_hwdata = 32'h0;
 	endcase
-	case (xm_memop)
-		MEMOP_LW:  m_shift = 2'h0;
-		MEMOP_LH:  m_shift = {xm_result[1], 1'b0};
-		MEMOP_LHU: m_shift = {xm_result[1], 1'b0};
-		default:   m_shift = xm_result[1:0];
+	// Cheaper than a normal shift, but generates garbage for unaligned access:
+	case (xm_result[1:0])
+		2'b00: m_rdata_shift = ahblm_hrdata;
+		2'b01: m_rdata_shift = {ahblm_hrdata[31:24], ahblm_hrdata[31:8]};
+		2'b10: m_rdata_shift = {ahblm_hrdata[31:16], ahblm_hrdata[31:16]};
+		2'b11: m_rdata_shift = {ahblm_hrdata[31:8], ahblm_hrdata[31:24]};
 	endcase
-	// Little endian!
-	m_rdata_shift = ahblm_hrdata >> (m_shift << 3);
 end
 
 always @ (posedge clk or negedge rst_n) begin
