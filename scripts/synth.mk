@@ -1,7 +1,11 @@
 CHIPNAME?=chip
 DEVICE?=1k
 TIME_DEVICE?=hx$(DEVICE)
-SYNTH_CMD="read_verilog -DFPGA $(SRCS); synth_ice40 -blif $(CHIPNAME).blif"
+SYNTH_CMD=read_verilog -DFPGA $(SRCS); 
+ifneq (,$(TOP))
+	SYNTH_CMD+=hierarchy -top $(TOP); 
+endif
+SYNTH_CMD+=synth_ice40 -blif $(CHIPNAME).blif
 
 YOSYS=yosys
 ARACHNE=arachne-pnr
@@ -16,12 +20,12 @@ ARACHNE=arachne-pnr
 all: synth
 
 srcs.mk: Makefile $(DOTF)
-	$(SCRIPTS)/listfiles -f make -o srcs.mk $(DOTF)
+	$(SCRIPTS)/listfiles --relative -f make -o srcs.mk $(DOTF)
 
 -include srcs.mk
 
 $(CHIPNAME).blif: $(SRCS)
-	$(YOSYS) -p $(SYNTH_CMD)
+	$(YOSYS) -p "$(SYNTH_CMD)"
 
 $(CHIPNAME).asc: $(CHIPNAME).blif $(CHIPNAME).pcf
 	$(ARACHNE) -d $(DEVICE) -p $(CHIPNAME).pcf -o $(CHIPNAME).asc $(CHIPNAME).blif

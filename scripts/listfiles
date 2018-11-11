@@ -89,7 +89,6 @@ if __name__ == "__main__":
 	if args.output is None:
 		args.output = "files"
 	files, includes = read_filelist(args.src)
-	print((files, includes))
 	# Uniquify whilst preserving order
 	func = lambda l: list(dict.fromkeys(l))
 	if args.relative:
