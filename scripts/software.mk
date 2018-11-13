@@ -9,9 +9,12 @@ LD=$(CROSS_PREFIX)gcc
 OBJCOPY=$(CROSS_PREFIX)objcopy
 OBJDUMP=$(CROSS_PREFIX)objdump
 
-LDSCRIPT=$(SCRIPTS)/memmap.ld
-CCFLAGS=-c -march=rv32ic -O -nostartfiles
-LDFLAGS=-T $(LDSCRIPT)
+LDSCRIPT?=$(SCRIPTS)/memmap.ld
+CCFLAGS?=-c -march=rv32ic $(addprefix -I ,$(INCDIRS))
+LDFLAGS+=-T $(LDSCRIPT)
+
+# Override to -D to get all sections
+DISASSEMBLE ?= -d
 
 .SUFFIXES:
 .PHONY: all clean
@@ -31,12 +34,10 @@ $(APPNAME).hex: $(APPNAME).elf
 
 $(APPNAME).dis: $(APPNAME).elf
 	@echo ">>>>>>>>> Memory map:" > $(APPNAME).dis
-	@echo >> $(APPNAME).dis
 	$(OBJDUMP) -h $(APPNAME).elf >> $(APPNAME).dis
 	@echo >> $(APPNAME).dis
 	@echo ">>>>>>>>> Disassembly:" >> $(APPNAME).dis
-	@echo >> $(APPNAME).dis
-	$(OBJDUMP) -d $(APPNAME).elf >> $(APPNAME).dis
+	$(OBJDUMP) $(DISASSEMBLE) $(APPNAME).elf >> $(APPNAME).dis
 
 
 compile: $(APPNAME).hex $(APPNAME).dis

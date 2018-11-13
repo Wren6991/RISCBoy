@@ -1,0 +1,20 @@
+TEST?=$(shell basename $(PWD))
+
+DOTF=../../tb.f
+SRCS=$(TEST).S
+APPNAME=ram_init
+
+LDSCRIPT=../memmap.ld
+LDFLAGS=-nostartfiles
+INCDIRS=../include
+
+DISASSEMBLE=-D
+include $(SCRIPTS)/sim.mk
+include $(SCRIPTS)/software.mk
+
+test:
+	$(MAKE) sim TEST=$(TEST) > sim.log
+	../compare_testvec sim.log $(TEST).ref
+
+clean::
+	rm -f $(ASM_SRC).elf ram_init.hex sim.log

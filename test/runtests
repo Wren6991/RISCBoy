@@ -2,6 +2,7 @@
 
 import subprocess
 import sys
+import shlex
 
 list = open("testlist")
 
@@ -11,10 +12,10 @@ for testname in list:
 	testname = testname.strip().split("#")[0]
 	if testname == "":
 		continue
-	sys.stdout.write("Running test {:<30}".format(testname))
+	sys.stdout.write("Running {:<50}".format(testname))
 	sys.stdout.flush()
 	try:
-		output = subprocess.check_output(["make", "-C", testname, "test"], stderr=subprocess.STDOUT)
+		output = subprocess.check_output(["make", "-C", *shlex.split(testname), "test"], stderr=subprocess.STDOUT)
 	except subprocess.CalledProcessError as e:
 		print("\033[33m[ABORT!]\033[39m")
 		all_passed = False
@@ -24,7 +25,7 @@ for testname in list:
 		else:
 			print("\033[31m[FAILED]\033[39m")
 			all_passed = False
-	subprocess.call(["make", "-C", testname, "clean"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+	subprocess.call(["make", "-C", *shlex.split(testname), "clean"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 if all_passed:
 	print("All tests passed.")

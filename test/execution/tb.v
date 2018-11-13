@@ -4,7 +4,7 @@ localparam CLK_PERIOD = 10.0;
 
 localparam W_DATA = 32;
 localparam W_ADDR = 32;
-localparam SRAM_SIZE_BYTES = 1 << 16;
+localparam SRAM_SIZE_BYTES = 1 << 20;
 localparam SRAM_DEPTH = SRAM_SIZE_BYTES * 8 / W_DATA;
 
 reg                       clk;
@@ -92,10 +92,20 @@ initial begin
 	#(10 * CLK_PERIOD);
 	rst_n = 1'b1;
 
-	#(10000 * CLK_PERIOD);
+	#(5000 * CLK_PERIOD);
 	$display("Register contents:");
 	for (i = 0; i < 32; i = i + 1) begin
 		$display("%h", cpu0.inst_regfile_1w2r.\real_dualport_reset.mem [i]);
+	end
+
+	$display(".testdata contents:");
+	for (i = 0; i < 128; i = i + 1) begin
+		$display("%h", {
+			sram0.sram.\has_byte_enable.byte_mem[3].mem [i + 'hc0000 / 4],
+			sram0.sram.\has_byte_enable.byte_mem[2].mem [i + 'hc0000 / 4],
+			sram0.sram.\has_byte_enable.byte_mem[1].mem [i + 'hc0000 / 4],
+			sram0.sram.\has_byte_enable.byte_mem[0].mem [i + 'hc0000 / 4]
+		});
 	end
 	$finish(2);
 end

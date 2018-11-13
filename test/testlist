@@ -9,5 +9,9 @@ execution/loadstore
 execution/factorial
 execution/gcd
 execution/quick_brown_fox
+
+execution/riscv_compliance TEST=I-ADD-01
+execution/riscv_compliance TEST=I-ADDI-01
+
 system/helloworld
 system/float_tiny

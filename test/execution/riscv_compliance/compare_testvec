@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import sys
+
+golden = []
+model = []
+
+in_testdata = False
+for l in open(sys.argv[1]):
+	if l.startswith(".testdata contents"):
+		in_testdata = True
+		continue
+	if in_testdata:
+		try:
+			model.append(int(l, 16))
+		except ValueError:
+			break
+
+for l in open(sys.argv[2]):
+	line_contents = []
+	for index in range(0, len(l.strip()), 8):
+		line_contents.append(int(l[index:index + 8], 16))
+	golden.extend(reversed(line_contents))
+
+all_match = True
+for i, g in enumerate(golden):
+	if g != model[i]:
+		print("Mismatch at offset {:02x}: {:08x} (model) != {:08x} (golden)".format(i * 4, model[i], g))
+		all_match = False
+
+if all_match:
+	print("Test PASSED.")
+else:
+	print("Test FAILED.")

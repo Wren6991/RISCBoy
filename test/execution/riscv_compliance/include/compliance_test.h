@@ -1,0 +1,13 @@
+#ifndef _COMPLIANCE_TEST_H_
+#define _COMPLIANCE_TEST_H_
+
+#define RV_COMPLIANCE_CODE_BEGIN
+#define RV_COMPLIANCE_CODE_END
+#define RV_COMPLIANCE_RV32M
+
+#define RV_COMPLIANCE_HALT j .
+
+#define RV_COMPLIANCE_DATA_BEGIN .section .testdata
+#define RV_COMPLIANCE_DATA_END
+
+#endif // _COMPLIANCE_TEST_H_
