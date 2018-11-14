@@ -2,7 +2,7 @@
 
 import sys
 
-golden = []
+gold = []
 model = []
 
 in_testdata = False
@@ -20,13 +20,16 @@ for l in open(sys.argv[2]):
 	line_contents = []
 	for index in range(0, len(l.strip()), 8):
 		line_contents.append(int(l[index:index + 8], 16))
-	golden.extend(reversed(line_contents))
+	gold.extend(reversed(line_contents))
 
 all_match = True
-for i, g in enumerate(golden):
-	if g != model[i]:
-		print("Mismatch at offset {:02x}: {:08x} (model) != {:08x} (golden)".format(i * 4, model[i], g))
+for i, g in enumerate(gold):
+	if g == model[i]:
+		eq_str = "\033[1;32m==\033[0;0m"
+	else:
+		eq_str = "\033[1;31m!=\033[0;0m"
 		all_match = False
+	print("{:03x}: {:08x} (model) {} {:08x} (gold)".format(i * 4, model[i], eq_str, g))
 
 if all_match:
 	print("Test PASSED.")

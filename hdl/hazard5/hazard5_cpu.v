@@ -446,7 +446,8 @@ reg                  xm_jump;
 reg  [W_MEMOP-1:0]   xm_memop;
 reg                  xm_except_invalid_instr;
 
-wire [W_ADDR-1:0] x_taken_jump_target = dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc);
+// For JALR, the LSB of the result must be cleared by hardware
+wire [W_ADDR-1:0] x_taken_jump_target = (dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc)) & {{31{1'b1}}, !dx_jump_is_regoffs};
 
 reg x_stall_raw;
 

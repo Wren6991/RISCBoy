@@ -47,7 +47,10 @@ execution/riscv_compliance TEST=I-LH-01
 execution/riscv_compliance TEST=I-LHU-01
 execution/riscv_compliance TEST=I-LUI-01
 execution/riscv_compliance TEST=I-LW-01
-execution/riscv_compliance TEST=I-MISALIGN_JMP-01
+
+# Leave this one out for now. Unlike RV32I, we do support
+# halfword-aligned jumps (there is no particular RV32IC test suite.)
+#execution/riscv_compliance TEST=I-MISALIGN_JMP-01
 
 # Need trap to support this one, leave it out for now
 #execution/riscv_compliance TEST=I-MISALIGN_LDST-01
