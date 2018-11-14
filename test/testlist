@@ -12,6 +12,69 @@ execution/quick_brown_fox
 
 execution/riscv_compliance TEST=I-ADD-01
 execution/riscv_compliance TEST=I-ADDI-01
+execution/riscv_compliance TEST=I-AND-01
+execution/riscv_compliance TEST=I-ANDI-01
+execution/riscv_compliance TEST=I-AUIPC-01
+execution/riscv_compliance TEST=I-BEQ-01
+execution/riscv_compliance TEST=I-BGE-01
+execution/riscv_compliance TEST=I-BGEU-01
+execution/riscv_compliance TEST=I-BLT-01
+execution/riscv_compliance TEST=I-BLTU-01
+execution/riscv_compliance TEST=I-BNE-01
+
+# These are useless as we currently don't have a CSR
+#execution/riscv_compliance TEST=I-CSRRC-01
+#execution/riscv_compliance TEST=I-CSRRCI-01
+#execution/riscv_compliance TEST=I-CSRRS-01
+#execution/riscv_compliance TEST=I-CSRRSI-01
+#execution/riscv_compliance TEST=I-CSRRW-01
+#execution/riscv_compliance TEST=I-CSRRWI-01
+
+execution/riscv_compliance TEST=I-DELAY_SLOTS-01
+
+# Likewise, there is currently no expectation that these should work
+#execution/riscv_compliance TEST=I-EBREAK-01
+#execution/riscv_compliance TEST=I-ECALL-01
+
+execution/riscv_compliance TEST=I-ENDIANESS-01
+execution/riscv_compliance TEST=I-FENCE.I-01
+execution/riscv_compliance TEST=I-IO
+execution/riscv_compliance TEST=I-JAL-01
+execution/riscv_compliance TEST=I-JALR-01
+execution/riscv_compliance TEST=I-LB-01
+execution/riscv_compliance TEST=I-LBU-01
+execution/riscv_compliance TEST=I-LH-01
+execution/riscv_compliance TEST=I-LHU-01
+execution/riscv_compliance TEST=I-LUI-01
+execution/riscv_compliance TEST=I-LW-01
+execution/riscv_compliance TEST=I-MISALIGN_JMP-01
+
+# Need trap to support this one, leave it out for now
+#execution/riscv_compliance TEST=I-MISALIGN_LDST-01
+
+execution/riscv_compliance TEST=I-NOP-01
+execution/riscv_compliance TEST=I-OR-01
+execution/riscv_compliance TEST=I-ORI-01
+execution/riscv_compliance TEST=I-RF_size-01
+execution/riscv_compliance TEST=I-RF_width-01
+execution/riscv_compliance TEST=I-RF_x0-01
+execution/riscv_compliance TEST=I-SB-01
+execution/riscv_compliance TEST=I-SH-01
+execution/riscv_compliance TEST=I-SLL-01
+execution/riscv_compliance TEST=I-SLLI-01
+execution/riscv_compliance TEST=I-SLT-01
+execution/riscv_compliance TEST=I-SLTI-01
+execution/riscv_compliance TEST=I-SLTIU-01
+execution/riscv_compliance TEST=I-SLTU-01
+execution/riscv_compliance TEST=I-SRA-01
+execution/riscv_compliance TEST=I-SRAI-01
+execution/riscv_compliance TEST=I-SRL-01
+execution/riscv_compliance TEST=I-SRLI-01
+execution/riscv_compliance TEST=I-SUB-01
+execution/riscv_compliance TEST=I-SW-01
+execution/riscv_compliance TEST=I-XOR-01
+execution/riscv_compliance TEST=I-XORI-01
+
 
 system/helloworld
 system/float_tiny
