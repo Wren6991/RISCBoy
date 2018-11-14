@@ -10,6 +10,9 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="13" />
+   <wave_markers>
+      <marker time="16730000000" label="" />
+   </wave_markers>
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -442,10 +445,29 @@
             <obj_property name="ObjectShortName">ahblm_hwdata[31:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
+         <wvobject fp_name="/tb/dut/inst_revive_cpu/m_result" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">m_result[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_result[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="group116" type="group">
          <obj_property name="label">Writeback</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_revive_cpu/m_result" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">m_result[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_result[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_revive_cpu/xm_rd" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">xm_rd[4:0]</obj_property>
+            <obj_property name="ObjectShortName">xm_rd[4:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_revive_cpu/w_reg_wen" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">w_reg_wen</obj_property>
+            <obj_property name="ObjectShortName">w_reg_wen</obj_property>
+         </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/mw_rd" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">mw_rd[4:0]</obj_property>
             <obj_property name="ObjectShortName">mw_rd[4:0]</obj_property>
@@ -454,16 +476,6 @@
          <wvobject fp_name="/tb/dut/inst_revive_cpu/mw_result" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">mw_result[31:0]</obj_property>
             <obj_property name="ObjectShortName">mw_result[31:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/wx_rd" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">wx_rd[4:0]</obj_property>
-            <obj_property name="ObjectShortName">wx_rd[4:0]</obj_property>
-            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/wx_result" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">wx_result[31:0]</obj_property>
-            <obj_property name="ObjectShortName">wx_result[31:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
       </wvobject>

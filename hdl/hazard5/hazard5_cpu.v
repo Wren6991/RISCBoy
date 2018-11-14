@@ -586,7 +586,7 @@ assign m_stall = (ahb_active_dph_d && !ahblm_hready) || (m_jump_req && !f_jump_r
 
 always @ (*) begin
 	// Local forwarding of store data
-	if (~|mw_rd && xm_rs2 == mw_rd) begin
+	if (|mw_rd && xm_rs2 == mw_rd) begin
 		m_wdata = mw_result;
 	end else begin
 		m_wdata = xm_jump_target;

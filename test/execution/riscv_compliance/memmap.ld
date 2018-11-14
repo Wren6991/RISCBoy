@@ -156,6 +156,7 @@ SECTIONS
   . = DATA_SEGMENT_RELRO_END (0, .);
   .data           :
   {
+    . = ALIGN(32 / 8);
     *(.data .data.* .gnu.linkonce.d.*)
     SORT(CONSTRUCTORS)
   }
