@@ -34,8 +34,7 @@ void tbman_printf(const char *fmt, ...)
 int main()
 {
 	tbman_puts("Starting\n");
-	tbman_printf("Abc\n");
-	//tbman_printf("Printing int: %d\n", 1234);
-	//tbman_printf("Printing float: %f\n", 3.142f);
+	tbman_printf("String printf\n");
+	tbman_printf("Printing int: %d\n", 1234);
 	tbman_exit(0);
 }

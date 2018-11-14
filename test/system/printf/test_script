@@ -10,9 +10,19 @@ for line in open(sys.argv[1]).readlines():
 	if line.startswith("TBMAN:"):
 		tbman_lines.append(line.strip()[7:])
 
-failed = failed or tbman_lines[0] != "Hello, world!"
-failed = failed or not tbman_lines[1].startswith("CPU requested termination")
-failed = failed or tbman_lines[1].split(" ")[-1] != "123"
+expected_lines = [
+	"Starting",
+	"String printf",
+	"Printing int: 1234",
+	"CPU requested termination, exit code          0"
+]
 
-if not failed:
+if (len(expected_lines) != len(tbman_lines)):
+	failed = True
+if failed or any(a != b for a, b in zip(tbman_lines, expected_lines)):
+	failed = True
+
+if failed:
+	print("Test FAILED.")
+else:
 	print("Test PASSED.")
