@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="111" />
+   <WVObjectSize size="112" />
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -146,6 +146,16 @@
       <obj_property name="ElementShortName">fifo_mem[0:1,31:0]</obj_property>
       <obj_property name="ObjectShortName">fifo_mem[0:1,31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/tb/cpu0/frontend/fifo_mem[0]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[0,31:0]</obj_property>
+         <obj_property name="ObjectShortName">fifo_mem[0,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/frontend/fifo_mem[1]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[1,31:0]</obj_property>
+         <obj_property name="ObjectShortName">fifo_mem[1,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/fifo_wptr" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">fifo_wptr[1:0]</obj_property>
@@ -280,6 +290,11 @@
    <wvobject fp_name="/tb/cpu0/frontend/cir" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">cir[31:0]</obj_property>
       <obj_property name="ObjectShortName">cir[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cpu0/d_instr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">d_instr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d_instr[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/d_pc" type="array" db_ref_id="1">

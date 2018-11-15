@@ -66,7 +66,7 @@ end else begin
 					instr_out = RV_NOZ_ADDI | (5'h2 << RV_RD_LSB) | (5'h2 << RV_RS1_LSB) |
 						({{3{instr_in[12]}}, instr_in[4:3], instr_in[5], instr_in[2], instr_in[6]} << 24);
 				end else begin
-					instr_out = RV_NOZ_LUI | (rd_l << RV_RD_LSB) | ({instr_in[12], instr_in[6:2]} << 12);
+					instr_out = RV_NOZ_LUI | (rd_l << RV_RD_LSB) | ({{15{instr_in[12]}}, instr_in[6:2]} << 12);
 				end
 			end
 			RV_C_SLLI:     instr_out = RV_NOZ_SLLI | (rs1_l << RV_RD_LSB) | (rs1_l << RV_RS1_LSB) | imm_ci;
