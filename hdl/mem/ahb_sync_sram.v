@@ -49,7 +49,7 @@ parameter  W_BYTEADDR  = $clog2(W_BYTES);
 
 assign ahbls_hresp = 1'b0;
 
-wire [W_BYTES-1:0] wmask_noshift = ~({W_BYTES{1'b0}} << (1 << ahbls_hsize));
+wire [W_BYTES-1:0] wmask_noshift = ~({W_BYTES{1'b1}} << (1 << ahbls_hsize));
 wire [W_BYTES-1:0] wmask = wmask_noshift << ahbls_haddr[W_BYTEADDR-1:0];
 reg [W_BYTES-1:0] wen;
 
