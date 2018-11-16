@@ -1,7 +1,8 @@
 # You should override this via command line
 TEST=I-ADD-01
 
-ARCH_DIR=riscv-compliance/riscv-test-suite/rv32i
+ARCH=rv32i
+ARCH_DIR=riscv-compliance/riscv-test-suite/$(ARCH)
 SRC_DIR=$(ARCH_DIR)/src
 REF_DIR=$(ARCH_DIR)/references
 

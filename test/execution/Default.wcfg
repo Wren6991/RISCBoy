@@ -9,7 +9,86 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="112" />
+   <WVObjectSize size="130" />
+   <wvobject fp_name="divider115" type="divider">
+      <obj_property name="label">SRAM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hburst" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hburst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hburst[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hmastlock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hmastlock</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hmastlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hprot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hprot[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hprot[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hready_resp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hready_resp</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hready_resp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hresp</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hsize[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_htrans[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/ahbls_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbls_hwrite</obj_property>
+      <obj_property name="ObjectShortName">ahbls_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/hreadyout" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">hreadyout</obj_property>
+      <obj_property name="ObjectShortName">hreadyout</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/addr_saved" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr_saved[17:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_saved[17:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/sram_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sram_addr[17:0]</obj_property>
+      <obj_property name="ObjectShortName">sram_addr[17:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/wen" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wen[3:0]</obj_property>
+      <obj_property name="ObjectShortName">wen[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/wmask" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wmask[3:0]</obj_property>
+      <obj_property name="ObjectShortName">wmask[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/sram0/wmask_noshift" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wmask_noshift[3:0]</obj_property>
+      <obj_property name="ObjectShortName">wmask_noshift[3:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>

@@ -10,6 +10,8 @@ execution/factorial
 execution/gcd
 execution/quick_brown_fox
 
+# RV32I tests
+
 execution/riscv_compliance TEST=I-ADD-01
 execution/riscv_compliance TEST=I-ADDI-01
 execution/riscv_compliance TEST=I-AND-01
@@ -55,7 +57,10 @@ execution/riscv_compliance TEST=I-LW-01
 # Need trap to support this one, leave it out for now
 #execution/riscv_compliance TEST=I-MISALIGN_LDST-01
 
-execution/riscv_compliance TEST=I-NOP-01
+# This one runs fine apart from when it tries to use PC difference to count number 
+# of cycles executed (not valid for RV C extension)
+#execution/riscv_compliance TEST=I-NOP-01
+
 execution/riscv_compliance TEST=I-OR-01
 execution/riscv_compliance TEST=I-ORI-01
 execution/riscv_compliance TEST=I-RF_size-01
@@ -77,6 +82,34 @@ execution/riscv_compliance TEST=I-SUB-01
 execution/riscv_compliance TEST=I-SW-01
 execution/riscv_compliance TEST=I-XOR-01
 execution/riscv_compliance TEST=I-XORI-01
+
+# RV32IMC tests (don't actually use M extension)
+
+execution/riscv_compliance ARCH=rv32imc TEST=C-ADDI16SP
+execution/riscv_compliance ARCH=rv32imc TEST=C-ADDI4SPN
+execution/riscv_compliance ARCH=rv32imc TEST=C-ADDI
+execution/riscv_compliance ARCH=rv32imc TEST=C-ADD
+execution/riscv_compliance ARCH=rv32imc TEST=C-ANDI
+execution/riscv_compliance ARCH=rv32imc TEST=C-AND
+execution/riscv_compliance ARCH=rv32imc TEST=C-BEQZ
+execution/riscv_compliance ARCH=rv32imc TEST=C-BNEZ
+execution/riscv_compliance ARCH=rv32imc TEST=C-JALR
+execution/riscv_compliance ARCH=rv32imc TEST=C-JAL
+execution/riscv_compliance ARCH=rv32imc TEST=C-JR
+execution/riscv_compliance ARCH=rv32imc TEST=C-J
+execution/riscv_compliance ARCH=rv32imc TEST=C-LI
+execution/riscv_compliance ARCH=rv32imc TEST=C-LUI
+execution/riscv_compliance ARCH=rv32imc TEST=C-LW
+execution/riscv_compliance ARCH=rv32imc TEST=C-LWSP
+execution/riscv_compliance ARCH=rv32imc TEST=C-MV
+execution/riscv_compliance ARCH=rv32imc TEST=C-OR
+execution/riscv_compliance ARCH=rv32imc TEST=C-SLLI
+execution/riscv_compliance ARCH=rv32imc TEST=C-SRAI
+execution/riscv_compliance ARCH=rv32imc TEST=C-SRLI
+execution/riscv_compliance ARCH=rv32imc TEST=C-SUB
+execution/riscv_compliance ARCH=rv32imc TEST=C-SW
+execution/riscv_compliance ARCH=rv32imc TEST=C-SWSP
+execution/riscv_compliance ARCH=rv32imc TEST=C-XOR
 
 
 system/helloworld
