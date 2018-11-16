@@ -67,6 +67,9 @@ ahb_sync_sram #(
 always #(CLK_PERIOD * 0.5) clk = !clk;
 
 integer i;
+reg [31:0] result_ptr_mem [0:1];
+reg [31:0] result_base_ptr;
+reg [31:0] result_end_ptr;
 
 initial begin
 	clk = 1'b0;
@@ -89,6 +92,23 @@ initial begin
 		sram0.sram.\has_byte_enable.byte_mem[3].mem [i] = init_mem[i * 4 + 3];
 	end
 
+	result_ptr_mem[0] = 0;
+	result_ptr_mem[1] = 0;
+	$readmemh("../result_ptr.hex", result_ptr_mem);
+	result_base_ptr = result_ptr_mem[0];
+	result_end_ptr = result_ptr_mem[1];
+	$display("Results at mem offset %h -> %h", result_base_ptr, result_end_ptr);
+
+	$display(".testdata preload:");
+	for (i = result_base_ptr; i < result_end_ptr; i = i + 4) begin
+		$display("%h", {
+			sram0.sram.\has_byte_enable.byte_mem[3].mem [i / 4],
+			sram0.sram.\has_byte_enable.byte_mem[2].mem [i / 4],
+			sram0.sram.\has_byte_enable.byte_mem[1].mem [i / 4],
+			sram0.sram.\has_byte_enable.byte_mem[0].mem [i / 4]
+		});
+	end
+
 	#(10 * CLK_PERIOD);
 	rst_n = 1'b1;
 
@@ -98,13 +118,13 @@ initial begin
 		$display("%h", cpu0.inst_regfile_1w2r.\real_dualport_reset.mem [i]);
 	end
 
-	$display(".testdata contents:");
-	for (i = 0; i < 128; i = i + 1) begin
+	$display("Test results:");
+	for (i = result_base_ptr; i < result_end_ptr; i = i + 4) begin
 		$display("%h", {
-			sram0.sram.\has_byte_enable.byte_mem[3].mem [i + 'hc0000 / 4],
-			sram0.sram.\has_byte_enable.byte_mem[2].mem [i + 'hc0000 / 4],
-			sram0.sram.\has_byte_enable.byte_mem[1].mem [i + 'hc0000 / 4],
-			sram0.sram.\has_byte_enable.byte_mem[0].mem [i + 'hc0000 / 4]
+			sram0.sram.\has_byte_enable.byte_mem[3].mem [i / 4],
+			sram0.sram.\has_byte_enable.byte_mem[2].mem [i / 4],
+			sram0.sram.\has_byte_enable.byte_mem[1].mem [i / 4],
+			sram0.sram.\has_byte_enable.byte_mem[0].mem [i / 4]
 		});
 	end
 	$finish(2);

@@ -7,7 +7,7 @@ model = []
 
 in_testdata = False
 for l in open(sys.argv[1]):
-	if l.startswith(".testdata contents"):
+	if l.startswith("Test results:"):
 		in_testdata = True
 		continue
 	if in_testdata:

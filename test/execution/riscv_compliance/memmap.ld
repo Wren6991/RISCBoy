@@ -3,8 +3,7 @@
 
 MEMORY
   {
-    RAM (wx)  : ORIGIN = 0x0, LENGTH = 768K
-    TESTDATA (w) : ORIGIN = 0xC0000, LENGTH = 256K
+    RAM (wx)  : ORIGIN = 0x0, LENGTH = 1M
   }
 
 OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv",
@@ -239,13 +238,12 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) }
 
-
-
   /* Link testout section to upper memory region */
   .testdata :
   {
+    PROVIDE(__testdata_start = .);
    *(.testdata)
-  } > TESTDATA
+  } > RAM
 }
 
 

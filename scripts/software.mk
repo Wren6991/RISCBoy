@@ -41,7 +41,7 @@ $(APPNAME).dis: $(APPNAME).elf
 	$(OBJDUMP) $(DISASSEMBLE) $(APPNAME).elf >> $(APPNAME).dis
 
 
-compile: $(APPNAME).hex $(APPNAME).dis
+compile:: $(APPNAME).hex $(APPNAME).dis
 
 clean::
 	rm -f $(APPNAME).elf $(APPNAME).hex $(APPNAME).dis $(OBJS)

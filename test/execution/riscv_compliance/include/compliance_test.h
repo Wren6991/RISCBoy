@@ -17,9 +17,14 @@
 #define RV_COMPLIANCE_HALT j .
 
 #define RV_COMPLIANCE_DATA_BEGIN                                              \
-        .section .testdata;                                                   \
-        .align 4                                                              \
+        .align 4;                                                             \
+        .global hazard5_signature_start;                                      \
+        hazard5_signature_start:                                              \
 
-#define RV_COMPLIANCE_DATA_END
+#define RV_COMPLIANCE_DATA_END                                                \
+        .align 4;                                                             \
+        .global hazard5_signature_end;                                        \
+        hazard5_signature_end:
+
 
 #endif // _COMPLIANCE_TEST_H_

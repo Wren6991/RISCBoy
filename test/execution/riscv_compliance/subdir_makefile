@@ -14,9 +14,13 @@ DISASSEMBLE=-D
 include $(SCRIPTS)/sim.mk
 include $(SCRIPTS)/software.mk
 
+compile::
+	objdump -t ram_init.elf | grep hazard5_signature_start | cut -c1-8 > result_ptr.hex
+	objdump -t ram_init.elf | grep hazard5_signature_end | cut -c1-8 >> result_ptr.hex
+
 test:
 	$(MAKE) sim TEST=$(TEST) > sim.log
 	../compare_testvec sim.log $(TEST).ref
 
 clean::
-	rm -f $(ASM_SRC).elf ram_init.hex sim.log
+	rm -f sim.log result_ptr.hex
