@@ -6,6 +6,10 @@ ARCH_DIR=riscv-compliance/riscv-test-suite/$(ARCH)
 SRC_DIR=$(ARCH_DIR)/src
 REF_DIR=$(ARCH_DIR)/references
 
+# The architecture passed to the compiler/assembler
+# (some tests depend on the size/alignment of instructions so must be RV32I instead)
+MARCH=rv32ic
+
 # Check out the relevant files, and a standard sub makefile, into their own directory.
 # Then call into this makefile, to build the simulator and assemble/run the test code.
 # It's disgusting but keeps sim tools from imploding when you try to start multiple tests concurrently.
@@ -20,7 +24,7 @@ mkdir:
 	cp -f subdir_makefile $(TEST)/Makefile
 
 compile: mkdir
-	$(MAKE) -C $(TEST) TEST=$(TEST) compile
+	$(MAKE) -C $(TEST) TEST=$(TEST) MARCH=$(MARCH) compile
 
 sim: compile
 	$(MAKE) -C $(TEST) TEST=$(TEST) sim

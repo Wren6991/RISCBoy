@@ -39,7 +39,11 @@ execution/riscv_compliance TEST=I-DELAY_SLOTS-01
 #execution/riscv_compliance TEST=I-ECALL-01
 
 execution/riscv_compliance TEST=I-ENDIANESS-01
-execution/riscv_compliance TEST=I-FENCE.I-01
+
+# With compressed instructions, the store target is misaligned.
+# Should be able to remove this flag once we have some form of unaligned load/store.
+execution/riscv_compliance TEST=I-FENCE.I-01 MARCH=rv32i
+
 execution/riscv_compliance TEST=I-IO
 execution/riscv_compliance TEST=I-JAL-01
 execution/riscv_compliance TEST=I-JALR-01
@@ -57,9 +61,9 @@ execution/riscv_compliance TEST=I-LW-01
 # Need trap to support this one, leave it out for now
 #execution/riscv_compliance TEST=I-MISALIGN_LDST-01
 
-# This one runs fine apart from when it tries to use PC difference to count number 
-# of cycles executed (not valid for RV C extension)
-#execution/riscv_compliance TEST=I-NOP-01
+# Assemble without compressed instructions
+# because it uses PC difference to measure cycle count.
+execution/riscv_compliance TEST=I-NOP-01 MARCH=rv32i
 
 execution/riscv_compliance TEST=I-OR-01
 execution/riscv_compliance TEST=I-ORI-01

@@ -9,8 +9,9 @@ LD=$(CROSS_PREFIX)gcc
 OBJCOPY=$(CROSS_PREFIX)objcopy
 OBJDUMP=$(CROSS_PREFIX)objdump
 
+MARCH?=rv32ic
 LDSCRIPT?=$(SCRIPTS)/memmap.ld
-CCFLAGS?=-c -march=rv32ic $(addprefix -I ,$(INCDIRS))
+CCFLAGS?=-c -march=$(MARCH) $(addprefix -I ,$(INCDIRS))
 LDFLAGS+=-T $(LDSCRIPT)
 
 # Override to -D to get all sections

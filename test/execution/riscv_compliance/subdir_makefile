@@ -7,8 +7,10 @@ APPNAME=ram_init
 LDSCRIPT=../memmap.ld
 LDFLAGS=-nostartfiles
 INCDIRS=../include
-
+MARCH=rv32ic
+# Disassemble all sections
 DISASSEMBLE=-D
+
 include $(SCRIPTS)/sim.mk
 include $(SCRIPTS)/software.mk
 
