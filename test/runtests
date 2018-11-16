@@ -3,31 +3,80 @@
 import subprocess
 import sys
 import shlex
+from threading import Thread, Lock, Semaphore
+from multiprocessing import cpu_count
 
-list = open("testlist")
+class ThreadPool:
+	def __init__(self, thread_count=1):
+		self.threads = [Thread(target=lambda: self._threadtask()) for i in range(thread_count)]
+		self._lock = Lock()
+		self._tasklist = []
+		self._unjoined_tasks = 0
+		self._in_sem = Semaphore(value=0)
+		self._out_sem = Semaphore(value=0)
+		for thread in self.threads:
+			thread.setDaemon(True)
+			thread.start()
+	def queue_task(self, task):
+		self.tasklist.append(task)
+		self._lock.acquire()
+		self._unjoined_tasks += 1
+		self._lock.release()
+		self._in_sem.release()
+	def wait_all(self):
+		unjoined_tasks = self._unjoined_tasks
+		for i in range(unjoined_tasks):
+			self._out_sem.acquire()
+		self._lock.acquire()
+		self._unjoined_tasks -= unjoined_tasks
+		self._lock.release()
+	@property
+	def tasklist(self):
+	    return self._tasklist
+	def _threadtask(self):
+		while True:
+			self._in_sem.acquire()
+			self._tasklist.pop(0)()
+			self._out_sem.release()
 
-all_passed = True
+test_pass = []
 
-for testname in list:
-	testname = testname.strip().split("#")[0]
-	if testname == "":
-		continue
-	sys.stdout.write("Running {:<50}".format(testname))
-	sys.stdout.flush()
-	try:
-		output = subprocess.check_output(["make", "-C", *shlex.split(testname), "test"], stderr=subprocess.STDOUT)
-	except subprocess.CalledProcessError as e:
-		print("\033[33m[ABORT!]\033[39m")
-		all_passed = False
-	else:
-		if "Test PASSED" in output.decode("utf-8"):
-			print("\033[32m[PASSED]\033[39m")
+def run(test):
+	def f():
+		out_str = "Running {:<60}".format(test)
+		try:
+			output = subprocess.check_output(["make", "-C", *shlex.split(test), "test"], stderr=subprocess.STDOUT)
+		except subprocess.CalledProcessError as e:
+			out_str += "\033[33m[ABORT!]\033[39m"
+			test_pass.append(False)
 		else:
-			print("\033[31m[FAILED]\033[39m")
-			all_passed = False
-	subprocess.call(["make", "-C", *shlex.split(testname), "clean"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			if "Test PASSED" in output.decode("utf-8"):
+				out_str += "\033[32m[PASSED]\033[39m"
+				test_pass.append(True)
+			else:
+				out_str += "\033[31m[FAILED]\033[39m"
+				test_pass.append(False)
+		subprocess.call(["make", "-C", *shlex.split(test), "clean"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		print(out_str)
+	return f
 
-if all_passed:
-	print("All tests passed.")
-else:
-	print("Some tests failed. Re-run failed tests to view output.")
+def main():
+	print("Spawning {} threads".format(cpu_count()))
+	tp = ThreadPool(cpu_count())
+	list = open("testlist")
+
+	for test in list:
+		test = test.strip().split("#")[0]
+		if test == "":
+			continue
+		tp.queue_task(run(test))
+
+	tp.wait_all()
+
+	if all(test_pass):
+		print("All tests passed.")
+	else:
+		print("Some tests failed. Re-run failed tests to view output.")
+
+if __name__ == "__main__":
+	main()
