@@ -118,6 +118,7 @@ gpio_regs inst_gpio_regs
 	.dir_o        (proc_oe),
 	.in_i         (pads),
 	.fsel0_p0_o      (fsel[0 ]),
+	.fsel0_p1_o      (fsel[1 ]),
 	.fsel0_p2_o      (fsel[2 ]),
 	.fsel0_p3_o      (fsel[3 ]),
 	.fsel0_p4_o      (fsel[4 ]),
