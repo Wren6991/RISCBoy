@@ -116,5 +116,6 @@ execution/riscv_compliance ARCH=rv32imc TEST=C-SWSP
 execution/riscv_compliance ARCH=rv32imc TEST=C-XOR
 
 
-system/helloworld
-system/float_tiny
+system TEST=helloworld
+system TEST=float_tiny
+system TEST=printf_int
