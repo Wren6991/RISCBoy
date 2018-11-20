@@ -5,7 +5,7 @@ TEST_SRCS=$(addprefix $(SRC_DIR)/,init.S $(TEST).c)
 mkdir:
 	mkdir -p $(TEST)
 	cp -f $(TEST_SRCS) $(TEST)
-	cp -f test_script/$(TEST) $(TEST)/test_script
+	-cp -f test_script/$(TEST) $(TEST)/test_script
 	cp -f subdir.mk $(TEST)/Makefile
 
 compile: mkdir

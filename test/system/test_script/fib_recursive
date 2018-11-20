@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import sys
+
+failed = False
+
+tbman_lines = []
+
+for line in open(sys.argv[1]).readlines():
+	if line.startswith("TBMAN:"):
+		tbman_lines.append(line.strip()[7:])
+
+failed = failed or not tbman_lines[0].startswith("CPU requested termination")
+failed = failed or tbman_lines[0].split(" ")[-1] != "144"
+
+if not failed:
+	print("Test PASSED.")

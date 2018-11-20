@@ -397,7 +397,7 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_SW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SW;  dx_rd <= {W_REGADDR{1'b0}}; end
 		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
-		RV_SYSTEM:  begin $display("Syscall: %h", d_instr); end
+		RV_SYSTEM:  begin if (!d_starved) $display("Syscall @ PC %h: %h", d_pc, d_instr); end
 		default:    begin dx_except_invalid_instr <= 1'b1; end
 		endcase
 
@@ -445,6 +445,7 @@ reg  [W_ADDR-1:0]    xm_jump_target;
 reg                  xm_jump;
 reg  [W_MEMOP-1:0]   xm_memop;
 reg                  xm_except_invalid_instr;
+reg                  xm_except_unaligned;
 
 // For JALR, the LSB of the result must be cleared by hardware
 wire [W_ADDR-1:0] x_taken_jump_target = (dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc)) & {{31{1'b1}}, !dx_jump_is_regoffs};
@@ -526,6 +527,7 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 		xm_except_invalid_instr <= 1'b0;
+		xm_except_unaligned <= 1'b0;
 	end else begin
 		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
@@ -538,6 +540,7 @@ always @ (posedge clk or negedge rst_n) begin
 				xm_jump <= 1'b0;
 				xm_memop <= MEMOP_NONE;
 				xm_except_invalid_instr <= 1'b0;
+				xm_except_unaligned <= 1'b0;
 			end else begin
 				case (dx_branchcond)
 					BCOND_ALWAYS: begin
@@ -560,6 +563,8 @@ always @ (posedge clk or negedge rst_n) begin
 					end
 				endcase
 				xm_except_invalid_instr <= dx_except_invalid_instr;
+				xm_except_unaligned <= ahb_hsize_d == HSIZE_WORD && |ahb_haddr_d[1:0]
+					|| ahb_hsize_d == HSIZE_HWORD && ahb_haddr_d[0];
 			end
 		end
 	end
@@ -627,6 +632,10 @@ always @ (posedge clk or negedge rst_n) begin
 		// TODO: proper exception support
 		if (xm_except_invalid_instr) begin
 			$display("Invalid instruction!");
+			$finish;
+		end
+		if (xm_except_unaligned) begin
+			$display("Unaligned load/store!");
 			$finish;
 		end
 		if (ahblm_hresp) begin

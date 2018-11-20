@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="13" />
+   <WVObjectSize size="14" />
    <wave_markers>
       <marker time="16730000000" label="" />
    </wave_markers>
@@ -553,6 +553,82 @@
          <obj_property name="ElementShortName">print_ptr[31:0]</obj_property>
          <obj_property name="ObjectShortName">print_ptr[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group141" type="group">
+      <obj_property name="label">GPIO</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/gpio" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">gpio[15:0]</obj_property>
+         <obj_property name="ObjectShortName">gpio[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_paddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_paddr[15:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_paddr[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_psel" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_psel</obj_property>
+         <obj_property name="ObjectShortName">apbs_psel</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_penable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_penable</obj_property>
+         <obj_property name="ObjectShortName">apbs_penable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_pwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pwrite</obj_property>
+         <obj_property name="ObjectShortName">apbs_pwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_pwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_pwdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_prdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_prdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_prdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/apbs_pready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pready</obj_property>
+         <obj_property name="ObjectShortName">apbs_pready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/uart_tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">uart_tx</obj_property>
+         <obj_property name="ObjectShortName">uart_tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/uart_rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">uart_rx</obj_property>
+         <obj_property name="ObjectShortName">uart_rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/fsel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">fsel[0:15,0:0]</obj_property>
+         <obj_property name="ObjectShortName">fsel[0:15,0:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/proc_out" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc_out[15:0]</obj_property>
+         <obj_property name="ObjectShortName">proc_out[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/proc_oe" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc_oe[15:0]</obj_property>
+         <obj_property name="ObjectShortName">proc_oe[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/padout_all" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">padout_all[0:15,1:0]</obj_property>
+         <obj_property name="ObjectShortName">padout_all[0:15,1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/padoe_all" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">padoe_all[0:15,1:0]</obj_property>
+         <obj_property name="ObjectShortName">padoe_all[0:15,1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/padout" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">padout[15:0]</obj_property>
+         <obj_property name="ObjectShortName">padout[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_gpio/padoe" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">padoe[15:0]</obj_property>
+         <obj_property name="ObjectShortName">padoe[15:0]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
