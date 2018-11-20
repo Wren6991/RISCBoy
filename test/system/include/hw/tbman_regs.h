@@ -13,8 +13,9 @@
 // Bus address width    : 16
 
 #define TBMAN_PRINT_OFFS 0
-#define TBMAN_EXIT_OFFS 4
-#define TBMAN_DEFINES_OFFS 8
+#define TBMAN_PUTINT_OFFS 4
+#define TBMAN_EXIT_OFFS 8
+#define TBMAN_DEFINES_OFFS 12
 
 /*******************************************************************************
 *                                    PRINT                                     *
@@ -26,6 +27,17 @@
 #define TBMAN_PRINT_LSB  0
 #define TBMAN_PRINT_BITS 8
 #define TBMAN_PRINT_MASK 0xff
+
+/*******************************************************************************
+*                                    PUTINT                                    *
+*******************************************************************************/
+
+// Write a uint32 here to print it (handy for quickly dumping memory etc.)
+
+// Field PUTINT
+#define TBMAN_PUTINT_LSB  0
+#define TBMAN_PUTINT_BITS 32
+#define TBMAN_PUTINT_MASK 0xffffffff
 
 /*******************************************************************************
 *                                     EXIT                                     *

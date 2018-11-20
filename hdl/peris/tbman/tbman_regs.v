@@ -26,6 +26,8 @@ module tbman_regs (
 	// Register interfaces
 	output reg [7:0] print_o,
 	output reg print_wen,
+	output reg [31:0] putint_o,
+	output reg putint_wen,
 	output reg [31:0] exit_o,
 	output reg exit_wen,
 	input wire  defines_sim_i,
@@ -43,11 +45,14 @@ assign apbs_pready = 1'b1;
 assign apbs_pslverr = 1'b0;
 
 localparam ADDR_PRINT = 0;
-localparam ADDR_EXIT = 4;
-localparam ADDR_DEFINES = 8;
+localparam ADDR_PUTINT = 4;
+localparam ADDR_EXIT = 8;
+localparam ADDR_DEFINES = 12;
 
 wire __print_wen = wen && addr == ADDR_PRINT;
 wire __print_ren = ren && addr == ADDR_PRINT;
+wire __putint_wen = wen && addr == ADDR_PUTINT;
+wire __putint_ren = ren && addr == ADDR_PUTINT;
 wire __exit_wen = wen && addr == ADDR_EXIT;
 wire __exit_ren = ren && addr == ADDR_EXIT;
 wire __defines_wen = wen && addr == ADDR_DEFINES;
@@ -57,6 +62,11 @@ wire [7:0] print_wdata = wdata[7:0];
 wire [7:0] print_rdata;
 wire [31:0] __print_rdata = {24'h0, print_rdata};
 assign print_rdata = 8'h0;
+
+wire [31:0] putint_wdata = wdata[31:0];
+wire [31:0] putint_rdata;
+wire [31:0] __putint_rdata = {putint_rdata};
+assign putint_rdata = 32'h0;
 
 wire [31:0] exit_wdata = wdata[31:0];
 wire [31:0] exit_rdata;
@@ -74,12 +84,15 @@ assign defines_fpga_rdata = defines_fpga_i;
 always @ (*) begin
 	case (addr)
 		ADDR_PRINT: rdata = __print_rdata;
+		ADDR_PUTINT: rdata = __putint_rdata;
 		ADDR_EXIT: rdata = __exit_rdata;
 		ADDR_DEFINES: rdata = __defines_rdata;
 		default: rdata = 32'h0;
 	endcase
 	print_wen = __print_wen;
 	print_o = print_wdata;
+	putint_wen = __putint_wen;
+	putint_o = putint_wdata;
 	exit_wen = __exit_wen;
 	exit_o = exit_wdata;
 end

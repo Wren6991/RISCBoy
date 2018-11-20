@@ -28,6 +28,8 @@ module tbman (
 
 wire [7:0]  print_o;
 wire        print_wen;
+wire [31:0] putint_o;
+wire        putint_wen;
 wire [31:0] exit_o;
 wire        exit_wen;
 wire        defines_sim;
@@ -47,6 +49,8 @@ tbman_regs inst_tbman_regs
 	.apbs_pslverr   (apbs_pslverr),
 	.print_o        (print_o),
 	.print_wen      (print_wen),
+	.putint_o       (putint_o),
+	.putint_wen     (putint_wen),
 	.exit_o         (exit_o),
 	.exit_wen       (exit_wen),
 	.defines_sim_i  (defines_sim),
@@ -70,6 +74,9 @@ always @ (posedge clk) begin
 			print_str[print_ptr * 8 +: 8] = print_o;
 			print_ptr = print_ptr + 1;
 		end
+	end
+	if (putint_wen) begin
+		$display("TBMAN: %h", putint_o);
 	end
 	if (exit_wen) begin
 		$display("TBMAN: CPU requested termination, exit code %d", exit_o);

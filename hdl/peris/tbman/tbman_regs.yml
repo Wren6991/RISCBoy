@@ -7,6 +7,10 @@ regs:
     info: "Write a byte here to print to sim console"
     bits:
       - {b: [7, 0], access: wf}
+  - name: putint
+    info: "Write a uint32 here to print it (handy for quickly dumping memory etc.)"
+    bits:
+      - {b: [31, 0], access: wf}
   - name: exit
     info: "Write simulation exit condition here"
     bits:

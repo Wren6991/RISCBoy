@@ -11,6 +11,7 @@
 
 
 DECL_REG(TBMAN_BASE + TBMAN_PRINT_OFFS, TBMAN_PRINT);
+DECL_REG(TBMAN_BASE + TBMAN_PUTINT_OFFS, TBMAN_PUTINT);
 DECL_REG(TBMAN_BASE + TBMAN_EXIT_OFFS, TBMAN_EXIT);
 DECL_REG(TBMAN_BASE + TBMAN_DEFINES_OFFS, TBMAN_DEFINES);
 
@@ -28,6 +29,11 @@ static inline void tbman_puts(const char *s)
 {
 	while (*s)
 		*TBMAN_PRINT = *s++;
+}
+
+static inline void tbman_putint(uint32_t i)
+{
+	*TBMAN_PUTINT = i;
 }
 
 static inline void tbman_printf(const char *fmt, ...)
