@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="14" />
+   <WVObjectSize size="15" />
    <wave_markers>
       <marker time="16730000000" label="" />
    </wave_markers>
@@ -629,6 +629,89 @@
       <wvobject fp_name="/tb/dut/inst_gpio/padoe" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">padoe[15:0]</obj_property>
          <obj_property name="ObjectShortName">padoe[15:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group142" type="group">
+      <obj_property name="label">UART</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/clk_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_en</obj_property>
+         <obj_property name="ObjectShortName">clk_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/apbs_psel" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_psel</obj_property>
+         <obj_property name="ObjectShortName">apbs_psel</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/apbs_pwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pwrite</obj_property>
+         <obj_property name="ObjectShortName">apbs_pwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/apbs_paddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_paddr[15:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_paddr[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/apbs_pwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_pwdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/apbs_prdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_prdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_prdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rx</obj_property>
+         <obj_property name="ObjectShortName">rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">tx</obj_property>
+         <obj_property name="ObjectShortName">tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/txfifo_level" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">txfifo_level[1:0]</obj_property>
+         <obj_property name="ObjectShortName">txfifo_level[1:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/txfifo_wen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">txfifo_wen</obj_property>
+         <obj_property name="ObjectShortName">txfifo_wen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/txfifo_ren" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">txfifo_ren</obj_property>
+         <obj_property name="ObjectShortName">txfifo_ren</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rxfifo_level" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rxfifo_level[1:0]</obj_property>
+         <obj_property name="ObjectShortName">rxfifo_level[1:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rxfifo_wen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rxfifo_wen</obj_property>
+         <obj_property name="ObjectShortName">rxfifo_wen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rxfifo_ren" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rxfifo_ren</obj_property>
+         <obj_property name="ObjectShortName">rxfifo_ren</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/csr_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">csr_en</obj_property>
+         <obj_property name="ObjectShortName">csr_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/tx_busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_busy</obj_property>
+         <obj_property name="ObjectShortName">tx_busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/div_int" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">div_int[9:0]</obj_property>
+         <obj_property name="ObjectShortName">div_int[9:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/div_frac" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">div_frac[7:0]</obj_property>
+         <obj_property name="ObjectShortName">div_frac[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

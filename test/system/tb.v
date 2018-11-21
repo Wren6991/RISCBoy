@@ -1,4 +1,4 @@
-module tb();
+module tb;
 
 localparam CLK_PERIOD = 20;
 
@@ -35,6 +35,11 @@ initial begin
 	rst_n = 1'b1;
 end
 
-wire trace_addr0 = dut.proc0_haddr == 32'h20008dfc;
+behav_uart_rx #(
+	.BAUD_RATE(115200.0),
+	.BUF_SIZE(256)
+) uart_rx (
+	.rx(pads[15])
+);
 
 endmodule
