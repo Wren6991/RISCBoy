@@ -13,8 +13,10 @@ integer print_ptr;
 integer i;
 
 initial begin
+	i = 0;
+	byte_buf = 0;
 	print_buf = 0;
-	print_ptr = 0;
+	print_ptr = BUF_SIZE - 1;
 	while (1'b1) begin
 		@ (negedge rx);
 		#(1.5 * BIT_PERIOD);
@@ -28,8 +30,9 @@ initial begin
 			print_ptr = 0;
 		end else begin
 			print_buf[print_ptr * 8 +: 8] = byte_buf;
-			print_ptr = print_ptr + 1;
+			print_ptr = print_ptr - 1;
 		end
+		byte_buf = 0;
 	end
 end
 

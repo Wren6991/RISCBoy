@@ -43,7 +43,7 @@ test_pass = []
 
 def run(test):
 	def f():
-		out_str = "Running {:<60}".format(test)
+		out_str = "> {:<60}".format(test)
 		try:
 			output = subprocess.check_output(["make", "-C", *shlex.split(test), "test"], stderr=subprocess.STDOUT)
 		except subprocess.CalledProcessError as e:

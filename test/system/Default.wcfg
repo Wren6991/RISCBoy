@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="15" />
+   <WVObjectSize size="23" />
    <wave_markers>
       <marker time="16730000000" label="" />
    </wave_markers>
@@ -326,6 +326,10 @@
       <wvobject fp_name="group114" type="group">
          <obj_property name="label">Execute</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_revive_cpu/flush_d_x" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">flush_d_x</obj_property>
+            <obj_property name="ObjectShortName">flush_d_x</obj_property>
+         </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/dx_pc" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">dx_pc[31:0]</obj_property>
             <obj_property name="ObjectShortName">dx_pc[31:0]</obj_property>
@@ -408,6 +412,10 @@
       <wvobject fp_name="group115" type="group">
          <obj_property name="label">Load/Store DPhase</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_revive_cpu/m_stall" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">m_stall</obj_property>
+            <obj_property name="ObjectShortName">m_stall</obj_property>
+         </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/m_jump_req" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">m_jump_req</obj_property>
             <obj_property name="ObjectShortName">m_jump_req</obj_property>
@@ -678,6 +686,10 @@
          <obj_property name="ElementShortName">txfifo_wen</obj_property>
          <obj_property name="ObjectShortName">txfifo_wen</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/txfifo_empty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">txfifo_empty</obj_property>
+         <obj_property name="ObjectShortName">txfifo_empty</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb/dut/inst_uart_mini/txfifo_ren" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">txfifo_ren</obj_property>
          <obj_property name="ObjectShortName">txfifo_ren</obj_property>
@@ -703,6 +715,21 @@
          <obj_property name="ElementShortName">tx_busy</obj_property>
          <obj_property name="ObjectShortName">tx_busy</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/tx_over_ctr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_over_ctr[2:0]</obj_property>
+         <obj_property name="ObjectShortName">tx_over_ctr[2:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/tx_state" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_state[3:0]</obj_property>
+         <obj_property name="ObjectShortName">tx_state[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/tx_shifter" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_shifter[7:0]</obj_property>
+         <obj_property name="ObjectShortName">tx_shifter[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb/dut/inst_uart_mini/div_int" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">div_int[9:0]</obj_property>
          <obj_property name="ObjectShortName">div_int[9:0]</obj_property>
@@ -713,5 +740,42 @@
          <obj_property name="ObjectShortName">div_frac[7:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/rx" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rx</obj_property>
+      <obj_property name="ObjectShortName">rx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/print_buf" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">print_buf[2047:0]</obj_property>
+      <obj_property name="ObjectShortName">print_buf[2047:0]</obj_property>
+      <obj_property name="Radix">ASCIIRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/byte_buf" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_buf[7:0]</obj_property>
+      <obj_property name="ObjectShortName">byte_buf[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/print_ptr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">print_ptr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">print_ptr[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/BAUD_RATE" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">BAUD_RATE</obj_property>
+      <obj_property name="ObjectShortName">BAUD_RATE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/BUF_SIZE" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">BUF_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BUF_SIZE[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uart_rx/BIT_PERIOD" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">BIT_PERIOD</obj_property>
+      <obj_property name="ObjectShortName">BIT_PERIOD</obj_property>
    </wvobject>
 </wave_config>

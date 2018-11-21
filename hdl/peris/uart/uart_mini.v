@@ -76,7 +76,7 @@ localparam TX_START = 1;
 localparam TX_STOP = 10;
 
 wire tx_busy = tx_state != TX_IDLE || !txfifo_empty;
-assign txfifo_ren = csr_en && !txfifo_empty && !tx_over_ctr &&
+assign txfifo_ren = clk_en && !txfifo_empty && !tx_over_ctr &&
 	(tx_state == TX_IDLE || tx_state == TX_STOP);
 
 always @ (posedge clk or negedge rst_n) begin
