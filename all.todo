@@ -1,0 +1,38 @@
+Processor:
+  ☐ Get float printf working @high
+  ☐ Look closely at riscv-formal to see if suitable
+  ☐ Factor out decode to separate module
+  ☐ Iterate on decode synths to try and pack gates down
+  ☐ Identify other sources of high gate count
+  ☐ Add exceptions
+    ☐ CSR for unaligned info?
+    ☐ Non-returning hardfault exception for e.g. exception during exception
+  ☐ Consider adding debug
+  ☐ Consider hardware unaligned load/store support
+    (e.g. perform just byte accesses; just has to be better than software).
+  ☐ Port more advanced/larger C testcases
+  ☐ Investigate negedge read for register file to improve timing
+
+Graphics:
+  ☐ Set target gate count
+  ☐ Set target features
+  ☐ Consider memory writeback for compositing multiple layers
+  ☐ Consider mode7-esque
+  ☐ Consider pixel modes
+
+DMA:
+  ☐ Spec it!
+
+Other Chip:
+  ☐ Proper async SRAM controller
+  ☐ Remove wait states from sync SRAM controller
+  ☐ Support bursts in AHB-lite fabric
+  ☐ More aggressive busfabric verification (UVM? Formal?)
+  ☐ Support partial crossbars in ahbl_crossbar
+  ☐ GPIO: multiple-pad peripheral inputs
+    (not totally critical for this project)
+  ☐ 
+
+PCB:
+  ☐ FPGA config: check whether it's feasible for ATMega32u4 to stream from SD card to FPGA slave config port (minimal part count)
+  ☐ Find example code for ATMega32u4 UART bridge
