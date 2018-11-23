@@ -1,11 +1,50 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# Connector:Micro_SD_Card
+# Connector_Generic_Conn_01x12
 #
-DEF Connector:Micro_SD_Card J 0 40 Y Y 1 F N
+DEF Connector_Generic_Conn_01x12 J 0 40 Y N 1 F N
+F0 "J" 0 600 50 H V C CNN
+F1 "Connector_Generic_Conn_01x12" 0 -700 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Connector*:*_1x??_*
+$ENDFPLIST
+DRAW
+S -50 -595 0 -605 1 1 6 N
+S -50 -495 0 -505 1 1 6 N
+S -50 -395 0 -405 1 1 6 N
+S -50 -295 0 -305 1 1 6 N
+S -50 -195 0 -205 1 1 6 N
+S -50 -95 0 -105 1 1 6 N
+S -50 5 0 -5 1 1 6 N
+S -50 105 0 95 1 1 6 N
+S -50 205 0 195 1 1 6 N
+S -50 305 0 295 1 1 6 N
+S -50 405 0 395 1 1 6 N
+S -50 505 0 495 1 1 6 N
+S -50 550 50 -650 1 1 10 f
+X Pin_1 1 -200 500 150 R 50 50 1 1 P
+X Pin_10 10 -200 -400 150 R 50 50 1 1 P
+X Pin_11 11 -200 -500 150 R 50 50 1 1 P
+X Pin_12 12 -200 -600 150 R 50 50 1 1 P
+X Pin_2 2 -200 400 150 R 50 50 1 1 P
+X Pin_3 3 -200 300 150 R 50 50 1 1 P
+X Pin_4 4 -200 200 150 R 50 50 1 1 P
+X Pin_5 5 -200 100 150 R 50 50 1 1 P
+X Pin_6 6 -200 0 150 R 50 50 1 1 P
+X Pin_7 7 -200 -100 150 R 50 50 1 1 P
+X Pin_8 8 -200 -200 150 R 50 50 1 1 P
+X Pin_9 9 -200 -300 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# Connector_Micro_SD_Card
+#
+DEF Connector_Micro_SD_Card J 0 40 Y Y 1 F N
 F0 "J" -650 600 50 H V C CNN
-F1 "Connector:Micro_SD_Card" 650 600 50 H V R CNN
+F1 "Connector_Micro_SD_Card" 650 600 50 H V R CNN
 F2 "" 1150 300 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -34,11 +73,11 @@ X SHIELD 9 800 -600 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Connector:TestPoint
+# Connector_TestPoint
 #
-DEF Connector:TestPoint TP 0 30 N N 1 F N
+DEF Connector_TestPoint TP 0 30 N N 1 F N
 F0 "TP" 0 270 50 H V C CNN
-F1 "Connector:TestPoint" 0 200 50 H V C CNN
+F1 "Connector_TestPoint" 0 200 50 H V C CNN
 F2 "" 200 0 50 H I C CNN
 F3 "" 200 0 50 H I C CNN
 $FPLIST
@@ -51,11 +90,11 @@ X 1 1 0 0 100 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:+1V2
+# fpgaboy-rescue_+1V2
 #
-DEF fpgaboy-rescue:+1V2 #PWR 0 0 Y Y 1 F P
+DEF fpgaboy-rescue_+1V2 #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "fpgaboy-rescue:+1V2" 0 140 50 H V C CNN
+F1 "fpgaboy-rescue_+1V2" 0 140 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -66,26 +105,11 @@ X +1V2 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:+1V8
+# fpgaboy-rescue_+3V3
 #
-DEF fpgaboy-rescue:+1V8 #PWR 0 0 Y Y 1 F P
+DEF fpgaboy-rescue_+3V3 #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "fpgaboy-rescue:+1V8" 0 140 50 H V C CNN
-F2 "" 0 0 50 H V C CNN
-F3 "" 0 0 50 H V C CNN
-DRAW
-P 2 0 1 0 -30 50 0 100 N
-P 2 0 1 0 0 0 0 100 N
-P 2 0 1 0 0 100 30 50 N
-X +1V8 1 0 0 0 U 50 50 1 1 W N
-ENDDRAW
-ENDDEF
-#
-# fpgaboy-rescue:+3V3
-#
-DEF fpgaboy-rescue:+3V3 #PWR 0 0 Y Y 1 F P
-F0 "#PWR" 0 -150 50 H I C CNN
-F1 "fpgaboy-rescue:+3V3" 0 140 50 H V C CNN
+F1 "fpgaboy-rescue_+3V3" 0 140 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -96,11 +120,11 @@ X +3V3 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:+5V
+# fpgaboy-rescue_+5V
 #
-DEF fpgaboy-rescue:+5V #PWR 0 0 Y Y 1 F P
+DEF fpgaboy-rescue_+5V #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "fpgaboy-rescue:+5V" 0 140 50 H V C CNN
+F1 "fpgaboy-rescue_+5V" 0 140 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -111,11 +135,11 @@ X +5V 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:+BATT
+# fpgaboy-rescue_+BATT
 #
-DEF fpgaboy-rescue:+BATT #PWR 0 0 Y Y 1 F P
+DEF fpgaboy-rescue_+BATT #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "fpgaboy-rescue:+BATT" 0 140 50 H V C CNN
+F1 "fpgaboy-rescue_+BATT" 0 140 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -126,31 +150,11 @@ X +BATT 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:93LC56B
+# fpgaboy-rescue_BQ21040
 #
-DEF fpgaboy-rescue:93LC56B U 0 40 Y Y 1 F N
-F0 "U" 0 -300 60 H V C CNN
-F1 "fpgaboy-rescue:93LC56B" 0 300 60 H V C CNN
-F2 "" 0 0 60 H I C CNN
-F3 "" 0 0 60 H I C CNN
-DRAW
-S -250 250 250 -250 0 1 0 N
-X ~CS 1 450 150 200 L 50 50 1 1 I
-X SCK 2 450 50 200 L 50 50 1 1 I
-X SDI 3 450 -50 200 L 50 50 1 1 I
-X SDO 4 450 -150 200 L 50 50 1 1 O
-X GND 5 -450 -150 200 R 50 50 1 1 P
-X ORG 6 -450 -50 200 R 50 50 1 1 I
-X NC 7 -450 50 200 R 50 50 1 1 N
-X VCC 8 -450 150 200 R 50 50 1 1 W
-ENDDRAW
-ENDDEF
-#
-# fpgaboy-rescue:BQ21040
-#
-DEF fpgaboy-rescue:BQ21040 U 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_BQ21040 U 0 40 Y Y 1 F N
 F0 "U" 0 300 51 H V C CNN
-F1 "fpgaboy-rescue:BQ21040" 0 -300 51 H V C CNN
+F1 "fpgaboy-rescue_BQ21040" 0 -300 51 H V C CNN
 F2 "" 0 0 51 H I C CNN
 F3 "" 0 0 51 H I C CNN
 DRAW
@@ -164,11 +168,11 @@ X VIN 6 -550 150 300 R 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:C
+# fpgaboy-rescue_C
 #
-DEF fpgaboy-rescue:C C 0 10 N Y 1 F N
+DEF fpgaboy-rescue_C C 0 10 N Y 1 F N
 F0 "C" 25 100 50 H V L CNN
-F1 "fpgaboy-rescue:C" 25 -100 50 H V L CNN
+F1 "fpgaboy-rescue_C" 25 -100 50 H V L CNN
 F2 "" 38 -150 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -186,11 +190,11 @@ X ~ 2 0 -150 110 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:CONN_01X02
+# fpgaboy-rescue_CONN_01X02
 #
-DEF fpgaboy-rescue:CONN_01X02 P 0 40 Y N 1 F N
+DEF fpgaboy-rescue_CONN_01X02 P 0 40 Y N 1 F N
 F0 "P" 0 150 50 H V C CNN
-F1 "fpgaboy-rescue:CONN_01X02" 100 0 50 V V C CNN
+F1 "fpgaboy-rescue_CONN_01X02" 100 0 50 V V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -208,11 +212,11 @@ X P2 2 -200 -50 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:CONN_01X12
+# fpgaboy-rescue_CONN_01X12
 #
-DEF fpgaboy-rescue:CONN_01X12 P 0 40 Y N 1 F N
+DEF fpgaboy-rescue_CONN_01X12 P 0 40 Y N 1 F N
 F0 "P" 0 650 50 H V C CNN
-F1 "fpgaboy-rescue:CONN_01X12" 100 0 50 V V C CNN
+F1 "fpgaboy-rescue_CONN_01X12" 100 0 50 V V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -250,11 +254,11 @@ X P9 9 -200 -250 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:DSC60XX
+# fpgaboy-rescue_DSC60XX
 #
-DEF fpgaboy-rescue:DSC60XX U 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_DSC60XX U 0 40 Y Y 1 F N
 F0 "U" 0 -200 60 H V C CNN
-F1 "fpgaboy-rescue:DSC60XX" 0 200 60 H V C CNN
+F1 "fpgaboy-rescue_DSC60XX" 0 200 60 H V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -266,86 +270,11 @@ X VCC 4 450 50 200 L 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:FT2232H
+# fpgaboy-rescue_GND
 #
-DEF fpgaboy-rescue:FT2232H U 0 40 Y Y 1 F N
-F0 "U" 0 -100 59 H V C CNN
-F1 "fpgaboy-rescue:FT2232H" 0 100 59 H V C CNN
-F2 "" -3150 3850 59 H I C CNN
-F3 "" -3150 3850 59 H I C CNN
-DRAW
-S -650 2100 600 -2300 0 1 0 N
-X GND 1 -300 -2500 200 U 50 50 1 1 P
-X AGND 10 -400 -2500 200 U 50 50 1 1 P
-X GND 11 -100 -2500 200 U 50 50 1 1 P
-X VCORE 12 -200 2300 200 D 50 50 1 1 W
-X TEST 13 -850 -1950 200 R 50 50 1 1 P
-X ~RESET 14 -850 -1050 200 R 50 50 1 1 P
-X ADBUS0 16 800 1750 200 L 50 50 1 1 I
-X ADBUS1 17 800 1650 200 L 50 50 1 1 I
-X ADBUS2 18 800 1550 200 L 50 50 1 1 I
-X ADBUS3 19 800 1450 200 L 50 50 1 1 I
-X OSCI 2 -850 -1650 200 R 50 50 1 1 I
-X VCCIO 20 200 2300 200 D 50 50 1 1 W
-X ADBUS4 21 800 1350 200 L 50 50 1 1 I
-X ADBUS5 22 800 1250 200 L 50 50 1 1 I
-X ADBUS6 23 800 1150 200 L 50 50 1 1 I
-X ADBUS7 24 800 1050 200 L 50 50 1 1 I
-X GND 25 0 -2500 200 U 50 50 1 1 P
-X ACBUS0 26 800 850 200 L 50 50 1 1 I
-X ACBUS1 27 800 750 200 L 50 50 1 1 I
-X ACBUS2 28 800 650 200 L 50 50 1 1 I
-X ACBUS3 29 800 550 200 L 50 50 1 1 I
-X OSCO 3 -850 -1750 200 R 50 50 1 1 O
-X ACBUS4 30 800 450 200 L 50 50 1 1 I
-X VCCIO 31 300 2300 200 D 50 50 1 1 W
-X ACBUS5 32 800 350 200 L 50 50 1 1 I
-X ACBUS6 33 800 250 200 L 50 50 1 1 I
-X ACBUS7 34 800 150 200 L 50 50 1 1 I
-X GND 35 100 -2500 200 U 50 50 1 1 P
-X ~SUSPEND 36 800 -1950 200 L 50 50 1 1 I
-X VCORE 37 -100 2300 200 D 50 50 1 1 W
-X BDBUS0 38 800 -50 200 L 50 50 1 1 I
-X BDBUS1 39 800 -150 200 L 50 50 1 1 I
-X VPHY 4 -500 2300 200 D 50 50 1 1 W
-X BDBUS2 40 800 -250 200 L 50 50 1 1 I
-X BDBUS3 41 800 -350 200 L 50 50 1 1 I
-X VCCIO 42 400 2300 200 D 50 50 1 1 W
-X BDBUS4 43 800 -450 200 L 50 50 1 1 I
-X BDBUS5 44 800 -550 200 L 50 50 1 1 I
-X BDBUS6 45 800 -650 200 L 50 50 1 1 I
-X BDBUS7 46 800 -750 200 L 50 50 1 1 I
-X GND 47 200 -2500 200 U 50 50 1 1 P
-X BCBUS0 48 800 -950 200 L 50 50 1 1 I
-X VREGOUT 49 -850 1650 200 R 50 50 1 1 w
-X GND 5 -200 -2500 200 U 50 50 1 1 P
-X VREGIN 50 -850 1750 200 R 50 50 1 1 W
-X GND 51 300 -2500 200 U 50 50 1 1 P
-X BCBUS1 52 800 -1050 200 L 50 50 1 1 I
-X BCBUS2 53 800 -1150 200 L 50 50 1 1 I
-X BCBUS3 54 800 -1250 200 L 50 50 1 1 I
-X BCBUS4 55 800 -1350 200 L 50 50 1 1 I
-X VCCIO 56 500 2300 200 D 50 50 1 1 W
-X BCBUS5 57 800 -1450 200 L 50 50 1 1 I
-X BCBUS6 58 800 -1550 200 L 50 50 1 1 I
-X BCBUS7 59 800 -1650 200 L 50 50 1 1 I
-X REF 6 -850 -950 200 R 50 50 1 1 P
-X ~PWREN 60 800 -1850 200 L 50 50 1 1 I
-X EEDATA 61 -850 -1450 200 R 50 50 1 1 B
-X EECLK 62 -850 -1350 200 R 50 50 1 1 O
-X EECS 63 -850 -1250 200 R 50 50 1 1 O
-X VCORE 64 0 2300 200 D 50 50 1 1 W
-X DM 7 -850 -650 200 R 50 50 1 1 B
-X DP 8 -850 -750 200 R 50 50 1 1 B
-X VPLL 9 -400 2300 200 D 50 50 1 1 W
-ENDDRAW
-ENDDEF
-#
-# fpgaboy-rescue:GND
-#
-DEF fpgaboy-rescue:GND #PWR 0 0 Y Y 1 F P
+DEF fpgaboy-rescue_GND #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -250 50 H I C CNN
-F1 "fpgaboy-rescue:GND" 0 -150 50 H V C CNN
+F1 "fpgaboy-rescue_GND" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -354,11 +283,11 @@ X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:GNDPWR
+# fpgaboy-rescue_GNDPWR
 #
-DEF fpgaboy-rescue:GNDPWR #PWR 0 0 Y Y 1 F P
+DEF fpgaboy-rescue_GNDPWR #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -200 50 H I C CNN
-F1 "fpgaboy-rescue:GNDPWR" 0 -130 50 H V C CNN
+F1 "fpgaboy-rescue_GNDPWR" 0 -130 50 H V C CNN
 F2 "" 0 -50 50 H V C CNN
 F3 "" 0 -50 50 H V C CNN
 DRAW
@@ -373,11 +302,11 @@ X GNDPWR 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:GS74116AGP_
+# fpgaboy-rescue_GS74116AGP_
 #
-DEF fpgaboy-rescue:GS74116AGP_ U 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_GS74116AGP_ U 0 40 Y Y 1 F N
 F0 "U" 2550 500 60 H V C CNN
-F1 "fpgaboy-rescue:GS74116AGP_" 0 1400 60 H V C CNN
+F1 "fpgaboy-rescue_GS74116AGP_" 0 1400 60 H V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -429,11 +358,11 @@ X DQ3 9 500 850 200 L 50 50 1 1 B
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:ILI9341
+# fpgaboy-rescue_ILI9341
 #
-DEF fpgaboy-rescue:ILI9341 P 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_ILI9341 P 0 40 Y Y 1 F N
 F0 "P" 0 -1050 59 H V C CNN
-F1 "fpgaboy-rescue:ILI9341" 50 1050 59 H V C CNN
+F1 "fpgaboy-rescue_ILI9341" 50 1050 59 H V C CNN
 F2 "" -1450 1700 59 H I C CNN
 F3 "" -1450 1700 59 H I C CNN
 DRAW
@@ -459,11 +388,11 @@ X VCC 9 -350 50 200 R 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:L
+# fpgaboy-rescue_L
 #
-DEF fpgaboy-rescue:L L 0 40 N N 1 F N
+DEF fpgaboy-rescue_L L 0 40 N N 1 F N
 F0 "L" -50 0 50 V V C CNN
-F1 "fpgaboy-rescue:L" 75 0 50 V V C CNN
+F1 "fpgaboy-rescue_L" 75 0 50 V V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -480,11 +409,11 @@ X 2 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:LED
+# fpgaboy-rescue_LED
 #
-DEF fpgaboy-rescue:LED D 0 40 Y N 1 F N
+DEF fpgaboy-rescue_LED D 0 40 Y N 1 F N
 F0 "D" 0 100 50 H V C CNN
-F1 "fpgaboy-rescue:LED" 0 -100 50 H V C CNN
+F1 "fpgaboy-rescue_LED" 0 -100 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -501,11 +430,11 @@ X A 2 150 0 100 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:NCP1532
+# fpgaboy-rescue_NCP1532
 #
-DEF fpgaboy-rescue:NCP1532 U 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_NCP1532 U 0 40 Y Y 1 F N
 F0 "U" 0 450 51 H V C CNN
-F1 "fpgaboy-rescue:NCP1532" 0 -450 51 H V C CNN
+F1 "fpgaboy-rescue_NCP1532" 0 -450 51 H V C CNN
 F2 "" 0 0 51 H I C CNN
 F3 "" 0 0 51 H I C CNN
 DRAW
@@ -523,11 +452,11 @@ X EN2 9 -600 -300 300 R 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:PWR_FLAG
+# fpgaboy-rescue_PWR_FLAG
 #
-DEF fpgaboy-rescue:PWR_FLAG #FLG 0 0 N N 1 F P
+DEF fpgaboy-rescue_PWR_FLAG #FLG 0 0 N N 1 F P
 F0 "#FLG" 0 95 50 H I C CNN
-F1 "fpgaboy-rescue:PWR_FLAG" 0 180 50 H V C CNN
+F1 "fpgaboy-rescue_PWR_FLAG" 0 180 50 H V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -536,11 +465,11 @@ X pwr 1 0 0 0 U 50 50 0 0 w
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:Q_NMOS_GSD
+# fpgaboy-rescue_Q_NMOS_GSD
 #
-DEF fpgaboy-rescue:Q_NMOS_GSD Q 0 0 Y N 1 F N
+DEF fpgaboy-rescue_Q_NMOS_GSD Q 0 0 Y N 1 F N
 F0 "Q" 200 50 50 H V L CNN
-F1 "fpgaboy-rescue:Q_NMOS_GSD" 200 -50 50 H V L CNN
+F1 "fpgaboy-rescue_Q_NMOS_GSD" 200 -50 50 H V L CNN
 F2 "" 200 100 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 DRAW
@@ -567,11 +496,11 @@ X D 3 100 200 100 D 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:R
+# fpgaboy-rescue_R
 #
-DEF fpgaboy-rescue:R R 0 0 N Y 1 F N
+DEF fpgaboy-rescue_R R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "fpgaboy-rescue:R" 0 0 50 V V C CNN
+F1 "fpgaboy-rescue_R" 0 0 50 V V C CNN
 F2 "" -70 0 50 V V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -585,31 +514,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:S25FL132K
+# fpgaboy-rescue_SWITCH_SPST
 #
-DEF fpgaboy-rescue:S25FL132K U 0 40 Y Y 1 F N
-F0 "U" 0 -300 60 H V C CNN
-F1 "fpgaboy-rescue:S25FL132K" 0 300 60 H V C CNN
-F2 "" -250 0 60 H I C CNN
-F3 "" -250 0 60 H I C CNN
-DRAW
-S -250 250 250 -250 0 1 0 N
-X ~CS 1 -450 150 200 R 50 50 1 1 I
-X SO 2 -450 50 200 R 50 50 1 1 O
-X ~WP 3 -450 -50 200 R 50 50 1 1 I
-X VSS 4 -450 -150 200 R 50 50 1 1 P
-X SI 5 450 -150 200 L 50 50 1 1 I
-X SCK 6 450 -50 200 L 50 50 1 1 I
-X ~HOLD 7 450 50 200 L 50 50 1 1 I
-X VCC 8 450 150 200 L 50 50 1 1 W
-ENDDRAW
-ENDDEF
-#
-# fpgaboy-rescue:SWITCH_SPST
-#
-DEF fpgaboy-rescue:SWITCH_SPST SW 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_SWITCH_SPST SW 0 40 Y Y 1 F N
 F0 "SW" 0 -150 60 H V C CNN
-F1 "fpgaboy-rescue:SWITCH_SPST" 0 200 60 H V C CNN
+F1 "fpgaboy-rescue_SWITCH_SPST" 0 200 60 H V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -621,11 +530,11 @@ X 2 ~ 450 0 200 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:Tie_point
+# fpgaboy-rescue_Tie_point
 #
-DEF fpgaboy-rescue:Tie_point TP 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_Tie_point TP 0 40 Y Y 1 F N
 F0 "TP" 0 100 60 H V C CNN
-F1 "fpgaboy-rescue:Tie_point" 0 -50 60 H V C CNN
+F1 "fpgaboy-rescue_Tie_point" 0 -50 60 H V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -635,11 +544,11 @@ X ~ 2 200 0 200 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy-rescue:USB_OTG
+# fpgaboy-rescue_USB_OTG
 #
-DEF fpgaboy-rescue:USB_OTG P 0 40 Y Y 1 F N
+DEF fpgaboy-rescue_USB_OTG P 0 40 Y Y 1 F N
 F0 "P" 325 -125 50 H V C CNN
-F1 "fpgaboy-rescue:USB_OTG" 0 200 50 H V C CNN
+F1 "fpgaboy-rescue_USB_OTG" 0 200 50 H V C CNN
 F2 "" -50 -100 50 V V C CNN
 F3 "" -50 -100 50 V V C CNN
 $FPLIST
@@ -661,11 +570,11 @@ X shield 6 400 100 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# fpgaboy_parts:iCE40-HX8k-BG121
+# fpgaboy_parts_iCE40-HX8k-BG121
 #
-DEF fpgaboy_parts:iCE40-HX8k-BG121 U 0 40 Y Y 6 L N
+DEF fpgaboy_parts_iCE40-HX8k-BG121 U 0 40 Y Y 6 L N
 F0 "U" 0 400 50 H V C CNN
-F1 "fpgaboy_parts:iCE40-HX8k-BG121" 0 500 50 H V C CNN
+F1 "fpgaboy_parts_iCE40-HX8k-BG121" 0 500 50 H V C CNN
 F2 "" -600 -3550 50 H I C CNN
 F3 "" -600 -3550 50 H I C CNN
 DRAW
