@@ -39,9 +39,6 @@ execution/riscv_compliance TEST=I-DELAY_SLOTS-01
 #execution/riscv_compliance TEST=I-ECALL-01
 
 execution/riscv_compliance TEST=I-ENDIANESS-01
-
-# With compressed instructions, the store target is misaligned.
-# Should be able to remove this flag once we have some form of unaligned load/store.
 execution/riscv_compliance TEST=I-FENCE.I-01 MARCH=rv32i
 
 execution/riscv_compliance TEST=I-IO

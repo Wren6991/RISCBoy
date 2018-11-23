@@ -59,3 +59,18 @@ PCB:
   ☐ Find example code for SAML22G18A USB-UART bridge
   ☐ Write simple block-oriented SD read/write code for Atmel and expose this over USB
   ☐ Hazard5 bootloader: load 2nd stage from SD card into memory and execute it
+
+CPU Synth Results:
+  This isn't a todo list, it's just for me to start keeping track. Results are cells (LUT4 + DFF + CARRY + BRAM). Number of iCE40 logic cells occupied should be lower due to colocation after place + route.
+  - acc080a: 2870 
+      Old frontend, as close to working as it got. Note that this checkout needs to be modified to get this result: RESET_REGS needs to be set to 0 on the register file, else it will be synthesised as discrete flops, which ~doubles the size of the processor.
+  - 0da3761: 2765
+      new frontend, nearly working
+  - 4e8c3bb: 2856
+      This commit fixed some AHB assumptions wrt the alignment of sub-word data on the databus. Seems to have added some extra muxing, although the difference is larger than I'd expect.
+  - a6ed35f: 2676
+      Write M result directly to register file; simplify bypass network as a result
+  - e7b46aa: 2681
+    Some minor fixes following porting some RISC-V compliance tests. These should have been fairly logic-neutral.
+  - 9744864: 2678
+    At this point, all the RV32IC-relevant compliance tests run, apart from knowingly unsupported i.e. CSR, unaligned load/store, ECALL/EBREAK. Most recent change was correct C.LUI to be sign-extended.
