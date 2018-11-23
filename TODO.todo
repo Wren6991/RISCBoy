@@ -50,7 +50,12 @@ Other Chip:
     Can then add e.g. interpolator and improved modulation. Not critical.
 
 PCB:
-  ☐ FPGA config: check whether it's feasible for ATXMega32a4u to stream from SD card to FPGA slave config port (minimal part count)
-  ☐ Find example code for ATXMega32a4u USB-UART bridge
+  ✔ FPGA config: check whether it's feasible for ATXMega32a4u to stream from SD card to FPGA slave config port (minimal part count) @done (18-11-23 00:43)
+      Details: probably not. USB pins are shared with one of the SPIs,
+      so one of the interfaces would be bitbashed. iCE40 configuration guide
+      says the cfg slave needs to be clocked at 1...25 MHz "without interruption".
+      Decided to use a different micro: SAML22G18A. This has USB, and also has sufficient
+      program storage to hold the bitstream.
+  ☐ Find example code for SAML22G18A USB-UART bridge
   ☐ Write simple block-oriented SD read/write code for Atmel and expose this over USB
-  ☐ Processor bootloader: load 2nd stage from SD card into memory and execute it
+  ☐ Hazard5 bootloader: load 2nd stage from SD card into memory and execute it
