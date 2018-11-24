@@ -3296,17 +3296,6 @@ $EndComp
 Text Notes 5400 900  0    50   ~ 0
 VPP_FAST for NVCM programming only.\nDo not connect.\nVPP_2V5 can be tied to 3V3 when\nnot programming NVCM.\n
 $Comp
-L fpgaboy-rescue:+5V #PWR0102
-U 1 1 5C114B8C
-P 10700 900
-F 0 "#PWR0102" H 10700 750 50  0001 C CNN
-F 1 "+5V" H 10700 1040 50  0000 C CNN
-F 2 "" H 10700 900 50  0000 C CNN
-F 3 "" H 10700 900 50  0000 C CNN
-	1    10700 900 
-	1    0    0    -1  
-$EndComp
-$Comp
 L fpgaboy-rescue:+3V3 #PWR0103
 U 1 1 5C1F84BD
 P 5700 3950
