@@ -53,10 +53,10 @@ The PCB is still a work in progress. It should be compatible with iTead's 4-laye
 
 To meet these specifications, the BGA pads under the FPGA must be tiny, to leave room for interstitial vias between pads.
 
-	- Pitch: 0.8 mm
-	- Diagonal pitch: 0.8 * √2 = 1.131 mm
-	- Via occupation: minimum drill (0.3) + 2 * minimum OAR (0.15) + 2 * minimum clearance (0.15) = 0.9 mm
-	- Pad size: 0.23 mm
+ - Pitch: 0.8 mm
+ - Diagonal pitch: 0.8 * √2 = 1.131 mm
+ - Via occupation: minimum drill (0.3) + 2 * minimum OAR (0.15) + 2 * minimum clearance (0.15) = 0.9 mm
+ - Pad size: 0.23 mm
 
 This will require soldering by hand with a heat gun and a lot of flux; toaster ovens aren't going to cut it. It's still not clear whether this will work out.
 
