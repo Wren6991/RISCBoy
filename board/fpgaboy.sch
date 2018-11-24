@@ -1296,62 +1296,60 @@ Wire Wire Line
 	5450 6100 5450 6150
 Text Notes 5500 5500 0    60   ~ 0
 12MHz MEMS oscillator
-Text Notes 5800 9450 0    60   ~ 0
+Text Notes 5800 9250 0    60   ~ 0
 Buttons\n(use internal pullups\n in iCE40 pads)
 Wire Wire Line
-	6200 9650 6100 9650
-Wire Wire Line
-	6200 10750 6100 10750
+	6400 10900 6300 10900
 $Comp
 L fpgaboy-rescue:GND #PWR023
 U 1 1 5A92E42C
-P 6100 10850
-F 0 "#PWR023" H 6100 10600 50  0001 C CNN
-F 1 "GND" H 6100 10700 50  0000 C CNN
-F 2 "" H 6100 10850 50  0000 C CNN
-F 3 "" H 6100 10850 50  0000 C CNN
-	1    6100 10850
+P 6300 11000
+F 0 "#PWR023" H 6300 10750 50  0001 C CNN
+F 1 "GND" H 6300 10850 50  0000 C CNN
+F 2 "" H 6300 11000 50  0000 C CNN
+F 3 "" H 6300 11000 50  0000 C CNN
+	1    6300 11000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6200 9750 6000 9750
+	6400 9450 6200 9450
 Wire Wire Line
-	6200 9850 6000 9850
+	6400 9550 6200 9550
 Wire Wire Line
-	6200 9950 6000 9950
+	6400 9650 6200 9650
 Wire Wire Line
-	6200 10050 6000 10050
+	6400 9750 6200 9750
 Wire Wire Line
-	6200 10150 6000 10150
+	6400 9850 6200 9850
 Wire Wire Line
-	6200 10250 6000 10250
+	6400 10400 6200 10400
 Wire Wire Line
-	6200 10350 6000 10350
+	6400 10500 6200 10500
 Wire Wire Line
-	6200 10450 6000 10450
+	6400 10600 6200 10600
 Wire Wire Line
-	6200 10550 6000 10550
+	6400 10700 6200 10700
 Wire Wire Line
-	6200 10650 6000 10650
-Text Label 6000 9750 2    60   ~ 0
+	6400 10800 6200 10800
+Text Label 6200 9450 2    60   ~ 0
 GPIO_SW0
-Text Label 6000 9850 2    60   ~ 0
+Text Label 6200 9550 2    60   ~ 0
 GPIO_SW1
-Text Label 6000 9950 2    60   ~ 0
+Text Label 6200 9650 2    60   ~ 0
 GPIO_SW2
-Text Label 6000 10050 2    60   ~ 0
+Text Label 6200 9750 2    60   ~ 0
 GPIO_SW3
-Text Label 6000 10150 2    60   ~ 0
+Text Label 6200 9850 2    60   ~ 0
 GPIO_SW4
-Text Label 6000 10250 2    60   ~ 0
+Text Label 6200 10400 2    60   ~ 0
 GPIO_SW5
-Text Label 6000 10350 2    60   ~ 0
+Text Label 6200 10500 2    60   ~ 0
 GPIO_SW6
-Text Label 6000 10450 2    60   ~ 0
+Text Label 6200 10600 2    60   ~ 0
 GPIO_SW7
-Text Label 6000 10550 2    60   ~ 0
+Text Label 6200 10700 2    60   ~ 0
 GPIO_SW8
-Text Label 6000 10650 2    60   ~ 0
+Text Label 6200 10800 2    60   ~ 0
 GPIO_SW9
 Wire Wire Line
 	10150 1000 10700 1000
@@ -1406,7 +1404,7 @@ Wire Wire Line
 Wire Wire Line
 	5650 6150 5650 6400
 Wire Wire Line
-	6100 10750 6100 10850
+	6300 10900 6300 11000
 $Comp
 L fpgaboy_parts:iCE40-HX8k-BG121 U1
 U 1 1 5B6F1F11
@@ -2354,7 +2352,7 @@ U 1 1 5D01A77A
 P 3700 8500
 F 0 "TP1" V 3654 8688 50  0000 L CNN
 F 1 "TestPoint" V 3745 8688 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 3900 8500 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 3900 8500 50  0001 C CNN
 F 3 "~" H 3900 8500 50  0001 C CNN
 	1    3700 8500
 	0    1    1    0   
@@ -2365,7 +2363,7 @@ U 1 1 5D01A9E5
 P 3700 8650
 F 0 "TP2" V 3654 8838 50  0000 L CNN
 F 1 "TestPoint" V 3745 8838 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 3900 8650 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 3900 8650 50  0001 C CNN
 F 3 "~" H 3900 8650 50  0001 C CNN
 	1    3700 8650
 	0    1    1    0   
@@ -2376,7 +2374,7 @@ U 1 1 5D01AAA3
 P 3700 8800
 F 0 "TP3" V 3654 8988 50  0000 L CNN
 F 1 "TestPoint" V 3745 8988 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 3900 8800 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 3900 8800 50  0001 C CNN
 F 3 "~" H 3900 8800 50  0001 C CNN
 	1    3700 8800
 	0    1    1    0   
@@ -2395,7 +2393,7 @@ U 1 1 5D108165
 P 3700 8950
 F 0 "TP4" V 3654 9138 50  0000 L CNN
 F 1 "TestPoint" V 3745 9138 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 3900 8950 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 3900 8950 50  0001 C CNN
 F 3 "~" H 3900 8950 50  0001 C CNN
 	1    3700 8950
 	0    1    1    0   
@@ -2414,7 +2412,7 @@ U 1 1 5D158706
 P 11600 2100
 F 0 "TP11" V 11554 2288 50  0000 L CNN
 F 1 "TestPoint" V 11645 2288 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 11800 2100 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 11800 2100 50  0001 C CNN
 F 3 "~" H 11800 2100 50  0001 C CNN
 	1    11600 2100
 	0    1    1    0   
@@ -2425,7 +2423,7 @@ U 1 1 5D2495B7
 P 11600 2250
 F 0 "TP12" V 11554 2438 50  0000 L CNN
 F 1 "TestPoint" V 11645 2438 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 11800 2250 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 11800 2250 50  0001 C CNN
 F 3 "~" H 11800 2250 50  0001 C CNN
 	1    11600 2250
 	0    1    1    0   
@@ -2466,7 +2464,7 @@ U 1 1 5D33BE38
 P 11600 2400
 F 0 "TP13" V 11554 2588 50  0000 L CNN
 F 1 "TestPoint" V 11645 2588 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 11800 2400 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 11800 2400 50  0001 C CNN
 F 3 "~" H 11800 2400 50  0001 C CNN
 	1    11600 2400
 	0    1    1    0   
@@ -2745,7 +2743,7 @@ U 1 1 5C75ABC1
 P 7850 9800
 F 0 "TP5" V 7804 9988 50  0000 L CNN
 F 1 "TestPoint" V 7850 10150 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 8050 9800 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 9800 50  0001 C CNN
 F 3 "~" H 8050 9800 50  0001 C CNN
 	1    7850 9800
 	0    -1   1    0   
@@ -2756,7 +2754,7 @@ U 1 1 5C75AF0D
 P 7850 9900
 F 0 "TP6" V 7804 10088 50  0000 L CNN
 F 1 "TestPoint" V 7850 10250 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 8050 9900 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 9900 50  0001 C CNN
 F 3 "~" H 8050 9900 50  0001 C CNN
 	1    7850 9900
 	0    -1   1    0   
@@ -2767,7 +2765,7 @@ U 1 1 5C75AFE4
 P 7850 10000
 F 0 "TP7" V 7804 10188 50  0000 L CNN
 F 1 "TestPoint" V 7850 10350 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 8050 10000 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10000 50  0001 C CNN
 F 3 "~" H 8050 10000 50  0001 C CNN
 	1    7850 10000
 	0    -1   1    0   
@@ -2778,7 +2776,7 @@ U 1 1 5C75B09D
 P 7850 10200
 F 0 "TP8" V 7804 10388 50  0000 L CNN
 F 1 "TestPoint" V 7850 10550 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 8050 10200 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10200 50  0001 C CNN
 F 3 "~" H 8050 10200 50  0001 C CNN
 	1    7850 10200
 	0    -1   1    0   
@@ -2789,7 +2787,7 @@ U 1 1 5C75B146
 P 7850 10400
 F 0 "TP9" V 7804 10588 50  0000 L CNN
 F 1 "TestPoint" V 7850 10750 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 8050 10400 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10400 50  0001 C CNN
 F 3 "~" H 8050 10400 50  0001 C CNN
 	1    7850 10400
 	0    -1   1    0   
@@ -2800,7 +2798,7 @@ U 1 1 5C75B1F1
 P 7850 10500
 F 0 "TP10" V 7804 10688 50  0000 L CNN
 F 1 "TestPoint" V 7850 10850 50  0000 L CNN
-F 2 "TestPoint:TestPoint_Pad_D1.0mm" H 8050 10500 50  0001 C CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10500 50  0001 C CNN
 F 3 "~" H 8050 10500 50  0001 C CNN
 	1    7850 10500
 	0    -1   1    0   
@@ -3157,7 +3155,7 @@ U 1 1 5E70AF15
 P 8950 9250
 F 0 "RN2" H 9138 9296 50  0000 L CNN
 F 1 "10k" H 9138 9205 50  0000 L CNN
-F 2 "" V 9225 9250 50  0001 C CNN
+F 2 "fpgaboy_parts:RN4-1206" V 9225 9250 50  0001 C CNN
 F 3 "~" H 8950 9250 50  0001 C CNN
 	1    8950 9250
 	1    0    0    -1  
@@ -3168,7 +3166,7 @@ U 1 1 5E70AF1B
 P 8350 9250
 F 0 "RN1" H 8538 9296 50  0000 L CNN
 F 1 "10k" H 8538 9205 50  0000 L CNN
-F 2 "" V 8625 9250 50  0001 C CNN
+F 2 "fpgaboy_parts:RN4-1206" V 8625 9250 50  0001 C CNN
 F 3 "~" H 8350 9250 50  0001 C CNN
 	1    8350 9250
 	1    0    0    -1  
@@ -3235,24 +3233,10 @@ Wire Wire Line
 Connection ~ 8250 8950
 Text Notes 13200 5350 0    50   ~ 0
 Microcontroller\nProvides:\n - FPGA configuration image stored in flash\n - USB <-> UART\n - USB <-> SD Card
-$Comp
-L Connector_Generic:Conn_01x12 J2
-U 1 1 5E9365ED
-P 6400 10250
-F 0 "J2" H 6400 10900 50  0000 C CNN
-F 1 "Conn_01x12" V 6500 10250 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Horizontal" H 6400 10250 50  0001 C CNN
-F 3 "~" H 6400 10250 50  0001 C CNN
-	1    6400 10250
-	1    0    0    1   
-$EndComp
 Text Label 7700 9550 2    50   ~ 0
 FPGA_CFG_DONE
 Text Label 7700 9450 2    50   ~ 0
 FPGA_CFG_~RST
-Wire Wire Line
-	6100 9650 6100 10750
-Connection ~ 6100 10750
 $Comp
 L Device:C_Small C18
 U 1 1 5F18EDCB
@@ -3333,7 +3317,7 @@ U 1 1 5F82A151
 P 12700 8000
 F 0 "RN3" H 12888 8046 50  0000 L CNN
 F 1 "10k" H 12888 7955 50  0000 L CNN
-F 2 "" V 12975 8000 50  0001 C CNN
+F 2 "fpgaboy_parts:RN4-1206" V 12975 8000 50  0001 C CNN
 F 3 "~" H 12700 8000 50  0001 C CNN
 	1    12700 8000
 	1    0    0    -1  
@@ -3390,4 +3374,41 @@ Wire Wire Line
 Connection ~ 13000 9350
 Wire Wire Line
 	13000 9350 13000 9700
+$Comp
+L Connector_Generic:Conn_01x06 J?
+U 1 1 5C02D648
+P 6600 10600
+F 0 "J?" H 6600 10200 50  0000 L CNN
+F 1 "Conn_01x06" V 6700 10350 50  0000 L CNN
+F 2 "" H 6600 10600 50  0001 C CNN
+F 3 "~" H 6600 10600 50  0001 C CNN
+	1    6600 10600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x06 J?
+U 1 1 5C02D73A
+P 6600 9650
+F 0 "J?" H 6600 9250 50  0000 L CNN
+F 1 "Conn_01x06" V 6700 9400 50  0000 L CNN
+F 2 "" H 6600 9650 50  0001 C CNN
+F 3 "~" H 6600 9650 50  0001 C CNN
+	1    6600 9650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6400 9950 6300 9950
+Wire Wire Line
+	6300 9950 6300 10050
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5C078C0D
+P 6300 10050
+F 0 "#PWR?" H 6300 9800 50  0001 C CNN
+F 1 "GND" H 6300 9900 50  0000 C CNN
+F 2 "" H 6300 10050 50  0000 C CNN
+F 3 "" H 6300 10050 50  0000 C CNN
+	1    6300 10050
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
