@@ -42,7 +42,8 @@
 
 \section{Introduction}
 
-FPGABoy is an open source portable games console, designed from scratch. It is also...
+FPGABoy is an open source portable games console, designed from scratch:
+
 \begin{itemize}
 \item An open source PCB layout
 \item Designed with KiCAD open source PCB software
@@ -88,45 +89,31 @@ The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and 
 	\item DMA master
 	\item External asynchronous SRAM controller (GS74116 or similar)
 	\item Display controller (ILI9341)
-	\item SPI flash controller with direct memory-mapped access
 	\item GPIO (bitbanging, peripheral muxing)
-	\item Interrupt controller
+	\item SD card controller
 	\item UART
 	\item PWM
 	\item Basic audio: voices + samples, noise-shaped PWM output
 	\end{itemize}
 \end{itemize}
 
-Some attempt is made in this document to describe the operation of these blocks, but if you are looking for nitty-gritty detail, the best documentation is the files ending with \texttt{.v}.
+This document attempts to describe some of these, but if you need nitty-gritty detail, the best documentation is the files ending with \texttt{.v}.
 
-That a free synthesis tool can cram all this logic into one of the cheapest FPGAs on the market is tremendously impressive. Hopefully we will one day have a situation similar to software compilers, where free tools such as GCC are industry standards.
+That a free synthesis tool can cram this into one of the cheapest FPGAs on the market is tremendous. I hope for a situation like software compilers, where free tools such as GCC and LLVM are industry standards.
 
 \subsection{PCB}
 
-The board is a 4-layer stackup:
 
-\begin{enumerate}
-\item Signal + GND Fill
-\item GND plane
-\item Power planes
-\item Signal + GND Fill
-\end{enumerate}
+\begin{figure}[!htb]
+\centering
+\caption{PCB stackup (left), and BGA-to-via critical clearances and dimensions (right)}
+\includegraphics[width=0.8\textwidth]{diagrams/stackup_and_bga.pdf}
+\label{diagram:stackup_and_bga}
+\end{figure}
 
-It is intended to be suitable for low-cost PCB prototyping services such as iTead. Board dimensions are 50mm $\times$ 50mm, which fits into the cheapest size category on iTead. For the most part, it sticks to the following minimum specifications:
+The board has a 4-layer stackup, illustrated in figure \ref{diagram:stackup_and_bga}. It targets low-cost PCB prototyping services such as iTead, and makes compromises to achieve this, chiefly escape routing from the FPGA ($11 \times 11$ 0.8 mm BGA). To meet iTead's copper-clearance, minimum via drill, and minimum annular ring specifications, the BGA pads must be sized down to 0.23 mm. Reflow this component by hand, with a hot air gun and plenty of flux; your toaster oven isn't going to cut it.
 
-\begin{itemize}
-\item Track width 0.15mm
-\item Copper-copper clearance 0.15mm
-\item Soldermask-copper clearance 0.1mm
-\item Soldermask width 0.1mm
-\item Via drill 0.3mm
-\item Annular ring 0.15mm (i.e. via diameter 0.6mm)
-\end{itemize}
-
-The only exception is some 0.5mm vias underneath the BGA. Strictly this is out of specification for iTead, but they claim to have a 90 $\mu$m drill registration, so we'll see how it goes.
-
-The iCE40-HX8k FPGA is packaged in a 256-pin 0.8mm BGA, which \textit{can be} reflowed by a hobbyist with a hot air gun or a frying pan (best to choose a HASL finish so that contacts are pretinned). The 132-pin 0.5mm BGA has sufficient IO for our needs, but iTead does not manufacture at the tolerance required for such a fine pitch.
-
+Schematic and layout files are in the \texttt{board/} subdirectory of the git repository.
 
 \subsection{Licensing}
 
