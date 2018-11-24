@@ -587,7 +587,7 @@ L fpgaboy-rescue:R R2
 U 1 1 5A80FC60
 P 1500 9500
 F 0 "R2" V 1550 9700 50  0000 C CNN
-F 1 "330" V 1500 9500 50  0000 C CNN
+F 1 "220" V 1500 9500 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 1430 9500 50  0001 C CNN
 F 3 "" H 1500 9500 50  0000 C CNN
 	1    1500 9500
@@ -598,7 +598,7 @@ L fpgaboy-rescue:R R3
 U 1 1 5A80FD18
 P 1500 9600
 F 0 "R3" V 1550 9800 50  0000 C CNN
-F 1 "330" V 1500 9600 50  0000 C CNN
+F 1 "220" V 1500 9600 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 1430 9600 50  0001 C CNN
 F 3 "" H 1500 9600 50  0000 C CNN
 	1    1500 9600
@@ -609,7 +609,7 @@ L fpgaboy-rescue:R R4
 U 1 1 5A80FD8F
 P 1500 9700
 F 0 "R4" V 1550 9900 50  0000 C CNN
-F 1 "330" V 1500 9700 50  0000 C CNN
+F 1 "220" V 1500 9700 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 1430 9700 50  0001 C CNN
 F 3 "" H 1500 9700 50  0000 C CNN
 	1    1500 9700
@@ -620,7 +620,7 @@ L fpgaboy-rescue:R R5
 U 1 1 5A80FDF6
 P 1500 9800
 F 0 "R5" V 1550 10000 50  0000 C CNN
-F 1 "330" V 1500 9800 50  0000 C CNN
+F 1 "220" V 1500 9800 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 1430 9800 50  0001 C CNN
 F 3 "" H 1500 9800 50  0000 C CNN
 	1    1500 9800
@@ -2422,17 +2422,6 @@ F 3 "" H 11500 2550 50  0000 C CNN
 	1    11500 2550
 	1    0    0    -1  
 $EndComp
-$Comp
-L Connector:Micro_SD_Card J3
-U 1 1 5D430F79
-P 10350 10100
-F 0 "J3" H 10300 10817 50  0000 C CNN
-F 1 "Hirose DM3D-SF" H 10300 10726 50  0000 C CNN
-F 2 "Connector_Card:microSD_HC_Hirose_DM3D-SF" H 11500 10400 50  0001 C CNN
-F 3 "http://katalog.we-online.de/em/datasheet/693072010801.pdf" H 10350 10100 50  0001 C CNN
-	1    10350 10100
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	9450 10100 9350 10100
 Wire Wire Line
@@ -3332,10 +3321,10 @@ $EndComp
 Text Notes 5400 900  0    50   ~ 0
 VPP_FAST for NVCM programming only.\nDo not connect.\nVPP_2V5 can be tied to 3V3 when\nnot programming NVCM.\n
 $Comp
-L fpgaboy-rescue:+5V #PWR?
+L fpgaboy-rescue:+5V #PWR0102
 U 1 1 5C114B8C
 P 10700 900
-F 0 "#PWR?" H 10700 750 50  0001 C CNN
+F 0 "#PWR0102" H 10700 750 50  0001 C CNN
 F 1 "+5V" H 10700 1040 50  0000 C CNN
 F 2 "" H 10700 900 50  0000 C CNN
 F 3 "" H 10700 900 50  0000 C CNN
@@ -3345,10 +3334,10 @@ $EndComp
 Wire Wire Line
 	10700 900  10700 1100
 $Comp
-L fpgaboy-rescue:+3V3 #PWR?
+L fpgaboy-rescue:+3V3 #PWR0103
 U 1 1 5C1F84BD
 P 5700 3950
-F 0 "#PWR?" H 5700 3800 50  0001 C CNN
+F 0 "#PWR0103" H 5700 3800 50  0001 C CNN
 F 1 "+3V3" H 5700 4090 50  0000 C CNN
 F 2 "" H 5700 3950 50  0000 C CNN
 F 3 "" H 5700 3950 50  0000 C CNN
@@ -3356,10 +3345,10 @@ F 3 "" H 5700 3950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R_Pack04 RN?
+L Device:R_Pack04 RN4
 U 1 1 5C1F84C3
 P 5600 4350
-F 0 "RN?" H 5788 4396 50  0000 L CNN
+F 0 "RN4" H 5788 4396 50  0000 L CNN
 F 1 "10k" H 5788 4305 50  0000 L CNN
 F 2 "fpgaboy_parts:RN4-1206" V 5875 4350 50  0001 C CNN
 F 3 "~" H 5600 4350 50  0001 C CNN
@@ -3476,4 +3465,17 @@ Wire Wire Line
 	5200 2000 4900 2000
 Wire Wire Line
 	5000 2100 4900 2100
+$Comp
+L Connector:Micro_SD_Card_Det J3
+U 1 1 5CE17AD9
+P 10350 10200
+F 0 "J3" H 10300 11017 50  0000 C CNN
+F 1 "Micro_SD_Card_Det" H 10300 10926 50  0000 C CNN
+F 2 "Connector_Card:microSD_HC_Hirose_DM3D-SF" H 12400 10900 50  0001 C CNN
+F 3 "https://www.hirose.com/product/en/download_file/key_name/DM3/category/Catalog/doc_file_id/49662/?file_category_id=4&item_id=195&is_series=1" H 10350 10300 50  0001 C CNN
+	1    10350 10200
+	1    0    0    -1  
+$EndComp
+NoConn ~ 9450 10600
+NoConn ~ 9450 10700
 $EndSCHEMATC

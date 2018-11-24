@@ -39,10 +39,16 @@ cd test
 ./runtests
 ```
 
-which will run all of the HDL-level tests. Software tests will require the RV32IC toolchain. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To debug a test graphically, run its makefile directly:
+which will run all of the HDL-level tests. Software tests will require the RV32IC toolchain. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To graphically debug a test, run its makefile directly:
 
 ```
-cd system/helloworld
-make compile
-make gui
+cd system
+make TEST=helloworld gui
 ```
+
+PCB
+---
+
+The PCB is still a work in progress. It should be compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
+
+The schematic can be viewed [here (pdf)](board/fpgaboy.pdf)
