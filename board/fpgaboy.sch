@@ -224,7 +224,7 @@ F 3 "" H 12300 2150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 14300 1250 0    60   ~ 0
-~POR
+uC_~RST
 $Comp
 L fpgaboy-rescue:L L1
 U 1 1 5A7FBA82
@@ -835,30 +835,6 @@ F 3 "" H 7250 9550 50  0000 C CNN
 	1    7250 9550
 	1    0    0    -1  
 $EndComp
-Text Label 13100 2450 2    60   ~ 0
-~POR
-$Comp
-L fpgaboy-rescue:+3V3 #PWR062
-U 1 1 5A80F38A
-P 13250 2050
-F 0 "#PWR062" H 13250 1900 50  0001 C CNN
-F 1 "+3V3" H 13250 2190 50  0000 C CNN
-F 2 "" H 13250 2050 50  0000 C CNN
-F 3 "" H 13250 2050 50  0000 C CNN
-	1    13250 2050
-	1    0    0    -1  
-$EndComp
-$Comp
-L fpgaboy-rescue:R R13
-U 1 1 5A80F425
-P 13250 2250
-F 0 "R13" V 13330 2250 50  0000 C CNN
-F 1 "10k" V 13250 2250 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603" V 13180 2250 50  0001 C CNN
-F 3 "" H 13250 2250 50  0000 C CNN
-	1    13250 2250
-	1    0    0    -1  
-$EndComp
 $Comp
 L fpgaboy-rescue:USB_OTG P3
 U 1 1 5A810563
@@ -1221,12 +1197,6 @@ Wire Wire Line
 	7250 9500 7250 9550
 Wire Wire Line
 	7250 9150 7250 9200
-Wire Wire Line
-	13250 2050 13250 2100
-Wire Wire Line
-	13250 2400 13250 2450
-Wire Wire Line
-	13250 2450 13100 2450
 Wire Wire Line
 	13800 5600 13700 5600
 Wire Wire Line
@@ -2894,4 +2864,272 @@ F 3 "~" H 14900 8050 50  0001 C CNN
 $EndComp
 Text Notes 14400 7350 0    50   ~ 0
 Micro SD Card Socket\n
+$Comp
+L fpgaboy_parts:SAML22G18A U?
+U 1 1 5BFF13B3
+P 10200 7450
+F 0 "U?" H 10175 9565 50  0000 C CNN
+F 1 "SAML22G18A" H 10175 9474 50  0000 C CNN
+F 2 "" H 10100 9200 50  0001 C CNN
+F 3 "" H 10100 9200 50  0001 C CNN
+	1    10200 7450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9450 5750 9350 5750
+Wire Wire Line
+	9350 5750 9350 5200
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5C0242B6
+P 9350 5200
+F 0 "#PWR?" H 9350 5050 50  0001 C CNN
+F 1 "+3V3" H 9350 5340 50  0000 C CNN
+F 2 "" H 9350 5200 50  0000 C CNN
+F 3 "" H 9350 5200 50  0000 C CNN
+	1    9350 5200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9350 5750 9350 5850
+Wire Wire Line
+	9350 5850 9450 5850
+Connection ~ 9350 5750
+Wire Wire Line
+	9450 5950 9350 5950
+Wire Wire Line
+	9350 5950 9350 5850
+Connection ~ 9350 5850
+Wire Wire Line
+	9350 5950 9350 6050
+Wire Wire Line
+	9350 6050 9450 6050
+Connection ~ 9350 5950
+Wire Wire Line
+	9350 6050 9350 6150
+Wire Wire Line
+	9350 6150 9450 6150
+Connection ~ 9350 6050
+NoConn ~ 9450 6250
+Wire Wire Line
+	9500 8800 9400 8800
+Wire Wire Line
+	9400 8800 9400 8900
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5C15A000
+P 9400 9550
+F 0 "#PWR?" H 9400 9300 50  0001 C CNN
+F 1 "GND" H 9405 9377 50  0000 C CNN
+F 2 "" H 9400 9550 50  0000 C CNN
+F 3 "" H 9400 9550 50  0000 C CNN
+	1    9400 9550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9500 8900 9400 8900
+Connection ~ 9400 8900
+Wire Wire Line
+	9400 8900 9400 9000
+Wire Wire Line
+	9500 9000 9400 9000
+Wire Wire Line
+	9500 9100 9400 9100
+Connection ~ 9400 9000
+Wire Wire Line
+	9400 9000 9400 9100
+Connection ~ 9400 9100
+Wire Wire Line
+	9400 9100 9400 9550
+$Comp
+L Device:C_Small C?
+U 1 1 5C1C67B4
+P 9250 6550
+F 0 "C?" H 9342 6596 50  0000 L CNN
+F 1 "100n" H 9342 6505 50  0000 L CNN
+F 2 "" H 9250 6550 50  0001 C CNN
+F 3 "~" H 9250 6550 50  0001 C CNN
+	1    9250 6550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C?
+U 1 1 5C1C6976
+P 8950 6550
+F 0 "C?" H 9042 6596 50  0000 L CNN
+F 1 "1u" H 9042 6505 50  0000 L CNN
+F 2 "" H 8950 6550 50  0001 C CNN
+F 3 "~" H 8950 6550 50  0001 C CNN
+	1    8950 6550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9450 6350 9250 6350
+Wire Wire Line
+	9250 6450 9250 6350
+Connection ~ 9250 6350
+Wire Wire Line
+	9250 6650 9250 6750
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5C269A1C
+P 9250 6850
+F 0 "#PWR?" H 9250 6600 50  0001 C CNN
+F 1 "GND" H 9255 6677 50  0000 C CNN
+F 2 "" H 9250 6850 50  0000 C CNN
+F 3 "" H 9250 6850 50  0000 C CNN
+	1    9250 6850
+	1    0    0    -1  
+$EndComp
+Connection ~ 9250 6750
+Wire Wire Line
+	9250 6750 9250 6850
+Wire Wire Line
+	8950 6450 8950 6350
+Wire Wire Line
+	8950 6350 9250 6350
+Wire Wire Line
+	8950 6750 8950 6650
+Wire Wire Line
+	8950 6750 9250 6750
+Text Label 8550 8450 2    50   ~ 0
+uC_~RST
+Text Label 8550 8350 2    50   ~ 0
+uC_SWD
+Text Label 8550 8250 2    50   ~ 0
+uC_SWCLK
+$Comp
+L Device:R_Small R?
+U 1 1 5C3B7276
+P 9300 8000
+F 0 "R?" H 9359 8046 50  0000 L CNN
+F 1 "10k" H 9359 7955 50  0000 L CNN
+F 2 "" H 9300 8000 50  0001 C CNN
+F 3 "~" H 9300 8000 50  0001 C CNN
+	1    9300 8000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R?
+U 1 1 5C3B785E
+P 9050 8000
+F 0 "R?" H 9109 8046 50  0000 L CNN
+F 1 "10k" H 9109 7955 50  0000 L CNN
+F 2 "" H 9050 8000 50  0001 C CNN
+F 3 "~" H 9050 8000 50  0001 C CNN
+	1    9050 8000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R?
+U 1 1 5C3B791C
+P 8800 8000
+F 0 "R?" H 8859 8046 50  0000 L CNN
+F 1 "10k" H 8859 7955 50  0000 L CNN
+F 2 "" H 8800 8000 50  0001 C CNN
+F 3 "~" H 8800 8000 50  0001 C CNN
+	1    8800 8000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8550 8250 8800 8250
+Wire Wire Line
+	8550 8350 9050 8350
+Wire Wire Line
+	8550 8450 9300 8450
+Wire Wire Line
+	8800 8100 8800 8250
+Connection ~ 8800 8250
+Wire Wire Line
+	8800 8250 9500 8250
+Wire Wire Line
+	9050 8100 9050 8350
+Connection ~ 9050 8350
+Wire Wire Line
+	9050 8350 9500 8350
+Wire Wire Line
+	9300 8100 9300 8450
+Connection ~ 9300 8450
+Wire Wire Line
+	9300 8450 9500 8450
+Wire Wire Line
+	9300 7900 9300 7800
+Wire Wire Line
+	9050 7900 9050 7800
+Wire Wire Line
+	8800 7900 8800 7800
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5C5B0DD4
+P 8800 7800
+F 0 "#PWR?" H 8800 7650 50  0001 C CNN
+F 1 "+3V3" H 8800 7940 50  0000 C CNN
+F 2 "" H 8800 7800 50  0000 C CNN
+F 3 "" H 8800 7800 50  0000 C CNN
+	1    8800 7800
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5C5B0F86
+P 9050 7800
+F 0 "#PWR?" H 9050 7650 50  0001 C CNN
+F 1 "+3V3" H 9050 7940 50  0000 C CNN
+F 2 "" H 9050 7800 50  0000 C CNN
+F 3 "" H 9050 7800 50  0000 C CNN
+	1    9050 7800
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5C5B1035
+P 9300 7800
+F 0 "#PWR?" H 9300 7650 50  0001 C CNN
+F 1 "+3V3" H 9300 7940 50  0000 C CNN
+F 2 "" H 9300 7800 50  0000 C CNN
+F 3 "" H 9300 7800 50  0000 C CNN
+	1    9300 7800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C?
+U 1 1 5C5B185A
+P 8550 6550
+F 0 "C?" H 8642 6596 50  0000 L CNN
+F 1 "100n" H 8642 6505 50  0000 L CNN
+F 2 "" H 8550 6550 50  0001 C CNN
+F 3 "~" H 8550 6550 50  0001 C CNN
+	1    8550 6550
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5C5B192C
+P 8550 6850
+F 0 "#PWR?" H 8550 6600 50  0001 C CNN
+F 1 "GND" H 8555 6677 50  0000 C CNN
+F 2 "" H 8550 6850 50  0000 C CNN
+F 3 "" H 8550 6850 50  0000 C CNN
+	1    8550 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:+3V3 #PWR?
+U 1 1 5C5B19DD
+P 8550 6200
+F 0 "#PWR?" H 8550 6050 50  0001 C CNN
+F 1 "+3V3" H 8550 6340 50  0000 C CNN
+F 2 "" H 8550 6200 50  0000 C CNN
+F 3 "" H 8550 6200 50  0000 C CNN
+	1    8550 6200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8550 6200 8550 6450
+Wire Wire Line
+	8550 6650 8550 6850
+Text Label 9200 6350 2    50   ~ 0
+VDDCORE
+Wire Wire Line
+	10900 6000 11100 6000
 $EndSCHEMATC
