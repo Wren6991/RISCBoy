@@ -160,12 +160,12 @@ $EndComp
 $Comp
 L fpgaboy-rescue:Tie_point TP14
 U 1 1 5A7FAA71
-P 13700 2200
-F 0 "TP14" H 13700 2300 60  0000 C CNN
-F 1 "Tie_point" H 13700 2150 60  0000 C CNN
-F 2 "fpgaboy_parts:tiepoint-0.5" H 13700 2200 60  0001 C CNN
-F 3 "" H 13700 2200 60  0001 C CNN
-	1    13700 2200
+P 13550 2250
+F 0 "TP14" H 13550 2350 60  0000 C CNN
+F 1 "Tie_point" H 13550 2200 60  0000 C CNN
+F 2 "fpgaboy_parts:tiepoint-0.5" H 13550 2250 60  0001 C CNN
+F 3 "" H 13550 2250 60  0001 C CNN
+	1    13550 2250
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -428,23 +428,23 @@ $EndComp
 $Comp
 L fpgaboy-rescue:GND #PWR064
 U 1 1 5A7FD6FB
-P 13500 2350
-F 0 "#PWR064" H 13500 2100 50  0001 C CNN
-F 1 "GND" H 13500 2200 50  0000 C CNN
-F 2 "" H 13500 2350 50  0000 C CNN
-F 3 "" H 13500 2350 50  0000 C CNN
-	1    13500 2350
+P 13250 2400
+F 0 "#PWR064" H 13250 2150 50  0001 C CNN
+F 1 "GND" H 13250 2250 50  0000 C CNN
+F 2 "" H 13250 2400 50  0000 C CNN
+F 3 "" H 13250 2400 50  0000 C CNN
+	1    13250 2400
 	1    0    0    -1  
 $EndComp
 $Comp
 L fpgaboy-rescue:GNDPWR #PWR065
 U 1 1 5A7FD772
-P 13900 2350
-F 0 "#PWR065" H 13900 2150 50  0001 C CNN
-F 1 "GNDPWR" H 13900 2220 50  0000 C CNN
-F 2 "" H 13900 2300 50  0000 C CNN
-F 3 "" H 13900 2300 50  0000 C CNN
-	1    13900 2350
+P 13850 2400
+F 0 "#PWR065" H 13850 2200 50  0001 C CNN
+F 1 "GNDPWR" H 13850 2270 50  0000 C CNN
+F 2 "" H 13850 2350 50  0000 C CNN
+F 3 "" H 13850 2350 50  0000 C CNN
+	1    13850 2400
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1023,8 +1023,6 @@ Wire Wire Line
 	14800 1450 14800 1500
 Connection ~ 15450 700 
 Wire Wire Line
-	15300 2200 15300 2650
-Wire Wire Line
 	15050 2250 15050 2200
 Wire Wire Line
 	14150 2250 14800 2250
@@ -1058,9 +1056,9 @@ Wire Wire Line
 Wire Wire Line
 	14250 1400 14150 1400
 Wire Wire Line
-	13500 2200 13500 2350
+	13250 2250 13250 2400
 Wire Wire Line
-	13900 2200 13900 2350
+	13850 2250 13850 2400
 Wire Wire Line
 	12250 1550 12300 1550
 Wire Wire Line
@@ -1932,11 +1930,6 @@ Text Label 3300 3200 2    50   ~ 0
 CLK_OSC
 NoConn ~ 3550 1500
 NoConn ~ 3550 1600
-NoConn ~ 3550 1700
-NoConn ~ 3550 1800
-NoConn ~ 3550 1900
-NoConn ~ 3550 2000
-NoConn ~ 3550 2100
 NoConn ~ 1550 1500
 NoConn ~ 1550 1600
 NoConn ~ 1550 1700
@@ -2246,8 +2239,6 @@ Connection ~ 15650 1850
 Wire Wire Line
 	15650 1850 15800 1850
 Wire Wire Line
-	15650 2200 15650 2600
-Wire Wire Line
 	15650 700  15650 750 
 Connection ~ 15650 700 
 Wire Wire Line
@@ -2548,26 +2539,10 @@ NoConn ~ 1550 5150
 NoConn ~ 1550 5250
 NoConn ~ 1550 5350
 NoConn ~ 5800 1900
-$Comp
-L fpgaboy-rescue:PWR_FLAG #FLG03
-U 1 1 5DB439D2
-P 15800 2600
-F 0 "#FLG03" H 15800 2695 50  0001 C CNN
-F 1 "PWR_FLAG" H 15800 2780 50  0000 C CNN
-F 2 "" H 15800 2600 50  0000 C CNN
-F 3 "" H 15800 2600 50  0000 C CNN
-	1    15800 2600
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	15800 2600 15650 2600
-Connection ~ 15650 2600
-Wire Wire Line
-	15650 2600 15650 2650
 Wire Wire Line
 	11350 800  11350 1550
 $Comp
-L fpgaboy-rescue:SWITCH_SPST SW1
+L fpgaboy_parts:SWITCH_SPST SW1
 U 1 1 5A7FB663
 P 11800 1550
 F 0 "SW1" H 11800 1400 60  0000 C CNN
@@ -2778,7 +2753,7 @@ Wire Wire Line
 Wire Wire Line
 	13000 6300 13100 6300
 Connection ~ 13000 6200
-NoConn ~ 13050 6400
+NoConn ~ 13100 6400
 Wire Wire Line
 	13100 8950 13000 8950
 Wire Wire Line
@@ -3331,8 +3306,6 @@ F 3 "" H 10700 900 50  0000 C CNN
 	1    10700 900 
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	10700 900  10700 1100
 $Comp
 L fpgaboy-rescue:+3V3 #PWR0103
 U 1 1 5C1F84BD
@@ -3441,8 +3414,6 @@ Wire Wire Line
 Connection ~ 5000 2100
 Wire Wire Line
 	5200 2150 5200 2000
-Wire Wire Line
-	5800 2000 5200 2000
 Connection ~ 5200 2000
 Wire Wire Line
 	5200 2000 5200 1900
@@ -3478,4 +3449,103 @@ F 3 "https://www.hirose.com/product/en/download_file/key_name/DM3/category/Catal
 $EndComp
 NoConn ~ 9450 10600
 NoConn ~ 9450 10700
+Text Notes 14000 2800 0    50   ~ 0
+Inductors:\n490-15987-1-ND\nor similar
+Wire Wire Line
+	10150 1000 10700 1000
+Wire Wire Line
+	10700 1000 10700 1100
+Connection ~ 10150 1000
+Text Label 10700 1750 0    50   ~ 0
+CHARGE
+Wire Wire Line
+	5200 2000 5800 2000
+Text Label 6900 3200 2    50   ~ 0
+VCCPLL0
+Text Label 6900 3000 2    50   ~ 0
+VCCPLL1
+Wire Wire Line
+	7000 3200 6900 3200
+Wire Wire Line
+	6900 3000 7000 3000
+$Comp
+L fpgaboy-rescue:PWR_FLAG #FLG0101
+U 1 1 5D104CF2
+P 7000 3000
+F 0 "#FLG0101" H 7000 3095 50  0001 C CNN
+F 1 "PWR_FLAG" V 7000 3178 50  0000 L CNN
+F 2 "" H 7000 3000 50  0000 C CNN
+F 3 "" H 7000 3000 50  0000 C CNN
+	1    7000 3000
+	0    1    1    0   
+$EndComp
+$Comp
+L fpgaboy-rescue:PWR_FLAG #FLG0102
+U 1 1 5D104E0C
+P 7000 3200
+F 0 "#FLG0102" H 7000 3295 50  0001 C CNN
+F 1 "PWR_FLAG" V 7000 3378 50  0000 L CNN
+F 2 "" H 7000 3200 50  0000 C CNN
+F 3 "" H 7000 3200 50  0000 C CNN
+	1    7000 3200
+	0    1    1    0   
+$EndComp
+Text Notes 6650 3550 0    50   ~ 0
+Separate nets from 1V2\ndue to RC filter. Must\nexplicitly mark as powered.
+Text Label 3300 1700 2    60   ~ 0
+SRAM_~CE
+Text Label 3300 1800 2    60   ~ 0
+SRAM_~WE
+Text Label 3300 1900 2    60   ~ 0
+SRAM_~OE
+Text Label 3300 2000 2    60   ~ 0
+SRAM_~UB
+Text Label 3300 2100 2    60   ~ 0
+SRAM_~LB
+Wire Wire Line
+	3550 1700 3300 1700
+Wire Wire Line
+	3550 1800 3300 1800
+Wire Wire Line
+	3550 1900 3300 1900
+Wire Wire Line
+	3550 2000 3300 2000
+Wire Wire Line
+	3550 2100 3300 2100
+Wire Wire Line
+	15300 2200 15300 2650
+Wire Wire Line
+	15650 2200 15650 2650
+Wire Wire Line
+	13250 2250 13350 2250
+Wire Wire Line
+	13750 2250 13850 2250
+Wire Wire Line
+	13850 2250 13850 2150
+Connection ~ 13850 2250
+Wire Wire Line
+	13250 2250 13250 2150
+Connection ~ 13250 2250
+$Comp
+L fpgaboy-rescue:PWR_FLAG #FLG0103
+U 1 1 5D5A30A0
+P 13250 2150
+F 0 "#FLG0103" H 13250 2245 50  0001 C CNN
+F 1 "PWR_FLAG" H 13250 2330 50  0000 C CNN
+F 2 "" H 13250 2150 50  0000 C CNN
+F 3 "" H 13250 2150 50  0000 C CNN
+	1    13250 2150
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:PWR_FLAG #FLG0104
+U 1 1 5D5A3263
+P 13850 2150
+F 0 "#FLG0104" H 13850 2245 50  0001 C CNN
+F 1 "PWR_FLAG" H 13850 2330 50  0000 C CNN
+F 2 "" H 13850 2150 50  0000 C CNN
+F 3 "" H 13850 2150 50  0000 C CNN
+	1    13850 2150
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
