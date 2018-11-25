@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/luke/proj/fpgaboy/board/fpgaboy.sch)
-    (date "Sun 25 Nov 2018 18:28:01 GMT")
+    (date "Sun 25 Nov 2018 18:49:38 GMT")
     (tool "Eeschema 5.0.1-33cea8e~68~ubuntu18.10.1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
