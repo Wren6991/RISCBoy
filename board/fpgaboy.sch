@@ -2939,8 +2939,6 @@ Text Label 14650 8150 0    50   ~ 0
 USB_DM
 Text Label 14650 8250 0    50   ~ 0
 USB_DP
-Text Label 5300 4850 2    50   ~ 0
-FPGA_CFG_SO
 Text Label 14650 7350 0    50   ~ 0
 FPGA_CFG_SI
 Text Label 14650 7450 0    50   ~ 0
@@ -2951,16 +2949,12 @@ Text Label 14650 7150 0    50   ~ 0
 FPGA_CFG_DONE
 Text Label 14650 7250 0    50   ~ 0
 FPGA_CFG_~RST
-Text Label 14650 7650 0    50   ~ 0
-FPGA_CFG_SO
 Wire Wire Line
 	14500 7350 14650 7350
 Wire Wire Line
 	14500 7450 14650 7450
 Wire Wire Line
 	14500 7550 14650 7550
-Wire Wire Line
-	14500 7650 14650 7650
 NoConn ~ 14500 5750
 NoConn ~ 14500 5850
 NoConn ~ 14500 5950
@@ -3298,8 +3292,6 @@ Wire Wire Line
 	5300 5050 5600 5050
 Wire Wire Line
 	5300 5150 5700 5150
-Wire Wire Line
-	5300 4850 6100 4850
 Connection ~ 5400 4650
 Wire Wire Line
 	5400 4650 6100 4650
@@ -3556,4 +3548,6 @@ Wire Wire Line
 	3700 8350 3650 8350
 Text Label 3650 8350 2    50   ~ 0
 LCD_RESET
+NoConn ~ 6100 4850
+NoConn ~ 14500 7650
 $EndSCHEMATC
