@@ -1681,33 +1681,33 @@ Text Label 3300 6550 2    50   ~ 0
 SRAM_A16
 Text Label 3300 6650 2    50   ~ 0
 SRAM_A17
-Text Label 1350 5550 2    59   ~ 0
+Text Label 1350 4350 2    59   ~ 0
 LCD_RESET
-Text Label 1350 5650 2    59   ~ 0
+Text Label 1350 4450 2    59   ~ 0
 LCD_SCL
-Text Label 1350 5750 2    59   ~ 0
+Text Label 1350 4550 2    59   ~ 0
 LCD_D/C
-Text Label 1350 5850 2    59   ~ 0
+Text Label 1350 4650 2    59   ~ 0
 LCD_CS
-Text Label 1350 5950 2    59   ~ 0
+Text Label 1350 4750 2    59   ~ 0
 LCD_SDA
-Text Label 1350 6050 2    59   ~ 0
+Text Label 1350 4850 2    59   ~ 0
 LCD_SDO
 Wire Wire Line
-	1550 6050 1350 6050
+	1550 4850 1350 4850
 Wire Wire Line
-	1550 5550 1350 5550
+	1550 4350 1350 4350
 Wire Wire Line
-	1550 5650 1350 5650
+	1550 4450 1350 4450
 Wire Wire Line
-	1550 5750 1350 5750
+	1550 4550 1350 4550
 Wire Wire Line
-	1550 5850 1350 5850
+	1550 4650 1350 4650
 Wire Wire Line
-	1550 5950 1350 5950
+	1550 4750 1350 4750
 Wire Wire Line
-	1550 5450 1350 5450
-Text Label 1350 5450 2    50   ~ 0
+	1550 4250 1350 4250
+Text Label 1350 4250 2    50   ~ 0
 LCD_PWM
 Wire Wire Line
 	5800 1700 5700 1700
@@ -1960,8 +1960,6 @@ F 3 "" H 1450 4000 50  0000 C CNN
 	1    1450 4000
 	1    0    0    -1  
 $EndComp
-NoConn ~ 1550 4250
-NoConn ~ 1550 4350
 $Comp
 L fpgaboy-rescue:+3V3 #PWR011
 U 1 1 5C6D6EBA
@@ -2511,30 +2509,30 @@ Connection ~ 8500 4150
 Text Notes 6700 1000 0    50   ~ 0
 FPGA decoupling
 Wire Wire Line
-	1550 4450 1350 4450
+	1550 5550 1350 5550
 Wire Wire Line
-	1550 4550 1350 4550
+	1550 5650 1350 5650
 Wire Wire Line
-	1550 4650 1350 4650
+	1550 5750 1350 5750
 Wire Wire Line
-	1550 4750 1350 4750
+	1550 5850 1350 5850
 Wire Wire Line
-	1550 4850 1350 4850
+	1550 5950 1350 5950
 Wire Wire Line
-	1550 4950 1350 4950
-Text Label 1350 4450 2    50   ~ 0
+	1550 6050 1350 6050
+Text Label 1350 5550 2    50   ~ 0
 uSD_DAT0
-Text Label 1350 4550 2    50   ~ 0
+Text Label 1350 5650 2    50   ~ 0
 uSD_DAT1
-Text Label 1350 4650 2    50   ~ 0
+Text Label 1350 5750 2    50   ~ 0
 uSD_DAT2
-Text Label 1350 4750 2    50   ~ 0
+Text Label 1350 5850 2    50   ~ 0
 uSD_DAT3
-Text Label 1350 4850 2    50   ~ 0
+Text Label 1350 5950 2    50   ~ 0
 uSD_CMD
-Text Label 1350 4950 2    50   ~ 0
+Text Label 1350 6050 2    50   ~ 0
 uSD_CLK
-NoConn ~ 1550 5050
+NoConn ~ 1550 5450
 NoConn ~ 1550 5150
 NoConn ~ 1550 5250
 NoConn ~ 1550 5350
@@ -3537,4 +3535,6 @@ F 3 "" H 13850 2150 50  0000 C CNN
 	1    13850 2150
 	1    0    0    -1  
 $EndComp
+NoConn ~ 1550 4950
+NoConn ~ 1550 5050
 $EndSCHEMATC
