@@ -1509,13 +1509,13 @@ Text Label 3300 2600 2    60   ~ 0
 SRAM_DQ5
 Text Label 3300 2700 2    60   ~ 0
 SRAM_DQ6
-Text Label 3300 2800 2    60   ~ 0
+Text Label 3300 1500 2    60   ~ 0
 SRAM_DQ7
 Text Label 3300 2900 2    60   ~ 0
 SRAM_DQ8
 Text Label 3300 3000 2    60   ~ 0
 SRAM_DQ9
-Text Label 3300 3100 2    60   ~ 0
+Text Label 3300 6850 2    60   ~ 0
 SRAM_DQ10
 Wire Wire Line
 	3550 2200 3300 2200
@@ -1530,13 +1530,13 @@ Wire Wire Line
 Wire Wire Line
 	3550 2700 3300 2700
 Wire Wire Line
-	3550 2800 3300 2800
+	3550 1500 3300 1500
 Wire Wire Line
 	3550 2900 3300 2900
 Wire Wire Line
 	3550 3000 3300 3000
 Wire Wire Line
-	3550 3100 3300 3100
+	3550 6850 3300 6850
 Text Label 8350 4450 2    60   ~ 0
 SRAM_A0
 Text Label 8350 4550 2    60   ~ 0
@@ -1928,7 +1928,6 @@ Wire Wire Line
 	3550 3200 3300 3200
 Text Label 3300 3200 2    50   ~ 0
 CLK_OSC
-NoConn ~ 3550 1500
 NoConn ~ 3550 1600
 NoConn ~ 1550 1500
 NoConn ~ 1550 1600
@@ -1942,7 +1941,6 @@ NoConn ~ 1550 3600
 NoConn ~ 1550 3700
 NoConn ~ 3550 3300
 NoConn ~ 3550 6750
-NoConn ~ 3550 6850
 NoConn ~ 1550 6150
 NoConn ~ 1550 6250
 Wire Wire Line
@@ -3489,7 +3487,6 @@ F 3 "" H 13850 2150 50  0000 C CNN
 $EndComp
 NoConn ~ 1550 4950
 NoConn ~ 1550 5050
-NoConn ~ 3100 8000
 Wire Wire Line
 	8350 9500 8350 9450
 Wire Wire Line
@@ -3540,4 +3537,6 @@ Wire Wire Line
 Connection ~ 8250 10400
 Wire Wire Line
 	8250 10400 9450 10400
+NoConn ~ 3550 3100
+NoConn ~ 3550 2800
 $EndSCHEMATC
