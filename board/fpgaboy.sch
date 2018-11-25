@@ -2491,15 +2491,15 @@ F 3 "" H 11250 10850 50  0000 C CNN
 	1    11250 10850
 	1    0    0    -1  
 $EndComp
-Text Label 8250 10400 2    50   ~ 0
+Text Label 8050 10400 2    50   ~ 0
 uSD_DAT0
-Text Label 8250 10500 2    50   ~ 0
+Text Label 8050 10500 2    50   ~ 0
 uSD_DAT1
-Text Label 8250 9900 2    50   ~ 0
+Text Label 8050 9900 2    50   ~ 0
 uSD_DAT3
-Text Label 8250 10000 2    50   ~ 0
+Text Label 8050 10000 2    50   ~ 0
 uSD_CMD
-Text Label 8250 10200 2    50   ~ 0
+Text Label 8050 10200 2    50   ~ 0
 uSD_CLK
 Wire Wire Line
 	8500 4150 8500 4250
@@ -2640,67 +2640,67 @@ $EndComp
 $Comp
 L Connector:TestPoint TP5
 U 1 1 5C75ABC1
-P 7850 9800
-F 0 "TP5" V 7804 9988 50  0000 L CNN
-F 1 "TestPoint" V 7850 10150 50  0000 L CNN
-F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 9800 50  0001 C CNN
-F 3 "~" H 8050 9800 50  0001 C CNN
-	1    7850 9800
+P 7650 9800
+F 0 "TP5" V 7604 9988 50  0000 L CNN
+F 1 "TestPoint" V 7650 10150 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 7850 9800 50  0001 C CNN
+F 3 "~" H 7850 9800 50  0001 C CNN
+	1    7650 9800
 	0    -1   1    0   
 $EndComp
 $Comp
 L Connector:TestPoint TP6
 U 1 1 5C75AF0D
-P 7850 9900
-F 0 "TP6" V 7804 10088 50  0000 L CNN
-F 1 "TestPoint" V 7850 10250 50  0000 L CNN
-F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 9900 50  0001 C CNN
-F 3 "~" H 8050 9900 50  0001 C CNN
-	1    7850 9900
+P 7650 9900
+F 0 "TP6" V 7604 10088 50  0000 L CNN
+F 1 "TestPoint" V 7650 10250 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 7850 9900 50  0001 C CNN
+F 3 "~" H 7850 9900 50  0001 C CNN
+	1    7650 9900
 	0    -1   1    0   
 $EndComp
 $Comp
 L Connector:TestPoint TP7
 U 1 1 5C75AFE4
-P 7850 10000
-F 0 "TP7" V 7804 10188 50  0000 L CNN
-F 1 "TestPoint" V 7850 10350 50  0000 L CNN
-F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10000 50  0001 C CNN
-F 3 "~" H 8050 10000 50  0001 C CNN
-	1    7850 10000
+P 7650 10000
+F 0 "TP7" V 7604 10188 50  0000 L CNN
+F 1 "TestPoint" V 7650 10350 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 7850 10000 50  0001 C CNN
+F 3 "~" H 7850 10000 50  0001 C CNN
+	1    7650 10000
 	0    -1   1    0   
 $EndComp
 $Comp
 L Connector:TestPoint TP8
 U 1 1 5C75B09D
-P 7850 10200
-F 0 "TP8" V 7804 10388 50  0000 L CNN
-F 1 "TestPoint" V 7850 10550 50  0000 L CNN
-F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10200 50  0001 C CNN
-F 3 "~" H 8050 10200 50  0001 C CNN
-	1    7850 10200
+P 7650 10200
+F 0 "TP8" V 7604 10388 50  0000 L CNN
+F 1 "TestPoint" V 7650 10550 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 7850 10200 50  0001 C CNN
+F 3 "~" H 7850 10200 50  0001 C CNN
+	1    7650 10200
 	0    -1   1    0   
 $EndComp
 $Comp
 L Connector:TestPoint TP9
 U 1 1 5C75B146
-P 7850 10400
-F 0 "TP9" V 7804 10588 50  0000 L CNN
-F 1 "TestPoint" V 7850 10750 50  0000 L CNN
-F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10400 50  0001 C CNN
-F 3 "~" H 8050 10400 50  0001 C CNN
-	1    7850 10400
+P 7650 10400
+F 0 "TP9" V 7604 10588 50  0000 L CNN
+F 1 "TestPoint" V 7650 10750 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 7850 10400 50  0001 C CNN
+F 3 "~" H 7850 10400 50  0001 C CNN
+	1    7650 10400
 	0    -1   1    0   
 $EndComp
 $Comp
 L Connector:TestPoint TP10
 U 1 1 5C75B1F1
-P 7850 10500
-F 0 "TP10" V 7804 10688 50  0000 L CNN
-F 1 "TestPoint" V 7850 10850 50  0000 L CNN
-F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 8050 10500 50  0001 C CNN
-F 3 "~" H 8050 10500 50  0001 C CNN
-	1    7850 10500
+P 7650 10500
+F 0 "TP10" V 7604 10688 50  0000 L CNN
+F 1 "TestPoint" V 7650 10850 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 7850 10500 50  0001 C CNN
+F 3 "~" H 7850 10500 50  0001 C CNN
+	1    7650 10500
 	0    -1   1    0   
 $EndComp
 Text Notes 9950 9000 0    50   ~ 0
@@ -2985,54 +2985,10 @@ NoConn ~ 14500 8900
 NoConn ~ 14500 9200
 NoConn ~ 14500 9300
 NoConn ~ 14500 9400
-Text Label 8250 9800 2    50   ~ 0
+Text Label 8050 9800 2    50   ~ 0
 uSD_DAT2
 Wire Wire Line
 	9350 9100 9350 10100
-Wire Wire Line
-	9050 10500 9450 10500
-Wire Wire Line
-	8950 10400 9450 10400
-Wire Wire Line
-	8850 10200 9450 10200
-Wire Wire Line
-	8450 9900 9450 9900
-Wire Wire Line
-	8350 9800 9450 9800
-Wire Wire Line
-	9050 9450 9050 10500
-Wire Wire Line
-	8950 9450 8950 10400
-Wire Wire Line
-	8850 9450 8850 10200
-Wire Wire Line
-	8750 9450 8750 10000
-Wire Wire Line
-	8750 10000 9450 10000
-Wire Wire Line
-	8450 9450 8450 9900
-Wire Wire Line
-	8350 9450 8350 9800
-Wire Wire Line
-	8350 9800 7850 9800
-Connection ~ 8350 9800
-Wire Wire Line
-	8450 9900 7850 9900
-Connection ~ 8450 9900
-Wire Wire Line
-	8750 10000 7850 10000
-Connection ~ 8750 10000
-Wire Wire Line
-	7850 10200 8850 10200
-Connection ~ 8850 10200
-Wire Wire Line
-	8950 10400 7850 10400
-Connection ~ 8950 10400
-Wire Wire Line
-	7850 10500 9050 10500
-Connection ~ 9050 10500
-Wire Wire Line
-	8250 9450 8250 9550
 $Comp
 L Device:R_Pack04 RN2
 U 1 1 5E70AF15
@@ -3368,14 +3324,10 @@ Wire Wire Line
 	5700 5150 6100 5150
 Wire Wire Line
 	6000 3950 6000 4550
-Text Label 7850 9450 2    50   ~ 0
+Text Label 7850 9500 2    50   ~ 0
 FPGA_UART_TX
-Text Label 7850 9550 2    50   ~ 0
+Text Label 7850 9600 2    50   ~ 0
 FPGA_UART_RX
-Wire Wire Line
-	8150 9450 7850 9450
-Wire Wire Line
-	8250 9550 7850 9550
 Wire Wire Line
 	5000 2100 5800 2100
 Wire Wire Line
@@ -3537,4 +3489,55 @@ F 3 "" H 13850 2150 50  0000 C CNN
 $EndComp
 NoConn ~ 1550 4950
 NoConn ~ 1550 5050
+NoConn ~ 3100 8000
+Wire Wire Line
+	8350 9500 8350 9450
+Wire Wire Line
+	7850 9500 8350 9500
+Wire Wire Line
+	8450 9600 8450 9450
+Wire Wire Line
+	7850 9600 8450 9600
+Wire Wire Line
+	7650 9800 8950 9800
+Wire Wire Line
+	8750 9450 8750 10200
+Wire Wire Line
+	7650 10400 8250 10400
+Wire Wire Line
+	7650 10500 8150 10500
+Wire Wire Line
+	7650 10200 8750 10200
+Wire Wire Line
+	7650 10000 8850 10000
+Wire Wire Line
+	7650 9900 9050 9900
+Connection ~ 8750 10200
+Wire Wire Line
+	8750 10200 9450 10200
+Wire Wire Line
+	8850 9450 8850 10000
+Connection ~ 8850 10000
+Wire Wire Line
+	8850 10000 9450 10000
+Wire Wire Line
+	8950 9450 8950 9800
+Connection ~ 8950 9800
+Wire Wire Line
+	8950 9800 9450 9800
+Wire Wire Line
+	9050 9450 9050 9900
+Connection ~ 9050 9900
+Wire Wire Line
+	9050 9900 9450 9900
+Wire Wire Line
+	8150 9450 8150 10500
+Connection ~ 8150 10500
+Wire Wire Line
+	8150 10500 9450 10500
+Wire Wire Line
+	8250 9450 8250 10400
+Connection ~ 8250 10400
+Wire Wire Line
+	8250 10400 9450 10400
 $EndSCHEMATC
