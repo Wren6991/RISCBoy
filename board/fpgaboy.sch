@@ -1497,21 +1497,21 @@ F 3 "" H 3450 4000 50  0000 C CNN
 	1    3450 4000
 	1    0    0    -1  
 $EndComp
-Text Label 3300 5450 2    60   ~ 0
+Text Label 3300 5950 2    60   ~ 0
 SRAM_DQ1
-Text Label 3300 2300 2    60   ~ 0
+Text Label 3300 1900 2    60   ~ 0
 SRAM_DQ2
-Text Label 3300 4550 2    60   ~ 0
+Text Label 3300 2300 2    60   ~ 0
 SRAM_DQ3
-Text Label 3300 2500 2    60   ~ 0
-SRAM_DQ4
 Text Label 3300 2600 2    60   ~ 0
+SRAM_DQ4
+Text Label 3300 2500 2    60   ~ 0
 SRAM_DQ5
-Text Label 3300 2700 2    60   ~ 0
+Text Label 3300 1700 2    60   ~ 0
 SRAM_DQ6
-Text Label 3300 1500 2    60   ~ 0
+Text Label 3300 1800 2    60   ~ 0
 SRAM_DQ7
-Text Label 3300 2900 2    60   ~ 0
+Text Label 3300 2000 2    60   ~ 0
 SRAM_DQ8
 Text Label 3300 6650 2    60   ~ 0
 SRAM_DQ9
@@ -1645,13 +1645,13 @@ Wire Wire Line
 	3550 6550 3300 6550
 Wire Wire Line
 	3550 6650 3300 6650
-Text Label 3300 4650 2    60   ~ 0
+Text Label 3300 5450 2    60   ~ 0
 SRAM_A0
-Text Label 3300 5950 2    60   ~ 0
-SRAM_A1
-Text Label 3300 1900 2    60   ~ 0
-SRAM_A2
 Text Label 3300 5250 2    60   ~ 0
+SRAM_A1
+Text Label 3300 4650 2    60   ~ 0
+SRAM_A2
+Text Label 3300 4550 2    60   ~ 0
 SRAM_A3
 Text Label 3300 4450 2    60   ~ 0
 SRAM_A4
@@ -1659,7 +1659,7 @@ Text Label 3300 4350 2    60   ~ 0
 SRAM_A5
 Text Label 3300 4750 2    60   ~ 0
 SRAM_A6
-Text Label 3300 3000 2    60   ~ 0
+Text Label 3300 4850 2    60   ~ 0
 SRAM_A7
 Text Label 3300 6350 2    60   ~ 0
 SRAM_A8
@@ -1669,17 +1669,17 @@ Text Label 3300 6450 2    60   ~ 0
 SRAM_A10
 Text Label 3300 6050 2    60   ~ 0
 SRAM_A11
-Text Label 3300 2100 2    60   ~ 0
+Text Label 3300 2900 2    60   ~ 0
 SRAM_A12
-Text Label 3300 2200 2    60   ~ 0
+Text Label 3300 2700 2    60   ~ 0
 SRAM_A13
-Text Label 3300 2000 2    60   ~ 0
-SRAM_A14
-Text Label 3300 1800 2    60   ~ 0
-SRAM_A15
 Text Label 3300 2400 2    60   ~ 0
+SRAM_A14
+Text Label 3300 2100 2    60   ~ 0
+SRAM_A15
+Text Label 3300 3000 2    60   ~ 0
 SRAM_A16
-Text Label 3300 1700 2    60   ~ 0
+Text Label 3300 1500 2    60   ~ 0
 SRAM_A17
 Text Label 1350 4350 2    59   ~ 0
 LCD_RESET
@@ -3429,9 +3429,9 @@ F 3 "" H 7000 3200 50  0000 C CNN
 $EndComp
 Text Notes 6650 3550 0    50   ~ 0
 Separate nets from 1V2\ndue to RC filter. Must\nexplicitly mark as powered.
-Text Label 3300 4850 2    60   ~ 0
-SRAM_~CE
 Text Label 3300 5750 2    60   ~ 0
+SRAM_~CE
+Text Label 3300 2200 2    60   ~ 0
 SRAM_~WE
 Text Label 3300 5150 2    60   ~ 0
 SRAM_~OE
