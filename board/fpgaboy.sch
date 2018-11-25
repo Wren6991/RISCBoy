@@ -1453,17 +1453,17 @@ F 3 "" H 3350 850 50  0001 C CNN
 	5    3950 4400
 	1    0    0    -1  
 $EndComp
-Text Label 3300 4350 2    60   ~ 0
+Text Label 3300 6250 2    60   ~ 0
 SRAM_DQ11
-Text Label 3300 4450 2    60   ~ 0
+Text Label 3300 6850 2    60   ~ 0
 SRAM_DQ12
-Text Label 3300 4550 2    60   ~ 0
+Text Label 3300 5850 2    60   ~ 0
 SRAM_DQ13
-Text Label 3300 4650 2    60   ~ 0
+Text Label 3300 5550 2    60   ~ 0
 SRAM_DQ14
-Text Label 3300 4750 2    60   ~ 0
+Text Label 3300 5650 2    60   ~ 0
 SRAM_DQ15
-Text Label 3300 4850 2    60   ~ 0
+Text Label 3300 4950 2    60   ~ 0
 SRAM_DQ16
 Wire Wire Line
 	3550 4350 3300 4350
@@ -1497,11 +1497,11 @@ F 3 "" H 3450 4000 50  0000 C CNN
 	1    3450 4000
 	1    0    0    -1  
 $EndComp
-Text Label 3300 2200 2    60   ~ 0
+Text Label 3300 5450 2    60   ~ 0
 SRAM_DQ1
 Text Label 3300 2300 2    60   ~ 0
 SRAM_DQ2
-Text Label 3300 2400 2    60   ~ 0
+Text Label 3300 4550 2    60   ~ 0
 SRAM_DQ3
 Text Label 3300 2500 2    60   ~ 0
 SRAM_DQ4
@@ -1513,9 +1513,9 @@ Text Label 3300 1500 2    60   ~ 0
 SRAM_DQ7
 Text Label 3300 2900 2    60   ~ 0
 SRAM_DQ8
-Text Label 3300 3000 2    60   ~ 0
+Text Label 3300 6650 2    60   ~ 0
 SRAM_DQ9
-Text Label 3300 6850 2    60   ~ 0
+Text Label 3300 6150 2    60   ~ 0
 SRAM_DQ10
 Wire Wire Line
 	3550 2200 3300 2200
@@ -1645,41 +1645,41 @@ Wire Wire Line
 	3550 6550 3300 6550
 Wire Wire Line
 	3550 6650 3300 6650
-Text Label 3300 4950 2    50   ~ 0
+Text Label 3300 4650 2    60   ~ 0
 SRAM_A0
-Text Label 3300 5050 2    50   ~ 0
+Text Label 3300 5950 2    60   ~ 0
 SRAM_A1
-Text Label 3300 5150 2    50   ~ 0
+Text Label 3300 1900 2    60   ~ 0
 SRAM_A2
-Text Label 3300 5250 2    50   ~ 0
+Text Label 3300 5250 2    60   ~ 0
 SRAM_A3
-Text Label 3300 5350 2    50   ~ 0
+Text Label 3300 4450 2    60   ~ 0
 SRAM_A4
-Text Label 3300 5450 2    50   ~ 0
+Text Label 3300 4350 2    60   ~ 0
 SRAM_A5
-Text Label 3300 5550 2    50   ~ 0
+Text Label 3300 4750 2    60   ~ 0
 SRAM_A6
-Text Label 3300 5650 2    50   ~ 0
+Text Label 3300 3000 2    60   ~ 0
 SRAM_A7
-Text Label 3300 5750 2    50   ~ 0
+Text Label 3300 6350 2    60   ~ 0
 SRAM_A8
-Text Label 3300 5850 2    50   ~ 0
+Text Label 3300 6550 2    60   ~ 0
 SRAM_A9
-Text Label 3300 5950 2    50   ~ 0
+Text Label 3300 6450 2    60   ~ 0
 SRAM_A10
-Text Label 3300 6050 2    50   ~ 0
+Text Label 3300 6050 2    60   ~ 0
 SRAM_A11
-Text Label 3300 6150 2    50   ~ 0
+Text Label 3300 2100 2    60   ~ 0
 SRAM_A12
-Text Label 3300 6250 2    50   ~ 0
+Text Label 3300 2200 2    60   ~ 0
 SRAM_A13
-Text Label 3300 6350 2    50   ~ 0
+Text Label 3300 2000 2    60   ~ 0
 SRAM_A14
-Text Label 3300 6450 2    50   ~ 0
+Text Label 3300 1800 2    60   ~ 0
 SRAM_A15
-Text Label 3300 6550 2    50   ~ 0
+Text Label 3300 2400 2    60   ~ 0
 SRAM_A16
-Text Label 3300 6650 2    50   ~ 0
+Text Label 3300 1700 2    60   ~ 0
 SRAM_A17
 Text Label 1350 4350 2    59   ~ 0
 LCD_RESET
@@ -1926,7 +1926,7 @@ F 3 "" H 6000 3950 50  0000 C CNN
 $EndComp
 Wire Wire Line
 	3550 3200 3300 3200
-Text Label 3300 3200 2    50   ~ 0
+Text Label 3300 3200 2    60   ~ 0
 CLK_OSC
 NoConn ~ 3550 1600
 NoConn ~ 1550 1500
@@ -3429,15 +3429,15 @@ F 3 "" H 7000 3200 50  0000 C CNN
 $EndComp
 Text Notes 6650 3550 0    50   ~ 0
 Separate nets from 1V2\ndue to RC filter. Must\nexplicitly mark as powered.
-Text Label 3300 1700 2    60   ~ 0
+Text Label 3300 4850 2    60   ~ 0
 SRAM_~CE
-Text Label 3300 1800 2    60   ~ 0
+Text Label 3300 5750 2    60   ~ 0
 SRAM_~WE
-Text Label 3300 1900 2    60   ~ 0
+Text Label 3300 5150 2    60   ~ 0
 SRAM_~OE
-Text Label 3300 2000 2    60   ~ 0
+Text Label 3300 5050 2    60   ~ 0
 SRAM_~UB
-Text Label 3300 2100 2    60   ~ 0
+Text Label 3300 5350 2    60   ~ 0
 SRAM_~LB
 Wire Wire Line
 	3550 1700 3300 1700
@@ -3539,4 +3539,6 @@ Wire Wire Line
 	8250 10400 9450 10400
 NoConn ~ 3550 3100
 NoConn ~ 3550 2800
+Text Notes 2900 7250 0    50   ~ 0
+Note there is extensive scrambling here\nto decongest FPGA->SRAM routing
 $EndSCHEMATC
