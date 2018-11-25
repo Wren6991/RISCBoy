@@ -758,7 +758,7 @@ LCD_RESET
 Text Label 1750 8700 2    59   ~ 0
 LCD_SCL
 Text Label 1750 8800 2    59   ~ 0
-LCD_D/C
+LCD_D~C~
 Text Label 1750 8900 2    59   ~ 0
 LCD_CS
 Text Label 1750 9000 2    59   ~ 0
@@ -1507,11 +1507,11 @@ Text Label 3300 2600 2    60   ~ 0
 SRAM_DQ4
 Text Label 3300 2500 2    60   ~ 0
 SRAM_DQ5
-Text Label 3300 1500 2    60   ~ 0
+Text Label 3300 1700 2    60   ~ 0
 SRAM_DQ6
-Text Label 3300 2100 2    60   ~ 0
+Text Label 3300 1800 2    60   ~ 0
 SRAM_DQ7
-Text Label 3300 2400 2    60   ~ 0
+Text Label 3300 2000 2    60   ~ 0
 SRAM_DQ8
 Text Label 3300 6650 2    60   ~ 0
 SRAM_DQ9
@@ -1671,25 +1671,25 @@ Text Label 3300 6050 2    60   ~ 0
 SRAM_A11
 Text Label 3300 2900 2    60   ~ 0
 SRAM_A12
-Text Label 3300 2200 2    60   ~ 0
+Text Label 3300 2700 2    60   ~ 0
 SRAM_A13
-Text Label 3300 2000 2    60   ~ 0
+Text Label 3300 2400 2    60   ~ 0
 SRAM_A14
-Text Label 3300 1800 2    60   ~ 0
+Text Label 3300 2100 2    60   ~ 0
 SRAM_A15
 Text Label 3300 3000 2    60   ~ 0
 SRAM_A16
-Text Label 3300 1700 2    60   ~ 0
+Text Label 3300 1500 2    60   ~ 0
 SRAM_A17
-Text Label 1350 4350 2    59   ~ 0
-LCD_RESET
-Text Label 1350 4450 2    59   ~ 0
-LCD_SCL
-Text Label 1350 4550 2    59   ~ 0
-LCD_D/C
 Text Label 1350 4650 2    59   ~ 0
+LCD_RESET
+Text Label 1350 4550 2    59   ~ 0
+LCD_SCL
+Text Label 1350 4350 2    59   ~ 0
+LCD_D~C~
+Text Label 1350 4250 2    59   ~ 0
 LCD_CS
-Text Label 1350 4750 2    59   ~ 0
+Text Label 1350 4450 2    59   ~ 0
 LCD_SDA
 Text Label 1350 4850 2    59   ~ 0
 LCD_SDO
@@ -1707,7 +1707,7 @@ Wire Wire Line
 	1550 4750 1350 4750
 Wire Wire Line
 	1550 4250 1350 4250
-Text Label 1350 4250 2    50   ~ 0
+Text Label 1350 4750 2    50   ~ 0
 LCD_PWM
 Wire Wire Line
 	5800 1700 5700 1700
@@ -2325,8 +2325,6 @@ F 3 "~" H 3900 8950 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	3700 8950 3650 8950
-Text Label 3650 8650 2    59   ~ 0
-LCD_D/C
 Text Label 3650 8800 2    59   ~ 0
 LCD_CS
 Text Label 3650 8950 2    59   ~ 0
@@ -3431,7 +3429,7 @@ Text Notes 6650 3550 0    50   ~ 0
 Separate nets from 1V2\ndue to RC filter. Must\nexplicitly mark as powered.
 Text Label 3300 5750 2    60   ~ 0
 SRAM_~CE
-Text Label 3300 2700 2    60   ~ 0
+Text Label 3300 2200 2    60   ~ 0
 SRAM_~WE
 Text Label 3300 5150 2    60   ~ 0
 SRAM_~OE
@@ -3541,4 +3539,21 @@ NoConn ~ 3550 3100
 NoConn ~ 3550 2800
 Text Notes 2900 7250 0    50   ~ 0
 Note there is extensive scrambling here\nto decongest FPGA->SRAM routing
+Text Label 3650 8650 2    59   ~ 0
+LCD_D~C~
+$Comp
+L Connector:TestPoint TP15
+U 1 1 5C00C5C4
+P 3700 8350
+F 0 "TP15" V 3654 8538 50  0000 L CNN
+F 1 "TestPoint" V 3745 8538 50  0000 L CNN
+F 2 "fpgaboy_parts:Testpoint_d0.7mm" H 3900 8350 50  0001 C CNN
+F 3 "~" H 3900 8350 50  0001 C CNN
+	1    3700 8350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3700 8350 3650 8350
+Text Label 3650 8350 2    50   ~ 0
+LCD_RESET
 $EndSCHEMATC
