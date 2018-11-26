@@ -3206,7 +3206,7 @@ U 1 1 5C02D648
 P 6600 10600
 F 0 "J4" H 6600 10200 50  0000 L CNN
 F 1 "Conn_01x06" V 6700 10350 50  0000 L CNN
-F 2 "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical" H 6600 10600 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 6600 10600 50  0001 C CNN
 F 3 "~" H 6600 10600 50  0001 C CNN
 	1    6600 10600
 	1    0    0    -1  
@@ -3217,7 +3217,7 @@ U 1 1 5C02D73A
 P 6600 9650
 F 0 "J2" H 6600 9250 50  0000 L CNN
 F 1 "Conn_01x06" V 6700 9400 50  0000 L CNN
-F 2 "Connector_PinHeader_1.27mm:PinHeader_1x06_P1.27mm_Vertical" H 6600 9650 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 6600 9650 50  0001 C CNN
 F 3 "~" H 6600 9650 50  0001 C CNN
 	1    6600 9650
 	1    0    0    -1  
