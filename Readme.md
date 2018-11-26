@@ -20,10 +20,10 @@ Building RV32IC Toolchain
 Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
 
 ```
-./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
-sudo mkdir /opt/riscv
-sudo chown $(whoami) /opt/riscv
-make -j $(nproc)
+$ ./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
+$ sudo mkdir /opt/riscv
+$ sudo chown $(whoami) /opt/riscv
+$ make -j $(nproc)
 ```
 
 Simulation
@@ -31,25 +31,25 @@ Simulation
 
 The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the scripts/ folder. This has only been tested with the Linux version of ISIM.
 
-You will also need to checkout the RISC-V compliance suite in order to run these tests (note the `-- test` is required to stop git from looking in the KiCad directories and complaining about the library structure there."
+You will also need to checkout the RISC-V compliance suite in order to run these tests (note the `-- test` is required to stop git from looking in the KiCad directories and complaining about the library structure there).
 
 ```
 git submodule update --init --recursive -- test
 ```
 
-Once this is ready, you should be able to do the following:
+Once this is ready, you should be able to run the following:
 
 ```
-. sourceme
-cd test
-./runtests
+$ . sourceme
+$ cd test
+$ ./runtests
 ```
 
 which will run all of the HDL-level tests. Software tests will require the RV32IC toolchain. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To graphically debug a test, run its makefile directly:
 
 ```
-cd system
-make TEST=helloworld gui
+$ cd system
+$ make TEST=helloworld gui
 ```
 
 PCB
