@@ -1,3 +1,3 @@
-list $HDL/fpgaboy_core/fpgaboy_core.f
+list $HDL/riscboy_core/riscboy_core.f
 file tb.v
 file ../common/behav_uart_rx.v

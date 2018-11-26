@@ -1,7 +1,7 @@
-FPGABoy
+RISCBoy
 =======
 
-FPGABoy is an open-source portable games console, designed from scratch. This includes:
+RISCBoy is an open-source portable games console, designed from scratch. This includes:
 
 - A RISC-V compatible CPU
 - A simple graphics pipeline (on the level of a Gameboy Advance) and display controller

@@ -11,7 +11,7 @@ reg clk;
 reg rst_n;
 
 wire [15:0] pads;
-fpgaboy_core dut (.clk(clk), .rst_n(rst_n), .gpio(pads));
+riscboy_core dut (.clk(clk), .rst_n(rst_n), .gpio(pads));
 
 always #(CLK_PERIOD * 0.5) clk = !clk;
 

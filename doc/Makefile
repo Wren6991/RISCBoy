@@ -1,4 +1,4 @@
-DOCNAME=fpgaboy_doc
+DOCNAME=riscboy_doc
 PDFVIEWER=evince
 
 all: $(DOCNAME).pdf
@@ -9,7 +9,7 @@ $(DOCNAME).pdf: $(DOCNAME).tex
 	pdflatex $(DOCNAME).tex
 
 clean:
-	rm -f $(DOCNAME).log $(DOCNAME).aux $(DOCNAME).toc $(DOCNAME).sync.gz $(DOCNAME).pdf
+	rm -f $(DOCNAME).log $(DOCNAME).aux $(DOCNAME).toc $(DOCNAME).sync.gz $(DOCNAME).pdf $(DOCNAME).out
 	make -C waves clean
 
 view: $(DOCNAME).pdf
