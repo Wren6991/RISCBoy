@@ -51,6 +51,8 @@ PCB
 
 The PCB is still a work in progress. It should be compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
 
+![](board/board_render01.jpg)
+
 To meet these specifications, the BGA pads under the FPGA must be tiny, to leave room for interstitial vias between pads.
 
  - Pitch: 0.8 mm
