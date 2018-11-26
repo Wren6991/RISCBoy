@@ -31,7 +31,13 @@ Simulation
 
 The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the scripts/ folder. This has only been tested with the Linux version of ISIM.
 
-Once ISIM is installed, you should be able to do the following:
+You will also need to checkout the RISC-V compliance suite in order to run these tests (note the `-- test` is required to stop git from looking in the KiCad directories and complaining about the library structure there."
+
+```
+git submodule update --init --recursive -- test
+```
+
+Once this is ready, you should be able to do the following:
 
 ```
 . sourceme
