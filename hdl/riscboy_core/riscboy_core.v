@@ -20,9 +20,7 @@
 // which lives in the chip/fpga/testbench top level
 
 
-module riscboy_core #(
-	localparam N_PADS = 16
-) (
+module riscboy_core (
 	input wire clk,
 	input wire rst_n,
 
@@ -239,7 +237,7 @@ apb_splitter #(
 ahb_sync_sram #(
 	.W_DATA(W_DATA),
 	.W_ADDR(W_ADDR),
-	.DEPTH(1 << 17) // 2^17 words = 0.5 MiB
+	.DEPTH(1 << 11) // 2^17 words = 0.5 MiB
 ) sram0 (
 	.clk               (clk),
 	.rst_n             (rst_n),
@@ -291,7 +289,7 @@ uart_mini #(
 
 
 gpio #(
-	.N_PADS(N_PADS)
+	.N_PADS(16)
 ) inst_gpio (
 	.clk          (clk),
 	.rst_n        (rst_n),

@@ -1,11 +1,7 @@
 # Generated with extract_ref_nets
 
+set_io audio_pwm            G9
 set_io clk_osc              L5
-set_io fpga_cfg_done        K8
-set_io fpga_cfg_sck         L10
-set_io fpga_cfg_si          J9
-set_io fpga_cfg_rst         L9
-set_io fpga_cfg_ss          K10
 set_io fpga_heartbeat       A8
 set_io fpga_uart_rx         C7
 set_io fpga_uart_tx         A7

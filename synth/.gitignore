@@ -1,3 +1,4 @@
 srcs.mk
 *.blif
+*.asc
 
