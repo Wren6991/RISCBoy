@@ -755,15 +755,15 @@ F 3 "" H 3000 9200 50  0000 C CNN
 $EndComp
 Text Label 1750 8600 2    59   ~ 0
 LCD_RESET
-Text Label 1750 8700 2    59   ~ 0
+Text Label 1750 9100 2    59   ~ 0
 LCD_SCL
-Text Label 1750 8800 2    59   ~ 0
+Text Label 1750 9000 2    59   ~ 0
 LCD_D~C~
 Text Label 1750 8900 2    59   ~ 0
 LCD_CS
-Text Label 1750 9000 2    59   ~ 0
+Text Label 1750 8800 2    59   ~ 0
 LCD_SDA
-Text Label 1750 9100 2    59   ~ 0
+Text Label 1750 8700 2    59   ~ 0
 LCD_SDO
 Text Notes 1600 8000 0    59   ~ 0
 Display Connector\n
@@ -3475,7 +3475,6 @@ F 3 "" H 13850 2150 50  0000 C CNN
 	1    13850 2150
 	1    0    0    -1  
 $EndComp
-NoConn ~ 1550 4950
 NoConn ~ 1550 5050
 Wire Wire Line
 	8350 9500 8350 9450
@@ -3550,4 +3549,125 @@ Text Label 3650 8350 2    50   ~ 0
 LCD_RESET
 NoConn ~ 6100 4850
 NoConn ~ 14500 7650
+Wire Wire Line
+	1550 4950 1350 4950
+Text Label 1350 4950 2    50   ~ 0
+AUDIO_PWM
+$Comp
+L fpgaboy-rescue:CONN_01X02 P4
+U 1 1 5C08551B
+P 11000 7950
+F 0 "P4" H 11000 8100 50  0000 C CNN
+F 1 "CONN_01X02" V 11100 7950 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 11000 7950 50  0001 C CNN
+F 3 "" H 11000 7950 50  0000 C CNN
+	1    11000 7950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10800 8000 10700 8000
+$Comp
+L fpgaboy-rescue:GND #PWR0102
+U 1 1 5C0DBD8A
+P 10700 8500
+F 0 "#PWR0102" H 10700 8250 50  0001 C CNN
+F 1 "GND" H 10705 8327 50  0000 C CNN
+F 2 "" H 10700 8500 50  0000 C CNN
+F 3 "" H 10700 8500 50  0000 C CNN
+	1    10700 8500
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R15
+U 1 1 5C133D1D
+P 10400 7650
+F 0 "R15" V 10480 7650 50  0000 C CNN
+F 1 "680" V 10400 7650 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 10330 7650 50  0001 C CNN
+F 3 "" H 10400 7650 50  0000 C CNN
+	1    10400 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R13
+U 1 1 5C1342F3
+P 10150 7650
+F 0 "R13" V 10230 7650 50  0000 C CNN
+F 1 "680" V 10150 7650 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 10080 7650 50  0001 C CNN
+F 3 "" H 10150 7650 50  0000 C CNN
+	1    10150 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R14
+U 1 1 5C18A52F
+P 10150 8150
+F 0 "R14" V 10230 8150 50  0000 C CNN
+F 1 "220" V 10150 8150 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 10080 8150 50  0001 C CNN
+F 3 "" H 10150 8150 50  0000 C CNN
+	1    10150 8150
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:C C30
+U 1 1 5C18A953
+P 10400 8150
+F 0 "C30" H 10425 8250 50  0000 L CNN
+F 1 "0.1u" H 10425 8050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 10438 8000 50  0001 C CNN
+F 3 "" H 10400 8150 50  0000 C CNN
+	1    10400 8150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10150 7800 10150 7900
+Wire Wire Line
+	10400 7800 10400 7900
+Wire Wire Line
+	10400 7900 10800 7900
+Connection ~ 10400 7900
+Wire Wire Line
+	10400 7900 10400 8000
+Wire Wire Line
+	10400 7900 10150 7900
+Connection ~ 10150 7900
+Wire Wire Line
+	10150 7900 10150 8000
+Wire Wire Line
+	10150 8300 10150 8400
+Wire Wire Line
+	10150 8400 10400 8400
+Wire Wire Line
+	10400 8300 10400 8400
+Wire Wire Line
+	10400 8400 10400 8500
+Connection ~ 10400 8400
+$Comp
+L fpgaboy-rescue:GND #PWR0104
+U 1 1 5C499C23
+P 10400 8500
+F 0 "#PWR0104" H 10400 8250 50  0001 C CNN
+F 1 "GND" H 10405 8327 50  0000 C CNN
+F 2 "" H 10400 8500 50  0000 C CNN
+F 3 "" H 10400 8500 50  0000 C CNN
+	1    10400 8500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10700 8000 10700 8500
+Wire Wire Line
+	10150 7500 10150 7400
+Wire Wire Line
+	10150 7400 9950 7400
+Wire Wire Line
+	10150 7400 10400 7400
+Wire Wire Line
+	10400 7400 10400 7500
+Connection ~ 10150 7400
+Text Label 9950 7400 2    50   ~ 0
+AUDIO_PWM
+Text Notes 10500 7550 0    50   ~ 0
+parallel resistors are just to\navoid more unique values\n
 $EndSCHEMATC

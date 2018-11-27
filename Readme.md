@@ -10,14 +10,14 @@ RISCBoy is an open-source portable games console, designed from scratch. This in
 
 ![](doc/diagrams/system_arch.png)
 
-The design is written in synthesisable Verilog 2001, and is intended to fit onto an iCE40-HX8k FPGA. This is the largest FPGA targetable by the open-source iCEStorm FPGA toolchain, but is still fairly austere (7680 LUT4s and flipflops), so some compromises are needed to squeeze our logic in.
+The design is written in synthesisable Verilog 2001, and is intended to fit onto an iCE40-HX8k FPGA. This is the largest FPGA targeted by the open-source iCEStorm FPGA toolchain, but still fairly austere (7680 LUT4s and flipflops), so compromise is needed to squeeze our logic in.
 
 More detailed information can be found in the [documentation](doc/fpgaboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
 
 Building RV32IC Toolchain
 -------------------------
 
-Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
+The RV32IC toolchain is required for compilation of software-based tests. Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
 
 ```
 $ ./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
@@ -34,7 +34,7 @@ The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the sc
 You will also need to checkout the RISC-V compliance suite in order to run these tests (note the `-- test` is required to stop git from looking in the KiCad directories and complaining about the library structure there).
 
 ```
-git submodule update --init --recursive -- test
+$ git submodule update --init --recursive -- test
 ```
 
 Once this is ready, you should be able to run the following:
@@ -59,7 +59,7 @@ The PCB is still a work in progress. It should be compatible with iTead's 4-laye
 
 ![](board/board_render01.jpg)
 
-To meet these specifications, the BGA pads under the FPGA must be tiny, to leave room for interstitial vias between pads.
+To meet these specifications, the BGA pads under the FPGA must be tiny, to leave room for interstitial vias between pads:
 
  - Pitch: 0.8 mm
  - Diagonal pitch: 0.8 * √2 = 1.131 mm
