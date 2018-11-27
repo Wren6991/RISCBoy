@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+# Turn KiCad netlist into a PCF file for icestorm
+
+import argparse
+import re
+import shlex
+
+def sanitize_net_name(s):
+	s = s.replace("~", "")
+	s = re.sub(r"(\d+)$", r"[\1]", s)
+	return s
+
+def natural_key(s):
+	return tuple(int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s))
+
+def extract_nets(fh, ref, filters):
+	nets = []
+
+	name = None
+	namevalid = False
+
+	for l in fh:
+		m = re.match(r"^\s*\(net \([^\)]*\) \(name ([^\)]+)\)", l)
+		if m:
+			name = m.group(1).strip().strip("/").lower()
+			namevalid = not any(name.startswith(s) for s in [
+				"\"net", "+", "-", "gnd", "vcc", "vdd", "vss", *filters
+			])
+		elif namevalid:
+			m = re.match(r"^\s*\(node \(ref ([^\)]+)\) \(pin ([^\)]+)\)", l)
+			if m and m.group(1) == ref:
+				nets.append((name, m.group(2)))
+	return nets
+
+def write_pcf(fh, nets):
+	fh.write("# Generated with extract_ref_nets\n\n")
+	for name, loc in sorted(nets, key = lambda x: natural_key(x[0])):
+		fh.write("set_io {:<20} {}\n".format(sanitize_net_name(name), loc))
+
+def main():
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
+	parser.add_argument("netfile", help="Path to KiCad .net file")
+	parser.add_argument("ref",  help="Component reference whose named nets will be extracted")
+	parser.add_argument("--output", "-o", help="Output file name")
+	parser.add_argument("--filters", "-f", help="-f \"abc xyz\": filter out nets beginning with abc or xyz")
+	args = parser.parse_args()
+	opath = "chip.pcf" if args.output is None else args.output
+	filters = [] if args.filters is None else shlex.split(args.filters)
+	with open(args.netfile) as ifile:
+		nets = extract_nets(ifile, args.ref, filters)
+	with open(opath, "w") as ofile:
+		write_pcf(ofile, nets)
+
+if __name__ == "__main__":
+	main()
