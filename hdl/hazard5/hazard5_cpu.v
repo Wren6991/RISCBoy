@@ -349,18 +349,17 @@ always @ (*) begin
 	end else begin
 		x_rs2_bypass = dx_rdata2;
 	end
-	case (dx_alusrc_a)
-		ALUSRCA_RS1:      x_op_a = x_rs1_bypass;
-		ALUSRCA_LINKADDR: x_op_a = dx_mispredict_addr;
-		ALUSRCA_PC:       x_op_a = dx_pc;
-		default:          x_op_a = {W_DATA{1'b0}};
-	endcase
+	if (dx_alusrc_a == ALUSRCA_PC)
+		x_op_a = dx_pc;
+	else if (dx_alusrc_a == ALUSRCA_LINKADDR)
+		x_op_a = dx_mispredict_addr;
+	else
+		x_op_a = x_rs1_bypass;
 
-	case (dx_alusrc_b)
-		ALUSRCB_RS2:      x_op_b = x_rs2_bypass;
-		ALUSRCB_IMM:      x_op_b = dx_imm;
-		default:          x_op_b = {W_DATA{1'b0}};
-	endcase
+	if (dx_alusrc_b)
+		x_op_b = dx_imm;
+	else
+		x_op_b = x_rs2_bypass;
 end
 
 // State machine and branch detection

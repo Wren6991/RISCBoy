@@ -70,8 +70,6 @@ hazard5_instr_decompress #(
 	.invalid(d_invalid_16bit)
 );
 
-
-
 // Various D-local regs/wires
 reg  [W_ADDR-1:0]    d_pc;
 wire [W_ADDR-1:0]    d_pc_next = d_pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
@@ -157,8 +155,8 @@ end
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		{dx_imm, dx_rs1, dx_rs2, dx_rd} <= {(W_DATA + 3 * W_REGADDR){1'b0}};
-		dx_alusrc_a <= ALUSRCA_ZERO;
-		dx_alusrc_b <= ALUSRCB_ZERO;
+		dx_alusrc_a <= ALUSRCA_RS1;
+		dx_alusrc_b <= ALUSRCB_RS2;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
 		d_pc <= RESET_VECTOR;
@@ -198,9 +196,9 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_BGE:     begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GE;  dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BLTU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_LTU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
 		RV_BGEU:    begin dx_rd <= {W_REGADDR{1'b0}}; dx_aluop <= ALUOP_GEU; dx_imm <= d_imm_b; dx_branchcond <= BCOND_NZERO; end
-		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; dx_jump_is_regoffs <= 1'b1; end
-		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_alusrc_b <= ALUSRCB_ZERO; end
-		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_ZERO; end
+		RV_JALR:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_branchcond <= BCOND_ALWAYS; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_rs2 <= {W_REGADDR{1'b0}}; dx_jump_is_regoffs <= 1'b1; end
+		RV_JAL:     begin dx_aluop <= ALUOP_ADD; dx_alusrc_a <= ALUSRCA_LINKADDR; dx_rs2 <= {W_REGADDR{1'b0}}; end
+		RV_LUI:     begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_rs1 <= {W_REGADDR{1'b0}}; end
 		RV_AUIPC:   begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_u; dx_alusrc_b <= ALUSRCB_IMM; dx_alusrc_a <= ALUSRCA_PC; end
 		RV_ADDI:    begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
 		RV_SLLI:    begin dx_aluop <= ALUOP_SLL; dx_imm <= d_imm_i; dx_alusrc_b <= ALUSRCB_IMM; end
