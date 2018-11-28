@@ -30,22 +30,16 @@ localparam N_FSELS = 1 << W_FSEL;
 
 wire [W_FSEL-1:0] fsel [0:N_PADS-1];
 
-reg [N_PADS-1:0] padout;
-reg [N_PADS-1:0] padoe;
-reg [N_PADS-1:0] pads_r;
-assign pads = pads_r;
+reg  [N_PADS-1:0] padout;
+reg  [N_PADS-1:0] padoe;
+wire [N_PADS-1:0] padin;
 
-integer i;
-
-always @ (*) begin
-	for (i = 0; i < N_PADS; i = i + 1) begin
-		if (padoe[i]) begin
-			pads_r[i] = padout[i];
-		end else begin
-			pads_r[i] = 1'bz;
-		end
-	end
-end
+tristate_io bufs [N_PADS-1:0] (
+	.out(padout),
+	.out_en(padoe),
+	.in(padin),
+	.pad(pads)
+);
 
 // Output muxing
 
@@ -98,7 +92,7 @@ end
 
 // Input assignments (TODO: multi-source input muxing)
 
-assign uart_rx = pads[14];
+assign uart_rx = padin[14];
 
 // APB Regblock
 
@@ -116,7 +110,7 @@ gpio_regs inst_gpio_regs
 	.apbs_pslverr (apbs_pslverr),
 	.out_o        (proc_out),
 	.dir_o        (proc_oe),
-	.in_i         (pads),
+	.in_i         (padin),
 	.fsel0_p0_o      (fsel[0 ]),
 	.fsel0_p1_o      (fsel[1 ]),
 	.fsel0_p2_o      (fsel[2 ]),

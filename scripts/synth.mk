@@ -1,15 +1,17 @@
+YOSYS=yosys
+ARACHNE=arachne-pnr
 CHIPNAME?=chip
 DEVICE?=1k
 TIME_DEVICE?=hx$(DEVICE)
-SYNTH_CMD=read_verilog -DFPGA $(SRCS); 
+PACKAGE?=tq144
+
+DEFINES+=FPGA TRISTATE_ICE40
+
+SYNTH_CMD=read_verilog $(addprefix -D,$(DEFINES)) $(SRCS); 
 ifneq (,$(TOP))
 	SYNTH_CMD+=hierarchy -top $(TOP); 
 endif
 SYNTH_CMD+=synth_ice40 -blif $(CHIPNAME).blif
-
-YOSYS=yosys
-ARACHNE=arachne-pnr
-
 
 # Kill implicit rules
 .SUFFIXES:
@@ -28,7 +30,7 @@ $(CHIPNAME).blif: $(SRCS)
 	$(YOSYS) -p "$(SYNTH_CMD)"
 
 $(CHIPNAME).asc: $(CHIPNAME).blif $(CHIPNAME).pcf
-	$(ARACHNE) -d $(DEVICE) -p $(CHIPNAME).pcf -o $(CHIPNAME).asc $(CHIPNAME).blif
+	$(ARACHNE) -d $(DEVICE) -P $(PACKAGE) -p $(CHIPNAME).pcf -o $(CHIPNAME).asc $(CHIPNAME).blif
 
 $(CHIPNAME).bin: $(CHIPNAME).asc
 	icepack $(CHIPNAME).asc $(CHIPNAME).bin
