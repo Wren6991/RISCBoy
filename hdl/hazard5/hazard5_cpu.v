@@ -150,6 +150,7 @@ wire f_mem_size;
 assign ahb_hsize_i = f_mem_size ? HSIZE_WORD : HSIZE_HWORD;
 
 hazard5_frontend #(
+	.EXTENSION_C(EXTENSION_C),
 	.W_ADDR(W_ADDR),
 	.W_DATA(32),
 	.FIFO_DEPTH(2),

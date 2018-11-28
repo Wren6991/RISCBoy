@@ -1,4 +1,5 @@
 module hazard5_frontend #(
+	parameter EXTENSION_C = 1,
 	parameter W_ADDR = 32,     // other sizes currently unsupported
 	parameter W_DATA = 32,     // other sizes currently unsupported
 	parameter FIFO_DEPTH = 2,  // power of 2, >= 1
@@ -160,7 +161,7 @@ wire fetch_stall = fifo_full
 // - during address phase, offset may be applied to fetch_addr if hready was low when jump_vld was high
 // - during data phase, need to assemble CIR differently.
 
-wire unaligned_jump_now = jump_target_rdy && jump_target_vld && jump_target[1];
+wire unaligned_jump_now = EXTENSION_C && jump_target_rdy && jump_target_vld && jump_target[1];
 reg unaligned_jump_aph;
 reg unaligned_jump_dph;
 
@@ -224,9 +225,9 @@ wire fetch_data_vld = !fifo_empty || (mem_data_vld && ~|ctr_flush_pending);
 // We don't care about anything which is invalid or will be overlaid with fresh data,
 // so choose these values in a way that minimises muxes
 wire [3*W_BUNDLE-1:0] instr_data_shifted =
-	cir_use[1] ? {hwbuf, cir[W_BUNDLE +: W_BUNDLE], hwbuf} :
-	cir_use[0] ? {hwbuf, hwbuf, cir[W_BUNDLE +: W_BUNDLE]} :
-	             {hwbuf, cir};
+	cir_use[1]                ? {hwbuf, cir[W_BUNDLE +: W_BUNDLE], hwbuf} :
+	cir_use[0] && EXTENSION_C ? {hwbuf, hwbuf, cir[W_BUNDLE +: W_BUNDLE]} :
+	                            {hwbuf, cir};
 
 
 // Overlay fresh fetch data onto the shifted/recycled instruction data
@@ -234,9 +235,9 @@ wire [3*W_BUNDLE-1:0] instr_data_shifted =
 // Don't care if fetch data is valid or not, as will just retry next cycle (as long as flags set correctly)
 wire [1:0] level_next_no_fetch = buf_level - cir_use;
 wire [3*W_BUNDLE-1:0] instr_data_plus_fetch =
-	unaligned_jump_dph     ? {instr_data_shifted[W_BUNDLE +: 2*W_BUNDLE], fetch_data[W_BUNDLE +: W_BUNDLE]} :
-	level_next_no_fetch[1] ? instr_data_shifted :
-	level_next_no_fetch[0] ? {fetch_data, instr_data_shifted[0 +: W_BUNDLE]} :
+	unaligned_jump_dph     && EXTENSION_C ? {instr_data_shifted[W_BUNDLE +: 2*W_BUNDLE], fetch_data[W_BUNDLE +: W_BUNDLE]} :
+	level_next_no_fetch[1]                ? instr_data_shifted :
+	level_next_no_fetch[0] && EXTENSION_C ? {fetch_data, instr_data_shifted[0 +: W_BUNDLE]} :
 	                         {instr_data_shifted[2*W_BUNDLE +: W_BUNDLE], fetch_data};
 
 assign cir_must_refill = !level_next_no_fetch[1];
