@@ -284,6 +284,7 @@ reg  [W_REGADDR-1:0] xm_rs2;
 reg  [W_REGADDR-1:0] xm_rd;
 reg  [W_DATA-1:0]    xm_result;
 reg  [W_ADDR-1:0]    xm_jump_target;
+reg  [W_DATA-1:0]    xm_store_data;
 reg                  xm_jump;
 reg  [W_MEMOP-1:0]   xm_memop;
 reg                  xm_except_invalid_instr;
@@ -291,6 +292,7 @@ reg                  xm_except_unaligned;
 
 // For JALR, the LSB of the result must be cleared by hardware
 wire [W_ADDR-1:0] x_taken_jump_target = (dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc)) & {{31{1'b1}}, !dx_jump_is_regoffs};
+wire [W_ADDR-1:0] x_jump_target = dx_imm[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr : x_taken_jump_target;
 
 reg x_stall_raw;
 
@@ -370,12 +372,14 @@ always @ (posedge clk or negedge rst_n) begin
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 		xm_except_invalid_instr <= 1'b0;
 		xm_except_unaligned <= 1'b0;
+		xm_store_data <= {W_DATA{1'b0}};
 	end else begin
 		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
 			xm_result <= x_alu_result;
 			xm_memop <= dx_memop;
+			xm_store_data <= x_rs2_bypass;
 			if (x_stall || flush_d_x) begin
 				// Insert bubble
 				xm_rd <= {W_REGADDR{1'b0}};
@@ -384,25 +388,14 @@ always @ (posedge clk or negedge rst_n) begin
 				xm_except_invalid_instr <= 1'b0;
 				xm_except_unaligned <= 1'b0;
 			end else begin
+				xm_jump_target <= x_jump_target;
 				case (dx_branchcond)
-					BCOND_ALWAYS: begin
-						xm_jump <= 1'b1;
-						xm_jump_target <= x_taken_jump_target;
-					end
-					BCOND_ZERO: begin
-						// For branches, we are either taking a branch late, or recovering from
-						// an incorrectly taken branch, depending on sign of branch offset.
-						xm_jump <= x_alu_zero ^ dx_imm[31];
-						xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
-					end
-					BCOND_NZERO: begin
-						xm_jump <= !x_alu_zero ^ dx_imm[31];
-						xm_jump_target <= dx_imm[31] ? dx_mispredict_addr : x_taken_jump_target;
-					end
-					default: begin
-						xm_jump <= 1'b0;
-						xm_jump_target <= x_rs2_bypass;	// (ab)use this pathway to pass store data
-					end
+					BCOND_ALWAYS: xm_jump <= 1'b1;
+					// For branches, we are either taking a branch late, or recovering from
+					// an incorrectly taken branch, depending on sign of branch offset.
+					BCOND_ZERO: xm_jump <= x_alu_zero ^ dx_imm[31];
+					BCOND_NZERO: xm_jump <= !x_alu_zero ^ dx_imm[31];
+					default xm_jump <= 1'b0;
 				endcase
 				xm_except_invalid_instr <= dx_except_invalid_instr;
 				xm_except_unaligned <= ahb_hsize_d == HSIZE_WORD && |ahb_haddr_d[1:0]
@@ -437,7 +430,7 @@ always @ (*) begin
 	if (|mw_rd && xm_rs2 == mw_rd) begin
 		m_wdata = mw_result;
 	end else begin
-		m_wdata = xm_jump_target;
+		m_wdata = xm_store_data;
 	end
 	// Replicate store data to ensure appropriate byte lane is driven
 	case (xm_memop)

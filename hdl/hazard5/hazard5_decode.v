@@ -45,10 +45,13 @@ module hazard5_decode #(
 `include "rv_opcodes.vh"
 `include "hazard5_ops.vh"
 
-wire d_cir_empty = ~|fd_cir_vld || (fd_cir_vld == 2'd1 && d_instr_is_32bit);
 
+wire d_starved = ~|fd_cir_vld || fd_cir_vld[0] && d_instr_is_32bit;
 assign d_stall = x_stall ||
-	d_cir_empty || (d_jump_req && !f_jump_rdy);
+	d_starved || (d_jump_req && !f_jump_rdy);
+assign df_cir_use =
+	d_starved || d_stall ? 2'h0 :
+	d_instr_is_32bit ? 2'h2 : 2'h1;
 
 // Expand compressed instructions, and tell F how much instr data we are using
 
@@ -67,10 +70,6 @@ hazard5_instr_decompress #(
 	.invalid(d_invalid_16bit)
 );
 
-wire d_starved = ~|fd_cir_vld || fd_cir_vld[0] && d_instr_is_32bit;
-assign df_cir_use =
-	d_starved || d_stall ? 2'h0 :
-	d_instr_is_32bit ? 2'h2 : 2'h1;
 
 
 // Various D-local regs/wires
@@ -92,15 +91,18 @@ wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[3
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
 
 always @ (*) begin
+	// Branches are major opcode 1100011, JAL is 1100111:
+	d_jump_target = d_pc + (d_instr[2] ? d_imm_j : d_imm_b);
+
 	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BNE }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLT }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGE }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BLTU}: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'b1, RV_BGEU}: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_b; end
-	{1'bz, RV_JAL }: begin d_jump_req = !d_cir_empty; d_jump_target = d_pc + d_imm_j; end
-	default: begin d_jump_req = 1'b0; d_jump_target = {W_ADDR{1'b0}}; end
+	{1'b1, RV_BEQ }: d_jump_req = !d_starved;
+	{1'b1, RV_BNE }: d_jump_req = !d_starved;
+	{1'b1, RV_BLT }: d_jump_req = !d_starved;
+	{1'b1, RV_BGE }: d_jump_req = !d_starved;
+	{1'b1, RV_BLTU}: d_jump_req = !d_starved;
+	{1'b1, RV_BGEU}: d_jump_req = !d_starved;
+	{1'bz, RV_JAL }: d_jump_req = !d_starved;
+	default: d_jump_req = 1'b0;
 	endcase
 end
 
