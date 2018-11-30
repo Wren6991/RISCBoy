@@ -2,3 +2,4 @@ srcs.mk
 *.blif
 *.asc
 
+*.bin
