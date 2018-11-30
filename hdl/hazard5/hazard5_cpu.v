@@ -276,8 +276,9 @@ reg   [W_DATA-1:0]   x_rs1_bypass;
 reg   [W_DATA-1:0]   x_rs2_bypass;
 reg   [W_DATA-1:0]   x_op_a;
 reg   [W_DATA-1:0]   x_op_b;
-wire  [31:0]         x_alu_result;
-wire                 x_alu_zero;
+wire  [W_DATA-1:0]   x_alu_result;
+wire  [W_DATA-1:0]   x_alu_add;
+wire                 x_alu_cmp;
 
 reg  [W_REGADDR-1:0] xm_rs1;
 reg  [W_REGADDR-1:0] xm_rs2;
@@ -317,7 +318,7 @@ end
 always @ (*) begin
 	// Need to be careful not to use anything hready-sourced to gate htrans!
 	ahb_req_d = ~|(dx_memop & 4'h8) && !x_stall_raw && !flush_d_x;
-	ahb_haddr_d = x_alu_result;
+	ahb_haddr_d = x_alu_add;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	case (dx_memop)
 		MEMOP_LW:  ahb_hsize_d = HSIZE_WORD;
@@ -392,8 +393,8 @@ always @ (posedge clk or negedge rst_n) begin
 					BCOND_ALWAYS: xm_jump <= 1'b1;
 					// For branches, we are either taking a branch late, or recovering from
 					// an incorrectly taken branch, depending on sign of branch offset.
-					BCOND_ZERO: xm_jump <= x_alu_zero ^ dx_imm[31];
-					BCOND_NZERO: xm_jump <= !x_alu_zero ^ dx_imm[31];
+					BCOND_ZERO: xm_jump <= !x_alu_cmp ^ dx_imm[31];
+					BCOND_NZERO: xm_jump <= x_alu_cmp ^ dx_imm[31];
 					default xm_jump <= 1'b0;
 				endcase
 				xm_except_invalid_instr <= dx_except_invalid_instr;
@@ -405,11 +406,12 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 hazard5_alu alu (
-	.aluop  (dx_aluop),
-	.op_a   (x_op_a),
-	.op_b   (x_op_b),
-	.result (x_alu_result),
-	.zero   (x_alu_zero)
+	.aluop      (dx_aluop),
+	.op_a       (x_op_a),
+	.op_b       (x_op_b),
+	.result     (x_alu_result),
+	.result_add (x_alu_add),
+	.cmp        (x_alu_cmp)
 );
 
 // ============================================================================

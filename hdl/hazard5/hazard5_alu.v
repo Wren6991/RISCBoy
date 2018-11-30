@@ -22,7 +22,8 @@ module hazard5_alu #(
 	input  wire [W_DATA-1:0] op_a,
 	input  wire [W_DATA-1:0] op_b,
 	output reg  [W_DATA-1:0] result,
-	output reg               zero
+	output wire [W_DATA-1:0] result_add, // for load/stores
+	output wire              cmp
 );
 
 `include "hazard5_ops.vh"
@@ -34,22 +35,17 @@ begin
 end
 endfunction
 
-wire [W_DATA-1:0] sum  = op_a + op_b;
-wire [W_DATA-1:0] diff;
-wire borrow;
-assign {borrow, diff} = op_a - op_b;
+wire sub = aluop != ALUOP_ADD;
+wire [W_DATA-1:0] sum  = op_a + (op_b ^ {W_DATA{sub}}) + sub;
+wire [W_DATA-1:0] op_xor = op_a ^ op_b;
 
-wire ltu = borrow;
-reg lt;
-always @ (*) begin
-	if (msb(op_b) && !msb(op_a)) begin
-		lt = 1'b0;
-	end else if (msb(op_a) && !msb(op_b)) begin
-		lt = 1'b1;
-	end else begin
-		lt = msb(diff);
-	end
-end
+wire lt = msb(op_a) == msb(op_b) ? msb(sum)  :
+              aluop == ALUOP_LTU ? msb(op_b) :
+                                   msb(op_a) ;
+
+assign cmp = aluop == ALUOP_SUB ? |op_xor : lt;
+assign result_add = sum;
+
 
 wire [W_DATA-1:0] shift_dout;
 reg shift_right_nleft;
@@ -66,24 +62,22 @@ hazard5_shift_rla #(
 	.dout(shift_dout)
 );
 
+
 always @ (*) begin
 	shift_right_nleft = 1'b0;
 	shift_arith = 1'b0;
 	case (aluop)
 		/*ALUOP_ADD*/default: begin result = sum; end
-		ALUOP_SUB: begin result = diff; end
+		ALUOP_SUB: begin result = sum; end
 		ALUOP_LT:  begin result = {{W_DATA-1{1'b0}}, lt}; end
-		ALUOP_GE:  begin result = {{W_DATA-1{1'b0}}, !lt}; end
-		ALUOP_LTU: begin result = {{W_DATA-1{1'b0}}, ltu}; end
-		ALUOP_GEU: begin result = {{W_DATA-1{1'b0}}, !ltu}; end
+		ALUOP_LTU: begin result = {{W_DATA-1{1'b0}}, lt}; end
 		ALUOP_AND: begin result = op_a & op_b; end
 		ALUOP_OR:  begin result = op_a | op_b; end
-		ALUOP_XOR: begin result = op_a ^ op_b; end
+		ALUOP_XOR: begin result = op_xor; end
 		ALUOP_SRL: begin shift_right_nleft = 1'b1; result = shift_dout; end
 		ALUOP_SRA: begin shift_right_nleft = 1'b1; shift_arith = 1'b1; result = shift_dout; end
 		ALUOP_SLL: begin result = shift_dout; end
 	endcase
-	zero = !result;
 end
 
 `ifdef FORMAL
@@ -97,9 +91,7 @@ always @ (posedge clk) begin
 	ALUOP_ADD: assert(result == op_a + op_b);
 	ALUOP_SUB: assert(result == op_a - op_b);
 	ALUOP_LT:  assert(result == $signed(op_a) < $signed(op_b));
-	ALUOP_GE:  assert(result == $signed(op_a) >= $signed(op_b));
 	ALUOP_LTU: assert(result == op_a < op_b);
-	ALUOP_GEU: assert(result == op_a >= op_b);
 	ALUOP_AND: assert(result == (op_a & op_b));
 	ALUOP_OR:  assert(result == (op_a | op_b));
 	ALUOP_XOR: assert(result == (op_a ^ op_b));

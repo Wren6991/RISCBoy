@@ -1,4 +1,4 @@
-DOTF=proc.f
-TOP=revive_cpu
+DOTF=hazard5.f
+TOP=hazard5_alu
 
 include $(SCRIPTS)/formal.mk
