@@ -3,3 +3,5 @@ srcs.mk
 *.asc
 
 *.bin
+chip.json
+*.log

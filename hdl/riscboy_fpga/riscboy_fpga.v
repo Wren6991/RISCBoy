@@ -4,6 +4,7 @@ module riscboy_fpga (
 	output wire fpga_heartbeat,
 
 	// Named GPIOs
+	inout wire        audio_pwm,
 	inout wire        fpga_uart_rx,
 	inout wire        fpga_uart_tx,
 	inout wire [9:0]  gpio_sw,
