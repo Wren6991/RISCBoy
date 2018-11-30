@@ -5,9 +5,10 @@ Processor:
     sh on some address, and an lw immediately afterward, which
     causes Xs to get written to register file. Definitely needs investigation.
   ☐ Look closely at riscv-formal to see if suitable
-  ☐ Factor out decode to separate module
+  ✔ Factor out decode to separate module @done (18-11-30 08:31)
   ☐ Iterate on decode synths to try and pack gates down
   ☐ Identify other sources of high gate count
+    ✔ ALU: shared adder for add sub, and LT/LTU changes this necessitates @done (18-11-30 08:31)
   ☐ Add exceptions
     ☐ CSR for unaligned info?
     ☐ Non-returning hardfault exception for e.g. exception during exception
@@ -59,6 +60,9 @@ PCB:
   ☐ Find example code for SAML22G18A USB-UART bridge
   ☐ Write simple block-oriented SD read/write code for Atmel and expose this over USB
   ☐ Hazard5 bootloader: load 2nd stage from SD card into memory and execute it
+  ✔ Initial PCB layout @done (18-11-30 08:32)
+  ✔ Final review of schematic + PCB before sending to iTead @done (18-11-30 20:02)
+    Found a couple of silkscreen issues, and a keepout issue under the SD card. Fixed and shipped :)
 
 CPU Synth Results:
   This isn't a todo list, it's just for me to start keeping track. Results are cells (LUT4 + DFF + CARRY + BRAM). Number of iCE40 logic cells occupied should be lower due to colocation after place + route.
@@ -74,3 +78,5 @@ CPU Synth Results:
     Some minor fixes following porting some RISC-V compliance tests. These should have been fairly logic-neutral.
   - 9744864: 2678
     At this point, all the RV32IC-relevant compliance tests run, apart from knowingly unsupported i.e. CSR, unaligned load/store, ECALL/EBREAK. Most recent change was correct C.LUI to be sign-extended.
+  - 01916d8e: 2483
+    Following ALU optimisations and some smaller changes. Also a few percent faster.

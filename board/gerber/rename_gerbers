@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import os
+
+renames = {
+	"B.Cu.gbr":      ".GBL",
+	"B.Mask.gbr":    ".GBS",
+	"B.Paste.gbr":   ".GBP",
+	"B.SilkS.gbr":   ".GBO",
+	"Edge.Cuts.gbr": ".GKO",
+	"F.Cu.gbr":      ".GTL",
+	"F.Mask.gbr":    ".GTS",
+	"F.Paste.gbr":   ".GTP",
+	"F.SilkS.gbr":   ".GTO",
+	"In1.Cu.gbr":    ".GL1",
+	"In2.Cu.gbr":    ".GL2"
+}
+
+for f in os.listdir():
+	words = f.split("-")
+	if words[-1] in renames:
+		newname = "".join(words[:-1]) + renames[words[-1]]
+		print("{} -> {}".format(f, newname))
+		os.rename(f, newname)
