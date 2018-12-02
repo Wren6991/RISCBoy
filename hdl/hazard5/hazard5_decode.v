@@ -70,9 +70,17 @@ hazard5_instr_decompress #(
 	.invalid(d_invalid_16bit)
 );
 
-// Various D-local regs/wires
-reg  [W_ADDR-1:0]    d_pc;
-wire [W_ADDR-1:0]    d_pc_next = d_pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
+// The actual program counter
+reg  [W_ADDR-1:0]    pc;
+wire [W_ADDR-1:0]    pc_next = pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		pc <= RESET_VECTOR;
+	end else if (f_jump_now || !d_stall) begin
+		pc <= f_jump_now ? f_jump_target : pc_next;
+	end
+end
 
 assign               d_rs1 = d_instr[19:15];
 assign               d_rs2 = d_instr[24:20];
@@ -90,7 +98,7 @@ wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[3
 
 always @ (*) begin
 	// Branches are major opcode 1100011, JAL is 1100111:
-	d_jump_target = d_pc + (d_instr[2] ? d_imm_j : d_imm_b);
+	d_jump_target = pc + (d_instr[2] ? d_imm_j : d_imm_b);
 
 	casez ({d_instr[31], d_instr})
 	{1'b1, RV_BEQ }: d_jump_req = !d_starved;
@@ -159,23 +167,14 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_RS2;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
-		d_pc <= RESET_VECTOR;
+		pc <= RESET_VECTOR;
 		dx_pc <= {W_ADDR{1'b0}};
 		dx_mispredict_addr <= {W_ADDR{1'b0}};
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 		dx_except_invalid_instr <= 1'b0;
 	end else if (!x_stall) begin
-		if (f_jump_now) begin
-			d_pc <= f_jump_target;
-			dx_pc <= d_pc;
-		end else if (d_stall) begin
-			d_pc <= d_pc;
-		end else begin
-			d_pc <= d_pc_next;
-			dx_pc <= d_pc;
-		end
-
+		dx_pc <= pc;
 		// Assign some defaults
 		dx_rs1 <= d_rs1;
 		dx_rs2 <= d_rs2;
@@ -186,7 +185,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_memop <= MEMOP_NONE;
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
-		dx_mispredict_addr <= d_pc_next;
+		dx_mispredict_addr <= pc_next;
 		dx_except_invalid_instr <= 1'b0;
 
 		casez (d_instr)
@@ -229,7 +228,7 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_SW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SW;  dx_rd <= {W_REGADDR{1'b0}}; end
 		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
-		RV_SYSTEM:  begin if (!d_starved) $display("Syscall @ PC %h: %h", d_pc, d_instr); end
+		RV_SYSTEM:  begin if (!d_starved) $display("Syscall @ PC %h: %h", pc, d_instr); end
 		default:    begin dx_except_invalid_instr <= 1'b1; end
 		endcase
 

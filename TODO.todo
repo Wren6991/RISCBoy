@@ -9,6 +9,7 @@ Processor:
   ☐ Iterate on decode synths to try and pack gates down
   ☐ Identify other sources of high gate count
     ✔ ALU: shared adder for add sub, and LT/LTU changes this necessitates @done (18-11-30 08:31)
+    ☐ Is the jump target adder in X really necessary? For JALR we can use the ALU. For branches it's PC-relative, so could be computed in D (and we are probably already computing this.)
   ☐ Add exceptions
     ☐ CSR for unaligned info?
     ☐ Non-returning hardfault exception for e.g. exception during exception
