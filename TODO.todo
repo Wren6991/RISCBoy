@@ -4,6 +4,11 @@ Processor:
     There are some questionable things in the code, e.g. performing a 
     sh on some address, and an lw immediately afterward, which
     causes Xs to get written to register file. Definitely needs investigation.
+  ☐ Fix this:
+    Currently early jumps are performed whenever the CIR contains a valid JAL or backward branch. This interacts poorly with X's stall logic: if X is stalled AND the jump request goes through (jump requests can be accepted whilst hready is low; just goes into fetch counter and subsequent cycles perform normal fetch attempts from the now registered jump target) then the CIR will be clobbered. This is an issue for JALR, which will lose its side effects, and is particularly an issue for branch mispredicts.
+    Trying to hold off the jump requst using X's stall signal seems a no-go, because this is a function of hready, and we've just created a path from this to haddr etc.
+    A different solution is to somehow protect the CIR so that the instruction currently in D will eventually progress down the pipeline and have its intended side effect. Should use this same protection signal to gate the jump request. The frontend can still be fetching during this time, but the data will just stack up in the FIFO.
+    Note this also enables an optimisation floated a while back which saves a cycle when a load/store is followed by a branch/JAL: boost the priority of early jump accesses over load/store accesses. Jumps create a fetch bubble due to pipelined bus operation, but if the jump access occurs before that of a load/store occupying X, the load/store address phase will be aligned with the fetch bubble, and fill it. When this happens the jump is still sitting in D, but its jumpiness has been defused, and it will meekly follow the load/store down the pipeline to produce its secondary side effect.
   ☐ Look closely at riscv-formal to see if suitable
   ✔ Factor out decode to separate module @done (18-11-30 08:31)
   ☐ Iterate on decode synths to try and pack gates down
