@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+ 
+# Raspberry Pi iceprog (piceprog)
+# Tool for programming iCE40 FPGAs with GPIOs
+
+import spidev
+import RPi.GPIO as gpio
+from time import sleep
+from math import ceil
+
+# GPIO 11 (pin 23): FPGA_CFG_SCK
+# GPIO 10 (pin 19): FPGA_CFG_SDI
+# GPIO 22 (pin 15): FPGA_CFG_SSn
+# GPIO 27 (pin 13): FPGA_CFG_DONE
+# GPIO 17 (pin 11): FPGA_CFG_RSTn
+
+fpga_ss = 22
+fpga_done = 27
+fpga_rst = 17
+
+gpio.setmode(gpio.BCM)
+gpio.setwarnings(False)
+
+for pin in [fpga_ss, fpga_rst]:
+	gpio.setup(pin, gpio.OUT)
+
+gpio.setup(fpga_done, gpio.IN)
+
+spi = spidev.SpiDev()
+spi.open(0, 0)
+spi.mode = 0x3 # CPOL = 1 => clock idles high. CPHA = 1 => data sampled on trailing edge of each pulse.
+spi.max_speed_hz = 1250000
+
+def prog(fname):
+	bitstream = list(open(fname, "rb").read())
+	# This is not good (spec tells us there must be no interruptions)
+	# but spidev silently fails if you give it more than 4k, and 
+	# passing spidev.bufsize on kernel cmdline doesn't seem to fix this.
+	chunks = []
+	chunksize = 4096
+	for i in range(ceil(len(bitstream) / chunksize)):
+		chunks.append(bitstream[i * chunksize : (i + 1) * chunksize])
+
+	print("{} bytes.".format(len(bitstream)))
+	gpio.output(fpga_rst, 0)
+	gpio.output(fpga_ss, 0)
+	sleep(0.001)
+	gpio.output(fpga_rst, 1)
+	sleep(0.001)
+	gpio.output(fpga_ss, 1)
+	spi.writebytes([0])
+	gpio.output(fpga_ss, 0)
+	for chunk in chunks:
+		spi.writebytes(chunk)
+	spi.writebytes(7 * [0]) # at least 49 dummy cycles required at end.
+	if gpio.input(fpga_done):
+		print("CDONE high, yay!")
+	else:
+		print("CDONE not high, something may have gone wrong")
+
+
+
+prog("../synth/riscboy.bin")
