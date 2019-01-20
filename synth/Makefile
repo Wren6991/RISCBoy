@@ -7,8 +7,20 @@ PACKAGE=bg121
 
 include $(SCRIPTS)/synth_ice40.mk
 
+# romfiles is a prequesite for synth
+romfiles:: bootram_init32.hex
+
+bootram_init32.hex:
+	@echo ">>> Bootcode"
+	@echo
+	make -C $(SOFTWARE)/build APPNAME=blinky
+	cp $(SOFTWARE)/build/blinky.hex bootram_init8.hex
+	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
+
+# Regenerate pin constraints from the most recent schematics
 riscboy.pcf:
 	$(SCRIPTS)/extract_ref_nets $(PROJ_ROOT)/board/fpgaboy.net U1 --filter fpga_cfg -o riscboy.pcf
 
 clean::
 	rm -f chip.pcf
+	rm -f bootram_init*.hex

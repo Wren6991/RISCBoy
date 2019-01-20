@@ -17,10 +17,12 @@ SYNTH_CMD+=synth_ice40 -json $(CHIPNAME).json
 .SUFFIXES:
 .IMPLICIT:
 
-.PHONY: all synth clean program
+.PHONY: all romfiles synth clean program
 
 all: synth
-synth: $(CHIPNAME).json
+
+romfiles::
+synth: romfiles $(CHIPNAME).json
 pnr: $(CHIPNAME).asc
 bit: $(CHIPNAME).bin
 

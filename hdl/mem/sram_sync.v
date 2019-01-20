@@ -22,7 +22,7 @@ module sram_sync #(
 	parameter WIDTH = 32,
 	parameter DEPTH = 1 << 11,
 	parameter BYTE_ENABLE = 0,
-	parameter PRELOAD_FILE = "NONE",
+	parameter PRELOAD_FILE = "",
 	parameter ADDR_WIDTH = $clog2(DEPTH) // Let this default
 ) (
 	input wire                                     clk,
@@ -36,11 +36,9 @@ genvar i;
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-generate
-if (PRELOAD_FILE != "NONE") begin: preload
-	initial $readmemh(PRELOAD_FILE, mem);
-end
+initial if(PRELOAD_FILE) $readmemh(PRELOAD_FILE, mem);
 
+generate
 if (BYTE_ENABLE) begin: has_byte_enable
 	for (i = 0; i < WIDTH / 8; i = i + 1) begin: byte_mem
 		always @ (posedge clk) begin

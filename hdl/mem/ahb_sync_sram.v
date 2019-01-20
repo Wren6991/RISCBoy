@@ -22,7 +22,7 @@ module ahb_sync_sram #(
 	parameter W_DATA = 32,
 	parameter W_ADDR = 32,
 	parameter DEPTH = 1 << 11,
-	parameter PRELOAD_FILE = "NONE"
+	parameter PRELOAD_FILE = ""
 ) (
 	// Globals
 	input wire clk,

@@ -43,7 +43,9 @@ always @ (posedge clk_sys)
 
 // Instantiate the actual logic
 
-riscboy_core core (
+riscboy_core #(
+	.BOOTRAM_PRELOAD ("bootram_init32.hex")
+) core (
 	.clk(clk_sys),
 	.rst_n(rst_n),
 

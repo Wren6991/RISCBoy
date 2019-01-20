@@ -1,7 +1,7 @@
 srcs.mk
 *.blif
 *.asc
-
+*.hex
 *.bin
-chip.json
+*.json
 *.log

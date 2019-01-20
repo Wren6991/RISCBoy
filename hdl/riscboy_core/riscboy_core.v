@@ -21,7 +21,7 @@
 
 
 module riscboy_core #(
-	parameter BOOTRAM_PRELOAD = "NONE"
+	parameter BOOTRAM_PRELOAD = ""
 ) (
 	input wire clk,
 	input wire rst_n,
