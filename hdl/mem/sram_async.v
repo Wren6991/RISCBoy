@@ -18,6 +18,7 @@
 
 //
 // Simulation model for GS74116AGP SRAM (and similar)
+// It might also be synthesisable, but I really don't recommend it
 //
 // Truth table from datasheet
 //
@@ -66,16 +67,16 @@ reg [7:0] byte_mem [0:DEPTH-1] [0:W_BYTES-1];
 always @ (*) begin: readport
 	integer i;
 	for (i = 0; i < W_BYTES; i = i + 1) begin
-		dq_r[i * 8 +: 8] = !ce_n && !oe_en && we_n && ben_n[i] ?
-			byte_mem[i][addr] : 8'hz;
+		dq_r[i * 8 +: 8] = !ce_n && !oe_n && we_n && !ben_n[i] ?
+			byte_mem[addr][i] : 8'hz;
 	end 	
 end
 
 always @ (negedge we_n) begin: writeport
 	integer i;
 	for (i = 0; i < W_BYTES; i = i + 1) begin
-		if (!ce_n && ben_n[i])
-			byte_mem[i][addr] <= dq[i * 8 +: 8];
+		if (!ce_n && !ben_n[i])
+			byte_mem[addr][i] <= dq[i * 8 +: 8];
 	end
 end
 
