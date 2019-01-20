@@ -48,7 +48,8 @@ riscboy_core core (
 	.rst_n(rst_n),
 
 	.gpio({
-		gpio_sw[0],
+		fpga_uart_tx,
+		fpga_uart_rx,
 		usd_clk,
 		usd_cmd,
 		usd_dat,
@@ -59,8 +60,7 @@ riscboy_core core (
 		lcd_scl,
 		lcd_sda,
 		lcd_sdo,
-		fpga_uart_rx,
-		fpga_uart_tx
+		fpga_heartbeat
 	})
 );
 
