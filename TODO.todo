@@ -10,6 +10,7 @@ Processor:
     A different solution is to somehow protect the CIR so that the instruction currently in D will eventually progress down the pipeline and have its intended side effect. Should use this same protection signal to gate the jump request. The frontend can still be fetching during this time, but the data will just stack up in the FIFO.
     Note this also enables an optimisation floated a while back which saves a cycle when a load/store is followed by a branch/JAL: boost the priority of early jump accesses over load/store accesses. Jumps create a fetch bubble due to pipelined bus operation, but if the jump access occurs before that of a load/store occupying X, the load/store address phase will be aligned with the fetch bubble, and fill it. When this happens the jump is still sitting in D, but its jumpiness has been defused, and it will meekly follow the load/store down the pipeline to produce its secondary side effect.
   ☐ Look closely at riscv-formal to see if suitable
+  ☐ Stick some traffic generation into the execution tb so that stall logic can be stressed a little. Separately re-run the compliance tests with this enabled.
   ✔ Factor out decode to separate module @done (18-11-30 08:31)
   ☐ Iterate on decode synths to try and pack gates down
   ☐ Identify other sources of high gate count
@@ -41,6 +42,9 @@ DMA:
 
 Other Chip:
   ☐ Proper async SRAM controller
+    After some thinking, this seems to break down into two parts;
+    ☐ A simple async sram controller where the SRAM width is the same as the data bus width
+    ☐ A generic AHB-lite narrower that translates wide transactions on one bus into multiple transactions on another bus
   ☐ Remove wait states from sync SRAM controller
   ☐ Support bursts in AHB-lite fabric
   ☐ More aggressive busfabric verification (UVM? Formal?)
