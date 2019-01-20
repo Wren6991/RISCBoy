@@ -21,7 +21,8 @@
 module ahb_sync_sram #(
 	parameter W_DATA = 32,
 	parameter W_ADDR = 32,
-	parameter DEPTH = 1 << 11
+	parameter DEPTH = 1 << 11,
+	parameter PRELOAD_FILE = "NONE"
 ) (
 	// Globals
 	input wire clk,
@@ -80,7 +81,8 @@ end
 sram_sync #(
 	.WIDTH(W_DATA),
 	.DEPTH(DEPTH),
-	.BYTE_ENABLE(1)
+	.BYTE_ENABLE(1),
+	.PRELOAD_FILE(PRELOAD_FILE)
 ) sram (
 	.clk   (clk),
 	.wen   (wen),

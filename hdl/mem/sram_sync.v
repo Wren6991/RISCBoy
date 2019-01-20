@@ -16,15 +16,14 @@
  *********************************************************************/
 
 // Generate a (hopefully inference-compatible) memory with synchronous
-// read/write, and optional per-byte write enable (implemented as multiple RAMs).
+// read/write, and optional per-byte write enable
 
 module sram_sync #(
-	parameter WIDTH = 4,
-	parameter DEPTH = 1 << 10,
-	// ADDR_WIDTH should be a localparam, but Xilinx ISIM errors on the clog2 call in this case.
-	// Instead, it now gives a warning that the param is implicitly a localparam. Wonderful
-	parameter ADDR_WIDTH = $clog2(DEPTH),
-	parameter BYTE_ENABLE = 0
+	parameter WIDTH = 32,
+	parameter DEPTH = 1 << 11,
+	parameter BYTE_ENABLE = 0,
+	parameter PRELOAD_FILE = "NONE",
+	parameter ADDR_WIDTH = $clog2(DEPTH) // Let this default
 ) (
 	input wire                                     clk,
 	input wire [(BYTE_ENABLE ? WIDTH / 8 : 1)-1:0] wen,
@@ -35,19 +34,22 @@ module sram_sync #(
 
 genvar i;
 
-generate if (BYTE_ENABLE) begin: has_byte_enable
-	for (i = 0; i < WIDTH / 8; i = i + 1) begin: byte_mem
+reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-		reg [7:0] mem [0:DEPTH-1];
+generate
+if (PRELOAD_FILE != "NONE") begin: preload
+	initial $readmemh(PRELOAD_FILE, mem);
+end
+
+if (BYTE_ENABLE) begin: has_byte_enable
+	for (i = 0; i < WIDTH / 8; i = i + 1) begin: byte_mem
 		always @ (posedge clk) begin
 			if (wen[i])
-				mem[addr] <= wdata[8 * i +: 8];
-			rdata[8 * i +: 8] <= mem[addr];
+				mem[addr][8 * i +: 8] <= wdata[8 * i +: 8];
+			rdata[8 * i +: 8] <= mem[addr][8 * i +: 8];
 		end
 	end
 end else begin: no_byte_enable
-	reg [WIDTH-1:0] mem [0:DEPTH-1];
-
 	always @ (posedge clk) begin
 		if (wen)
 			mem[addr] <= wdata;

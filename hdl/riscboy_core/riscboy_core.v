@@ -20,7 +20,9 @@
 // which lives in the chip/fpga/testbench top level
 
 
-module riscboy_core (
+module riscboy_core #(
+	parameter BOOTRAM_PRELOAD = "NONE"
+) (
 	input wire clk,
 	input wire rst_n,
 
@@ -73,6 +75,19 @@ wire               sram0_hmastlock;
 wire [W_DATA-1:0]  sram0_hwdata;
 wire [W_DATA-1:0]  sram0_hrdata;
 
+wire               sram1_hready;
+wire               sram1_hready_resp;
+wire               sram1_hresp;
+wire [W_ADDR-1:0]  sram1_haddr;
+wire               sram1_hwrite;
+wire [1:0]         sram1_htrans;
+wire [2:0]         sram1_hsize;
+wire [2:0]         sram1_hburst;
+wire [3:0]         sram1_hprot;
+wire               sram1_hmastlock;
+wire [W_DATA-1:0]  sram1_hwdata;
+wire [W_DATA-1:0]  sram1_hrdata;
+
 wire [W_PADDR-1:0] bridge_paddr;
 wire               bridge_psel;
 wire               bridge_penable;
@@ -117,7 +132,7 @@ wire               gpio_pslverr;
 // =============================================================================
 
 hazard5_cpu #(
-	.RESET_VECTOR(32'h20000000)
+	.RESET_VECTOR(32'h20080000)
 ) inst_revive_cpu (
 	.clk             (clk),
 	.rst_n           (rst_n),
@@ -140,11 +155,11 @@ hazard5_cpu #(
 
 ahbl_crossbar #(
 	.N_MASTERS(1),
-	.N_SLAVES(2),
+	.N_SLAVES(3),
 	.W_ADDR(W_ADDR),
 	.W_DATA(W_DATA),
-	.ADDR_MAP (64'h40000000_20000000),
-	.ADDR_MASK(64'he0000000_e0000000)
+	.ADDR_MAP (96'h40000000_20080000_20000000),
+	.ADDR_MASK(96'he0000000_e0080000_e0080000)
 ) inst_ahbl_crossbar (
 	.clk             (clk),
 	.rst_n           (rst_n),
@@ -160,18 +175,18 @@ ahbl_crossbar #(
 	.src_hwdata      (proc0_hwdata),
 	.src_hrdata      (proc0_hrdata),
 
-	.dst_hready      ({bridge_hready,      sram0_hready     }),
-	.dst_hready_resp ({bridge_hready_resp, sram0_hready_resp}),
-	.dst_hresp       ({bridge_hresp,       sram0_hresp      }),
-	.dst_haddr       ({bridge_haddr,       sram0_haddr      }),
-	.dst_hwrite      ({bridge_hwrite,      sram0_hwrite     }),
-	.dst_htrans      ({bridge_htrans,      sram0_htrans     }),
-	.dst_hsize       ({bridge_hsize,       sram0_hsize      }),
-	.dst_hburst      ({bridge_hburst,      sram0_hburst     }),
-	.dst_hprot       ({bridge_hprot,       sram0_hprot      }),
-	.dst_hmastlock   ({bridge_hmastlock,   sram0_hmastlock  }),
-	.dst_hwdata      ({bridge_hwdata,      sram0_hwdata     }),
-	.dst_hrdata      ({bridge_hrdata,      sram0_hrdata     })
+	.dst_hready      ({bridge_hready      , sram1_hready      , sram0_hready     }),
+	.dst_hready_resp ({bridge_hready_resp , sram1_hready_resp , sram0_hready_resp}),
+	.dst_hresp       ({bridge_hresp       , sram1_hresp       , sram0_hresp      }),
+	.dst_haddr       ({bridge_haddr       , sram1_haddr       , sram0_haddr      }),
+	.dst_hwrite      ({bridge_hwrite      , sram1_hwrite      , sram0_hwrite     }),
+	.dst_htrans      ({bridge_htrans      , sram1_htrans      , sram0_htrans     }),
+	.dst_hsize       ({bridge_hsize       , sram1_hsize       , sram0_hsize      }),
+	.dst_hburst      ({bridge_hburst      , sram1_hburst      , sram0_hburst     }),
+	.dst_hprot       ({bridge_hprot       , sram1_hprot       , sram0_hprot      }),
+	.dst_hmastlock   ({bridge_hmastlock   , sram1_hmastlock   , sram0_hmastlock  }),
+	.dst_hwdata      ({bridge_hwdata      , sram1_hwdata      , sram0_hwdata     }),
+	.dst_hrdata      ({bridge_hrdata      , sram1_hrdata      , sram0_hrdata     })
 );
 
 ahbl_to_apb #(
@@ -234,25 +249,37 @@ apb_splitter #(
 //  Slaves
 // =============================================================================
 
+// SRAM 1: internal synchronous SRAM.
+// Used for first-stage bootcode, and thereafter for processor stack
+// + small amount of hot code
+
 ahb_sync_sram #(
 	.W_DATA(W_DATA),
 	.W_ADDR(W_ADDR),
-	.DEPTH(1 << 11) // 2^17 words = 0.5 MiB
-) sram0 (
+	.DEPTH(1 << 11), // 2^11 words = 8 kiB
+	.PRELOAD_FILE (BOOTRAM_PRELOAD)
+) sram1 (
 	.clk               (clk),
 	.rst_n             (rst_n),
-	.ahbls_hready_resp (sram0_hready_resp),
-	.ahbls_hresp       (sram0_hresp),
-	.ahbls_haddr       (sram0_haddr),
-	.ahbls_hwrite      (sram0_hwrite),
-	.ahbls_htrans      (sram0_htrans),
-	.ahbls_hsize       (sram0_hsize),
-	.ahbls_hburst      (sram0_hburst),
-	.ahbls_hprot       (sram0_hprot),
-	.ahbls_hmastlock   (sram0_hmastlock),
-	.ahbls_hwdata      (sram0_hwdata),
-	.ahbls_hrdata      (sram0_hrdata)
+	.ahbls_hready_resp (sram1_hready_resp),
+	.ahbls_hresp       (sram1_hresp),
+	.ahbls_haddr       (sram1_haddr),
+	.ahbls_hwrite      (sram1_hwrite),
+	.ahbls_htrans      (sram1_htrans),
+	.ahbls_hsize       (sram1_hsize),
+	.ahbls_hburst      (sram1_hburst),
+	.ahbls_hprot       (sram1_hprot),
+	.ahbls_hmastlock   (sram1_hmastlock),
+	.ahbls_hwdata      (sram1_hwdata),
+	.ahbls_hrdata      (sram1_hrdata)
 );
+
+// Tie off sram0 for now
+// Need a proper AHBL narrower to attach the controller.
+
+assign sram0_hready_resp = 1'b1;
+assign sram0_hresp = 1'b0;
+assign sram0_hrdata = 32'h0;
 
 tbman inst_tbman (
 	.clk              (clk),

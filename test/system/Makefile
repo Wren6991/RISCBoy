@@ -1,10 +1,10 @@
-SRC_DIR=src
 TEST=helloworld
-TEST_SRCS=$(addprefix $(SRC_DIR)/,init.S $(TEST).c)
+
+all:
+	test
 
 mkdir:
 	mkdir -p $(TEST)
-	cp -f $(TEST_SRCS) $(TEST)
 	-cp -f test_script/$(TEST) $(TEST)/test_script
 	cp -f subdir.mk $(TEST)/Makefile
 
@@ -21,4 +21,5 @@ test: compile
 	$(MAKE) -C $(TEST) TEST=$(TEST) test
 
 clean:
+	$(MAKE) -C $(TEST) TEST=$(TEST) clean
 	rm -rf $(TEST)

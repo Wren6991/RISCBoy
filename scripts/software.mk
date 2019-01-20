@@ -10,7 +10,7 @@ OBJCOPY=$(CROSS_PREFIX)objcopy
 OBJDUMP=$(CROSS_PREFIX)objdump
 
 MARCH?=rv32ic
-LDSCRIPT?=$(SCRIPTS)/memmap.ld
+LDSCRIPT?=memmap.ld
 CCFLAGS?=-c -march=$(MARCH) $(addprefix -I ,$(INCDIRS))
 LDFLAGS+=-T $(LDSCRIPT)
 
