@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+# Tool for converting width of verilog hex files
+
+import sys
+import argparse
+import re
+
+# Assume little-endian, and that widths are multiples of 4
+
+def width_convert(ilines, width):
+	olines = []
+	pad_fmt = "{:>0" + str(width // 4) + "}"
+	accum = ""
+	for l in ilines:
+		if l.startswith("@"):
+			if len(accum):
+				olines.append(pad_fmt.format(accum))
+				accum = ""
+			olines.append(l)
+			continue
+		for num in re.findall(r"[0-9a-fA-F]+", l):
+			accum = num + accum
+			while len(accum) >= width // 4:
+				olines.append(accum[len(accum) - width // 4 :])
+				accum = accum[:len(accum) - width // 4]
+	if len(accum):
+		olines.append(pad_fmt.format(accum))
+	return olines
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
+	parser.add_argument("input", help="Input file name")
+	parser.add_argument("--width", "-w", help="Output hex width (default 32)")
+	parser.add_argument("--output", "-o", help="Output file name")
+	args = parser.parse_args()
+	if args.output is None:
+		ofile = sys.stdout
+	else:
+		ofile = open(args.output, "w")
+	if args.input is None:
+		ifile = sys.stdin
+	else:
+		ifile = open(args.input,)
+	if args.width is None:
+		width = 32
+	else:
+		width = args.width
+	try:
+		width = int(width)
+	except ValueError:
+		sys.exit("Invalid width specified: {}".format(width))
+
+	olines = width_convert(ifile, width)
+	for l in olines:
+		ofile.write(l + "\n")
