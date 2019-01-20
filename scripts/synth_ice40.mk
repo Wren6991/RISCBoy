@@ -22,7 +22,7 @@ SYNTH_CMD+=synth_ice40 -json $(CHIPNAME).json
 all: synth
 synth: $(CHIPNAME).json
 pnr: $(CHIPNAME).asc
-bits: $(CHIPNAME).bin
+bit: $(CHIPNAME).bin
 
 srcs.mk: Makefile $(DOTF)
 	$(SCRIPTS)/listfiles --relative -f make -o srcs.mk $(DOTF)
