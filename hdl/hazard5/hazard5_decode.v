@@ -167,7 +167,6 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_RS2;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
-		pc <= RESET_VECTOR;
 		dx_pc <= {W_ADDR{1'b0}};
 		dx_mispredict_addr <= {W_ADDR{1'b0}};
 		dx_branchcond <= BCOND_NEVER;
