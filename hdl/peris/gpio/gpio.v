@@ -63,7 +63,7 @@ assign padout_all[11] = {1'b0                , proc_out[11]        };
 assign padout_all[12] = {1'b0                , proc_out[12]        };
 assign padout_all[13] = {1'b0                , proc_out[13]        };
 assign padout_all[14] = {1'b0                , proc_out[14]        };
-assign padout_all[15] = {uart_tx             , proc_out[15]        };
+assign padout_all[15] = {uart_tx             , uart_tx};//proc_out[15]        };
 
 assign padoe_all[0 ]  = {1'b0                , proc_oe[0 ]         };
 assign padoe_all[1 ]  = {1'b0                , proc_oe[1 ]         };
@@ -80,7 +80,7 @@ assign padoe_all[11]  = {1'b0                , proc_oe[11]         };
 assign padoe_all[12]  = {1'b0                , proc_oe[12]         };
 assign padoe_all[13]  = {1'b0                , proc_oe[13]         };
 assign padoe_all[14]  = {1'b0                , proc_oe[14]         };
-assign padoe_all[15]  = {1'b1                , proc_oe[15]         };
+assign padoe_all[15]  = {1'b1                , 1'b1};//proc_oe[15]         };
 
 always @ (*) begin: gpio_mux
 	integer i;
@@ -90,9 +90,21 @@ always @ (*) begin: gpio_mux
 	end
 end
 
+// Register inputs before sending to processor
+
+reg [N_PADS-1:0] padin_reg;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		padin_reg <= {N_PADS{1'b0}};
+	end else begin
+		padin_reg <= padin;
+	end
+end
+
 // Input assignments (TODO: multi-source input muxing)
 
-assign uart_rx = padin[14];
+assign uart_rx = padin_reg[14]; // UART isn't going to mind an extra clock of latency!
 
 // APB Regblock
 
@@ -110,23 +122,23 @@ gpio_regs inst_gpio_regs
 	.apbs_pslverr (apbs_pslverr),
 	.out_o        (proc_out),
 	.dir_o        (proc_oe),
-	.in_i         (padin),
-	.fsel0_p0_o      (fsel[0 ]),
-	.fsel0_p1_o      (fsel[1 ]),
-	.fsel0_p2_o      (fsel[2 ]),
-	.fsel0_p3_o      (fsel[3 ]),
-	.fsel0_p4_o      (fsel[4 ]),
-	.fsel0_p5_o      (fsel[5 ]),
-	.fsel0_p6_o      (fsel[6 ]),
-	.fsel0_p7_o      (fsel[7 ]),
-	.fsel0_p8_o      (fsel[8 ]),
-	.fsel0_p9_o      (fsel[9 ]),
-	.fsel0_p10_o     (fsel[10]),
-	.fsel0_p11_o     (fsel[11]),
-	.fsel0_p12_o     (fsel[12]),
-	.fsel0_p13_o     (fsel[13]),
-	.fsel0_p14_o     (fsel[14]),
-	.fsel0_p15_o     (fsel[15])
+	.in_i         (padin_reg),
+	.fsel0_p0_o   (fsel[0 ]),
+	.fsel0_p1_o   (fsel[1 ]),
+	.fsel0_p2_o   (fsel[2 ]),
+	.fsel0_p3_o   (fsel[3 ]),
+	.fsel0_p4_o   (fsel[4 ]),
+	.fsel0_p5_o   (fsel[5 ]),
+	.fsel0_p6_o   (fsel[6 ]),
+	.fsel0_p7_o   (fsel[7 ]),
+	.fsel0_p8_o   (fsel[8 ]),
+	.fsel0_p9_o   (fsel[9 ]),
+	.fsel0_p10_o  (fsel[10]),
+	.fsel0_p11_o  (fsel[11]),
+	.fsel0_p12_o  (fsel[12]),
+	.fsel0_p13_o  (fsel[13]),
+	.fsel0_p14_o  (fsel[14]),
+	.fsel0_p15_o  (fsel[15])
 );
 
 endmodule

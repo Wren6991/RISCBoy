@@ -36,7 +36,7 @@ genvar i;
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-initial if(PRELOAD_FILE) $readmemh(PRELOAD_FILE, mem);
+initial if (PRELOAD_FILE != "") $readmemh(PRELOAD_FILE, mem);
 
 generate
 if (BYTE_ENABLE) begin: has_byte_enable
