@@ -36,10 +36,10 @@ assign clk_sys = clk_osc; // TODO PLL
 
 // Crappy behavioural reset generator
 
-reg [7:0] rst_delay = 8'h0;
+(* keep = 1'b1 *) reg [19:0] rst_delay = 20'h0;
 wire rst_n = rst_delay[0];
 always @ (posedge clk_sys)
-	rst_delay <= {1'b1, rst_delay[7:1]};
+	rst_delay <= ~(~rst_delay >> 1);
 
 // Instantiate the actual logic
 
@@ -62,8 +62,17 @@ riscboy_core #(
 		lcd_scl,
 		lcd_sda,
 		lcd_sdo,
-		fpga_heartbeat
+		sram_ce//fpga_heartbeat
 	})
+);
+
+blinky #(
+	.CLK_HZ (12_000_000),
+	.BLINK_HZ (1),
+	.FANCY (0)
+) blinky_u (
+	.clk (clk_osc),
+	.blink (fpga_heartbeat)
 );
 
 endmodule

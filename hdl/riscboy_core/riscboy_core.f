@@ -5,3 +5,5 @@ list $HDL/peris/tbman/tbman.f
 list $HDL/peris/uart/uart.f
 list $HDL/peris/gpio/gpio.f
 file riscboy_core.v
+
+file $HDL/common/memdump.v
