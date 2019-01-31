@@ -8,9 +8,7 @@ PACKAGE=bg121
 include $(SCRIPTS)/synth_ice40.mk
 
 # romfiles is a prequesite for synth
-romfiles:: bootram_init32.hex
-
-bootram_init32.hex:
+romfiles::
 	@echo ">>> Bootcode"
 	@echo
 	make -C $(SOFTWARE)/build APPNAME=blinky
@@ -22,5 +20,6 @@ riscboy.pcf:
 	$(SCRIPTS)/extract_ref_nets $(PROJ_ROOT)/board/fpgaboy.net U1 --filter fpga_cfg -o riscboy.pcf
 
 clean::
+	make -C $(SOFTWARE)/build APPNAME=blinky clean
 	rm -f chip.pcf
 	rm -f bootram_init*.hex

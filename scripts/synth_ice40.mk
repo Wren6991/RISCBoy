@@ -23,8 +23,8 @@ all: synth
 
 romfiles::
 synth: romfiles $(CHIPNAME).json
-pnr: $(CHIPNAME).asc
-bit: $(CHIPNAME).bin
+pnr: synth $(CHIPNAME).asc
+bit: pnr $(CHIPNAME).bin
 
 srcs.mk: Makefile $(DOTF)
 	$(SCRIPTS)/listfiles --relative -f make -o srcs.mk $(DOTF)
