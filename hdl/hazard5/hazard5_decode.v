@@ -227,7 +227,11 @@ always @ (posedge clk or negedge rst_n) begin
 		RV_SW:      begin dx_aluop <= ALUOP_ADD; dx_imm <= d_imm_s; dx_alusrc_b <= ALUSRCB_IMM; dx_memop <= MEMOP_SW;  dx_rd <= {W_REGADDR{1'b0}}; end
 		RV_FENCE:   begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
 		RV_FENCE_I: begin dx_rd <= {W_REGADDR{1'b0}}; end  // NOP
-		RV_SYSTEM:  begin if (!d_starved) $display("Syscall @ PC %h: %h", pc, d_instr); end
+		RV_SYSTEM:  begin
+			//synthesis translate_off
+			if (!d_starved) $display("Syscall @ PC %h: %h", pc, d_instr);
+			//synthesis translate_on
+		 end
 		default:    begin dx_except_invalid_instr <= 1'b1; end
 		endcase
 

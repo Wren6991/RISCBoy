@@ -141,8 +141,14 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mast_gnt_d <= {N_PORTS{1'b0}};
 		for (i = 0; i < N_PORTS; i = i + 1) begin
-			{buf_valid[i], buf_haddr[i], buf_hwrite[i], buf_htrans[i], buf_hsize[i],
-				buf_hburst[i], buf_hprot[i], buf_hmastlock[i]} <= {(W_ADDR + 15){1'b0}};
+			buf_valid[i]     <= 1'b0;
+			buf_htrans[i]    <= 2'h0;
+			buf_haddr[i]     <= {W_ADDR{1'b0}};
+			buf_hwrite[i]    <= 1'b0;
+			buf_hsize[i]     <= 3'h0;
+			buf_hburst[i]    <= 3'h0;
+			buf_hprot[i]     <= 3'h0;
+			buf_hmastlock[i] <= 1'b0;
 		end
 	end else begin
 		if (dst_hready) begin
@@ -152,7 +158,7 @@ always @ (posedge clk or negedge rst_n) begin
 		for (i = 0; i < N_PORTS; i = i + 1) begin
 			if (buf_wen[i]) begin
 				buf_valid    [i] <= 1'b1;
-				buf_htrans   [i] <= src_htrans[i * 2 +: 2];
+				buf_htrans   [i] <= src_htrans   [i * 2 +: 2];
 				buf_haddr    [i] <= src_haddr    [i * W_ADDR +: W_ADDR];
 				buf_hwrite   [i] <= src_hwrite   [i];
 				buf_hsize    [i] <= src_hsize    [i * 3 +: 3];

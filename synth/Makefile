@@ -7,7 +7,7 @@ PACKAGE=bg121
 
 include $(SCRIPTS)/synth_ice40.mk
 
-# romfiles is a prequesite for synth
+# romfiles is a prerequisite for synth
 romfiles::
 	@echo ">>> Bootcode"
 	@echo

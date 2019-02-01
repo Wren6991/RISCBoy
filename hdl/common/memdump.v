@@ -24,7 +24,8 @@ module memdump #(
 	output reg serial_out
 );
 
-// Sit in place of the processor. Read in memory and dump it out via raw differential manchester serial.
+// Sit in place of the processor. Read in memory and dump it out via raw biphase-mark-code serial.
+
 
 // ============================================================================
 // FIFO decouples bus interface from data modulator
@@ -94,6 +95,7 @@ reg [W_DATA-1:0] shift;
 assign fifo_ren = !fifo_empty && (ctr == 0 || (ctr == 1 && pingpong));
 
 // Shifting logic
+// MSB-first
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -113,7 +115,7 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-// Actual BMPC
+// Actual BPMC
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
