@@ -4,6 +4,7 @@
 import argparse
 import re
 import shlex
+from collections import OrderedDict
 
 def sanitize_net_name(s):
 	s = s.replace("~", "")
@@ -32,10 +33,31 @@ def extract_nets(fh, ref, filters):
 				nets.append((name, m.group(2)))
 	return nets
 
+def align_buses(nets):
+	buses = OrderedDict()
+	onets = []
+	# First figure out what is/isn't a bus
+	for net in nets:
+		if "[" in net[0]:
+			busname = net[0].split("[")[0]
+			if busname not in buses:
+				buses[busname] = []
+			buses[busname].append(net)
+		else:
+			onets.append(net)
+	# Then right-justify the buses
+	for busname, bus in buses.items():
+		indices = list(int(net[0].split('[')[1].strip(']')) for net in bus)
+		lsb = min(indices)
+		for index, net in zip(indices, bus):
+			onets.append(("{}[{}]".format(busname, index - lsb), net[1]))
+	return onets
+
+
 def write_pcf(fh, nets):
 	fh.write("# Generated with extract_ref_nets\n\n")
 	for name, loc in sorted(nets, key = lambda x: natural_key(x[0])):
-		fh.write("set_io {:<20} {}\n".format(sanitize_net_name(name), loc))
+		fh.write("set_io {:<20} {}\n".format(name, loc))
 
 def main():
 	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -48,6 +70,8 @@ def main():
 	filters = [] if args.filters is None else shlex.split(args.filters)
 	with open(args.netfile) as ifile:
 		nets = extract_nets(ifile, args.ref, filters)
+	nets = map(lambda n: (sanitize_net_name(n[0]), n[1]), nets)
+	nets = align_buses(nets)
 	with open(opath, "w") as ofile:
 		write_pcf(ofile, nets)
 
