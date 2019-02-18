@@ -18,6 +18,7 @@ LDFLAGS+=-T $(LDSCRIPT)
 DISASSEMBLE ?= -d
 
 .SUFFIXES:
+.SECONDARY:
 .PHONY: all clean
 all: compile
 
@@ -30,8 +31,11 @@ all: compile
 $(APPNAME).elf: $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS) -o $(APPNAME).elf
 
-$(APPNAME).hex: $(APPNAME).elf
-	$(OBJCOPY) -O verilog $(APPNAME).elf $(APPNAME).hex
+%8.hex: %.elf
+	$(OBJCOPY) -O verilog $< $@
+
+%32.hex: %8.hex
+	$(SCRIPTS)/vhexwidth -w 32 $< -o $@
 
 $(APPNAME).dis: $(APPNAME).elf
 	@echo ">>>>>>>>> Memory map:" > $(APPNAME).dis
@@ -41,7 +45,7 @@ $(APPNAME).dis: $(APPNAME).elf
 	$(OBJDUMP) $(DISASSEMBLE) $(APPNAME).elf >> $(APPNAME).dis
 
 
-compile:: $(APPNAME).hex $(APPNAME).dis
+compile:: $(APPNAME)32.hex $(APPNAME).dis
 
 clean::
-	rm -f $(APPNAME).elf $(APPNAME).hex $(APPNAME).dis $(OBJS)
+	rm -f $(APPNAME).elf $(APPNAME)32.hex $(APPNAME)8.hex $(APPNAME).dis $(OBJS)

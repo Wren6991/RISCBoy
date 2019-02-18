@@ -190,7 +190,7 @@ always @ (posedge clk) begin
 			$display("CIR LSBs are X, should be valid!");
 			$finish;
 		end
-		if (fd_cir_vld[1] && (^fd_cir ===1'bX)) begin
+		if (fd_cir_vld[1] && (^fd_cir === 1'bX)) begin
 			$display("CIR contains X, should be fully valid!");
 			$finish;
 		end

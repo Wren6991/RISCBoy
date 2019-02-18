@@ -36,7 +36,16 @@ genvar i;
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-initial if (PRELOAD_FILE != "") $readmemh(PRELOAD_FILE, mem);
+initial begin: preload
+	`ifdef SIM
+		integer n;
+		for (n = 0; n < DEPTH; n = n + 1)
+			mem[n] = {WIDTH{1'b0}};
+	`endif
+	if (PRELOAD_FILE != "")
+		$readmemh(PRELOAD_FILE, mem);
+end
+
 
 generate
 if (BYTE_ENABLE) begin: has_byte_enable

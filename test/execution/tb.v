@@ -22,8 +22,6 @@ wire                      hmastlock;
 wire [W_DATA-1:0]         hwdata;
 wire [W_DATA-1:0]         hrdata;
 
-reg [7:0] init_mem [0:SRAM_SIZE_BYTES-1];
-
 hazard5_cpu #(
 	.RESET_VECTOR(32'h0000_0000)
 ) cpu0 (
@@ -46,7 +44,8 @@ hazard5_cpu #(
 ahb_sync_sram #(
 	.W_DATA(32),
 	.W_ADDR(32),
-	.DEPTH(SRAM_SIZE_BYTES / 4)
+	.DEPTH(SRAM_SIZE_BYTES / 4),
+	.PRELOAD_FILE("../ram_init32.hex")
 ) sram0 (
 	.clk(clk),
 	.rst_n(rst_n),
@@ -75,23 +74,6 @@ initial begin
 	clk = 1'b0;
 	rst_n = 1'b0;
 
-	// Memory initialisation is made a bit ugly by the byte-enables
-	// being implemented with separate BRAM inferences, inside a generate
-	for (i = 0; i < SRAM_SIZE_BYTES; i = i + 1) begin
-		init_mem[i] = 8'h00;
-	end
-	$readmemh("../ram_init.hex", init_mem);
-	$display("Loaded ram_init.hex");
-	for (i = 0; i < 20; i = i + 1) begin
-		$display("%h", init_mem[i]);
-	end
-	for (i = 0; i < SRAM_DEPTH; i = i + 1) begin
-		sram0.sram.\has_byte_enable.byte_mem[0].mem [i] = init_mem[i * 4 + 0];
-		sram0.sram.\has_byte_enable.byte_mem[1].mem [i] = init_mem[i * 4 + 1];
-		sram0.sram.\has_byte_enable.byte_mem[2].mem [i] = init_mem[i * 4 + 2];
-		sram0.sram.\has_byte_enable.byte_mem[3].mem [i] = init_mem[i * 4 + 3];
-	end
-
 	result_ptr_mem[0] = 0;
 	result_ptr_mem[1] = 0;
 	$readmemh("../result_ptr.hex", result_ptr_mem);
@@ -100,33 +82,24 @@ initial begin
 	$display("Results at mem offset %h -> %h", result_base_ptr, result_end_ptr);
 
 	$display(".testdata preload:");
-	for (i = result_base_ptr; i < result_end_ptr; i = i + 4) begin
-		$display("%h", {
-			sram0.sram.\has_byte_enable.byte_mem[3].mem [i / 4],
-			sram0.sram.\has_byte_enable.byte_mem[2].mem [i / 4],
-			sram0.sram.\has_byte_enable.byte_mem[1].mem [i / 4],
-			sram0.sram.\has_byte_enable.byte_mem[0].mem [i / 4]
-		});
-	end
+	for (i = result_base_ptr; i < result_end_ptr; i = i + 4)
+		$display("%h", sram0.sram.mem [i / 4]);
+
 
 	#(10 * CLK_PERIOD);
 	rst_n = 1'b1;
 
 	#(5000 * CLK_PERIOD);
+	
 	$display("Register contents:");
 	for (i = 0; i < 32; i = i + 1) begin
 		$display("%h", cpu0.inst_regfile_1w2r.\real_dualport_reset.mem [i]);
 	end
 
 	$display("Test results:");
-	for (i = result_base_ptr; i < result_end_ptr; i = i + 4) begin
-		$display("%h", {
-			sram0.sram.\has_byte_enable.byte_mem[3].mem [i / 4],
-			sram0.sram.\has_byte_enable.byte_mem[2].mem [i / 4],
-			sram0.sram.\has_byte_enable.byte_mem[1].mem [i / 4],
-			sram0.sram.\has_byte_enable.byte_mem[0].mem [i / 4]
-		});
-	end
+	for (i = result_base_ptr; i < result_end_ptr; i = i + 4)
+		$display("%h", sram0.sram.mem [i / 4]);
+
 	$finish(2);
 end
 
