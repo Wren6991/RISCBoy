@@ -94,21 +94,49 @@ wire [31:0] d_imm_b = {{20{d_instr[31]}}, d_instr[7], d_instr[30:25], d_instr[11
 wire [31:0] d_imm_u = {d_instr[31:12], {12{1'b0}}};
 wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[30:21], 1'b0};
 
+
+// Control CIR locking
+
+// Locking is required if we successfully assert a jump request, but decode is stalled.
+// (This only happens if decode stall is caused by X stall, not if fetch is starved!)
+// The reason for this is that, if the CIR is not locked in, it can be trashed by
+// incoming fetch data before the roadblock clears ahead of us, which will squash any other
+// side effects this instruction may have besides jumping! This includes:
+// - Linking for JAL
+// - Mispredict recovery for branches
+// Note that it is not possible to simply gate the jump request based on X stalling,
+// because X stall is a function of hready, and jump request feeds haddr htrans etc.
+
+wire assert_cir_lock = d_jump_req && f_jump_now && d_stall;
+wire deassert_cir_lock = !d_stall;
+reg cir_lock_prev;
+
+assign df_cir_lock = (cir_lock_prev && !deassert_cir_lock) || assert_cir_lock;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		cir_lock_prev <= 1'b0;
+	else
+		cir_lock_prev <= df_cir_lock;
+
 // Jump decode
 // Sign bit of immediate gives branch direction; backward branches predicted taken.
+
+// If the current CIR is there due to locking, it is a jump which has already had primary effect.
+wire jump_enable = !d_starved && !cir_lock_prev;
 
 always @ (*) begin
 	// Branches are major opcode 1100011, JAL is 1100111:
 	d_jump_target = pc + (d_instr[2] ? d_imm_j : d_imm_b);
 
 	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: d_jump_req = !d_starved;
-	{1'b1, RV_BNE }: d_jump_req = !d_starved;
-	{1'b1, RV_BLT }: d_jump_req = !d_starved;
-	{1'b1, RV_BGE }: d_jump_req = !d_starved;
-	{1'b1, RV_BLTU}: d_jump_req = !d_starved;
-	{1'b1, RV_BGEU}: d_jump_req = !d_starved;
-	{1'bz, RV_JAL }: d_jump_req = !d_starved;
+	{1'b1, RV_BEQ }: d_jump_req = jump_enable;
+	{1'b1, RV_BNE }: d_jump_req = jump_enable;
+	{1'b1, RV_BLT }: d_jump_req = jump_enable;
+	{1'b1, RV_BGE }: d_jump_req = jump_enable;
+	{1'b1, RV_BLTU}: d_jump_req = jump_enable;
+	{1'b1, RV_BGEU}: d_jump_req = jump_enable;
+	{1'bz, RV_JAL }: d_jump_req = jump_enable;
 	default: d_jump_req = 1'b0;
 	endcase
 end
@@ -253,29 +281,5 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end
 end
-
-// Control CIR locking
-
-// Locking is required if we successfully assert a jump request, but decode is stalled.
-// (This only happens if decode stall is caused by X stall, not if fetch is starved!)
-// The reason for this is that, if the CIR is not locked in, it can be trashed by
-// incoming fetch data before the roadblock clears ahead of us, which will squash any other
-// side effects this instruction may have besides jumping! This includes:
-// - Linking for JAL
-// - Mispredict recovery for branches
-// Note that it is not possible to simply gate the jump request based on X stalling,
-// because X stall is a function of hready, and jump request feeds haddr htrans etc.
-
-wire assert_cir_lock = d_jump_req && f_jump_now && d_stall;
-wire deassert_cir_lock = !d_stall;
-reg cir_lock_prev;
-
-assign df_cir_lock = 1'b0;//(cir_lock_prev && !deassert_cir_lock) || assert_cir_lock;
-
-always @ (posedge clk or negedge rst_n)
-	if (!rst_n)
-		cir_lock_prev <= 1'b0;
-	else
-		cir_lock_prev <= df_cir_lock;
 
 endmodule
