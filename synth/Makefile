@@ -12,7 +12,7 @@ romfiles::
 	@echo ">>> Bootcode"
 	@echo
 	make -C $(SOFTWARE)/build APPNAME=blinky
-	cp $(SOFTWARE)/build/blinky.hex bootram_init8.hex
+	cp $(SOFTWARE)/build/blinky8.hex bootram_init8.hex
 	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
 
 # Regenerate pin constraints from the most recent schematics
