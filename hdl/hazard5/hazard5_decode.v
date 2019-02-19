@@ -11,6 +11,7 @@ module hazard5_decode #(
 	input wire  [31:0] fd_cir,
 	input wire  [1:0] fd_cir_vld,
 	output wire [1:0] df_cir_use,
+	output wire       df_cir_lock,
 	output reg               d_jump_req,
 	output reg  [W_ADDR-1:0] d_jump_target,
 
@@ -252,5 +253,29 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end
 end
+
+// Control CIR locking
+
+// Locking is required if we successfully assert a jump request, but decode is stalled.
+// (This only happens if decode stall is caused by X stall, not if fetch is starved!)
+// The reason for this is that, if the CIR is not locked in, it can be trashed by
+// incoming fetch data before the roadblock clears ahead of us, which will squash any other
+// side effects this instruction may have besides jumping! This includes:
+// - Linking for JAL
+// - Mispredict recovery for branches
+// Note that it is not possible to simply gate the jump request based on X stalling,
+// because X stall is a function of hready, and jump request feeds haddr htrans etc.
+
+wire assert_cir_lock = d_jump_req && f_jump_now && d_stall;
+wire deassert_cir_lock = !d_stall;
+reg cir_lock_prev;
+
+assign df_cir_lock = 1'b0;//(cir_lock_prev && !deassert_cir_lock) || assert_cir_lock;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		cir_lock_prev <= 1'b0;
+	else
+		cir_lock_prev <= df_cir_lock;
 
 endmodule

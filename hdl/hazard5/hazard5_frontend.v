@@ -37,8 +37,13 @@ module hazard5_frontend #(
 	// This works OK because size is decoded from 2 LSBs of instruction, so cheap.
 	output reg  [31:0]       cir,
 	output reg  [1:0]        cir_vld, // number of valid halfwords in CIR
-	input wire  [1:0]        cir_use  // number of halfwords D intends to consume
+	input wire  [1:0]        cir_use, // number of halfwords D intends to consume
 	                                  // *may* be a function of hready
+	input wire               cir_lock // Lock-in current contents and level of CIR.
+	                                  // Assert simultaneously with a jump request,
+	                                  // if decode is going to stall. This stops the CIR
+	                                  // from being trashed by incoming fetch data;
+	                                  // jump instructions have other side effects besides jumping!
 );
 
 `undef ASSERT
@@ -168,7 +173,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		unaligned_jump_aph <= 1'b0;
 		unaligned_jump_dph <= 1'b0;
-	end else begin
+	end else if (EXTENSION_C) begin
 		if (mem_addr_rdy) begin
 			unaligned_jump_aph <= 1'b0;
 		end
@@ -234,12 +239,12 @@ wire [3*W_BUNDLE-1:0] instr_data_shifted =
 // Don't care if fetch data is valid or not, as will just retry next cycle (as long as flags set correctly)
 wire [1:0] level_next_no_fetch = buf_level - cir_use;
 wire [3*W_BUNDLE-1:0] instr_data_plus_fetch =
+	cir_lock || (level_next_no_fetch[1] && !unaligned_jump_dph) ? instr_data_shifted :
 	unaligned_jump_dph     && EXTENSION_C ? {instr_data_shifted[W_BUNDLE +: 2*W_BUNDLE], fetch_data[W_BUNDLE +: W_BUNDLE]} :
-	level_next_no_fetch[1]                ? instr_data_shifted :
 	level_next_no_fetch[0] && EXTENSION_C ? {fetch_data, instr_data_shifted[0 +: W_BUNDLE]} :
 	                         {instr_data_shifted[2*W_BUNDLE +: W_BUNDLE], fetch_data};
 
-assign cir_must_refill = !level_next_no_fetch[1];
+assign cir_must_refill = !cir_lock && !level_next_no_fetch[1];
 assign fifo_pop = cir_must_refill && !fifo_empty;
 
 wire [1:0] buf_level_next =
@@ -256,11 +261,12 @@ always @ (posedge clk or negedge rst_n) begin
 		`ASSERT(cir_vld <= 2);
 		`ASSERT(cir_use <= 2);
 		`ASSERT(cir_use <= cir_vld);
-		`ASSERT(cir_vld <= buf_level);
+		`ASSERT(cir_vld <= buf_level || cir_lock);
 		// Update CIR flags
 		buf_level <= buf_level_next;
-		cir_vld <= buf_level_next & ~(buf_level_next >> 1'b1);
 		hwbuf_vld <= &buf_level_next;
+		if (!cir_lock)
+			cir_vld <= buf_level_next & ~(buf_level_next >> 1'b1);
 		// Update CIR contents
 	end
 end

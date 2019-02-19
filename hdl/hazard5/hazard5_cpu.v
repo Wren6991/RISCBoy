@@ -143,8 +143,9 @@ wire              f_jump_rdy;
 wire              f_jump_now = f_jump_req && f_jump_rdy;
 
 wire [31:0] fd_cir;
-wire [1:0] fd_cir_vld;
-wire [1:0] df_cir_use;
+wire [1:0]  fd_cir_vld;
+wire [1:0]  df_cir_use;
+wire        df_cir_lock;
 
 wire f_mem_size;
 assign ahb_hsize_i = f_mem_size ? HSIZE_WORD : HSIZE_HWORD;
@@ -173,7 +174,8 @@ hazard5_frontend #(
 
 	.cir             (fd_cir),
 	.cir_vld         (fd_cir_vld),
-	.cir_use         (df_cir_use)
+	.cir_use         (df_cir_use),
+	.cir_lock        (df_cir_lock)
 );
 
 assign flush_d_x = m_jump_req && f_jump_rdy;
@@ -230,6 +232,7 @@ hazard5_decode #(
 	.fd_cir                  (fd_cir),
 	.fd_cir_vld              (fd_cir_vld),
 	.df_cir_use              (df_cir_use),
+	.df_cir_lock             (df_cir_lock),
 	.d_jump_req              (d_jump_req),
 	.d_jump_target           (d_jump_target),
 
