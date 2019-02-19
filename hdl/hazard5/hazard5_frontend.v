@@ -48,8 +48,7 @@ module hazard5_frontend #(
 `define ASSERT(x)
 `endif
 
-// ISIM is a piece of wank and doesn't support $clog2 (properly) or $error
-
+// ISIM doesn't support some of this:
 // //synthesis translate_off
 // initial if (W_DATA != 32) begin $error("Frontend requires 32-bit databus"); end
 // initial if ((1 << $clog2(FIFO_DEPTH)) != FIFO_DEPTH) begin $error("Frontend FIFO depth must be power of 2"); end
@@ -142,7 +141,7 @@ always @ (posedge clk or negedge rst_n) begin
 		fetch_addr <= RESET_VECTOR;
 	end else begin
 		if (jump_target_vld && jump_target_rdy) begin
-			// Pre-increment if OUR request is going through
+			// Post-increment if jump request is going straight through
 			fetch_addr <= {jump_target[W_ADDR-1:2] + (mem_addr_rdy && !mem_addr_hold), 2'b00};
 		end else if (mem_addr_vld && mem_addr_rdy) begin
 			fetch_addr <= fetch_addr + 3'h4;
@@ -253,20 +252,21 @@ always @ (posedge clk or negedge rst_n) begin
 		buf_level <= 2'h0;
 		hwbuf_vld <= 1'b0;
 		cir_vld <= 2'h0;
-		cir <= 32'h0;
-		hwbuf <= {W_BUNDLE{1'b0}};
 	end else begin
 		`ASSERT(cir_vld <= 2);
 		`ASSERT(cir_use <= 2);
 		`ASSERT(cir_use <= cir_vld);
-		`ASSERT(!(cir_vld == 0 && cir_use == 1));
+		`ASSERT(cir_vld <= buf_level);
 		// Update CIR flags
 		buf_level <= buf_level_next;
 		cir_vld <= buf_level_next & ~(buf_level_next >> 1'b1);
 		hwbuf_vld <= &buf_level_next;
 		// Update CIR contents
-		{hwbuf, cir} <= instr_data_plus_fetch;
 	end
 end
+
+// No need to reset these as they will be written before first use
+always @ (posedge clk)
+	{hwbuf, cir} <= instr_data_plus_fetch;
 
 endmodule

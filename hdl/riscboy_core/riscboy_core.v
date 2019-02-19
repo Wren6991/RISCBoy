@@ -131,7 +131,7 @@ wire               gpio_pslverr;
 //  Masters
 // =============================================================================
 
-`define DUMP_MEM
+//`define DUMP_MEM
 
 `ifdef DUMP_MEM
 

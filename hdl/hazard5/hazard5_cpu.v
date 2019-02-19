@@ -366,20 +366,16 @@ end
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		{xm_jump_target, xm_jump} <= {(W_ADDR + 1){1'b0}};
-		xm_result <= {W_DATA{1'b0}};
+		xm_jump <= 1'b0;
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 		xm_except_invalid_instr <= 1'b0;
 		xm_except_unaligned <= 1'b0;
-		xm_store_data <= {W_DATA{1'b0}};
 	end else begin
 		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
-			xm_result <= x_alu_result;
 			xm_memop <= dx_memop;
-			xm_store_data <= x_rs2_bypass;
 			if (x_stall || flush_d_x) begin
 				// Insert bubble
 				xm_rd <= {W_REGADDR{1'b0}};
@@ -388,7 +384,6 @@ always @ (posedge clk or negedge rst_n) begin
 				xm_except_invalid_instr <= 1'b0;
 				xm_except_unaligned <= 1'b0;
 			end else begin
-				xm_jump_target <= x_jump_target;
 				case (dx_branchcond)
 					BCOND_ALWAYS: xm_jump <= 1'b1;
 					// For branches, we are either taking a branch late, or recovering from
@@ -404,6 +399,14 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end
 end
+
+// No reset on datapath flops
+always @ (posedge clk)
+	if (!m_stall) begin
+		xm_result <= x_alu_result;
+		xm_store_data <= x_rs2_bypass;
+		xm_jump_target <= x_jump_target;
+	end
 
 hazard5_alu alu (
 	.aluop      (dx_aluop),
@@ -462,7 +465,6 @@ end
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mw_rd <= {W_REGADDR{1'b0}};
-		mw_result <= {W_DATA{1'b0}};
 	end else if (!m_stall) begin
 		//synthesis translate_off
 		// TODO: proper exception support
@@ -484,9 +486,13 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		//synthesis translate_on
 		mw_rd <= xm_rd;
-		mw_result <= m_result;
 	end
 end
+
+// No need to reset result register, as reset on mw_rd protects register file from it
+always @ (posedge clk)
+	if (!m_stall)
+		mw_result <= m_result;
 
 // ============================================================================
 //                               Pipe Stage W
