@@ -46,6 +46,9 @@ module hazard5_decode #(
 `include "rv_opcodes.vh"
 `include "hazard5_ops.vh"
 
+// ============================================================================
+// PC/CIR control
+// ============================================================================
 
 wire d_starved = ~|fd_cir_vld || fd_cir_vld[0] && d_instr_is_32bit;
 assign d_stall = x_stall ||
@@ -53,6 +56,62 @@ assign d_stall = x_stall ||
 assign df_cir_use =
 	d_starved || d_stall ? 2'h0 :
 	d_instr_is_32bit ? 2'h2 : 2'h1;
+
+// CIR Locking is required if we successfully assert a jump request, but decode is stalled.
+// (This only happens if decode stall is caused by X stall, not if fetch is starved!)
+// The reason for this is that, if the CIR is not locked in, it can be trashed by
+// incoming fetch data before the roadblock clears ahead of us, which will squash any other
+// side effects this instruction may have besides jumping! This includes:
+// - Linking for JAL
+// - Mispredict recovery for branches
+// Note that it is not possible to simply gate the jump request based on X stalling,
+// because X stall is a function of hready, and jump request feeds haddr htrans etc.
+
+
+wire assert_cir_lock = d_jump_req && f_jump_rdy && d_stall;
+wire deassert_cir_lock = !d_stall;
+reg cir_lock_prev;
+
+assign df_cir_lock = (cir_lock_prev && !deassert_cir_lock) || assert_cir_lock;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		cir_lock_prev <= 1'b0;
+	else
+		cir_lock_prev <= df_cir_lock;
+
+reg  [W_ADDR-1:0]    pc;
+wire [W_ADDR-1:0]    pc_next = pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		pc <= RESET_VECTOR;
+	end else begin
+		if (f_jump_now)
+			pc <= f_jump_target;
+		else if (!d_stall && !cir_lock_prev)
+			pc <= pc_next;
+	end
+end
+
+// If the current CIR is there due to locking, it is a jump which has already had primary effect.
+wire jump_enable = !d_starved && !cir_lock_prev;
+
+always @ (*) begin
+	// Branches are major opcode 1100011, JAL is 1100111:
+	d_jump_target = pc + (d_instr[2] ? d_imm_j : d_imm_b);
+
+	casez ({d_instr[31], d_instr})
+	{1'b1, RV_BEQ }: d_jump_req = jump_enable;
+	{1'b1, RV_BNE }: d_jump_req = jump_enable;
+	{1'b1, RV_BLT }: d_jump_req = jump_enable;
+	{1'b1, RV_BGE }: d_jump_req = jump_enable;
+	{1'b1, RV_BLTU}: d_jump_req = jump_enable;
+	{1'b1, RV_BGEU}: d_jump_req = jump_enable;
+	{1'bz, RV_JAL }: d_jump_req = jump_enable;
+	default: d_jump_req = 1'b0;
+	endcase
+end
 
 // ============================================================================
 // Expand compressed instructions
@@ -72,43 +131,6 @@ hazard5_instr_decompress #(
 	.instr_out(d_instr),
 	.invalid(d_invalid_16bit)
 );
-
-// ============================================================================
-// PC/CIR control
-// ============================================================================
-
-reg  [W_ADDR-1:0]    pc;
-wire [W_ADDR-1:0]    pc_next = pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
-
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		pc <= RESET_VECTOR;
-	end else if (f_jump_now || !d_stall) begin
-		pc <= f_jump_now ? f_jump_target : pc_next;
-	end
-end
-
-// CIR Locking is required if we successfully assert a jump request, but decode is stalled.
-// (This only happens if decode stall is caused by X stall, not if fetch is starved!)
-// The reason for this is that, if the CIR is not locked in, it can be trashed by
-// incoming fetch data before the roadblock clears ahead of us, which will squash any other
-// side effects this instruction may have besides jumping! This includes:
-// - Linking for JAL
-// - Mispredict recovery for branches
-// Note that it is not possible to simply gate the jump request based on X stalling,
-// because X stall is a function of hready, and jump request feeds haddr htrans etc.
-
-wire assert_cir_lock = d_jump_req && f_jump_rdy && d_stall;
-wire deassert_cir_lock = !d_stall;
-reg cir_lock_prev;
-
-assign df_cir_lock = (cir_lock_prev && !deassert_cir_lock) || assert_cir_lock;
-
-always @ (posedge clk or negedge rst_n)
-	if (!rst_n)
-		cir_lock_prev <= 1'b0;
-	else
-		cir_lock_prev <= df_cir_lock;
 
 // ============================================================================
 // Decode X controls
@@ -153,7 +175,7 @@ always @ (*) begin
 	RV_BGE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
 	RV_BLTU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
 	RV_BGEU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_JALR:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_LINKADDR; d_rs2 = {W_REGADDR{1'b0}}; d_jump_is_regoffs = 1'b1; end
+	RV_JALR:    begin d_aluop = ALUOP_ADD; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_LINKADDR; d_rs2 = {W_REGADDR{1'b0}}; d_jump_is_regoffs = 1'b1; end
 	RV_JAL:     begin d_aluop = ALUOP_ADD; d_alusrc_a = ALUSRCA_LINKADDR; d_rs1 = {W_REGADDR{1'b0}}; d_rs2 = {W_REGADDR{1'b0}}; end
 	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_rs1 = {W_REGADDR{1'b0}}; end
 	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_alusrc_a = ALUSRCA_PC;  d_rs1 = {W_REGADDR{1'b0}}; end
@@ -241,33 +263,18 @@ end
 always @ (posedge clk) begin
 	if (!x_stall) begin
 		dx_imm <= d_imm;
-		dx_mispredict_addr <= pc_next;
 		dx_pc <= pc;
 	end
-end
-
-// ============================================================================
-// Jump decode
-// ============================================================================
-// Sign bit of immediate gives branch direction; backward branches predicted taken.
-
-// If the current CIR is there due to locking, it is a jump which has already had primary effect.
-wire jump_enable = !d_starved && !cir_lock_prev;
-
-always @ (*) begin
-	// Branches are major opcode 1100011, JAL is 1100111:
-	d_jump_target = pc + (d_instr[2] ? d_imm_j : d_imm_b);
-
-	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: d_jump_req = jump_enable;
-	{1'b1, RV_BNE }: d_jump_req = jump_enable;
-	{1'b1, RV_BLT }: d_jump_req = jump_enable;
-	{1'b1, RV_BGE }: d_jump_req = jump_enable;
-	{1'b1, RV_BLTU}: d_jump_req = jump_enable;
-	{1'b1, RV_BGEU}: d_jump_req = jump_enable;
-	{1'bz, RV_JAL }: d_jump_req = jump_enable;
-	default: d_jump_req = 1'b0;
-	endcase
+	// When we lock CIR, PC changes immediately afterward due to jump.
+	// However the locked instruction will still need its mispredict/link value
+	// (JAL or branch) so we need to calculate this *immediately*
+	// and then leave the precalculated value in place during lock.
+	if (assert_cir_lock || (!x_stall && !cir_lock_prev))
+		dx_mispredict_addr <= pc_next;
+	// This relies on the assumption (which should be tested..!) that,
+	// when executing a locked instruction, the instruction in X
+	// does not need the prior contents of dx_mispredict_addr.
+	// At time of writing these are JAL, JALR and mispredicted branches.
 end
 
 endmodule

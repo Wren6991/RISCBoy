@@ -234,10 +234,13 @@ wire [3*W_BUNDLE-1:0] instr_data_shifted =
 	                            {hwbuf, cir};
 
 
+// Saturating subtraction: on cir_lock dassertion,
+// buf_level will be 0 but cir_use will be positive!
+wire [1:0] level_next_no_fetch = cir_use > buf_level ? 2'h0 : buf_level - cir_use;
+
 // Overlay fresh fetch data onto the shifted/recycled instruction data
 // Again, if something won't be looked at, generate cheapest possible garbage.
 // Don't care if fetch data is valid or not, as will just retry next cycle (as long as flags set correctly)
-wire [1:0] level_next_no_fetch = buf_level - cir_use;
 wire [3*W_BUNDLE-1:0] instr_data_plus_fetch =
 	cir_lock || (level_next_no_fetch[1] && !unaligned_jump_dph) ? instr_data_shifted :
 	unaligned_jump_dph     && EXTENSION_C ? {instr_data_shifted[W_BUNDLE +: 2*W_BUNDLE], fetch_data[W_BUNDLE +: W_BUNDLE]} :
