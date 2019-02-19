@@ -66,7 +66,7 @@ def read_filelist(fname):
 			files.extend(newfiles)
 			includes.extend(newincludes)
 		else:
-			raise Exception("Invalid command")
+			raise Exception("In filelist {}: Invalid command \"{}\"".format(fname, words[0]))
 	os.chdir(prev_dir)
 	return (files, includes)
 
