@@ -23,7 +23,6 @@ localparam ALUOP_SLL     = 4'hb;
 
 localparam ALUSRCA_RS1      = 2'h0;
 localparam ALUSRCA_PC       = 2'h1;
-localparam ALUSRCA_LINKADDR = 2'h2;
 
 localparam ALUSRCB_RS2      = 2'h0;
 localparam ALUSRCB_IMM      = 2'h1;

@@ -215,6 +215,7 @@ wire [W_ALUOP-1:0]   dx_aluop;
 wire [W_MEMOP-1:0]   dx_memop;
 wire [W_BCOND-1:0]   dx_branchcond;
 wire                 dx_jump_is_regoffs;
+wire                 dx_result_is_linkaddr;
 wire [W_ADDR-1:0]    dx_pc;
 wire [W_ADDR-1:0]    dx_mispredict_addr;
 wire                 dx_except_invalid_instr;
@@ -255,6 +256,7 @@ hazard5_decode #(
 	.dx_memop                (dx_memop),
 	.dx_branchcond           (dx_branchcond),
 	.dx_jump_is_regoffs      (dx_jump_is_regoffs),
+	.dx_result_is_linkaddr   (dx_result_is_linkaddr),
 	.dx_pc                   (dx_pc),
 	.dx_mispredict_addr      (dx_mispredict_addr),
 	.dx_except_invalid_instr (dx_except_invalid_instr)
@@ -286,17 +288,17 @@ wire                 x_alu_cmp;
 reg  [W_REGADDR-1:0] xm_rs1;
 reg  [W_REGADDR-1:0] xm_rs2;
 reg  [W_REGADDR-1:0] xm_rd;
-reg  [W_DATA-1:0]    xm_result;
-reg  [W_ADDR-1:0]    xm_jump_target;
+reg  [W_DATA-1:0]    xm_alu_result;
+reg  [W_DATA-1:0]    xm_mispredict_addr;
 reg  [W_DATA-1:0]    xm_store_data;
 reg                  xm_jump;
+reg                  xm_jump_is_regoffs;
+reg                  xm_result_is_linkaddr;
 reg  [W_MEMOP-1:0]   xm_memop;
 reg                  xm_except_invalid_instr;
 reg                  xm_except_unaligned;
 
-// For JALR, the LSB of the result must be cleared by hardware
-wire [W_ADDR-1:0] x_taken_jump_target = (dx_imm + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc)) & {{31{1'b1}}, !dx_jump_is_regoffs};
-wire [W_ADDR-1:0] x_jump_target = dx_imm[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr : x_taken_jump_target;
+wire [W_DATA-1:0] xm_result = xm_result_is_linkaddr ? xm_mispredict_addr : xm_alu_result;
 
 reg x_stall_raw;
 
@@ -355,12 +357,10 @@ always @ (*) begin
 	end
 	if (dx_alusrc_a == ALUSRCA_PC)
 		x_op_a = dx_pc;
-	else if (dx_alusrc_a == ALUSRCA_LINKADDR)
-		x_op_a = dx_mispredict_addr;
 	else
 		x_op_a = x_rs1_bypass;
 
-	if (dx_alusrc_b)
+	if (dx_alusrc_b == ALUSRCB_IMM)
 		x_op_b = dx_imm;
 	else
 		x_op_b = x_rs2_bypass;
@@ -373,12 +373,16 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 		xm_except_invalid_instr <= 1'b0;
+		xm_jump_is_regoffs <= 1'b0;
+		xm_result_is_linkaddr <= 1'b0;
 		xm_except_unaligned <= 1'b0;
 	end else begin
 		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
 			xm_memop <= dx_memop;
+			xm_jump_is_regoffs <= dx_jump_is_regoffs;
+			xm_result_is_linkaddr <= dx_result_is_linkaddr;
 			if (x_stall || flush_d_x) begin
 				// Insert bubble
 				xm_rd <= {W_REGADDR{1'b0}};
@@ -406,9 +410,9 @@ end
 // No reset on datapath flops
 always @ (posedge clk)
 	if (!m_stall) begin
-		xm_result <= x_alu_result;
+		xm_alu_result <= x_alu_result;
 		xm_store_data <= x_rs2_bypass;
-		xm_jump_target <= x_jump_target;
+		xm_mispredict_addr <= dx_mispredict_addr;
 	end
 
 hazard5_alu alu (
@@ -424,13 +428,15 @@ hazard5_alu alu (
 //                               Pipe Stage M
 // ============================================================================
 
-reg [W_DATA-1:0]    m_rdata_shift;
-reg [W_DATA-1:0]    m_wdata;
-reg [W_DATA-1:0]    m_result;
-assign m_jump_req = xm_jump;
-assign m_jump_target = xm_jump_target;
+reg [W_DATA-1:0] m_rdata_shift;
+reg [W_DATA-1:0] m_wdata;
+reg [W_DATA-1:0] m_result;
 
 assign m_stall = (ahb_active_dph_d && !ahblm_hready) || (m_jump_req && !f_jump_rdy);
+
+// For JALR, the LSB of the result must be cleared by hardware:
+assign m_jump_target = xm_jump_is_regoffs ? {xm_alu_result[31:1], 1'b0} : xm_mispredict_addr;
+assign m_jump_req = xm_jump;
 
 always @ (*) begin
 	// Local forwarding of store data
@@ -448,7 +454,7 @@ always @ (*) begin
 	endcase
 	// Pick out correct data from load access, and sign/unsign extend it.
 	// This is slightly cheaper than a normal shift:
-	case (xm_result[1:0])
+	case (xm_alu_result[1:0])
 		2'b00: m_rdata_shift = ahblm_hrdata;
 		2'b01: m_rdata_shift = {ahblm_hrdata[31:24], ahblm_hrdata[31:8]};
 		2'b10: m_rdata_shift = {ahblm_hrdata[31:16], ahblm_hrdata[31:16]};

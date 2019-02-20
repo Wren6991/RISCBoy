@@ -5,25 +5,25 @@ module hazard5_decode #(
 	parameter RESET_VECTOR = 32'h0,
 	parameter W_REGADDR = 5
 ) (
-	input wire clk,
-	input wire rst_n,
+	input wire                  clk,
+	input wire                  rst_n,
 
-	input wire  [31:0] fd_cir,
-	input wire  [1:0] fd_cir_vld,
-	output wire [1:0] df_cir_use,
-	output wire       df_cir_lock,
-	output reg               d_jump_req,
-	output reg  [W_ADDR-1:0] d_jump_target,
+	input wire  [31:0]          fd_cir,
+	input wire  [1:0]           fd_cir_vld,
+	output wire [1:0]           df_cir_use,
+	output wire                 df_cir_lock,
+	output reg                  d_jump_req,
+	output reg  [W_ADDR-1:0]    d_jump_target,
 
-	output wire d_stall,
-	input wire  x_stall,
-	input wire  flush_d_x,
-	input wire  f_jump_rdy,
-	input wire  f_jump_now,
-	input wire  [W_ADDR-1:0] f_jump_target,
+	output wire                 d_stall,
+	input wire                  x_stall,
+	input wire                  flush_d_x,
+	input wire                  f_jump_rdy,
+	input wire                  f_jump_now,
+	input wire  [W_ADDR-1:0]    f_jump_target,
 
-	output reg [W_REGADDR-1:0] d_rs1, // combinatorial
-	output reg [W_REGADDR-1:0] d_rs2, // combinatorial
+	output reg [W_REGADDR-1:0]  d_rs1, // combinatorial
+	output reg [W_REGADDR-1:0]  d_rs2, // combinatorial
 
 	output reg  [W_DATA-1:0]    dx_imm,
 	output reg  [W_REGADDR-1:0] dx_rs1,
@@ -34,14 +34,13 @@ module hazard5_decode #(
 	output reg  [W_ALUOP-1:0]   dx_aluop,
 	output reg  [W_MEMOP-1:0]   dx_memop,
 	output reg  [W_BCOND-1:0]   dx_branchcond,
-	output reg                  dx_jump_is_regoffs,
-	output reg  [W_ADDR-1:0]    dx_pc,
-	output reg  [W_ADDR-1:0]    dx_mispredict_addr,
+	output reg                  dx_jump_is_regoffs,     // late-jump target is the ALU result, rather than 
+	output reg                  dx_result_is_linkaddr,  // mispredict_addr written to the register file instead of ALU result (e.g. JALR: ALU computes jump target!)
+	output reg  [W_ADDR-1:0]    dx_pc,                  // Needed for AUIPC
+	output reg  [W_ADDR-1:0]    dx_mispredict_addr,     // Mispredict target for branches, or link address for JAL, JALR (== mispredict if branch pred taken)
 	output reg                  dx_except_invalid_instr
 );
 
-
-// TODO TODO factor this out in a cleaner way, e.g. separate out registers and stall logic.
 
 `include "rv_opcodes.vh"
 `include "hazard5_ops.vh"
@@ -66,7 +65,6 @@ assign df_cir_use =
 // - Mispredict recovery for branches
 // Note that it is not possible to simply gate the jump request based on X stalling,
 // because X stall is a function of hready, and jump request feeds haddr htrans etc.
-
 
 wire assert_cir_lock = d_jump_req && f_jump_rdy && d_stall;
 wire deassert_cir_lock = !d_stall;
@@ -95,21 +93,30 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 // If the current CIR is there due to locking, it is a jump which has already had primary effect.
-wire jump_enable = !d_starved && !cir_lock_prev;
+wire branch_predicted_taken = d_instr[31];
+reg  instr_is_branch;
+wire jump_enable = !(d_starved || cir_lock_prev || (instr_is_branch && !branch_predicted_taken));
 
 always @ (*) begin
 	// Branches are major opcode 1100011, JAL is 1100111:
 	d_jump_target = pc + (d_instr[2] ? d_imm_j : d_imm_b);
 
-	casez ({d_instr[31], d_instr})
-	{1'b1, RV_BEQ }: d_jump_req = jump_enable;
-	{1'b1, RV_BNE }: d_jump_req = jump_enable;
-	{1'b1, RV_BLT }: d_jump_req = jump_enable;
-	{1'b1, RV_BGE }: d_jump_req = jump_enable;
-	{1'b1, RV_BLTU}: d_jump_req = jump_enable;
-	{1'b1, RV_BGEU}: d_jump_req = jump_enable;
-	{1'bz, RV_JAL }: d_jump_req = jump_enable;
-	default: d_jump_req = 1'b0;
+	instr_is_branch = 1'b1;
+	casez (d_instr)
+	RV_BEQ  : d_jump_req = jump_enable;
+	RV_BNE  : d_jump_req = jump_enable;
+	RV_BLT  : d_jump_req = jump_enable;
+	RV_BGE  : d_jump_req = jump_enable;
+	RV_BLTU : d_jump_req = jump_enable;
+	RV_BGEU : d_jump_req = jump_enable;
+	RV_JAL  : begin
+		instr_is_branch = 1'b0;
+		d_jump_req = jump_enable;
+	end
+	default: begin
+		instr_is_branch = 1'b0;
+		d_jump_req = 1'b0;
+	end
 	endcase
 end
 
@@ -152,7 +159,9 @@ reg  [W_ALUOP-1:0]   d_aluop;
 reg  [W_MEMOP-1:0]   d_memop;
 reg  [W_BCOND-1:0]   d_branchcond;
 reg                  d_jump_is_regoffs;
+reg                  d_result_is_linkaddr;
 
+localparam X0 = {W_REGADDR{1'b0}};
 
 always @ (*) begin
 	// Assign some defaults
@@ -166,28 +175,29 @@ always @ (*) begin
 	d_memop = MEMOP_NONE;
 	d_branchcond = BCOND_NEVER;
 	d_jump_is_regoffs = 1'b0;
+	d_result_is_linkaddr = 1'b0;
 	d_invalid_32bit = 1'b0;
 
 	casez (d_instr)
-	RV_BEQ:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_imm = d_imm_b; d_branchcond = BCOND_ZERO;  end
-	RV_BNE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BLT:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_BLTU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGEU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_JALR:    begin d_aluop = ALUOP_ADD; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_LINKADDR; d_rs2 = {W_REGADDR{1'b0}}; d_jump_is_regoffs = 1'b1; end
-	RV_JAL:     begin d_aluop = ALUOP_ADD; d_alusrc_a = ALUSRCA_LINKADDR; d_rs1 = {W_REGADDR{1'b0}}; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_rs1 = {W_REGADDR{1'b0}}; end
-	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_alusrc_a = ALUSRCA_PC;  d_rs1 = {W_REGADDR{1'b0}}; end
-	RV_ADDI:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SLLI:    begin d_aluop = ALUOP_SLL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SLTI:    begin d_aluop = ALUOP_LT;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SLTIU:   begin d_aluop = ALUOP_LTU; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_XORI:    begin d_aluop = ALUOP_XOR; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SRLI:    begin d_aluop = ALUOP_SRL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SRAI:    begin d_aluop = ALUOP_SRA; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_ORI:     begin d_aluop = ALUOP_OR;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_ANDI:    begin d_aluop = ALUOP_AND; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
+	RV_BEQ:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_imm = d_imm_b; d_branchcond = BCOND_ZERO;  end
+	RV_BNE:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BLT:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BGE:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
+	RV_BLTU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BGEU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
+	RV_JALR:    begin d_result_is_linkaddr = 1'b1; d_aluop = ALUOP_ADD; d_branchcond = BCOND_ALWAYS; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_jump_is_regoffs = 1'b1; end
+	RV_JAL:     begin d_result_is_linkaddr = 1'b1; d_rs1 = X0; d_rs2 = X0; end
+	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_rs1 = X0; end
+	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_alusrc_a = ALUSRCA_PC;  d_rs1 = X0; end
+	RV_ADDI:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SLLI:    begin d_aluop = ALUOP_SLL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SLTI:    begin d_aluop = ALUOP_LT;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SLTIU:   begin d_aluop = ALUOP_LTU; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_XORI:    begin d_aluop = ALUOP_XOR; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SRLI:    begin d_aluop = ALUOP_SRL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SRAI:    begin d_aluop = ALUOP_SRA; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_ORI:     begin d_aluop = ALUOP_OR;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_ANDI:    begin d_aluop = ALUOP_AND; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
 	RV_ADD:     begin d_aluop = ALUOP_ADD; end
 	RV_SUB:     begin d_aluop = ALUOP_SUB; end
 	RV_SLL:     begin d_aluop = ALUOP_SLL; end
@@ -198,16 +208,16 @@ always @ (*) begin
 	RV_SRA:     begin d_aluop = ALUOP_SRA; end
 	RV_OR:      begin d_aluop = ALUOP_OR;  end
 	RV_AND:     begin d_aluop = ALUOP_AND; end
-	RV_LB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LB;  end
-	RV_LH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LH;  end
-	RV_LW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LW;  end
-	RV_LBU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LBU; end
-	RV_LHU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LHU; end
-	RV_SB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SB;  d_rd = {W_REGADDR{1'b0}}; end
-	RV_SH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SH;  d_rd = {W_REGADDR{1'b0}}; end
-	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = {W_REGADDR{1'b0}}; end
-	RV_FENCE:   begin d_rd = {W_REGADDR{1'b0}}; end  // NOP
-	RV_FENCE_I: begin d_rd = {W_REGADDR{1'b0}}; end  // NOP
+	RV_LB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LB;  end
+	RV_LH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LH;  end
+	RV_LW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LW;  end
+	RV_LBU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LBU; end
+	RV_LHU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LHU; end
+	RV_SB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SB;  d_rd = X0; end
+	RV_SH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SH;  d_rd = X0; end
+	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = X0; end
+	RV_FENCE:   begin d_rd = X0; end  // NOP
+	RV_FENCE_I: begin d_rd = X0; end  // NOP
 	RV_SYSTEM:  begin
 		//synthesis translate_off
 		if (!d_stall) $display("Syscall @ PC %h: %h", pc, d_instr);
@@ -216,7 +226,6 @@ always @ (*) begin
 	default:    begin d_invalid_32bit = 1'b1; end
 	endcase
 end
-
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -227,6 +236,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_memop <= MEMOP_NONE;
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
+		dx_result_is_linkaddr <= 1'b0;
 		dx_except_invalid_instr <= 1'b0;
 	end else if (!x_stall) begin
 		dx_rs1 <= d_rs1;
@@ -238,6 +248,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_memop <= d_memop;
 		dx_branchcond <= d_branchcond;
 		dx_jump_is_regoffs <= d_jump_is_regoffs;
+		dx_result_is_linkaddr <= d_result_is_linkaddr;
 		dx_except_invalid_instr <= d_invalid;
 
 		// Bubble assertion
@@ -269,8 +280,13 @@ always @ (posedge clk) begin
 	// However the locked instruction will still need its mispredict/link value
 	// (JAL or branch) so we need to calculate this *immediately*
 	// and then leave the precalculated value in place during lock.
-	if (assert_cir_lock || (!x_stall && !cir_lock_prev))
-		dx_mispredict_addr <= pc_next;
+	if (assert_cir_lock || (!x_stall && !cir_lock_prev)) begin
+		if (instr_is_branch && !branch_predicted_taken)
+			dx_mispredict_addr <= d_jump_target;
+		else
+			dx_mispredict_addr <= pc_next;
+	end
+
 	// This relies on the assumption (which should be tested..!) that,
 	// when executing a locked instruction, the instruction in X
 	// does not need the prior contents of dx_mispredict_addr.
