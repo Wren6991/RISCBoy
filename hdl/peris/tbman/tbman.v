@@ -64,6 +64,14 @@ tbman_regs inst_tbman_regs
 reg [0:1023] print_str = 1024'h0;
 integer print_ptr = 0;
 
+integer cycle_count;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		cycle_count <= 0;
+	else
+		cycle_count <= cycle_count + 1;
+
 always @ (posedge clk) begin
 	if (print_wen) begin
 		if (print_o == "\n") begin
@@ -80,6 +88,7 @@ always @ (posedge clk) begin
 	end
 	if (exit_wen) begin
 		$display("TBMAN: CPU requested termination, exit code %d", exit_o);
+		$display("Design ran for %d cycles", cycle_count);
 		$finish;
 	end
 end
