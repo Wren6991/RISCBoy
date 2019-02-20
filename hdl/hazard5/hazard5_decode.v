@@ -17,7 +17,7 @@ module hazard5_decode #(
 
 	output wire                 d_stall,
 	input wire                  x_stall,
-	input wire                  flush_d_x,
+	input wire                  flush_d,
 	input wire                  f_jump_rdy,
 	input wire                  f_jump_now,
 	input wire  [W_ADDR-1:0]    f_jump_target,
@@ -252,7 +252,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_except_invalid_instr <= d_invalid;
 
 		// Bubble assertion
-		if (d_stall || flush_d_x) begin
+		if (d_stall || flush_d) begin
 			dx_branchcond <= BCOND_NEVER;
 			dx_memop <= MEMOP_NONE;
 			dx_rd <= 5'h0;

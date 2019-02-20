@@ -53,7 +53,7 @@ localparam N_REGS = 32;
 parameter W_REGADDR = $clog2(N_REGS);
 localparam NOP_INSTR = 32'h13;	// addi x0, x0, 0
 
-wire flush_d_x;
+wire flush_d;
 
 wire d_stall;
 wire x_stall;
@@ -85,12 +85,12 @@ wire [W_ADDR-1:0] ahb_haddr_i;
 
 
 // Arbitrate requests from competing sources
-wire m_jump_req;
+wire x_jump_req;
 wire ahb_gnt_i;
 wire ahb_gnt_d;
 
 assign {ahb_gnt_i, ahb_gnt_d} =
-	m_jump_req ? 2'b10 :
+	x_jump_req ? 2'b10 :
 	ahb_req_d  ? 2'b01 :
 	ahb_req_i  ? 2'b10 :
 	             2'b00 ;
@@ -133,12 +133,12 @@ end
 //                               Pipe Stage F
 // ============================================================================
 
-wire [W_ADDR-1:0] m_jump_target;
+wire [W_ADDR-1:0] x_jump_target;
 wire              d_jump_req;
 wire [W_ADDR-1:0] d_jump_target;
 
-wire              f_jump_req = d_jump_req || m_jump_req;
-wire [W_ADDR-1:0] f_jump_target = m_jump_req ? m_jump_target : d_jump_target;
+wire              f_jump_req = d_jump_req || x_jump_req;
+wire [W_ADDR-1:0] f_jump_target = x_jump_req ? x_jump_target : d_jump_target;
 wire              f_jump_rdy;
 wire              f_jump_now = f_jump_req && f_jump_rdy;
 
@@ -178,7 +178,7 @@ hazard5_frontend #(
 	.cir_lock        (df_cir_lock)
 );
 
-assign flush_d_x = m_jump_req && f_jump_rdy;
+assign flush_d = x_jump_req && f_jump_rdy;
 
 // ============================================================================
 //                               Pipe Stage D
@@ -239,7 +239,7 @@ hazard5_decode #(
 
 	.d_stall                 (d_stall),
 	.x_stall                 (x_stall),
-	.flush_d_x               (flush_d_x),
+	.flush_d                 (flush_d),
 	.f_jump_rdy              (f_jump_rdy),
 	.f_jump_now              (f_jump_now),
 	.f_jump_target           (f_jump_target),
@@ -288,22 +288,16 @@ wire                 x_alu_cmp;
 reg  [W_REGADDR-1:0] xm_rs1;
 reg  [W_REGADDR-1:0] xm_rs2;
 reg  [W_REGADDR-1:0] xm_rd;
-reg  [W_DATA-1:0]    xm_alu_result;
-reg  [W_DATA-1:0]    xm_mispredict_addr;
+reg  [W_DATA-1:0]    xm_result;
 reg  [W_DATA-1:0]    xm_store_data;
-reg                  xm_jump;
-reg                  xm_jump_is_regoffs;
-reg                  xm_result_is_linkaddr;
 reg  [W_MEMOP-1:0]   xm_memop;
 reg                  xm_except_invalid_instr;
 reg                  xm_except_unaligned;
 
-wire [W_DATA-1:0] xm_result = xm_result_is_linkaddr ? xm_mispredict_addr : xm_alu_result;
-
 reg x_stall_raw;
 
 assign x_stall = m_stall ||
-	x_stall_raw || ahb_req_d && !(ahb_gnt_d && ahblm_hready);
+	x_stall_raw || ahb_req_d && !(ahb_gnt_d && ahblm_hready) || (x_jump_req && !f_jump_rdy);
 
 // Load-use hazard detection
 always @ (*) begin
@@ -322,7 +316,7 @@ end
 // AHB transaction request
 always @ (*) begin
 	// Need to be careful not to use anything hready-sourced to gate htrans!
-	ahb_req_d = ~|(dx_memop & 4'h8) && !x_stall_raw && !flush_d_x;
+	ahb_req_d = ~|(dx_memop & 4'h8) && !x_stall_raw;
 	ahb_haddr_d = x_alu_add;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	case (dx_memop)
@@ -334,6 +328,39 @@ always @ (*) begin
 		default:   ahb_hsize_d = HSIZE_BYTE;
 	endcase
 end
+
+// Jump/mispredict control
+
+// It's possible for a jump request to go through whilst an instruction is stalled in M
+// (which means we also stall)! Unlike D our stall signal will protect our input flops,
+// but still need to detect this and inhibit a repeat of that jump request.
+reg x_jumped_on_stall;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n)
+		x_jumped_on_stall <= 1'b0;
+	else if (x_jump_req && x_stall)
+		x_jumped_on_stall <= 1'b1;
+	else if (!x_stall)
+		x_jumped_on_stall <= 1'b0;
+end
+
+reg x_instr_reqs_jump;
+
+always @ (*) begin
+	case (dx_branchcond)
+		BCOND_ALWAYS: x_instr_reqs_jump = 1'b1;
+		// For branches, we are either taking a branch late, or recovering from
+		// an incorrectly taken branch, depending on sign of branch offset.
+		BCOND_ZERO: x_instr_reqs_jump = !x_alu_cmp ^ dx_imm[31];
+		BCOND_NZERO: x_instr_reqs_jump = x_alu_cmp ^ dx_imm[31];
+		default x_instr_reqs_jump = 1'b0;
+	endcase
+end
+
+// For JALR, the LSB of the result must be cleared by hardware:
+assign x_jump_target = dx_jump_is_regoffs ? {x_alu_add[31:1], 1'b0} : dx_mispredict_addr;
+assign x_jump_req = x_instr_reqs_jump && !x_jumped_on_stall;
 
 // ALU operand muxes and bypass
 always @ (*) begin
@@ -369,36 +396,21 @@ end
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		xm_jump <= 1'b0;
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
 		xm_except_invalid_instr <= 1'b0;
-		xm_jump_is_regoffs <= 1'b0;
-		xm_result_is_linkaddr <= 1'b0;
 		xm_except_unaligned <= 1'b0;
 	end else begin
-		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
 			xm_memop <= dx_memop;
-			xm_jump_is_regoffs <= dx_jump_is_regoffs;
-			xm_result_is_linkaddr <= dx_result_is_linkaddr;
-			if (x_stall || flush_d_x) begin
+			if (x_stall) begin
 				// Insert bubble
 				xm_rd <= {W_REGADDR{1'b0}};
-				xm_jump <= 1'b0;
 				xm_memop <= MEMOP_NONE;
 				xm_except_invalid_instr <= 1'b0;
 				xm_except_unaligned <= 1'b0;
 			end else begin
-				case (dx_branchcond)
-					BCOND_ALWAYS: xm_jump <= 1'b1;
-					// For branches, we are either taking a branch late, or recovering from
-					// an incorrectly taken branch, depending on sign of branch offset.
-					BCOND_ZERO: xm_jump <= !x_alu_cmp ^ dx_imm[31];
-					BCOND_NZERO: xm_jump <= x_alu_cmp ^ dx_imm[31];
-					default xm_jump <= 1'b0;
-				endcase
 				xm_except_invalid_instr <= dx_except_invalid_instr;
 				xm_except_unaligned <= ahb_hsize_d == HSIZE_WORD && |ahb_haddr_d[1:0]
 					|| ahb_hsize_d == HSIZE_HWORD && ahb_haddr_d[0];
@@ -410,9 +422,8 @@ end
 // No reset on datapath flops
 always @ (posedge clk)
 	if (!m_stall) begin
-		xm_alu_result <= x_alu_result;
+		xm_result <= dx_result_is_linkaddr ? dx_mispredict_addr : x_alu_result;
 		xm_store_data <= x_rs2_bypass;
-		xm_mispredict_addr <= dx_mispredict_addr;
 	end
 
 hazard5_alu alu (
@@ -432,11 +443,7 @@ reg [W_DATA-1:0] m_rdata_shift;
 reg [W_DATA-1:0] m_wdata;
 reg [W_DATA-1:0] m_result;
 
-assign m_stall = (ahb_active_dph_d && !ahblm_hready) || (m_jump_req && !f_jump_rdy);
-
-// For JALR, the LSB of the result must be cleared by hardware:
-assign m_jump_target = xm_jump_is_regoffs ? {xm_alu_result[31:1], 1'b0} : xm_mispredict_addr;
-assign m_jump_req = xm_jump;
+assign m_stall = ahb_active_dph_d && !ahblm_hready;
 
 always @ (*) begin
 	// Local forwarding of store data
@@ -454,7 +461,7 @@ always @ (*) begin
 	endcase
 	// Pick out correct data from load access, and sign/unsign extend it.
 	// This is slightly cheaper than a normal shift:
-	case (xm_alu_result[1:0])
+	case (xm_result[1:0])
 		2'b00: m_rdata_shift = ahblm_hrdata;
 		2'b01: m_rdata_shift = {ahblm_hrdata[31:24], ahblm_hrdata[31:8]};
 		2'b10: m_rdata_shift = {ahblm_hrdata[31:16], ahblm_hrdata[31:16]};
