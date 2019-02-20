@@ -113,11 +113,10 @@ execution/riscv_compliance ARCH=rv32imc TEST=C-SWSP
 execution/riscv_compliance ARCH=rv32imc TEST=C-XOR
 
 
-#system TEST=helloworld
+system TEST=helloworld
+system TEST=fib_recursive
+system TEST=gcd
+system TEST=float_tiny
+system TEST=uart_tx
 #system TEST=gpio
-#system TEST=fib_recursive
-#system TEST=gcd
-#system TEST=float_tiny
 #system TEST=printf_int
-#system TEST=uart_tx
-#
