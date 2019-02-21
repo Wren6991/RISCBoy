@@ -14,6 +14,8 @@ The design is written in synthesisable Verilog 2001, and is intended to fit onto
 
 More detailed information can be found in the [documentation](doc/fpgaboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
 
+Currently the processor supports the RV32IC instruction set, and passes the RISC-V compliance suite for these instructions. Support for the M extension (multiply/divide) is on the way.
+
 Building RV32IC Toolchain
 -------------------------
 
@@ -55,7 +57,7 @@ $ make TEST=helloworld gui
 PCB
 ---
 
-The PCB is still a work in progress. It should be compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
+The image shows the Rev A PCB. It is compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
 
 ![](board/board_render01.jpg)
 
@@ -66,6 +68,27 @@ To meet these specifications, the BGA pads under the FPGA must be tiny, to leave
  - Via occupation: minimum drill (0.3) + 2 * minimum OAR (0.15) + 2 * minimum clearance (0.15) = 0.9 mm
  - Pad size: 0.23 mm
 
-This will require soldering by hand with a heat gun and a lot of flux; toaster ovens aren't going to cut it. It's still not clear whether this will work out.
+The first batch of Rev A boards were manufactured with a HASL finish. The BGA requires soldering by hand with a heat gun and a lot of flux; toaster ovens aren't going to cut it.
 
 The schematic can be viewed [here (pdf)](board/fpgaboy.pdf)
+
+Synthesis
+---------
+
+FPGA synthesis for iCE40 uses an open-source toolchain. If you would like to build this project using the existing makefiles, you will first need to build the toolchain I used:
+
+- [Yosys](https://github.com/yosyshq/yosys) for synthesis
+- [nextpnr](https://github.com/YosysHQ/nextpnr) for place and route
+- [Project Icestorm](http://www.clifford.at/icestorm/) for bitstream generation
+
+Note that I have only built these on Linux. I've heard it is possible to build these on Windows, but haven't tried it. However, they can be built on a Raspberry Pi, which is neat.
+
+Once the toolchain is in place, run
+
+```
+$ . sourceme
+$ cd synth
+$ make bit
+```
+
+to generate an FPGA image.

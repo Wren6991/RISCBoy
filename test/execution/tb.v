@@ -10,36 +10,116 @@ localparam SRAM_DEPTH = SRAM_SIZE_BYTES * 8 / W_DATA;
 reg                       clk;
 reg                       rst_n;
 
-wire                      hready;
-wire                      hresp;
-wire [W_ADDR-1:0]         haddr;
-wire                      hwrite;
-wire [1:0]                htrans;
-wire [2:0]                hsize;
-wire [2:0]                hburst;
-wire [3:0]                hprot;
-wire                      hmastlock;
-wire [W_DATA-1:0]         hwdata;
-wire [W_DATA-1:0]         hrdata;
+wire                      cpu_hready;
+wire                      cpu_hresp;
+wire [W_ADDR-1:0]         cpu_haddr;
+wire                      cpu_hwrite;
+wire [1:0]                cpu_htrans;
+wire [2:0]                cpu_hsize;
+wire [2:0]                cpu_hburst;
+wire [3:0]                cpu_hprot;
+wire                      cpu_hmastlock;
+wire [W_DATA-1:0]         cpu_hwdata;
+wire [W_DATA-1:0]         cpu_hrdata;
+
+wire                      trafficgen_hready;
+wire                      trafficgen_hresp;
+wire [W_ADDR-1:0]         trafficgen_haddr;
+wire                      trafficgen_hwrite;
+wire [1:0]                trafficgen_htrans;
+wire [2:0]                trafficgen_hsize;
+wire [2:0]                trafficgen_hburst;
+wire [3:0]                trafficgen_hprot;
+wire                      trafficgen_hmastlock;
+wire [W_DATA-1:0]         trafficgen_hwdata;
+wire [W_DATA-1:0]         trafficgen_hrdata;
+
+wire                      sram_hready;
+wire                      sram_hresp;
+wire [W_ADDR-1:0]         sram_haddr;
+wire                      sram_hwrite;
+wire [1:0]                sram_htrans;
+wire [2:0]                sram_hsize;
+wire [2:0]                sram_hburst;
+wire [3:0]                sram_hprot;
+wire                      sram_hmastlock;
+wire [W_DATA-1:0]         sram_hwdata;
+wire [W_DATA-1:0]         sram_hrdata;
 
 hazard5_cpu #(
 	.RESET_VECTOR(32'h0000_0000)
 ) cpu0 (
-	.clk(clk),
-	.rst_n(rst_n),
+	.clk             (clk),
+	.rst_n           (rst_n),
 
-	.ahblm_hready    (hready),
-	.ahblm_hresp     (hresp),
-	.ahblm_haddr     (haddr),
-	.ahblm_hwrite    (hwrite),
-	.ahblm_htrans    (htrans),
-	.ahblm_hsize     (hsize),
-	.ahblm_hburst    (hburst),
-	.ahblm_hprot     (hprot),
-	.ahblm_hmastlock (hmastlock),
-	.ahblm_hwdata    (hwdata),
-	.ahblm_hrdata    (hrdata)
+	.ahblm_hready    (cpu_hready),
+	.ahblm_hresp     (cpu_hresp),
+	.ahblm_haddr     (cpu_haddr),
+	.ahblm_hwrite    (cpu_hwrite),
+	.ahblm_htrans    (cpu_htrans),
+	.ahblm_hsize     (cpu_hsize),
+	.ahblm_hburst    (cpu_hburst),
+	.ahblm_hprot     (cpu_hprot),
+	.ahblm_hmastlock (cpu_hmastlock),
+	.ahblm_hwdata    (cpu_hwdata),
+	.ahblm_hrdata    (cpu_hrdata)
 );
+
+trafficgen #(
+	.W_ADDR (W_ADDR),
+	.W_DATA (W_DATA),
+	.TARGET_ADDR (0),
+	.IDLENESS (2)
+) trafficgen0 (
+	.clk             (clk),
+	.rst_n           (rst_n),
+
+	.ahblm_hready    (trafficgen_hready),
+	.ahblm_hresp     (trafficgen_hresp),
+	.ahblm_haddr     (trafficgen_haddr),
+	.ahblm_hwrite    (trafficgen_hwrite),
+	.ahblm_htrans    (trafficgen_htrans),
+	.ahblm_hsize     (trafficgen_hsize),
+	.ahblm_hburst    (trafficgen_hburst),
+	.ahblm_hprot     (trafficgen_hprot),
+	.ahblm_hmastlock (trafficgen_hmastlock),
+	.ahblm_hwdata    (trafficgen_hwdata),
+	.ahblm_hrdata    (trafficgen_hrdata)
+);
+
+ahbl_arbiter #(
+		.N_PORTS(2),
+		.W_ADDR(W_ADDR),
+		.W_DATA(W_DATA)
+	) arbiter0 (
+	.clk             (clk),
+	.rst_n           (rst_n),
+	.src_hready      ({cpu_hready    , trafficgen_hready   }), // trafficgen has higher priority (since its purpose is to generate stall signals!
+	.src_hready_resp ({cpu_hready    , trafficgen_hready   }),
+	.src_hresp       ({cpu_hresp     , trafficgen_hresp    }),
+	.src_haddr       ({cpu_haddr     , trafficgen_haddr    }),
+	.src_hwrite      ({cpu_hwrite    , trafficgen_hwrite   }),
+	.src_htrans      ({cpu_htrans    , trafficgen_htrans   }),
+	.src_hsize       ({cpu_hsize     , trafficgen_hsize    }),
+	.src_hburst      ({cpu_hburst    , trafficgen_hburst   }),
+	.src_hprot       ({cpu_hprot     , trafficgen_hprot    }),
+	.src_hmastlock   ({cpu_hmastlock , trafficgen_hmastlock}),
+	.src_hwdata      ({cpu_hwdata    , trafficgen_hwdata   }),
+	.src_hrdata      ({cpu_hrdata    , trafficgen_hrdata   }),
+	.dst_hready      ( /**/ ),
+	.dst_hready_resp (sram_hready),
+	.dst_hresp       (sram_hresp),
+	.dst_haddr       (sram_haddr),
+	.dst_hwrite      (sram_hwrite),
+	.dst_htrans      (sram_htrans),
+	.dst_hsize       (sram_hsize),
+	.dst_hburst      (sram_hburst),
+	.dst_hprot       (sram_hprot),
+	.dst_hmastlock   (sram_hmastlock),
+	.dst_hwdata      (sram_hwdata),
+	.dst_hrdata      (sram_hrdata)
+);
+
 
 ahb_sync_sram #(
 	.W_DATA(32),
@@ -50,17 +130,17 @@ ahb_sync_sram #(
 	.clk(clk),
 	.rst_n(rst_n),
 
-	.ahbls_hready_resp (hready),
-	.ahbls_hresp       (hresp),
-	.ahbls_haddr       (haddr),
-	.ahbls_hwrite      (hwrite),
-	.ahbls_htrans      (htrans),
-	.ahbls_hsize       (hsize),
-	.ahbls_hburst      (hburst),
-	.ahbls_hprot       (hprot),
-	.ahbls_hmastlock   (hmastlock),
-	.ahbls_hwdata      (hwdata),
-	.ahbls_hrdata      (hrdata)
+	.ahbls_hready_resp (sram_hready),
+	.ahbls_hresp       (sram_hresp),
+	.ahbls_haddr       (sram_haddr),
+	.ahbls_hwrite      (sram_hwrite),
+	.ahbls_htrans      (sram_htrans),
+	.ahbls_hsize       (sram_hsize),
+	.ahbls_hburst      (sram_hburst),
+	.ahbls_hprot       (sram_hprot),
+	.ahbls_hmastlock   (sram_hmastlock),
+	.ahbls_hwdata      (sram_hwdata),
+	.ahbls_hrdata      (sram_hrdata)
 );
 
 always #(CLK_PERIOD * 0.5) clk = !clk;
