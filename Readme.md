@@ -75,16 +75,19 @@ The schematic can be viewed [here (pdf)](board/fpgaboy.pdf)
 Synthesis
 ---------
 
-FPGA synthesis for iCE40 uses an open-source toolchain:
+FPGA synthesis for iCE40 uses an open-source toolchain. If you would like to build this project using the existing makefiles, you will first need to build the toolchain I used:
 
-- Yosys for synthesis
-- nextpnr for place and route
-- Project Icestorm for bitstream generation
+- [Yosys](https://github.com/yosyshq/yosys) for synthesis
+- [nextpnr](https://github.com/YosysHQ/nextpnr) for place and route
+- [Project Icestorm](http://www.clifford.at/icestorm/) for bitstream generation
 
-After building and installing these, run
+Note that I have only built these on Linux. I've heard it is possible to build these on Windows, but haven't tried it. However, they can be built on a Raspberry Pi, which is neat.
+
+Once the toolchain is in place, run
 
 ```
-$ cd system
+$ . sourceme
+$ cd synth
 $ make bit
 ```
 
