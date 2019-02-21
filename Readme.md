@@ -14,6 +14,8 @@ The design is written in synthesisable Verilog 2001, and is intended to fit onto
 
 More detailed information can be found in the [documentation](doc/fpgaboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
 
+Currently the processor supports the RV32IC instruction set, and passes the RISC-V compliance suite for these instructions. Support for the M extension (multiply/divide) is on the way.
+
 Building RV32IC Toolchain
 -------------------------
 
@@ -55,7 +57,7 @@ $ make TEST=helloworld gui
 PCB
 ---
 
-The PCB is still a work in progress. It should be compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
+The image shows the Rev A PCB. It is compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
 
 ![](board/board_render01.jpg)
 
@@ -66,6 +68,24 @@ To meet these specifications, the BGA pads under the FPGA must be tiny, to leave
  - Via occupation: minimum drill (0.3) + 2 * minimum OAR (0.15) + 2 * minimum clearance (0.15) = 0.9 mm
  - Pad size: 0.23 mm
 
-This will require soldering by hand with a heat gun and a lot of flux; toaster ovens aren't going to cut it. It's still not clear whether this will work out.
+The first batch of Rev A boards were manufactured with a HASL finish. The BGA requires soldering by hand with a heat gun and a lot of flux; toaster ovens aren't going to cut it.
 
 The schematic can be viewed [here (pdf)](board/fpgaboy.pdf)
+
+Synthesis
+---------
+
+FPGA synthesis for iCE40 uses an open-source toolchain:
+
+- Yosys for synthesis
+- nextpnr for place and route
+- Project Icestorm for bitstream generation
+
+After building and installing these, run
+
+```
+$ cd system
+$ make bit
+```
+
+to generate an FPGA image.
