@@ -12,8 +12,7 @@ include $(SCRIPTS)/sim.mk
 
 compile:
 	make -C $(SOFTWARE)/build APPNAME=$(TEST)
-	cp $(SOFTWARE)/build/$(TEST).hex ram_init8.hex
-	$(SCRIPTS)/vhexwidth -w 32 -b 0x20080000 ram_init8.hex -o ram_init32.hex
+	cp $(SOFTWARE)/build/$(TEST)32.hex ram_init32.hex
 
 test:
 	$(MAKE) sim TEST=$(TEST) > sim.log
