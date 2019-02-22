@@ -12,7 +12,7 @@ RISCBoy is an open-source portable games console, designed from scratch. This in
 
 The design is written in synthesisable Verilog 2001, and is intended to fit onto an iCE40-HX8k FPGA. This is the largest FPGA targeted by the open-source iCEStorm FPGA toolchain, but still fairly austere (7680 LUT4s and flipflops), so compromise is needed to squeeze our logic in.
 
-More detailed information can be found in the [documentation](doc/fpgaboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
+More detailed information can be found in the [documentation](doc/riscboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
 
 Currently the processor supports the RV32IC instruction set, and passes the RISC-V compliance suite for these instructions. Support for the M extension (multiply/divide) is on the way.
 
