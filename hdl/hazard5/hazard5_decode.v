@@ -207,7 +207,7 @@ always @ (*) begin
 	RV_SH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SH;  d_rd = {W_REGADDR{1'b0}}; end
 	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = {W_REGADDR{1'b0}}; end
 	RV_FENCE:   begin d_rd = {W_REGADDR{1'b0}}; end  // NOP
-	RV_FENCE_I: begin d_rd = {W_REGADDR{1'b0}}; end  // NOP
+	RV_FENCE_I: begin d_rd = {W_REGADDR{1'b0}}; end  // NOP // TODO: this should be jump to PC + 4. Evaluate the cost of doing this in decode (or find a way of doing it in X).
 	RV_SYSTEM:  begin
 		//synthesis translate_off
 		if (!d_stall) $display("Syscall @ PC %h: %h", pc, d_instr);
