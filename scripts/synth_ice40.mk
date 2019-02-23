@@ -7,9 +7,9 @@ PACKAGE?=bg121
 
 DEFINES+=FPGA TRISTATE_ICE40
 
-SYNTH_CMD=read_verilog $(addprefix -D,$(DEFINES)) $(SRCS); 
+SYNTH_CMD=read_verilog $(addprefix -D,$(DEFINES)) $(SRCS);
 ifneq (,$(TOP))
-	SYNTH_CMD+=hierarchy -top $(TOP); 
+	SYNTH_CMD+=hierarchy -top $(TOP);
 endif
 SYNTH_CMD+=synth_ice40 -json $(CHIPNAME).json
 
@@ -17,12 +17,13 @@ SYNTH_CMD+=synth_ice40 -json $(CHIPNAME).json
 .SUFFIXES:
 .IMPLICIT:
 
-.PHONY: all romfiles synth clean program
+.PHONY: all romfiles synth clean program dump
 
-all: synth
+all: bit
 
 romfiles::
 synth: romfiles $(CHIPNAME).json
+dump: romfiles
 pnr: synth $(CHIPNAME).asc
 bit: pnr $(CHIPNAME).bin
 
@@ -30,6 +31,9 @@ srcs.mk: Makefile $(DOTF)
 	$(SCRIPTS)/listfiles --relative -f make -o srcs.mk $(DOTF)
 
 -include srcs.mk
+
+dump:
+	$(YOSYS) -p "$(SYNTH_CMD); write_verilog $(CHIPNAME)_synth.v"
 
 $(CHIPNAME).json: $(SRCS)
 	@echo ">>> Synth"
@@ -50,6 +54,6 @@ $(CHIPNAME).bin: $(CHIPNAME).asc
 	icepack $(CHIPNAME).asc $(CHIPNAME).bin
 
 clean::
-	rm -f $(CHIPNAME).json $(CHIPNAME).asc $(CHIPNAME).bin 
+	rm -f $(CHIPNAME).json $(CHIPNAME).asc $(CHIPNAME).bin $(CHIPNAME)_synth.v
 	rm -f synth.log pnr.log
 	rm -f srcs.mk
