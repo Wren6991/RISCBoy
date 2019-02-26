@@ -1846,22 +1846,18 @@ Text Notes 14000 7050 0    50   ~ 0
 Micro USB B connector\n
 Text Notes 12900 1400 0    50   ~ 0
 Dual Buck Converter\n
-Text Notes 4400 9050 0    50   ~ 0
+Text Notes 4400 9000 0    50   ~ 0
 Debug/Chicken Connector\n
 Wire Wire Line
-	4800 9600 4700 9600
+	4800 9800 4700 9800
 Wire Wire Line
-	4700 9600 4700 9300
+	4700 9800 4700 9500
 Wire Wire Line
-	4800 9700 4700 9700
+	4800 9900 4700 9900
 Text Label 4700 10500 2    50   ~ 0
 FPGA_UART_TX
 Text Label 4700 10600 2    50   ~ 0
 FPGA_UART_RX
-Wire Wire Line
-	4800 9800 4700 9800
-Wire Wire Line
-	4800 9900 4700 9900
 Wire Wire Line
 	4800 10000 4700 10000
 Wire Wire Line
@@ -1878,21 +1874,9 @@ Wire Wire Line
 	4800 10600 4700 10600
 Wire Wire Line
 	4800 10700 4700 10700
-Text Label 4700 10200 2    50   ~ 0
-uC_~RST
-Text Label 4700 10400 2    50   ~ 0
-uC_SWD
 Text Label 4700 10300 2    50   ~ 0
-uC_SWCLK
-Text Label 4700 9700 2    50   ~ 0
-FPGA_CFG_SI
-Text Label 4700 9800 2    50   ~ 0
-FPGA_CFG_SCK
-Text Label 4700 9900 2    50   ~ 0
-FPGA_CFG_~SS
-Text Label 4700 10000 2    50   ~ 0
 FPGA_CFG_DONE
-Text Label 4700 10100 2    50   ~ 0
+Text Label 4700 10400 2    50   ~ 0
 FPGA_CFG_~RST
 Wire Wire Line
 	4700 10700 4700 11000
@@ -1910,24 +1894,13 @@ $EndComp
 $Comp
 L fpgaboy-rescue:+BATT #PWR014
 U 1 1 5C4DA6BA
-P 4700 9300
-F 0 "#PWR014" H 4700 9150 50  0001 C CNN
-F 1 "+BATT" H 4700 9440 50  0000 C CNN
-F 2 "" H 4700 9300 50  0000 C CNN
-F 3 "" H 4700 9300 50  0000 C CNN
-	1    4700 9300
+P 4700 9500
+F 0 "#PWR014" H 4700 9350 50  0001 C CNN
+F 1 "+BATT" H 4700 9640 50  0000 C CNN
+F 2 "" H 4700 9500 50  0000 C CNN
+F 3 "" H 4700 9500 50  0000 C CNN
+	1    4700 9500
 	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_01x12 J1
-U 1 1 5C693C01
-P 5000 10200
-F 0 "J1" H 5000 10850 50  0000 C CNN
-F 1 "Conn_01x12" V 5150 10200 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Horizontal" H 5000 10200 50  0001 C CNN
-F 3 "~" H 5000 10200 50  0001 C CNN
-	1    5000 10200
-	1    0    0    1   
 $EndComp
 $Comp
 L fpgaboy-rescue:LED D1
@@ -2106,119 +2079,119 @@ LCD_RESET
 $Comp
 L fpgaboy-rescue:CONN_01X02 P4
 U 1 1 5C08551B
-P 9500 7200
-F 0 "P4" H 9500 7350 50  0000 C CNN
-F 1 "CONN_01X02" V 9600 7200 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 9500 7200 50  0001 C CNN
-F 3 "" H 9500 7200 50  0000 C CNN
-	1    9500 7200
+P 6750 7900
+F 0 "P4" H 6750 8050 50  0000 C CNN
+F 1 "CONN_01X02" V 6850 7900 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6750 7900 50  0001 C CNN
+F 3 "" H 6750 7900 50  0000 C CNN
+	1    6750 7900
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9300 7250 9200 7250
+	6550 7950 6450 7950
 $Comp
 L fpgaboy-rescue:GND #PWR0102
 U 1 1 5C0DBD8A
-P 9200 7750
-F 0 "#PWR0102" H 9200 7500 50  0001 C CNN
-F 1 "GND" H 9205 7577 50  0000 C CNN
-F 2 "" H 9200 7750 50  0000 C CNN
-F 3 "" H 9200 7750 50  0000 C CNN
-	1    9200 7750
+P 6450 8450
+F 0 "#PWR0102" H 6450 8200 50  0001 C CNN
+F 1 "GND" H 6455 8277 50  0000 C CNN
+F 2 "" H 6450 8450 50  0000 C CNN
+F 3 "" H 6450 8450 50  0000 C CNN
+	1    6450 8450
 	1    0    0    -1  
 $EndComp
 $Comp
 L fpgaboy-rescue:R R15
 U 1 1 5C133D1D
-P 8900 6900
-F 0 "R15" V 8980 6900 50  0000 C CNN
-F 1 "680" V 8900 6900 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" V 8830 6900 50  0001 C CNN
-F 3 "" H 8900 6900 50  0000 C CNN
-	1    8900 6900
+P 6150 7600
+F 0 "R15" V 6230 7600 50  0000 C CNN
+F 1 "680" V 6150 7600 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 6080 7600 50  0001 C CNN
+F 3 "" H 6150 7600 50  0000 C CNN
+	1    6150 7600
 	1    0    0    -1  
 $EndComp
 $Comp
 L fpgaboy-rescue:R R13
 U 1 1 5C1342F3
-P 8650 6900
-F 0 "R13" V 8730 6900 50  0000 C CNN
-F 1 "680" V 8650 6900 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" V 8580 6900 50  0001 C CNN
-F 3 "" H 8650 6900 50  0000 C CNN
-	1    8650 6900
+P 5900 7600
+F 0 "R13" V 5980 7600 50  0000 C CNN
+F 1 "680" V 5900 7600 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5830 7600 50  0001 C CNN
+F 3 "" H 5900 7600 50  0000 C CNN
+	1    5900 7600
 	1    0    0    -1  
 $EndComp
 $Comp
 L fpgaboy-rescue:R R14
 U 1 1 5C18A52F
-P 8650 7400
-F 0 "R14" V 8730 7400 50  0000 C CNN
-F 1 "220" V 8650 7400 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" V 8580 7400 50  0001 C CNN
-F 3 "" H 8650 7400 50  0000 C CNN
-	1    8650 7400
+P 5900 8100
+F 0 "R14" V 5980 8100 50  0000 C CNN
+F 1 "220" V 5900 8100 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5830 8100 50  0001 C CNN
+F 3 "" H 5900 8100 50  0000 C CNN
+	1    5900 8100
 	1    0    0    -1  
 $EndComp
 $Comp
 L fpgaboy-rescue:C C30
 U 1 1 5C18A953
-P 8900 7400
-F 0 "C30" H 8925 7500 50  0000 L CNN
-F 1 "0.1u" H 8925 7300 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 8938 7250 50  0001 C CNN
-F 3 "" H 8900 7400 50  0000 C CNN
-	1    8900 7400
+P 6150 8100
+F 0 "C30" H 6175 8200 50  0000 L CNN
+F 1 "0.1u" H 6175 8000 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 6188 7950 50  0001 C CNN
+F 3 "" H 6150 8100 50  0000 C CNN
+	1    6150 8100
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8650 7050 8650 7150
+	5900 7750 5900 7850
 Wire Wire Line
-	8900 7050 8900 7150
+	6150 7750 6150 7850
 Wire Wire Line
-	8900 7150 9300 7150
-Connection ~ 8900 7150
+	6150 7850 6550 7850
+Connection ~ 6150 7850
 Wire Wire Line
-	8900 7150 8900 7250
+	6150 7850 6150 7950
 Wire Wire Line
-	8900 7150 8650 7150
-Connection ~ 8650 7150
+	6150 7850 5900 7850
+Connection ~ 5900 7850
 Wire Wire Line
-	8650 7150 8650 7250
+	5900 7850 5900 7950
 Wire Wire Line
-	8650 7550 8650 7650
+	5900 8250 5900 8350
 Wire Wire Line
-	8650 7650 8900 7650
+	5900 8350 6150 8350
 Wire Wire Line
-	8900 7550 8900 7650
+	6150 8250 6150 8350
 Wire Wire Line
-	8900 7650 8900 7750
-Connection ~ 8900 7650
+	6150 8350 6150 8450
+Connection ~ 6150 8350
 $Comp
 L fpgaboy-rescue:GND #PWR0104
 U 1 1 5C499C23
-P 8900 7750
-F 0 "#PWR0104" H 8900 7500 50  0001 C CNN
-F 1 "GND" H 8905 7577 50  0000 C CNN
-F 2 "" H 8900 7750 50  0000 C CNN
-F 3 "" H 8900 7750 50  0000 C CNN
-	1    8900 7750
+P 6150 8450
+F 0 "#PWR0104" H 6150 8200 50  0001 C CNN
+F 1 "GND" H 6155 8277 50  0000 C CNN
+F 2 "" H 6150 8450 50  0000 C CNN
+F 3 "" H 6150 8450 50  0000 C CNN
+	1    6150 8450
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9200 7250 9200 7750
+	6450 7950 6450 8450
 Wire Wire Line
-	8650 6750 8650 6650
+	5900 7450 5900 7350
 Wire Wire Line
-	8650 6650 8450 6650
+	5900 7350 5700 7350
 Wire Wire Line
-	8650 6650 8900 6650
+	5900 7350 6150 7350
 Wire Wire Line
-	8900 6650 8900 6750
-Connection ~ 8650 6650
-Text Label 8450 6650 2    50   ~ 0
+	6150 7350 6150 7450
+Connection ~ 5900 7350
+Text Label 5700 7350 2    50   ~ 0
 AUDIO_PWM
-Text Notes 9000 6800 0    50   ~ 0
+Text Notes 6250 7500 0    50   ~ 0
 parallel resistors are just to\navoid more unique values\n
 Text Notes 3300 850  0    100  ~ 0
 FPGA
@@ -2311,17 +2284,6 @@ Text Label 8050 10250 2    50   ~ 0
 FLASH_IO2
 Text Label 8050 10350 2    50   ~ 0
 FLASH_IO3
-$Comp
-L Device:R_Network04 RN?
-U 1 1 5CBAF6A3
-P 8300 9550
-F 0 "RN?" H 8480 9596 50  0000 L CNN
-F 1 "R_Network04" H 8480 9505 50  0000 L CNN
-F 2 "Resistor_THT:R_Array_SIP5" V 8575 9550 50  0001 C CNN
-F 3 "http://www.vishay.com/docs/31509/csc.pdf" H 8300 9550 50  0001 C CNN
-	1    8300 9550
-	1    0    0    -1  
-$EndComp
 NoConn ~ 8100 9750
 Text Label 8050 9950 2    50   ~ 0
 FLASH_MOSI
@@ -2386,7 +2348,7 @@ F 3 "" H 8100 9250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8100 9250 8100 9350
+	8100 9250 8100 9300
 Wire Wire Line
 	9100 9650 9100 9550
 $Comp
@@ -2622,4 +2584,393 @@ Wire Wire Line
 	3450 6300 3350 6300
 Wire Wire Line
 	3450 6400 3350 6400
+Text Label 1400 1200 2    59   ~ 0
+LCD_RESET
+Text Label 1400 1700 2    59   ~ 0
+LCD_SCL
+Text Label 1400 1600 2    59   ~ 0
+LCD_D~C~
+Text Label 1400 1500 2    59   ~ 0
+LCD_CS
+Text Label 1400 1400 2    59   ~ 0
+LCD_SDA
+Text Label 1400 1300 2    59   ~ 0
+LCD_SDO
+Wire Wire Line
+	1500 1200 1400 1200
+Wire Wire Line
+	1500 1300 1400 1300
+Wire Wire Line
+	1500 1400 1400 1400
+Wire Wire Line
+	1500 1500 1400 1500
+Wire Wire Line
+	1500 1600 1400 1600
+Wire Wire Line
+	1500 1700 1400 1700
+Wire Wire Line
+	1500 1800 1400 1800
+Text Label 1400 1800 2    59   ~ 0
+LCD_PWM
+Text Label 1300 1900 2    50   ~ 0
+AUDIO_PWM
+Text Label 1400 2800 2    60   ~ 0
+CLK_OSC
+Wire Wire Line
+	1400 2800 1500 2800
+Text Label 3350 4600 2    50   ~ 0
+FPGA_CFG_DONE
+Text Label 3350 4700 2    50   ~ 0
+FPGA_CFG_~RST
+Wire Wire Line
+	3450 4600 3350 4600
+Wire Wire Line
+	3450 4700 3350 4700
+Text Label 4700 9900 2    50   ~ 0
+FLASH_MOSI
+Text Label 4700 10100 2    50   ~ 0
+FLASH_SCK
+Text Label 4700 10000 2    50   ~ 0
+FLASH_MISO
+Text Label 4700 10200 2    50   ~ 0
+FLASH_~CS
+$Comp
+L Connector_Generic:Conn_01x10 J?
+U 1 1 5C9764A5
+P 5000 10200
+F 0 "J?" H 5080 10192 50  0000 L CNN
+F 1 "Conn_01x10" H 5080 10101 50  0000 L CNN
+F 2 "" H 5000 10200 50  0001 C CNN
+F 3 "~" H 5000 10200 50  0001 C CNN
+	1    5000 10200
+	1    0    0    -1  
+$EndComp
+Text Notes 4300 9300 0    50   ~ 0
+Can also configure FPGA directly\nthrough this header by driving\n~CS~ and ~RST~ appropriately
+Wire Wire Line
+	1300 1900 1400 1900
+Wire Wire Line
+	1400 1900 1400 2000
+Wire Wire Line
+	1400 2100 1500 2100
+Connection ~ 1400 1900
+Wire Wire Line
+	1400 1900 1500 1900
+Wire Wire Line
+	1500 2000 1400 2000
+Connection ~ 1400 2000
+Wire Wire Line
+	1400 2000 1400 2100
+$Comp
+L Device:R_Pack04 RN?
+U 1 1 5CDD2D55
+P 8300 9550
+F 0 "RN?" H 8488 9596 50  0000 L CNN
+F 1 "10k" H 8488 9505 50  0000 L CNN
+F 2 "" V 8575 9550 50  0001 C CNN
+F 3 "~" H 8300 9550 50  0001 C CNN
+	1    8300 9550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8100 9300 8200 9300
+Wire Wire Line
+	8400 9300 8400 9350
+Connection ~ 8100 9300
+Wire Wire Line
+	8100 9300 8100 9350
+Wire Wire Line
+	8300 9350 8300 9300
+Connection ~ 8300 9300
+Wire Wire Line
+	8300 9300 8400 9300
+Wire Wire Line
+	8200 9350 8200 9300
+Connection ~ 8200 9300
+Wire Wire Line
+	8200 9300 8300 9300
+Text Notes 9000 5400 0    118  ~ 0
+USB Controller
+$Comp
+L fpgaboy_parts:CP2102N_QFN20 U?
+U 1 1 5D287DC4
+P 9450 6700
+F 0 "U?" H 9450 7615 50  0000 C CNN
+F 1 "CP2102N_QFN20" H 9450 7524 50  0000 C CNN
+F 2 "" H 9150 8550 118 0001 C CNN
+F 3 "" H 9150 8550 118 0001 C CNN
+	1    9450 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:C C?
+U 1 1 5D28815C
+P 7900 6400
+F 0 "C?" H 7925 6500 50  0000 L CNN
+F 1 "0.1u" H 7925 6300 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 7938 6250 50  0001 C CNN
+F 3 "" H 7900 6400 50  0000 C CNN
+	1    7900 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:C C?
+U 1 1 5D288602
+P 7700 6400
+F 0 "C?" H 7725 6500 50  0000 L CNN
+F 1 "1u" H 7725 6300 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 7738 6250 50  0001 C CNN
+F 3 "" H 7700 6400 50  0000 C CNN
+	1    7700 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:C C?
+U 1 1 5D28875C
+P 8250 6400
+F 0 "C?" H 8275 6500 50  0000 L CNN
+F 1 "10u" H 8275 6300 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 8288 6250 50  0001 C CNN
+F 3 "" H 8250 6400 50  0000 C CNN
+	1    8250 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:C C?
+U 1 1 5D28888C
+P 8450 6400
+F 0 "C?" H 8475 6500 50  0000 L CNN
+F 1 "0.1u" H 8475 6300 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 8488 6250 50  0001 C CNN
+F 3 "" H 8450 6400 50  0000 C CNN
+	1    8450 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R?
+U 1 1 5D2AE6D9
+P 8750 6400
+F 0 "R?" V 8830 6400 50  0000 C CNN
+F 1 "10k" V 8750 6400 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 8680 6400 50  0001 C CNN
+F 3 "" H 8750 6400 50  0000 C CNN
+	1    8750 6400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8900 6150 8750 6150
+Wire Wire Line
+	8250 6150 8250 6250
+Wire Wire Line
+	8450 6250 8450 6150
+Connection ~ 8450 6150
+Wire Wire Line
+	8450 6150 8250 6150
+Wire Wire Line
+	8750 6250 8750 6150
+Connection ~ 8750 6150
+Wire Wire Line
+	8750 6150 8450 6150
+Wire Wire Line
+	8750 6550 8750 6650
+Wire Wire Line
+	8750 6650 8900 6650
+Wire Wire Line
+	8450 6550 8450 6650
+Wire Wire Line
+	8450 6650 8250 6650
+Wire Wire Line
+	8250 6650 8250 6550
+Wire Wire Line
+	8250 6650 8250 6750
+Connection ~ 8250 6650
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5D4074F1
+P 8250 6750
+F 0 "#PWR?" H 8250 6500 50  0001 C CNN
+F 1 "GND" H 8255 6577 50  0000 C CNN
+F 2 "" H 8250 6750 50  0000 C CNN
+F 3 "" H 8250 6750 50  0000 C CNN
+	1    8250 6750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8900 6050 7900 6050
+Wire Wire Line
+	7700 6050 7700 5950
+$Comp
+L fpgaboy-rescue:+5V #PWR?
+U 1 1 5D457403
+P 7700 5950
+F 0 "#PWR?" H 7700 5800 50  0001 C CNN
+F 1 "+5V" H 7715 6123 50  0000 C CNN
+F 2 "" H 7700 5950 50  0000 C CNN
+F 3 "" H 7700 5950 50  0000 C CNN
+	1    7700 5950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7700 6050 7700 6250
+Connection ~ 7700 6050
+Wire Wire Line
+	7900 6250 7900 6050
+Connection ~ 7900 6050
+Wire Wire Line
+	7900 6050 7700 6050
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5D4A8572
+P 7700 6750
+F 0 "#PWR?" H 7700 6500 50  0001 C CNN
+F 1 "GND" H 7705 6577 50  0000 C CNN
+F 2 "" H 7700 6750 50  0000 C CNN
+F 3 "" H 7700 6750 50  0000 C CNN
+	1    7700 6750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7700 6550 7700 6650
+Wire Wire Line
+	7700 6650 7900 6650
+Wire Wire Line
+	7900 6650 7900 6550
+Wire Wire Line
+	7700 6650 7700 6750
+Connection ~ 7700 6650
+Wire Wire Line
+	8900 7350 8800 7350
+Wire Wire Line
+	8800 7350 8800 7450
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5D5CC69A
+P 8800 7700
+F 0 "#PWR?" H 8800 7450 50  0001 C CNN
+F 1 "GND" H 8805 7527 50  0000 C CNN
+F 2 "" H 8800 7700 50  0000 C CNN
+F 3 "" H 8800 7700 50  0000 C CNN
+	1    8800 7700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8900 7450 8800 7450
+Connection ~ 8800 7450
+Wire Wire Line
+	8800 7450 8800 7550
+Wire Wire Line
+	8900 7550 8800 7550
+Connection ~ 8800 7550
+Wire Wire Line
+	8800 7550 8800 7700
+$Comp
+L fpgaboy-rescue:R R?
+U 1 1 5D621FA9
+P 8450 7100
+F 0 "R?" V 8530 7100 50  0000 C CNN
+F 1 "22k" V 8450 7100 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 8380 7100 50  0001 C CNN
+F 3 "" H 8450 7100 50  0000 C CNN
+	1    8450 7100
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:R R?
+U 1 1 5D622081
+P 8450 7500
+F 0 "R?" V 8530 7500 50  0000 C CNN
+F 1 "47k" V 8450 7500 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 8380 7500 50  0001 C CNN
+F 3 "" H 8450 7500 50  0000 C CNN
+	1    8450 7500
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-rescue:+5V #PWR?
+U 1 1 5D678CB7
+P 8450 6900
+F 0 "#PWR?" H 8450 6750 50  0001 C CNN
+F 1 "+5V" H 8465 7073 50  0000 C CNN
+F 2 "" H 8450 6900 50  0000 C CNN
+F 3 "" H 8450 6900 50  0000 C CNN
+	1    8450 6900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8450 6900 8450 6950
+Wire Wire Line
+	8450 7250 8450 7300
+Wire Wire Line
+	8450 7300 8750 7300
+Wire Wire Line
+	8450 7300 8450 7350
+Connection ~ 8450 7300
+Wire Wire Line
+	8450 7650 8450 7700
+$Comp
+L fpgaboy-rescue:GND #PWR?
+U 1 1 5D754229
+P 8450 7700
+F 0 "#PWR?" H 8450 7450 50  0001 C CNN
+F 1 "GND" H 8455 7527 50  0000 C CNN
+F 2 "" H 8450 7700 50  0000 C CNN
+F 3 "" H 8450 7700 50  0000 C CNN
+	1    8450 7700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8750 7300 8750 6750
+Wire Wire Line
+	8750 6750 8900 6750
+Wire Wire Line
+	10000 7450 10100 7450
+Wire Wire Line
+	10000 7550 10100 7550
+Text Label 10100 7450 0    50   ~ 0
+USB_DP
+Text Label 10100 7550 0    50   ~ 0
+USB_DM
+NoConn ~ 10000 6750
+NoConn ~ 10000 6650
+Text Label 10100 6550 0    50   ~ 0
+FPGA_UART_TX
+Text Label 10100 6450 0    50   ~ 0
+FPGA_UART_RX
+Wire Wire Line
+	10000 6450 10100 6450
+Wire Wire Line
+	10000 6550 10100 6550
+Wire Wire Line
+	8750 6150 8750 5650
+Wire Wire Line
+	8750 5650 10150 5650
+Wire Wire Line
+	10150 5650 10150 6050
+Wire Wire Line
+	10150 6050 10000 6050
+Wire Wire Line
+	8750 5650 8650 5650
+Connection ~ 8750 5650
+Text Label 8650 5650 2    50   ~ 0
+USBCTRL_VDD
+NoConn ~ 10000 6150
+NoConn ~ 10000 6250
+Text Notes 10700 7250 0    50   ~ 0
+TODO: Can we do some nasty bitbashing\nwith these for direct FPGA config?\nAt the very least it's nice to be able\nto reset the FPGA on connect for DFU mode
+Wire Wire Line
+	10000 6950 10100 6950
+Wire Wire Line
+	10000 7050 10100 7050
+Wire Wire Line
+	10000 7150 10100 7150
+Wire Wire Line
+	10000 7250 10100 7250
+Text Label 10100 6950 0    50   ~ 0
+FPGA_CFG_~RST
+Text Label 10100 7250 0    50   ~ 0
+FLASH_MISO
+Text Label 10100 7150 0    50   ~ 0
+FLASH_SCK
+Text Label 10100 7050 0    50   ~ 0
+FLASH_~CS
 $EndSCHEMATC
