@@ -1,3 +1,27 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP 74AUC2G04
+D Dual NOT Gate, Low-Voltage CMOS
+K Dual Gate NOT LVC CMOS
+F http://www.ti.com/lit/sg/scyt129e/scyt129e.pdf
+$ENDCMP
+#
+$CMP 74AUC2GU04
+D 74AUC2G04, Dual NOT Gate, Low-Voltage CMOS
+K Dual Gate NOT LVC CMOS
+F http://www.ti.com/lit/sg/scyt129e/scyt129e.pdf
+$ENDCMP
+#
+$CMP 74LVC2G04
+D Dual NOT Gate, Low-Voltage CMOS
+K Dual Gate NOT LVC CMOS
+F http://www.ti.com/lit/sg/scyt129e/scyt129e.pdf
+$ENDCMP
+#
+$CMP 74LVC2GU04
+D 74LVC2G04, Dual NOT Gate, Low-Voltage CMOS
+K Dual Gate NOT LVC CMOS
+F http://www.ti.com/lit/sg/scyt129e/scyt129e.pdf
+$ENDCMP
+#
 #End Doc Library
