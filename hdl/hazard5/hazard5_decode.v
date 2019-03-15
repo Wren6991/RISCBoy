@@ -34,8 +34,9 @@ module hazard5_decode #(
 	output reg  [W_ALUOP-1:0]   dx_aluop,
 	output reg  [W_MEMOP-1:0]   dx_memop,
 	output reg  [W_BCOND-1:0]   dx_branchcond,
-	output reg  [W_ADDR-1:0]    dx_branchoffs,
+	output reg  [W_ADDR-1:0]    dx_jump_target,
 	output reg                  dx_jump_is_regoffs,
+	output reg                  dx_result_is_linkaddr,
 	output reg  [W_ADDR-1:0]    dx_pc,
 	output reg  [W_ADDR-1:0]    dx_mispredict_addr,
 	output reg                  dx_except_invalid_instr
@@ -97,10 +98,18 @@ end
 
 // If the current CIR is there due to locking, it is a jump which has already had primary effect.
 wire jump_enable = !d_starved && !cir_lock_prev;
+reg [W_ADDR-1:0] d_jump_offs;
+
 
 always @ (*) begin
-	// Branches are major opcode 1100011, JAL is 1100111:
-	d_jump_target = pc + (d_instr[2] ? d_imm_j : d_imm_b);
+	// JAL is major opcode 1101111,
+	// branches are        1100011.
+	case (d_instr[3])
+	1'b1:    d_jump_offs = d_imm_j;
+	default: d_jump_offs = d_imm_b;
+	endcase
+
+	d_jump_target = pc + d_jump_offs;
 
 	casez ({d_instr[31], d_instr})
 	{1'b1, RV_BEQ }: d_jump_req = jump_enable;
@@ -143,7 +152,6 @@ wire [31:0] d_imm_s = {{21{d_instr[31]}}, d_instr[30:25], d_instr[11:7]};
 wire [31:0] d_imm_b = {{20{d_instr[31]}}, d_instr[7], d_instr[30:25], d_instr[11:8], 1'b0};
 wire [31:0] d_imm_u = {d_instr[31:12], {12{1'b0}}};
 wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[30:21], 1'b0};
-wire [31:0] d_imm_isize = {29'h0, 2'h01 ^ {2{d_instr_is_32bit}}, 1'b0};
 
 // Combinatorials:
 reg  [W_REGADDR-1:0] d_rd;
@@ -155,6 +163,7 @@ reg  [W_ALUOP-1:0]   d_aluop;
 reg  [W_MEMOP-1:0]   d_memop;
 reg  [W_BCOND-1:0]   d_branchcond;
 reg                  d_jump_is_regoffs;
+reg                  d_result_is_linkaddr;
 
 localparam X0 = {W_REGADDR{1'b0}};
 
@@ -171,17 +180,18 @@ always @ (*) begin
 	d_memop = MEMOP_NONE;
 	d_branchcond = BCOND_NEVER;
 	d_jump_is_regoffs = 1'b0;
+	d_result_is_linkaddr = 1'b0;
 	d_invalid_32bit = 1'b0;
 
 	casez (d_instr)
-	RV_BEQ:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO;  end
-	RV_BNE:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BLT:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGE:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_BLTU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGEU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_JALR:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_PC; d_jump_is_regoffs = 1'b1; end
-	RV_JAL:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_alusrc_a = ALUSRCA_PC; d_rs1 = X0; end
+	RV_BEQ:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchcond = BCOND_ZERO;  end
+	RV_BNE:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchcond = BCOND_NZERO; end
+	RV_BLT:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_branchcond = BCOND_NZERO; end
+	RV_BGE:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_branchcond = BCOND_ZERO; end
+	RV_BLTU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_branchcond = BCOND_NZERO; end
+	RV_BGEU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_branchcond = BCOND_ZERO; end
+	RV_JALR:    begin d_result_is_linkaddr = 1'b1; d_jump_is_regoffs = 1'b1; d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_branchcond = BCOND_ALWAYS; end
+	RV_JAL:     begin d_result_is_linkaddr = 1'b1; d_rs2 = X0; d_rs1 = X0; end
 	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_rs1 = X0; end
 	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_alusrc_a = ALUSRCA_PC;  d_rs1 = X0; end
 	RV_ADDI:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
@@ -232,6 +242,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_memop <= MEMOP_NONE;
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
+		dx_result_is_linkaddr <= 1'b0;
 		dx_except_invalid_instr <= 1'b0;
 	end else if (!x_stall) begin
 		dx_rs1 <= d_rs1;
@@ -243,6 +254,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_memop <= d_memop;
 		dx_branchcond <= d_branchcond;
 		dx_jump_is_regoffs <= d_jump_is_regoffs;
+		dx_result_is_linkaddr <= d_result_is_linkaddr;
 		dx_except_invalid_instr <= d_invalid;
 
 		// Bubble assertion
@@ -268,7 +280,7 @@ end
 always @ (posedge clk) begin
 	if (!x_stall) begin
 		dx_imm <= d_imm;
-		dx_branchoffs <= d_branchoffs;
+		dx_jump_target <= d_jump_target;
 		dx_pc <= pc;
 	end
 	// When we lock CIR, PC changes immediately afterward due to jump.

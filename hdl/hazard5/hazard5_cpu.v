@@ -214,8 +214,9 @@ wire [W_ALUSRC-1:0]  dx_alusrc_b;
 wire [W_ALUOP-1:0]   dx_aluop;
 wire [W_MEMOP-1:0]   dx_memop;
 wire [W_BCOND-1:0]   dx_branchcond;
-wire [W_ADDR-1:0]    dx_branchoffs;
+wire [W_ADDR-1:0]    dx_jump_target;
 wire                 dx_jump_is_regoffs;
+wire                 dx_result_is_linkaddr;
 wire [W_ADDR-1:0]    dx_pc;
 wire [W_ADDR-1:0]    dx_mispredict_addr;
 wire                 dx_except_invalid_instr;
@@ -255,8 +256,9 @@ hazard5_decode #(
 	.dx_aluop                (dx_aluop),
 	.dx_memop                (dx_memop),
 	.dx_branchcond           (dx_branchcond),
-	.dx_branchoffs           (dx_branchoffs),
+	.dx_jump_target          (dx_jump_target),
 	.dx_jump_is_regoffs      (dx_jump_is_regoffs),
+	.dx_result_is_linkaddr   (dx_result_is_linkaddr),
 	.dx_pc                   (dx_pc),
 	.dx_mispredict_addr      (dx_mispredict_addr),
 	.dx_except_invalid_instr (dx_except_invalid_instr)
@@ -297,8 +299,8 @@ reg                  xm_except_invalid_instr;
 reg                  xm_except_unaligned;
 
 // For JALR, the LSB of the result must be cleared by hardware
-wire [W_ADDR-1:0] x_taken_jump_target = (dx_branchoffs + (dx_jump_is_regoffs ? x_rs1_bypass : dx_pc)) & {{31{1'b1}}, !dx_jump_is_regoffs};
-wire [W_ADDR-1:0] x_jump_target = dx_branchoffs[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr : x_taken_jump_target;
+wire [W_ADDR-1:0] x_taken_jump_target = dx_jump_is_regoffs ? x_alu_add & ~32'h1 : dx_jump_target;
+wire [W_ADDR-1:0] x_jump_target = dx_imm[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr : x_taken_jump_target;
 
 reg x_stall_raw;
 
@@ -407,7 +409,7 @@ end
 // No reset on datapath flops
 always @ (posedge clk)
 	if (!m_stall) begin
-		xm_result <= x_alu_result;
+		xm_result <= dx_result_is_linkaddr ? dx_mispredict_addr : x_alu_result;
 		xm_store_data <= x_rs2_bypass;
 		xm_jump_target <= x_jump_target;
 	end
