@@ -156,6 +156,7 @@ reg  [W_MEMOP-1:0]   d_memop;
 reg  [W_BCOND-1:0]   d_branchcond;
 reg                  d_jump_is_regoffs;
 
+localparam X0 = {W_REGADDR{1'b0}};
 
 always @ (*) begin
 	// Assign some defaults
@@ -173,25 +174,25 @@ always @ (*) begin
 	d_invalid_32bit = 1'b0;
 
 	casez (d_instr)
-	RV_BEQ:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO;  end
-	RV_BNE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BLT:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_BLTU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGEU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_JALR:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_PC; d_jump_is_regoffs = 1'b1; end
-	RV_JAL:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_alusrc_a = ALUSRCA_PC; d_rs1 = {W_REGADDR{1'b0}}; end
-	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_rs1 = {W_REGADDR{1'b0}}; end
-	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_alusrc_a = ALUSRCA_PC;  d_rs1 = {W_REGADDR{1'b0}}; end
-	RV_ADDI:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SLLI:    begin d_aluop = ALUOP_SLL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SLTI:    begin d_aluop = ALUOP_LT;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SLTIU:   begin d_aluop = ALUOP_LTU; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_XORI:    begin d_aluop = ALUOP_XOR; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SRLI:    begin d_aluop = ALUOP_SRL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_SRAI:    begin d_aluop = ALUOP_SRA; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_ORI:     begin d_aluop = ALUOP_OR;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
-	RV_ANDI:    begin d_aluop = ALUOP_AND; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
+	RV_BEQ:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO;  end
+	RV_BNE:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BLT:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BGE:     begin d_rd = X0; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
+	RV_BLTU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BGEU:    begin d_rd = X0; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
+	RV_JALR:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_PC; d_jump_is_regoffs = 1'b1; end
+	RV_JAL:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_alusrc_a = ALUSRCA_PC; d_rs1 = X0; end
+	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_rs1 = X0; end
+	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_alusrc_a = ALUSRCA_PC;  d_rs1 = X0; end
+	RV_ADDI:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SLLI:    begin d_aluop = ALUOP_SLL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SLTI:    begin d_aluop = ALUOP_LT;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SLTIU:   begin d_aluop = ALUOP_LTU; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_XORI:    begin d_aluop = ALUOP_XOR; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SRLI:    begin d_aluop = ALUOP_SRL; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_SRAI:    begin d_aluop = ALUOP_SRA; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_ORI:     begin d_aluop = ALUOP_OR;  d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
+	RV_ANDI:    begin d_aluop = ALUOP_AND; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; end
 	RV_ADD:     begin d_aluop = ALUOP_ADD; end
 	RV_SUB:     begin d_aluop = ALUOP_SUB; end
 	RV_SLL:     begin d_aluop = ALUOP_SLL; end
@@ -202,16 +203,16 @@ always @ (*) begin
 	RV_SRA:     begin d_aluop = ALUOP_SRA; end
 	RV_OR:      begin d_aluop = ALUOP_OR;  end
 	RV_AND:     begin d_aluop = ALUOP_AND; end
-	RV_LB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LB;  end
-	RV_LH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LH;  end
-	RV_LW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LW;  end
-	RV_LBU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LBU; end
-	RV_LHU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_memop = MEMOP_LHU; end
-	RV_SB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SB;  d_rd = {W_REGADDR{1'b0}}; end
-	RV_SH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SH;  d_rd = {W_REGADDR{1'b0}}; end
-	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = {W_REGADDR{1'b0}}; end
-	RV_FENCE:   begin d_rd = {W_REGADDR{1'b0}}; end  // NOP
-	RV_FENCE_I: begin d_rd = {W_REGADDR{1'b0}}; end  // NOP // TODO: this should be jump to PC + 4. Evaluate the cost of doing this in decode (or find a way of doing it in X).
+	RV_LB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LB;  end
+	RV_LH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LH;  end
+	RV_LW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LW;  end
+	RV_LBU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LBU; end
+	RV_LHU:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = X0; d_memop = MEMOP_LHU; end
+	RV_SB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SB;  d_rd = X0; end
+	RV_SH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SH;  d_rd = X0; end
+	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = X0; end
+	RV_FENCE:   begin d_rd = X0; end  // NOP
+	RV_FENCE_I: begin d_rd = X0; end  // NOP // TODO: this should be jump to PC + 4. Evaluate the cost of doing this in decode (or find a way of doing it in X).
 	RV_SYSTEM:  begin
 		//synthesis translate_off
 		if (!d_stall) $display("Syscall @ PC %h: %h", pc, d_instr);
