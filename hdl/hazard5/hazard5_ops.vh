@@ -21,12 +21,11 @@ localparam ALUOP_SLL     = 4'hb;
 // Parameters to control ALU input muxes. Bypass mux paths are
 // controlled by X, so D has no parameters to choose these.
 
-localparam ALUSRCA_RS1      = 2'h0;
-localparam ALUSRCA_PC       = 2'h1;
-localparam ALUSRCA_LINKADDR = 2'h2;
+localparam ALUSRCA_RS1 = 2'h0;
+localparam ALUSRCA_PC  = 2'h1;
 
-localparam ALUSRCB_RS2      = 2'h0;
-localparam ALUSRCB_IMM      = 2'h1;
+localparam ALUSRCB_RS2 = 2'h0;
+localparam ALUSRCB_IMM = 2'h1;
 
 localparam MEMOP_LW   = 4'h0;
 localparam MEMOP_LH   = 4'h1;

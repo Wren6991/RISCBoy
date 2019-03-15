@@ -34,6 +34,7 @@ module hazard5_decode #(
 	output reg  [W_ALUOP-1:0]   dx_aluop,
 	output reg  [W_MEMOP-1:0]   dx_memop,
 	output reg  [W_BCOND-1:0]   dx_branchcond,
+	output reg  [W_ADDR-1:0]    dx_branchoffs,
 	output reg                  dx_jump_is_regoffs,
 	output reg  [W_ADDR-1:0]    dx_pc,
 	output reg  [W_ADDR-1:0]    dx_mispredict_addr,
@@ -142,10 +143,12 @@ wire [31:0] d_imm_s = {{21{d_instr[31]}}, d_instr[30:25], d_instr[11:7]};
 wire [31:0] d_imm_b = {{20{d_instr[31]}}, d_instr[7], d_instr[30:25], d_instr[11:8], 1'b0};
 wire [31:0] d_imm_u = {d_instr[31:12], {12{1'b0}}};
 wire [31:0] d_imm_j = {{12{d_instr[31]}}, d_instr[19:12], d_instr[20], d_instr[30:21], 1'b0};
+wire [31:0] d_imm_isize = {29'h0, 2'h01 ^ {2{d_instr_is_32bit}}, 1'b0};
 
 // Combinatorials:
 reg  [W_REGADDR-1:0] d_rd;
 reg  [W_DATA-1:0]    d_imm;
+reg  [W_DATA-1:0]    d_branchoffs;
 reg  [W_ALUSRC-1:0]  d_alusrc_a;
 reg  [W_ALUSRC-1:0]  d_alusrc_b;
 reg  [W_ALUOP-1:0]   d_aluop;
@@ -160,6 +163,7 @@ always @ (*) begin
 	d_rs2 = d_instr[24:20];
 	d_rd  = d_instr[11: 7];
 	d_imm = d_imm_i;
+	d_branchoffs = d_imm_i;
 	d_alusrc_a = ALUSRCA_RS1;
 	d_alusrc_b = ALUSRCB_RS2;
 	d_aluop = ALUOP_ADD;
@@ -169,14 +173,14 @@ always @ (*) begin
 	d_invalid_32bit = 1'b0;
 
 	casez (d_instr)
-	RV_BEQ:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_imm = d_imm_b; d_branchcond = BCOND_ZERO;  end
-	RV_BNE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BLT:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_BLTU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_NZERO; end
-	RV_BGEU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_imm = d_imm_b; d_branchcond = BCOND_ZERO; end
-	RV_JALR:    begin d_aluop = ALUOP_ADD; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_LINKADDR; d_rs2 = {W_REGADDR{1'b0}}; d_jump_is_regoffs = 1'b1; end
-	RV_JAL:     begin d_aluop = ALUOP_ADD; d_alusrc_a = ALUSRCA_LINKADDR; d_rs1 = {W_REGADDR{1'b0}}; d_rs2 = {W_REGADDR{1'b0}}; end
+	RV_BEQ:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO;  end
+	RV_BNE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_SUB; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BLT:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BGE:     begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LT;  d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
+	RV_BLTU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_NZERO; end
+	RV_BGEU:    begin d_rd = {W_REGADDR{1'b0}}; d_aluop = ALUOP_LTU; d_branchoffs = d_imm_b; d_branchcond = BCOND_ZERO; end
+	RV_JALR:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_branchcond = BCOND_ALWAYS; d_alusrc_a = ALUSRCA_PC; d_jump_is_regoffs = 1'b1; end
+	RV_JAL:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_isize; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_alusrc_a = ALUSRCA_PC; d_rs1 = {W_REGADDR{1'b0}}; end
 	RV_LUI:     begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_rs1 = {W_REGADDR{1'b0}}; end
 	RV_AUIPC:   begin d_aluop = ALUOP_ADD; d_imm = d_imm_u; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; d_alusrc_a = ALUSRCA_PC;  d_rs1 = {W_REGADDR{1'b0}}; end
 	RV_ADDI:    begin d_aluop = ALUOP_ADD; d_imm = d_imm_i; d_alusrc_b = ALUSRCB_IMM; d_rs2 = {W_REGADDR{1'b0}}; end
@@ -263,6 +267,7 @@ end
 always @ (posedge clk) begin
 	if (!x_stall) begin
 		dx_imm <= d_imm;
+		dx_branchoffs <= d_branchoffs;
 		dx_pc <= pc;
 	end
 	// When we lock CIR, PC changes immediately afterward due to jump.
