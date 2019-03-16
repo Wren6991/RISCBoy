@@ -7,6 +7,7 @@
 \usepackage[margin=0.8in]{geometry}
 \usepackage[section]{placeins}
 \usepackage[hidelinks]{hyperref}
+\usepackage{bytefield}
 \usepackage{sectsty}
 \sectionfont{\clearpage}
 \usepackage{csquotes}
@@ -563,9 +564,9 @@ Splitters will filter their slaves' \texttt{hreadyout}s based on which is curren
 Splitters will fan their \texttt{hready} signal out to all of their slaves; a low \texttt{hready} directed at a slave you are not engaged with is harmless.
 
 
-\section{Graphics Pipeline}
+\section{Graphics Pipeline (PPU)}
 
-The graphics pipeline is still at the whiteboard stage, and its final form will depend on how many gates are left over when the rest of the system is finished. However, it will look something like the following (potentially without the affine transform blocks):
+\textit{WARNING: This section rambles incoherently over a piece of hardware that does not yet exist, marking a complete departure from the preceding documentation}
 
 \begin{figure}[!htb]
 \centering
@@ -573,6 +574,116 @@ The graphics pipeline is still at the whiteboard stage, and its final form will 
 \includegraphics[width=0.9\textwidth]{diagrams/graphics.pdf}
 \end{figure}
 
-The poker is a simple raster-synchronised coprocessor which can poke control registers at precise points during a scanline, similar to the Copper on an Amiga. This would be particularly powerful in conjunction with background affine transform!
+\subsection{Pixel Formats}
+
+Internally, the PPU uses a single native pixel format, namely ARGB 1555 (shown below), but to save bandwidth, the PPU can stream pixels from memory in a variety of formats, and convert internally. These range down to 1 bit per pixel, for both sprites and tiles. PPU memory accesses are \textbf{always little-endian}: for performance reasons the PPU performs the widest possible fetch, yielding multiple pixels each, which are numbered least-significant-first.
+
+\begin{center}
+\begin{tabular}{r l}
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{16}
+		\bitheader{0,4,5,9,10,14,15} \\
+		\bitbox{1}{A} \bitbox{5}{R} \bitbox{5}{G} \bitbox{5}{B}
+		\end{bytefield}} & ARGB 1555, alpha = 0 when transparent \\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{16}
+		\bitheader{0,4,5,9,10,14,15} \\
+		\bitbox{1}{} \bitbox{5}{R} \bitbox{5}{G} \bitbox{5}{B}
+		\end{bytefield}} & RGB 555, alpha bit is ignored (always opaque) \\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{8}
+		\bitheader{0,1,2,4,5,6,7} \\
+		\bitbox{1}{A} \bitbox{2}{R} \bitbox{3}{G} \bitbox{2}{B}
+		\end{bytefield}} & ARGB 1232, alpha = 0 when transparent \\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{8}
+		\bitheader{0,1,2,4,5,6,7} \\
+		\bitbox{1}{} \bitbox{2}{R} \bitbox{3}{G} \bitbox{2}{B}
+		\end{bytefield}} & RGB 232, alpha bit is ignored (always opaque) \\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{8}
+		\bitheader{0,7} \\
+		\bitbox{8}{Index}
+		\end{bytefield}} & P8: an index into a table of 256 colours\\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{4}
+		\bitheader{0,3} \\
+		\bitbox{4}{Index}
+		\end{bytefield}} & P4: an index into a table of 16 colours \\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{2}
+		\bitheader{0,1} \\
+		\bitbox{2}{Idx}
+		\end{bytefield}} & P2: an index into a table of 4 colours \\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{1}
+		\bitheader{0} \\
+		\bitbox{1}{I}
+		\end{bytefield}} & P1: an index into a table of 2 colours \\
+		\\
+\end{tabular}
+\end{center}
+
+For pixels smaller than one byte, the pixel order continues to be defined in a little-endian fashion, i.e. the least-significant pixel will be the first to be displayed. There is an additional constraint that all pixels be naturally aligned in memory. That is, pixel address modulo pixel size is zero.
+
+Since a palette is a table of pixels in native ARGB 1555 format, alpha on paletted tiles or sprites is controlled by setting alpha to zero for one colour in the palette. (On iCE40, each palette RAM is a single 256x16 BRAM instance, so this isn't too wasteful.)
+
+\subsection{Poker}
+
+The Poker is a simple raster-synchronised coprocessor, inspired by the Amiga Copper. It allows the PPU to manipulate its own controls, with pixel-perfect timing. There are no restrictions on when this takes place, but partially-drawn tiles may complete with the old configuration, and the new configuration will take effect on the next sprite/tile (TODO).
+
+This enables acrobatic feats such as multiplexing a single sprite back-to-back down a scanline. However, Poker execution does have a performance cost, as Poker instructions are fetched through the same memory interface as pixel data. Overuse may cause missed pixels.
+
+Poker instructions reside in main system memory. Instructions are documented below. The instruction set is designed for simple implementation, not code density!
+
+\begin{center}
+\begin{tabular}{r p{0.3\textwidth}}
+	\raisebox{-1ex}[5ex][1.5ex] {
+		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+		\bitheader{0,11,12,23,24,31} \\
+		\bitbox{8}{\texttt{wait}} \bitbox{12}{\texttt{x}} \bitbox{12}{\texttt{y}}
+		\end{bytefield}} & Suspend execution, resuming immediately before pixel (\texttt{x}, \texttt{y}) \\
+		\\
+		\\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+		\bitheader{0,15,24,31} \\
+		\bitbox{8}{\texttt{poke}} \bitbox{8}{} \bitbox{16}{\texttt{addr}} \\
+		\bitheader{0, 31} \\
+		\bitbox{32}{\texttt{data}}
+		\end{bytefield}} & Write \texttt{data} to \texttt{addr} (in the PPU's configuration address space)\\
+		\\
+		\\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+		\bitheader{0,7,8,15,16,23,24,31} \\
+		\bitbox{8}{\texttt{sprite}} \bitbox{8}{} \bitbox{8}{\texttt{start}} \bitbox{8}{\texttt{end}} \\
+		\bitheader{0, 31} \\
+		\bitbox{32}{\texttt{addr}}
+		\end{bytefield}} & Batch-update sprites from \texttt{start} to \texttt{end} with memory block starting at \texttt{addr}. \\
+		\\
+		\\
+		\\
+	\raisebox{-1ex}[5ex][1.5ex]{
+		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+		\bitheader{24,31} \\
+		\bitbox{8}{\texttt{jump}} \bitbox{24}{} \\
+		\bitheader{0, 31} \\
+		\bitbox{32}{\texttt{addr}}
+		\end{bytefield}} & Set Poker program counter to \texttt{addr}\\
+		\\
+\end{tabular}
+\end{center}
+
+
 
 \end{document}
