@@ -2,4 +2,5 @@
 *.log
 *.gz
 *.toc
+*.lof
 *.out

@@ -38,6 +38,7 @@
 \pagenumbering{gobble}
 \maketitle
 \toccontents
+\listoffigures
 \newpage
 \pagenumbering{arabic}
 
@@ -61,7 +62,7 @@ RISCBoy is an open source portable games console, designed from scratch:
 \subsection{Digital Design}
 
 \begin{figure}[!htb]
-\caption{System-level architecture}
+\caption{System-level block diagram}
 \label{diagram:system_arch}
 \centering
 \includegraphics[width=0.7\textwidth]{diagrams/system_arch.pdf}
@@ -158,7 +159,7 @@ Branches are speculated, but there is currently no dynamic branch predictor. Ins
 
 \begin{figure}[!htb]
 \centering
-\caption{Hazard5 Processor Frontend}
+\caption{Hazard5 processor frontend, block diagram}
 \includegraphics[width=0.9\textwidth]{diagrams/cpu_frontend.pdf}
 \label{diagram:frontend}
 \end{figure}
@@ -395,6 +396,7 @@ Upon encountering a \texttt{jalr} to 0xffffffff (most likely a \texttt{ret}), th
 
 Consequently, ISRs may not generate exceptions, such as unaligned accesses. TODO: should have some kind of non-returning hardfault exception to deal with things like this.
 
+
 \section{Bus Fabric and Memory Subsystem}
 
 Bus fabric is digital plumbing. A master, such as a processor, requests a read or write on some address; the bus fabric routes the request to the correct slave device, and routes the response back. RISCBoy implements two bus fabric standards:
@@ -410,11 +412,11 @@ Some claim AHB-Lite does not "support" multi-master arbitration. Their problem i
 
 \begin{figure}[!htb]
 \centering
-\caption{Module-level structure of AHB-Lite crossbar} \includegraphics[width=0.6\textwidth]{diagrams/crossbar_structure.pdf}
+\caption{AHB-Lite crossbar, module-level block diagram} \includegraphics[width=0.6\textwidth]{diagrams/crossbar_structure.pdf}
 \label{diagram:crossbar_structure}
 \end{figure}
 
-Each master is under the illusion that it is the only master in the system, but that slaves sometimes take longer to respond. During this waiting period, the slave may actually have fielded multiple transactions from higher-priority masters; this interaction handled by the slave's AHB-Lite arbiter, and is transparent to the masters.
+Each master is under the illusion that it is the only master in the system, but that slaves sometimes take longer to respond. During this waiting period, the slave may actually have fielded multiple transactions from higher-priority masters; this interaction is handled by the slave's AHB-Lite arbiter, and is transparent to the masters.
 
 One of the crossbar's slave ports is attached to an AHBL-APB bridge. This bridge appears as a slave to the AHB portion of the bus fabric, and as a master to the APB portion. There are three main benefits to this scheme:
 
@@ -456,7 +458,7 @@ The central conceit of AHB-Lite is that these two phases are \textit{pipelined}.
 
 \begin{figure}[H]
 \centering
-\caption{A simple AHB-Lite example}
+\caption{AHB-Lite transfers, a simple example}
 \includegraphics[width=0.9\textwidth]{waves/ahbl_basic.pdf}
 \label{diagram:ahbl_basic}
 \end{figure}
@@ -489,7 +491,7 @@ In figure \ref{diagram:ahbl_mm_simult1}, two masters attempt to access a single 
 
 \begin{figure}[H]
 \centering
-\caption{Two masters access one slave.}
+\caption{AHB-Lite transfers, two masters access one slave}
 \includegraphics[width=0.9\textwidth]{waves/ahbl_mm_simult1.pdf}
 \label{diagram:ahbl_mm_simult1}
 \end{figure}
@@ -516,7 +518,7 @@ Based on this discussion, the AHB-Lite arbiters need the facility to buffer one 
 
 \begin{figure}[H]
 \centering
-\caption{Two masters access one slave, with low-priority back-to-back}
+\caption{AHB-Lite transfers, two masters access one slave, with low-priority back-to-back}
 \includegraphics[width=0.9\textwidth]{waves/ahbl_mm_simult2.pdf}
 \label{diagram:ahbl_mm_simult2}
 \end{figure}
@@ -527,7 +529,7 @@ There is a different case which requires the arbiter's request buffer, shown in 
 
 \begin{figure}[H]
 \centering
-\caption{Simultaneous request buffer writes}
+\caption{AHB-Lite arbiter: simultaneous request buffer writes}
 \includegraphics[width=0.9\textwidth]{waves/ahbl_mm_simult3.pdf}
 \label{diagram:ahbl_mm_simult3}
 \end{figure}
@@ -540,7 +542,7 @@ There is one final case, for two masters accessing one slave, which is worth bei
 
 \begin{figure}[H]
 \centering
-\caption{High-priority late arrival}
+\caption{AHB-Lite arbiter: late arrival of high priority request}
 \includegraphics[width=0.9\textwidth]{waves/ahbl_mm_latearrival.pdf}
 \label{diagram:ahbl_mm_latearrival}
 \end{figure}
@@ -564,21 +566,33 @@ Splitters will filter their slaves' \texttt{hreadyout}s based on which is curren
 Splitters will fan their \texttt{hready} signal out to all of their slaves; a low \texttt{hready} directed at a slave you are not engaged with is harmless.
 
 
-\section{Graphics Pipeline (PPU)}
+
+\section{Pixel Processing Unit (PPU)}
 
 \textit{WARNING: This section rambles incoherently over a piece of hardware that does not yet exist, marking a complete departure from the preceding documentation}
 
 \begin{figure}[!htb]
 \centering
-\caption{Block-level diagram of graphics pipeline}
-\includegraphics[width=0.9\textwidth]{diagrams/graphics.pdf}
+\caption{Pixel processing unit, block-level diagram}
+\label{diagram:ppu_block}
+\includegraphics[width=\textwidth]{diagrams/ppu_block.pdf}
 \end{figure}
+
+Figure \ref{diagram:ppu_block} shows the high-level structure of the PPU. A number of independent sprite and background engines stream tile and pixel data from system memory, each producing a pixel stream which is continous in the case of the backgrounds, and generally sparse in the case of sprites. These multiple streams are blended according to transparency and layer order. Finally, any paletted pixels are looked up in the shared palette RAM, to produce full-colour pixels for the display.
+
+The PPU makes no assumptions about display timing: for example, RISCBoy is currently equipped with a 320$\times$240 SPI LCD, which is driven continuously, with no horizontal or vertical blanking periods, as the SPI interface is the framerate bottleneck. The PPU continuously generates pixels at some rate which is hopefully higher than the display scan rate, and its timing is decoupled from the display via the pixel FIFO (as this is the narrowest point of the PPU, so the cheapest to buffer).
+
+A key feature is the Poker: this is a simple raster-synchronised coprocessor that allows the PPU to modify its own configuration with pixel-perfect timing, enabling advanced rendering tricks such as in-scanline sprite multiplexing. It is described in section \ref{section:ppu_poker}.
+
 
 \subsection{Pixel Formats}
 
-Internally, the PPU uses a single native pixel format, namely ARGB 1555 (shown below), but to save bandwidth, the PPU can stream pixels from memory in a variety of formats, and convert internally. These range down to 1 bit per pixel, for both sprites and tiles. PPU memory accesses are \textbf{always little-endian}: for performance reasons the PPU performs the widest possible fetch, yielding multiple pixels each, which are numbered least-significant-first.
+Internally, the PPU uses a single native pixel format, namely ARGB 1555 (see figure \ref{diagram:pixformat}), but to save bandwidth, the PPU can stream pixels from memory in a variety of formats, and convert internally. These range down to 1 bit per pixel, for both sprites and tiles. PPU memory accesses are \textbf{always little-endian}: for performance reasons the PPU performs the widest possible fetch, yielding multiple pixels each, which are numbered least-significant-first.
 
-\begin{center}
+\begin{figure}[!htb]
+\centering
+\caption{PPU pixel formats}
+\label{diagram:pixformat}
 \begin{tabular}{r l}
 	\raisebox{-1ex}[5ex][1.5ex]{
 		\begin{bytefield}[endianness=big,bitformatting=\small, bitwidth=auto]{16}
@@ -629,19 +643,45 @@ Internally, the PPU uses a single native pixel format, namely ARGB 1555 (shown b
 		\end{bytefield}} & P1: an index into a table of 2 colours \\
 		\\
 \end{tabular}
-\end{center}
+\end{figure}
+
+Background pixel format is configured per-background; sprite pixel format is configured globally.
 
 For pixels smaller than one byte, the pixel order continues to be defined in a little-endian fashion, i.e. the least-significant pixel will be the first to be displayed. There is an additional constraint that all pixels be naturally aligned in memory. That is, pixel address modulo pixel size is zero.
 
-Since a palette is a table of pixels in native ARGB 1555 format, alpha on paletted tiles or sprites is controlled by setting alpha to zero for one colour in the palette. (On iCE40, each palette RAM is a single 256x16 BRAM instance, so this isn't too wasteful.)
+A paletted pixel is transparent if:
+
+\begin{itemize}
+	\item The colour index is 0, and
+	\item Transparency is enabled for that pixel source
+\end{itemize}
+
+So at e.g. 1 bit per pixel, it is possible to have either 2 colours, or 1 colour plus transparency. It is important that the transparency of a pixel is known as early as possible: this enables the PPU to perform layer composition before palette lookup, so only one palette lookup per \textit{screen} pixel is required.
+
+
+\subsection{Layers}
+
+Each background, and each sprite, can be individually assigned a layer number in the range $0...n-1$, where $n$ is the layer count (configurable). For each blended pixel, the blender observes non-transparent pixels from each source (sprite or background), and applies the following rules:
+
+\begin{itemize}
+	\item If there are no input pixels, output the display background colour.
+	\item Else output the pixel with the lowest layer number
+	\item If there are multiple pixels on the same layer:
+	\begin{itemize}
+		\item Sprites beat backgrounds
+		\item Lower-numbered sprites beat higher-numbered
+		\item Lower-numbered backgrounds beat higher-numbered
+	\end{itemize}
+\end{itemize}
 
 \subsection{Poker}
+\label{section:ppu_poker}
 
 The Poker is a simple raster-synchronised coprocessor, inspired by the Amiga Copper. It allows the PPU to manipulate its own controls, with pixel-perfect timing. There are no restrictions on when this takes place, but partially-drawn tiles may complete with the old configuration, and the new configuration will take effect on the next sprite/tile (TODO).
 
 This enables acrobatic feats such as multiplexing a single sprite back-to-back down a scanline. However, Poker execution does have a performance cost, as Poker instructions are fetched through the same memory interface as pixel data. Overuse may cause missed pixels.
 
-Poker instructions reside in main system memory. Instructions are documented below. The instruction set is designed for simple implementation, not code density!
+Poker instructions reside in main system memory. Instructions are documented below. The instruction set is designed to be simple to decode and simple to generate dynamically, not to have high code density!
 
 \begin{center}
 \begin{tabular}{r p{0.3\textwidth}}
