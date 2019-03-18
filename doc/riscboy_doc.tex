@@ -581,8 +581,7 @@ Figure \ref{diagram:ppu_block} shows the high-level structure of the PPU. A numb
 
 The PPU makes no assumptions about display timing: for example, RISCBoy is currently equipped with a 320$\times$240 SPI LCD, which is driven continuously, with no horizontal or vertical blanking periods, as the SPI interface is the framerate bottleneck. The PPU continuously generates pixels at some rate which is hopefully higher than the display scan rate, and its timing is decoupled from the display via the pixel FIFO (as this is the narrowest point of the PPU, so the cheapest to buffer).
 
-A key feature is the Poker: this is a simple raster-synchronised coprocessor that allows the PPU to modify its own configuration with pixel-perfect timing, enabling advanced rendering tricks such as in-scanline sprite multiplexing. It is described in section \ref{section:ppu_poker}.
-
+A key feature is the Poker: this is a simple raster-synchronised coprocessor that allows the PPU to modify its own configuration with pixel-perfect timing, enabling advanced rendering tricks such as in-scanline sprite multiplexing.
 
 \subsection{Pixel Formats}
 
@@ -658,9 +657,17 @@ A paletted pixel is transparent if:
 So at e.g. 1 bit per pixel, it is possible to have either 2 colours, or 1 colour plus transparency. It is important that the transparency of a pixel is known as early as possible: this enables the PPU to perform layer composition before palette lookup, so only one palette lookup per \textit{screen} pixel is required.
 
 
+\subsection{Palettes}
+
+The PPU contains a single hardware palette memory (PRAM). The PRAM is large enough to store 256 colours in RGB 555 format. Each pixel in a paletted image (see figure \ref{diagram:pixformat}) consists of an index into PRAM. The PPU looks these indices up before passing pixels to the screen; wide colour range is maintained at reduced bits per pixel.
+
+Although there is only a single hardware palette, 256 colours in size, backgrounds and sprites can index this palette at an offset. PRAM may be initialised with e.g. multiple 16-colour tables at different (potentially overlapping) locations, giving effectively independent palettes.
+
+PRAM can be addressed through the PPU's configuration interface, for configuration by the system. The PPU has priority access to the PRAM, so attempting to access PRAM during drawing may cause a lengthy stall. As with all PPU configuration state, it can also be updated by the Poker, using a \texttt{poke} instruction; under ideal conditions the PPU can completely replace PRAM contents in 257 cycles.
+
 \subsection{Layers}
 
-Each background, and each sprite, can be individually assigned a layer number in the range $0...n-1$, where $n$ is the layer count (configurable). For each blended pixel, the blender observes non-transparent pixels from each source (sprite or background), and applies the following rules:
+Each background, and each sprite, can be individually assigned a layer number in the range $0 \leq n < N$, where $N$ is the layer count (configurable). The number of layers is wholly independent from the number of sprites, backgrounds, etc., and may be as little as 1. For each blended pixel, the blender observes non-transparent pixels from each source (sprite or background), and applies the following rules:
 
 \begin{itemize}
 	\item If there are no input pixels, output the display background colour.
@@ -673,56 +680,70 @@ Each background, and each sprite, can be individually assigned a layer number in
 	\end{itemize}
 \end{itemize}
 
+
 \subsection{Poker}
 \label{section:ppu_poker}
 
-The Poker is a simple raster-synchronised coprocessor, inspired by the Amiga Copper. It allows the PPU to manipulate its own controls, with pixel-perfect timing. There are no restrictions on when this takes place, but partially-drawn tiles may complete with the old configuration, and the new configuration will take effect on the next sprite/tile (TODO).
+The Poker is a programmable component of the PPU, inspired by the Amiga Copper. It allows the PPU to manipulate its own controls, with pixel-perfect timing. There are no restrictions on when this takes place, or what is changed.
 
-This enables acrobatic feats such as multiplexing a single sprite back-to-back down a scanline. However, Poker execution does have a performance cost, as Poker instructions are fetched through the same memory interface as pixel data. Overuse may cause missed pixels.
+This enables acrobatic feats such as multiplexing a single sprite back-to-back down a scanline. However, Poker execution does have a performance cost, as Poker instructions are fetched through the same memory interface as pixel data. Reconfiguring some pieces of hardware (e.g. a background engine) mid-scanline may trigger flushing of that hardware, which is also wasteful. Overuse may cause missed pixels.
 
 Poker instructions reside in main system memory. Instructions are documented below. The instruction set is designed to be simple to decode and simple to generate dynamically, not to have high code density!
 
-\begin{center}
-\begin{tabular}{r p{0.3\textwidth}}
-	\raisebox{-1ex}[5ex][1.5ex] {
-		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-		\bitheader{0,11,12,23,24,31} \\
-		\bitbox{8}{\texttt{wait}} \bitbox{12}{\texttt{x}} \bitbox{12}{\texttt{y}}
-		\end{bytefield}} & Suspend execution, resuming immediately before pixel (\texttt{x}, \texttt{y}) \\
-		\\
-		\\
-		\\
-	\raisebox{-1ex}[5ex][1.5ex]{
-		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-		\bitheader{0,15,24,31} \\
-		\bitbox{8}{\texttt{poke}} \bitbox{8}{} \bitbox{16}{\texttt{addr}} \\
-		\bitheader{0, 31} \\
-		\bitbox{32}{\texttt{data}}
-		\end{bytefield}} & Write \texttt{data} to \texttt{addr} (in the PPU's configuration address space)\\
-		\\
-		\\
-		\\
-	\raisebox{-1ex}[5ex][1.5ex]{
-		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-		\bitheader{0,7,8,15,16,23,24,31} \\
-		\bitbox{8}{\texttt{sprite}} \bitbox{8}{} \bitbox{8}{\texttt{start}} \bitbox{8}{\texttt{end}} \\
-		\bitheader{0, 31} \\
-		\bitbox{32}{\texttt{addr}}
-		\end{bytefield}} & Batch-update sprites from \texttt{start} to \texttt{end} with memory block starting at \texttt{addr}. \\
-		\\
-		\\
-		\\
-	\raisebox{-1ex}[5ex][1.5ex]{
-		\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-		\bitheader{24,31} \\
-		\bitbox{8}{\texttt{jump}} \bitbox{24}{} \\
-		\bitheader{0, 31} \\
-		\bitbox{32}{\texttt{addr}}
-		\end{bytefield}} & Set Poker program counter to \texttt{addr}\\
-		\\
-\end{tabular}
-\end{center}
+\subsubsection*{WAIT}
 
+\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+\bitheader{0,11,12,23,24,31} \\
+\bitbox{8}{\texttt{WAIT}} \bitbox{12}{\texttt{x}} \bitbox{12}{\texttt{y}} \\
+\end{bytefield}
 
+Suspend execution, resuming immediately before pixel (\texttt{x}, \texttt{y}). For example \texttt{WAIT 0, 0} will halt Poker execution until the start of the next frame. The Poker should generally spend most of its time in a suspended state, as it blocks pixel data fetches while it is executing.
+
+Setting \texttt{x} or \texttt{y} to the all-ones bit pattern means "any". For example, the Poker may scan a block of sprite configuration at the start of every line, or change background colour at a certain point on every scanline.
+
+Any pixels before (\texttt{x}, \texttt{y}) are unaffected by any changes the Poker may make. Once the Poker finishes poking, and goes back into the \texttt{WAIT} state, all pixels after this point (inclusive of (\texttt{x}, \texttt{y}) take the new values into account.
+
+\subsubsection*{POKE}
+
+\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+\bitheader{0,15,24,31} \\
+\bitbox{8}{\texttt{POKE}} \bitbox{8}{\texttt{count}} \bitbox{16}{\texttt{addr}} \\
+\bitheader{0, 31} \\
+\bitbox{32}{\texttt{data}} \\
+\end{bytefield}
+
+Write \texttt{data} into the PPU's configuration address space, starting at \texttt{addr}. The \texttt{data} payload is $\texttt{count}+ 1$ words in size. Absolutely any state can be modified, but beware that each pixel engine (sprite or background) will perform a reload when relevant config is written to.
+
+For example, a background may have its tileset \texttt{POKE}d at a certain point in each scanline, if there is a menu on the side of the screen which uses a font tilemap to draw text.
+
+Some \texttt{POKE}s are more expensive than others: it is possible to change the vertical scroll for every single pixel along a scanline, and this will produce the expected image. However, scrolling the screen invalidates the state of all sprites and backgrounds, which may cause slowdown if done too often.
+
+Note that the Poker's program counter is mapped into the configuration address space; \texttt{POKE} can be used to perform jumps.
+
+\subsubsection*{SPRITE}
+
+\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+\bitheader{0,7,8,15,16,23,24,31} \\
+\bitbox{8}{\texttt{SPRITE}} \bitbox{8}{count} \bitbox{8}{\texttt{start}} \bitbox{8}{\texttt{end}} \\
+\bitheader{0, 31} \\
+\bitbox{32}{\texttt{addr}} \\
+\end{bytefield}
+
+Scan through \texttt{count} sprite configuration words starting at \texttt{addr} and assign them to sprites in range \texttt{start}...\texttt{end} if they intersect the current scanline. Disable remaining sprites. Stop scanning if \texttt{end} is reached. If the display has a horizontal blanking period, this is the ideal time to perform \texttt{SPRITE} scanning. This instruction is implemented with hardware already present in the PPU, so presents little extra cost.
+
+This mechanism is similar to GameBoy OAM search. The effect is that the user can define a large number of virtual sprites -- more than are available in hardware -- and the PPU can draw all of these, as long as the number of sprites on one scanline is not greater than the hardware sprite count.
+
+Alternatively, sprite allocation can be performed by software, and the sprites updated using a \texttt{POKE} instruction. The \texttt{POKE} approach is more flexible, and makes it easier to multiplex hard sprites within a single scanline.
+
+\subsubsection*{SKIP}
+
+\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+\bitheader{24,31} \\
+\bitbox{8}{\texttt{SKIP}} \bitbox{24}{TBD} \\
+\end{bytefield}
+
+Skip the following instruction, if the beam has reached some point. Full details TBD. It might be better to provide a conditional jump with a target, because not all of our instructions are the same length (especially \texttt{POKE})
+
+This allows Poker loops to be programmed, and makes the wait wildcard values much more useful.
 
 \end{document}
