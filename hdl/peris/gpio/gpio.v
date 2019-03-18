@@ -2,7 +2,8 @@
 // APB master can bitbash, and control muxing of peripheral onto pad.
 
 module gpio #(
-	parameter N_PADS = 16
+	parameter N_PADS  = 16,
+	parameter USE_BUF = 16'hffff
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -34,12 +35,25 @@ reg  [N_PADS-1:0] padout;
 reg  [N_PADS-1:0] padoe;
 wire [N_PADS-1:0] padin;
 
-tristate_io bufs [N_PADS-1:0] (
-	.out(padout),
-	.out_en(padoe),
-	.in(padin),
-	.pad(pads)
-);
+genvar g;
+generate
+for (g = 0; g < N_PADS; g = g + 1) begin: gen_buf
+	if (USE_BUF[g]) begin: has_buf
+		tristate_io padbuf (
+			.out    (padout[g]),
+			.out_en (padoe[g]),
+			.in     (padin[g]),
+			.pad    (pads[g])
+		);
+	end else begin: no_buf
+		// On some FPGAs, different primitives are used to drive some package pins
+		// e.g. RGB driver on iCE40UP.
+		// Instantiating an iobuf would cause problems for these pins.
+		assign pads[g] = padout[g];
+		assign padin[g] = pads[g];
+	end
+end
+endgenerate
 
 // Output muxing
 
@@ -63,7 +77,7 @@ assign padout_all[11] = {1'b0                , proc_out[11]        };
 assign padout_all[12] = {1'b0                , proc_out[12]        };
 assign padout_all[13] = {1'b0                , proc_out[13]        };
 assign padout_all[14] = {1'b0                , proc_out[14]        };
-assign padout_all[15] = {uart_tx             , uart_tx};//proc_out[15]        };
+assign padout_all[15] = {uart_tx             , proc_out[15]        };
 
 assign padoe_all[0 ]  = {1'b0                , proc_oe[0 ]         };
 assign padoe_all[1 ]  = {1'b0                , proc_oe[1 ]         };
@@ -80,7 +94,7 @@ assign padoe_all[11]  = {1'b0                , proc_oe[11]         };
 assign padoe_all[12]  = {1'b0                , proc_oe[12]         };
 assign padoe_all[13]  = {1'b0                , proc_oe[13]         };
 assign padoe_all[14]  = {1'b0                , proc_oe[14]         };
-assign padoe_all[15]  = {1'b1                , 1'b1};//proc_oe[15]         };
+assign padoe_all[15]  = {1'b1                , proc_oe[15]         };
 
 always @ (*) begin: gpio_mux
 	integer i;

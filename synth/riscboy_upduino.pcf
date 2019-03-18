@@ -1,0 +1,6 @@
+set_io led_g 39
+set_io led_b 40
+set_io led_r 41
+
+set_io uart_tx 23
+set_io uart_rx 25

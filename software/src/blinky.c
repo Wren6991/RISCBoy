@@ -11,7 +11,7 @@ int main()
 	gpio_dir_pin(LED_PIN, 1);
 	while (true)
 	{
-		for (volatile int i = 0; i < 10000; ++i)
+		for (volatile int i = 0; i < DELAY_COUNT; ++i)
 			;
 		*GPIO_OUT ^= LED_MASK;
 	}

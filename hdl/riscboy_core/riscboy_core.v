@@ -21,7 +21,8 @@
 
 
 module riscboy_core #(
-	parameter BOOTRAM_PRELOAD = ""
+	parameter BOOTRAM_PRELOAD = "",
+	parameter GPIO_IS_PAD = 16'hffff
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -352,7 +353,8 @@ uart_mini #(
 
 
 gpio #(
-	.N_PADS(16)
+	.N_PADS(16),
+	.USE_BUF(GPIO_IS_PAD)
 ) inst_gpio (
 	.clk          (clk),
 	.rst_n        (rst_n),
