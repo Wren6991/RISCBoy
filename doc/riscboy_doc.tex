@@ -448,11 +448,7 @@ Currently, the RISCBoy busfabric does not support AHB-Lite bursts (TODO), and th
 
 For a full understanding of the bus standard used by RISCBoy, read through ARM's AMBA 3 AHB-Lite spec. This document is mirrored in the \texttt{reference} folder in the GitHub repository, and gives a clear and comprehensive breakdown of AHB-Lite. However, the following overview should provide sufficient understanding of the standard to read through the Verilog.
 
-Masters assert requests onto the bus, and slaves assert responses. Each request can be either a read or a write, to some specified address. AHB-Lite requires all transactions to be naturally aligned, i.e. the modulo of address and transfer size is zero. This is in tension with the RISC-V ISA which allows any transaction to have byte-alignment, so the load/store logic in the RISCBoy CPU must translate some load/store instructions into multiple AHB-Lite transactions.
-
-AHB-Lite has separate data paths for read and write. This reflects a move away from tristate logic in ASIC bus designs, and a lack of tristate logic in FPGAs.
-
-AHB-Lite transactions take place in two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus (\texttt{hrdata} and \texttt{hwdata}), but never both.
+Transactions take place in two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus (\texttt{hrdata} and \texttt{hwdata}), but never both. \texttt{hrdata} is driven by the slave, and \texttt{hwdata} by the master.
 
 The central conceit of AHB-Lite is that these two phases are \textit{pipelined}. Whilst the master is asserting or accepting data for an earlier transaction (currently in data phase), it concurrently asserts address and control information for a later transaction (currently in address phase). As is generally the case with pipelining, the goal is to enable higher clock frequencies with undiminished work-per-clock.
 
@@ -463,29 +459,34 @@ The central conceit of AHB-Lite is that these two phases are \textit{pipelined}.
 \label{diagram:ahbl_basic}
 \end{figure}
 
-In figure \ref{diagram:ahbl_basic}, a master carries out two AHB-Lite transactions: a write to address A, followed by a read from address B. Only a subset of AHB-Lite signals are shown on the diagram.
+In figure \ref{diagram:ahbl_basic}, a master carries out two AHB-Lite transactions: a write to address A, followed by a read from address B. Only a subset of AHB-Lite signals are shown on the diagram. \texttt{htrans}, \texttt{haddr}, and \texttt{hwrite} are driven by the master, during the address phase; the other two are data phase signals. \texttt{htrans} indicates the type of transfer the master next wishes to perform, which is one of \texttt{IDLE}, \texttt{NSEQ} (non-sequential), \texttt{SEQ} and \texttt{BUSY}. The latter two are exclusive to burst transactions, which are not used in RISCBoy. (See the ARM spec if you do want details.)
 
-\texttt{htrans}, \texttt{haddr}, and \texttt{hwrite} are address-phase signals, driven by the master; the other three are data-phase. \texttt{htrans} indicates the type of transfer the master next wishes to perform; allowed values are \texttt{IDLE}, \texttt{NSEQ} (non-sequential), \texttt{SEQ} and \texttt{BUSY}. The masters on RISCBoy only use \texttt{IDLE} and \texttt{NSEQ}. \texttt{hwrite} indicates the direction of the transaction, and \texttt{addr} the address (which is used for slave selection based on system memory map, and local address mapping inside of slaves).
+Sometimes a slave is unable to service a request immediately, as shown in figure \ref{diagram:ahbl_basic_stall}. \texttt{hready} is a data phase signal, which signifies the end of the current data phase.
 
-\texttt{hready} signifies the end of the current data phase. As a result, the current address-phase transaction proceeds into data phase. Each slave has a signal called \texttt{hreadyout}, indicating that \textit{it} is ready, and the bus fabric selects the \texttt{hreadyout} of the current data-phase slave to be the global \texttt{hready}.
+\begin{figure}[H]
+\centering
+\caption{AHB-Lite transfers, simple example with stalling}
+\includegraphics[width=0.9\textwidth]{waves/ahbl_basic_stall.pdf}
+\label{diagram:ahbl_basic_stall}
+\end{figure}
 
-Initially, the bus is at rest. The master is asserting \texttt{IDLE} transactions. An \texttt{IDLE} data phase always completes in a single cycle. Therefore, the address phase for the first transaction -- write to address A -- also completes in a single cycle. When \texttt{htrans} is \texttt{IDLE}, the address-phase signals shown here are unimportant.
+This slave needs two cycles to perform each data phase; perhaps it is an SRAM capable of running only at half the system clock speed. Therefore, \texttt{hready} is low for one cycle, and high for the second (last) cycle of each data phase. The master drives \texttt{hwdata} for the duration of A's data phase, waiting for the slave to signal completion. \texttt{hrdata}, on the other hand, is invalid until the final cycle of a read data phase.
 
-This slave needs two cycles to perform each data phase; perhaps it is an SRAM capable of running only at half the system clock speed. Therefore, \texttt{hready} is low for one cycle, and high for the second (last) cycle. The master drives \texttt{hwdata} for the duration of A's data phase, and waits for the slave to signal completion.
+Note that an address phase does not complete until the preceding transfer's data phase completes. In figure \ref{diagram:ahbl_basic_stall}, address B (and associated address-phase signals) continue to be driven until the A data phase completes. \texttt{IDLE} transactions do have a data phase, which always completes immediately. Consequently, \texttt{hready} idles high while the bus is in an idle state. This is why A's address phase completes immediately in the figure.
 
-After 2 cycles, the data phase for address A completes. This is also the end of B's address phase. The data on \texttt{hrdata} is considered \textit{invalid} until the slave signals \texttt{hready}. During B's data phase, the master signals \texttt{IDLE}, as it has no further transactions to carry out after the read from B.
+In a practical system, there are multiple slaves. Each drives a signal called \texttt{hreadyout}, to indicate that \textit{that slave} is ready. The bus fabric tracks which slave the master is currently accessing in the data phase, and selects that slave's \texttt{hreadyout} to be the global \texttt{hready}. To see why this is necessary, think about the situation where a master is in data phase with one slave, and address phase with a different slave.
 
 \subsection{Multi-Master Operation}
 
-In a single-master busfabric, \texttt{hready} is a global signal, which causes the entire AHB-Lite state machine (masters, slaves, fabric, the lot) to advance. Where multiple masters are concerned, \texttt{hready} is more subtle; in one respect, it is a per-master stall signal. At this point we need to be more specific about the relationship between \texttt{hreadyout} and \texttt{hready}.
+In a single-master busfabric, \texttt{hready} is a global signal, which causes the entire AHB-Lite state machine (masters, slaves, fabric, the lot) to advance. Where multiple masters are concerned, \texttt{hready} is more subtle; in part it is a per-master stall signal. At this point we need to be more specific about the relationship between \texttt{hreadyout} and \texttt{hready}.
 
-Any AHB-Lite slave port (of which there is one on the master side of the splitter, and $n$ on the master side of the arbiter) has a signal called \texttt{hreadyout}, which indicates the slave's readiness. Each of these ports also has a signal called \texttt{hready}, which indicates that the data phase is ending for the master who is connected to this slave (in either phase). \texttt{hready} is a function of \texttt{hreadyout}s and bus state.
+Any AHB-Lite slave port (of which there is one on the master side of the splitter, $n$ on the master side of the arbiter, and one on each slave device) has an output called \texttt{hreadyout}, which indicates the slave's readiness. Each of these ports also has an input called \texttt{hready}, which indicates that the data phase is ending for the master who is connected to this slave (which does not mean that it is in data phase with \textit{this} slave; it may be addressing this slave while in data phase with another). \texttt{hready} is a function of \texttt{hreadyout}s and bus state. The connections between masters, splitters, arbiters and slaves are shown in figure \ref{diagram:crossbar_structure}.
 
 In the single-layer crossbar on RISCBoy, each system AHB-Lite slave is the slave of an arbiter, which is the slave of several splitters, each of which is the slave of a system master. As a general rule, the busfabric must filter system slaves' \texttt{hreadyout}s up to each system master, tie \texttt{hreadyout}s across to \texttt{hready}s at the very top of the busfabric, and then distribute these \texttt{hready} signals down to the correct system slaves.
 
-\subsubsection{Arbiters Only}
+\subsubsection{Multiple Masters, One Slave}
 
-The arbiters are the most complex busfabric component, and make up the bulk of the discussion, as we consider interactions between multiple masters and a single slave. However, there are additional complexities when we combine arbiters and splitters to build a crossbar, which are discussed in the next seciton.
+The arbiters are the most complex busfabric component, so it is instructive to consider interactions between multiple masters and a single slave, which are mediated by one arbiter. There are additional complexities when we combine arbiters and splitters to build a crossbar, which are discussed in the next section.
 
 In figure \ref{diagram:ahbl_mm_simult1}, two masters attempt to access a single slave simultaneously. Assume that master 0 always wins address-phase arbitration:
 
@@ -558,8 +559,6 @@ The previous section discussed some cases where multiple masters access a single
 For example, a master may be engaged in address phase with one arbiter and data phase with another arbiter simultaneously, via a splitter, and these two arbiters will not necessarily signal \texttt{hreadyout} at the same time. Consequently, a master may have a positive \texttt{hready}, filtered from its data phase arbiter, when its address phase arbiter has a negative \texttt{hreadyout}, which requires action on the arbiter's part.
 
 There is also the issue that being in data phase with an arbiter does not mean you are genuinely in data phase with the arbitrated slave; in fact, a very simple sequence of events (all masters \texttt{IDLE} $\to$ all masters \texttt{NSEQ}) will put all masters simultaneously in data phase with the same arbiter. The arbiter behaviour described in the previous section should allow us to abstract this away, provided we can deal with the first issue safely.
-
-Hold onto your butts.
 
 Splitters will filter their slaves' \texttt{hreadyout}s based on which is currently in data phase, and present it on their own slave port. Arbiters will present their slave's \texttt{hreadyout} on any master-facing ports which are in data phase with the arbiter, and will present $\texttt{hreadyout} = 1$ on any idle ports.
 
