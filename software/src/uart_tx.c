@@ -11,7 +11,7 @@ int main()
 
 	// Float stuff should all be compile-time. 115200 baud.
 	uart_init();
-	uart_clkdiv((uint32_t)(CLK_FREQ_MHZ * 1e6 * (256.0 / 8.0) / 115200.0));
+	uart_clkdiv_baud(CLK_FREQ_MHZ, 115200);
 
 	tbman_puts("Hello, tbman!\n");
 	uart_puts("Hello, UART!\n");

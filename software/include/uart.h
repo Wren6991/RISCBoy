@@ -1,6 +1,7 @@
 #ifndef _UART_H_
 #define _UART_H_
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -25,6 +26,9 @@ static inline void uart_clkdiv(uint32_t div)
 {
 	*UART_DIV = div;
 }
+
+// Use constant arguments:
+#define uart_clkdiv_baud(clk_mhz, baud) uart_clkdiv((uint32_t)((clk_mhz) * 1e6 * (256.0 / 8.0) / (float)(baud)))
 
 static inline bool uart_tx_full()
 {
@@ -74,7 +78,11 @@ static inline uint8_t uart_get()
 static inline void uart_puts(const char *s)
 {
 	while (*s)
+	{
+		if (*s == '\n')
+			uart_put('\r');
 		uart_put((uint8_t)(*s++));
+	}
 }
 
 static inline void uart_wait_done()

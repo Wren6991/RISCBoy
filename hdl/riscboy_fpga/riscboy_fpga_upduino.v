@@ -81,7 +81,7 @@ SB_RGBA_DRV #(
   .RGBLEDEN(1'b1),
   .RGB0PWM(gpio_led),
   .RGB1PWM(1'b0),
-  .RGB2PWM(heartbeat),
+  .RGB2PWM(1'b0),//heartbeat),
   .RGB0(led_g),
   .RGB1(led_b),
   .RGB2(led_r)
