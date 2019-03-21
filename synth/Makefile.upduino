@@ -19,3 +19,6 @@ clean::
 	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) clean
 	rm -f chip.pcf
 	rm -f bootram_init*.hex
+
+prog: bit
+	sudo iceprog $(CHIPNAME).bin
