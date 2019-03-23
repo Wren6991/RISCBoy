@@ -34,6 +34,7 @@ wire                      trafficgen_hmastlock;
 wire [W_DATA-1:0]         trafficgen_hwdata;
 wire [W_DATA-1:0]         trafficgen_hrdata;
 
+wire                      sram_hready_resp;
 wire                      sram_hready;
 wire                      sram_hresp;
 wire [W_ADDR-1:0]         sram_haddr;
@@ -106,8 +107,8 @@ ahbl_arbiter #(
 	.src_hmastlock   ({cpu_hmastlock , trafficgen_hmastlock}),
 	.src_hwdata      ({cpu_hwdata    , trafficgen_hwdata   }),
 	.src_hrdata      ({cpu_hrdata    , trafficgen_hrdata   }),
-	.dst_hready      ( /**/ ),
-	.dst_hready_resp (sram_hready),
+	.dst_hready      (sram_hready),
+	.dst_hready_resp (sram_hready_resp),
 	.dst_hresp       (sram_hresp),
 	.dst_haddr       (sram_haddr),
 	.dst_hwrite      (sram_hwrite),
@@ -130,7 +131,8 @@ ahb_sync_sram #(
 	.clk(clk),
 	.rst_n(rst_n),
 
-	.ahbls_hready_resp (sram_hready),
+	.ahbls_hready      (sram_hready),
+	.ahbls_hready_resp (sram_hready_resp),
 	.ahbls_hresp       (sram_hresp),
 	.ahbls_haddr       (sram_haddr),
 	.ahbls_hwrite      (sram_hwrite),
