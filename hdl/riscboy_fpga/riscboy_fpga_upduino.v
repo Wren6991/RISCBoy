@@ -12,7 +12,8 @@ module riscboy_fpga (
 	output wire lcd_scl,
 	output wire lcd_sdo,
 	output wire lcd_cs,
-	output wire lcd_dc
+	output wire lcd_dc,
+	output wire lcd_pwm
 );
 
 // Clock + Reset resources
@@ -54,8 +55,8 @@ riscboy_core #(
 		gpio_unused, // usd_clk,
 		// usd_cmd,
 		// usd_dat,
-		// lcd_pwm,
 		// lcd_reset,
+		lcd_pwm,
 		lcd_dc,
 		lcd_cs,
 		lcd_scl,

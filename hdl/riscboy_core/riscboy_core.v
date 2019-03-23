@@ -119,6 +119,17 @@ wire               uart_pslverr;
 wire               uart_tx;
 wire               uart_rx;
 
+wire [W_PADDR-1:0] pwm_paddr;
+wire               pwm_psel;
+wire               pwm_penable;
+wire               pwm_pwrite;
+wire [W_DATA-1:0]  pwm_pwdata;
+wire               pwm_pready;
+wire [W_DATA-1:0]  pwm_prdata;
+wire               pwm_pslverr;
+
+wire lcd_pwm;
+
 wire [W_PADDR-1:0] gpio_paddr;
 wire               gpio_psel;
 wire               gpio_penable;
@@ -255,9 +266,9 @@ ahbl_to_apb #(
 apb_splitter #(
 	.W_ADDR(W_PADDR),
 	.W_DATA(W_DATA),
-	.N_SLAVES(3),
-	.ADDR_MAP (48'hf000_1000_0000),
-	.ADDR_MASK(48'hf000_f000_f000)
+	.N_SLAVES(4),
+	.ADDR_MAP (64'hf000_2000_1000_0000),
+	.ADDR_MASK(64'hf000_f000_f000_f000)
 ) inst_apb_splitter (
 	.apbs_paddr   (bridge_paddr),
 	.apbs_psel    (bridge_psel),
@@ -267,14 +278,14 @@ apb_splitter #(
 	.apbs_pready  (bridge_pready),
 	.apbs_prdata  (bridge_prdata),
 	.apbs_pslverr (bridge_pslverr),
-	.apbm_paddr   ({tbman_paddr   , uart_paddr   , gpio_paddr  }),
-	.apbm_psel    ({tbman_psel    , uart_psel    , gpio_psel   }),
-	.apbm_penable ({tbman_penable , uart_penable , gpio_penable}),
-	.apbm_pwrite  ({tbman_pwrite  , uart_pwrite  , gpio_pwrite }),
-	.apbm_pwdata  ({tbman_pwdata  , uart_pwdata  , gpio_pwdata }),
-	.apbm_pready  ({tbman_pready  , uart_pready  , gpio_pready }),
-	.apbm_prdata  ({tbman_prdata  , uart_prdata  , gpio_prdata }),
-	.apbm_pslverr ({tbman_pslverr , uart_pslverr , gpio_pslverr})
+	.apbm_paddr   ({tbman_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
+	.apbm_psel    ({tbman_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
+	.apbm_penable ({tbman_penable , pwm_penable , uart_penable , gpio_penable}),
+	.apbm_pwrite  ({tbman_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
+	.apbm_pwdata  ({tbman_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
+	.apbm_pready  ({tbman_pready  , pwm_pready  , uart_pready  , gpio_pready }),
+	.apbm_prdata  ({tbman_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
+	.apbm_pslverr ({tbman_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
 );
 
 
@@ -328,6 +339,20 @@ tbman inst_tbman (
 	.apbs_pslverr     (tbman_pslverr)
 );
 
+pwm_tiny inst_pwm_tiny (
+	.clk          (clk),
+	.rst_n        (rst_n),
+	.apbs_psel    (pwm_psel),
+	.apbs_penable (pwm_penable),
+	.apbs_pwrite  (pwm_pwrite),
+	.apbs_paddr   (pwm_paddr),
+	.apbs_pwdata  (pwm_pwdata),
+	.apbs_prdata  (pwm_prdata),
+	.apbs_pready  (pwm_pready),
+	.apbs_pslverr (pwm_pslverr),
+	.padout       (lcd_pwm)
+);
+
 uart_mini #(
 	.FIFO_DEPTH(2),
 	.OVERSAMPLE(8)
@@ -352,7 +377,6 @@ uart_mini #(
 	.dreq         ()
 );
 
-
 gpio #(
 	.N_PADS(16),
 	.USE_BUF(GPIO_IS_PAD)
@@ -368,6 +392,7 @@ gpio #(
 	.apbs_pready  (gpio_pready),
 	.apbs_pslverr (gpio_pslverr),
 	.pads         (gpio),
+	.lcd_pwm      (lcd_pwm),
 	.uart_tx      (uart_tx),
 	.uart_rx      (uart_rx)
 );

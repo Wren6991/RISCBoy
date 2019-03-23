@@ -22,6 +22,7 @@ module gpio #(
 
 	// Peripheral signals
 
+	input wire lcd_pwm,
 	input wire uart_tx,
 	output wire uart_rx
 );
@@ -67,7 +68,7 @@ assign padout_all[1 ] = {1'b0                , proc_out[1 ]        };
 assign padout_all[2 ] = {1'b0                , proc_out[2 ]        };
 assign padout_all[3 ] = {1'b0                , proc_out[3 ]        };
 assign padout_all[4 ] = {1'b0                , proc_out[4 ]        };
-assign padout_all[5 ] = {1'b0                , proc_out[5 ]        };
+assign padout_all[5 ] = {lcd_pwm             , proc_out[5 ]        };
 assign padout_all[6 ] = {1'b0                , proc_out[6 ]        };
 assign padout_all[7 ] = {1'b0                , proc_out[7 ]        };
 assign padout_all[8 ] = {1'b0                , proc_out[8 ]        };
@@ -84,7 +85,7 @@ assign padoe_all[1 ]  = {1'b0                , proc_oe[1 ]         };
 assign padoe_all[2 ]  = {1'b0                , proc_oe[2 ]         };
 assign padoe_all[3 ]  = {1'b0                , proc_oe[3 ]         };
 assign padoe_all[4 ]  = {1'b0                , proc_oe[4 ]         };
-assign padoe_all[5 ]  = {1'b0                , proc_oe[5 ]         };
+assign padoe_all[5 ]  = {1'b1                , proc_oe[5 ]         };
 assign padoe_all[6 ]  = {1'b0                , proc_oe[6 ]         };
 assign padoe_all[7 ]  = {1'b0                , proc_oe[7 ]         };
 assign padoe_all[8 ]  = {1'b0                , proc_oe[8 ]         };
