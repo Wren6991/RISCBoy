@@ -14,7 +14,7 @@ static inline void delay_ms(uint32_t ms)
 		"1:                 \n\t"
 		"	addi %0, %0, -1 \n\t"
 		"	bge %0, x0, 1b  \n\t"
-		: : "r" (delay_count)
+		: "+r" (delay_count)
 	);
 }
 
@@ -25,7 +25,7 @@ static inline void delay_us(uint32_t us)
 		"1:                 \n\t"
 		"	addi %0, %0, -1 \n\t"
 		"	bge %0, x0, 1b  \n\t"
-		: : "r" (delay_count)
+		: "+r" (delay_count)
 	);
 }
 
