@@ -129,6 +129,7 @@ ahb_sync_sram #(
 	.clk               (clk),
 	.rst_n             (rst_n),
 	.ahbls_hready_resp (sram_hready_resp),
+	.ahbls_hready      (sram_hready),
 	.ahbls_hresp       (sram_hresp),
 	.ahbls_haddr       (sram_haddr),
 	.ahbls_hwrite      (sram_hwrite),

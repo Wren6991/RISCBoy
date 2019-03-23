@@ -30,6 +30,7 @@ module ahb_sync_sram #(
 
 	// AHB lite slave interface
 	output wire               ahbls_hready_resp,
+	input  wire               ahbls_hready,
 	output wire               ahbls_hresp,
 	input  wire [W_ADDR-1:0]  ahbls_haddr,
 	input  wire               ahbls_hwrite,
@@ -67,7 +68,7 @@ always @ (posedge clk or negedge rst_n) begin
 		wen <= {W_BYTES{1'b0}};
 		addr_saved <= {W_SRAM_ADDR{1'b0}};
 	end else begin
-		if (ahbls_hwrite && ahbls_htrans[1] && hreadyout) begin
+		if (ahbls_hwrite && ahbls_htrans[1] && ahbls_hready) begin
 			hreadyout <= 1'b0;
 			wen <= wmask;
 			addr_saved <= ahbls_haddr[W_BYTEADDR +: W_SRAM_ADDR];

@@ -47,6 +47,7 @@ ahb_sync_sram #(
 	.clk               (clk),
 	.rst_n             (rst_n),
 	.ahbls_hready_resp (ahbl_hready),
+	.ahbls_hready      (ahbl_hready),
 	.ahbls_hresp       (ahbl_hresp),
 	.ahbls_haddr       (ahbl_haddr),
 	.ahbls_hwrite      (ahbl_hwrite),
