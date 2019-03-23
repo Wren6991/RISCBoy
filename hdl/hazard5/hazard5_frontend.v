@@ -233,10 +233,11 @@ wire [3*W_BUNDLE-1:0] instr_data_shifted =
 	cir_use[0] && EXTENSION_C ? {hwbuf, hwbuf, cir[W_BUNDLE +: W_BUNDLE]} :
 	                            {hwbuf, cir};
 
-
 // Saturating subtraction: on cir_lock dassertion,
 // buf_level will be 0 but cir_use will be positive!
-wire [1:0] level_next_no_fetch = cir_use > buf_level ? 2'h0 : buf_level - cir_use;
+wire [1:0] cir_use_clipped = buf_level ? cir_use : 2'h0;
+
+wire [1:0] level_next_no_fetch = buf_level - cir_use_clipped;
 
 // Overlay fresh fetch data onto the shifted/recycled instruction data
 // Again, if something won't be looked at, generate cheapest possible garbage.
@@ -253,7 +254,7 @@ assign fifo_pop = cir_must_refill && !fifo_empty;
 wire [1:0] buf_level_next =
 	(jump_target_vld && jump_target_rdy) || |ctr_flush_pending ? 2'h0 :
 	fetch_data_vld && unaligned_jump_dph ? 2'h1 :
-	buf_level + {cir_must_refill && fetch_data_vld, 1'b0} - cir_use;
+	buf_level + {cir_must_refill && fetch_data_vld, 1'b0} - cir_use_clipped;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
