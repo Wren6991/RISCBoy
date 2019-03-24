@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #ifndef CLK_SYS_MHZ
+#warning No value supplied for CLK_SYS_MHZ. Using a default value of 12 MHz.
 #define CLK_SYS_MHZ 12
 #endif 
 
