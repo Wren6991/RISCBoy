@@ -453,9 +453,9 @@ always @ (*) begin
 	// This is slightly cheaper than a normal shift:
 	case (xm_result[1:0])
 		2'b00: m_rdata_shift = ahblm_hrdata;
-		2'b01: m_rdata_shift = {ahblm_hrdata[31:24], ahblm_hrdata[31:8]};
+		2'b01: m_rdata_shift = {ahblm_hrdata[31:8],  ahblm_hrdata[15:8]};
 		2'b10: m_rdata_shift = {ahblm_hrdata[31:16], ahblm_hrdata[31:16]};
-		2'b11: m_rdata_shift = {ahblm_hrdata[31:8], ahblm_hrdata[31:24]};
+		2'b11: m_rdata_shift = {ahblm_hrdata[31:8],  ahblm_hrdata[31:24]};
 	endcase
 
 	case (xm_memop)
