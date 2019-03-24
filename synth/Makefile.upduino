@@ -1,6 +1,6 @@
 CHIPNAME=riscboy_upduino
 DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_upduino.f
-BOOTAPP=helloworld_upduino
+BOOTAPP=lcd_test
 
 DEVICE=up5k
 PACKAGE=sg48
@@ -11,7 +11,7 @@ include $(SCRIPTS)/synth_ice40.mk
 romfiles::
 	@echo ">>> Bootcode"
 	@echo
-	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP)
+	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS=-Os
 	cp $(SOFTWARE)/build/$(BOOTAPP)8.hex bootram_init8.hex
 	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
 

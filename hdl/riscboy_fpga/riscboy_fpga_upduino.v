@@ -13,7 +13,8 @@ module riscboy_fpga (
 	output wire lcd_sdo,
 	output wire lcd_cs,
 	output wire lcd_dc,
-	output wire lcd_pwm
+	output wire lcd_pwm,
+	output wire lcd_rst
 );
 
 // Clock + Reset resources
@@ -40,7 +41,7 @@ always @ (posedge clk_sys)
 
 wire gpio_led;
 
-wire [10:0] gpio_unused;
+wire [6:0] gpio_unused;
 
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex"),
@@ -55,7 +56,7 @@ riscboy_core #(
 		gpio_unused, // usd_clk,
 		// usd_cmd,
 		// usd_dat,
-		// lcd_reset,
+		lcd_rst,
 		lcd_pwm,
 		lcd_dc,
 		lcd_cs,

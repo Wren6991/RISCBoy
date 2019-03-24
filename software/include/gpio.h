@@ -15,6 +15,10 @@ DECL_REG(GPIO_BASE + GPIO_FSEL0_OFFS, GPIO_FSEL0);
 #define GPIO_FSEL_WIDTH GPIO_FSEL0_P0_BITS
 #define GPIO_FSEL_MASK ((1ul << GPIO_FSEL_WIDTH) - 1ul)
 
+// Dodgy token-pasting macro only works for GPIOs in the first FSEL regsister
+#define _GPIO_FSEL_MASK_PINNUM(x) GPIO_FSEL0_P##x##_MASK
+#define GPIO_FSEL_MASK_PIN(p) _GPIO_FSEL_MASK_PINNUM(p)
+
 #define N_GPIOS 16
 
 #define PIN_LED      0
@@ -23,6 +27,7 @@ DECL_REG(GPIO_BASE + GPIO_FSEL0_OFFS, GPIO_FSEL0);
 #define PIN_LCD_CS   3
 #define PIN_LCD_DC   4
 #define PIN_LCD_PWM  5
+#define PIN_LCD_RST  6
 #define PIN_UART_RX  14
 #define PIN_UART_TX  15
 

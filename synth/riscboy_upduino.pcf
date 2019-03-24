@@ -10,3 +10,4 @@ set_io lcd_sdo 46
 set_io lcd_cs 47
 set_io lcd_dc 45
 set_io lcd_pwm 48
+set_io lcd_rst 3
