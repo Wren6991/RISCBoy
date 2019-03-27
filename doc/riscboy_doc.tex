@@ -716,6 +716,36 @@ Each background, and each sprite, can be individually assigned a layer number in
 	\end{itemize}
 \end{itemize}
 
+Layer number can be thought of as depth into the screen. X is positive to the right, and Y is positive downward, so in a right-handed coordinate system, Z would be positive into the screen.
+
+\subsection{Backgrounds}
+
+Backgrounds are composed of tiles. Tiles are composed of pixels.
+
+\begin{figure}[H]
+\centering
+\caption{PPU Background Coordinate System}
+\label{diagram:ppu_bg_coords}
+\includegraphics[width=0.7\textwidth]{diagrams/ppu_bg_coords.pdf}
+\end{figure}
+
+Each tile is a square image, the width and height of which (measured in pixels) is configured per-background, and is always a power of two. Tiles are stored in memory in a packed format: each tile is a sequence of pixels starting at the top left, proceeding left-to-right, then top-to-bottom. A region of memory packed with tile images (or sprites) will be referred to as an atlas. All images in a tile atlas are the same dimensions, and have the same pixel format.
+
+The background itself is defined by:
+
+\begin{itemize}
+	\item A width and height, in tiles.
+	\item A pointer to a tile atlas. The pointer is aligned to a one-tile boundary. The atlas contains up to 256 tiles.
+	\item A pointer to a tilemap. The tilemap is $width \times height$ bytes in size, and byte-aligned.
+\end{itemize}
+
+For each pixel on the screen, the tilemap tells the PPU which tile should be at that location, and the tile image in the atlas tells the PPU the colour of each pixel in that screen tile.
+
+The screen origin is offset into the background by configuring the horizontal and vertical scroll. This allows the game view to move smoothly over a fixed background. If the screen area overhangs the background, coordinates are wrapped. Unfortunately, the physical dimensions of the screen cannot be modified at run time.
+
+\subsection{Sprites}
+
+Sprites are small images which can be displayed at arbitrary screen coordinates; for example, the player character.
 
 \subsection{Poker}
 \label{section:ppu_poker}
