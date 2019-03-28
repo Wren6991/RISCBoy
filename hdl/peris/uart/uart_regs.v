@@ -33,9 +33,13 @@ module uart_regs (
 	input wire [7:0] fstat_txlevel_i,
 	input wire  fstat_txfull_i,
 	input wire  fstat_txempty_i,
+	input wire  fstat_txover_i,
+	input wire  fstat_txunder_i,
 	input wire [7:0] fstat_rxlevel_i,
 	input wire  fstat_rxfull_i,
 	input wire  fstat_rxempty_i,
+	input wire  fstat_rxover_i,
+	input wire  fstat_rxunder_i,
 	output reg [7:0] tx_o,
 	output reg tx_wen,
 	input wire [7:0] rx_i,
@@ -97,19 +101,35 @@ wire  fstat_txfull_wdata = wdata[8];
 wire  fstat_txfull_rdata;
 wire  fstat_txempty_wdata = wdata[9];
 wire  fstat_txempty_rdata;
+wire  fstat_txover_wdata = wdata[10];
+wire  fstat_txover_rdata;
+wire  fstat_txunder_wdata = wdata[11];
+wire  fstat_txunder_rdata;
 wire [7:0] fstat_rxlevel_wdata = wdata[23:16];
 wire [7:0] fstat_rxlevel_rdata;
 wire  fstat_rxfull_wdata = wdata[24];
 wire  fstat_rxfull_rdata;
 wire  fstat_rxempty_wdata = wdata[25];
 wire  fstat_rxempty_rdata;
-wire [31:0] __fstat_rdata = {6'h0, fstat_rxempty_rdata, fstat_rxfull_rdata, fstat_rxlevel_rdata, 6'h0, fstat_txempty_rdata, fstat_txfull_rdata, fstat_txlevel_rdata};
+wire  fstat_rxover_wdata = wdata[26];
+wire  fstat_rxover_rdata;
+wire  fstat_rxunder_wdata = wdata[27];
+wire  fstat_rxunder_rdata;
+wire [31:0] __fstat_rdata = {4'h0, fstat_rxunder_rdata, fstat_rxover_rdata, fstat_rxempty_rdata, fstat_rxfull_rdata, fstat_rxlevel_rdata, 4'h0, fstat_txunder_rdata, fstat_txover_rdata, fstat_txempty_rdata, fstat_txfull_rdata, fstat_txlevel_rdata};
 assign fstat_txlevel_rdata = fstat_txlevel_i;
 assign fstat_txfull_rdata = fstat_txfull_i;
 assign fstat_txempty_rdata = fstat_txempty_i;
+reg  fstat_txover;
+assign fstat_txover_rdata = fstat_txover;
+reg  fstat_txunder;
+assign fstat_txunder_rdata = fstat_txunder;
 assign fstat_rxlevel_rdata = fstat_rxlevel_i;
 assign fstat_rxfull_rdata = fstat_rxfull_i;
 assign fstat_rxempty_rdata = fstat_rxempty_i;
+reg  fstat_rxover;
+assign fstat_rxover_rdata = fstat_rxover;
+reg  fstat_rxunder;
+assign fstat_rxunder_rdata = fstat_rxunder;
 
 wire [7:0] tx_wdata = wdata[7:0];
 wire [7:0] tx_rdata;
@@ -142,6 +162,10 @@ always @ (posedge clk or negedge rst_n) begin
 		csr_rxie_o <= 1'h0;
 		div_int_o <= 10'h1;
 		div_frac_o <= 8'h0;
+		fstat_txover <= 1'h0;
+		fstat_txunder <= 1'h0;
+		fstat_rxover <= 1'h0;
+		fstat_rxunder <= 1'h0;
 	end else begin
 		if (__csr_wen)
 			csr_en_o <= csr_en_wdata;
@@ -153,6 +177,10 @@ always @ (posedge clk or negedge rst_n) begin
 			div_int_o <= div_int_wdata;
 		if (__div_wen)
 			div_frac_o <= div_frac_wdata;
+		fstat_txover <= (fstat_txover && !(__fstat_wen && fstat_txover_wdata)) || fstat_txover_i;
+		fstat_txunder <= (fstat_txunder && !(__fstat_wen && fstat_txunder_wdata)) || fstat_txunder_i;
+		fstat_rxover <= (fstat_rxover && !(__fstat_wen && fstat_rxover_wdata)) || fstat_rxover_i;
+		fstat_rxunder <= (fstat_rxunder && !(__fstat_wen && fstat_rxunder_wdata)) || fstat_rxunder_i;
 	end
 end
 
