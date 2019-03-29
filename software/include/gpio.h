@@ -21,15 +21,19 @@ DECL_REG(GPIO_BASE + GPIO_FSEL0_OFFS, GPIO_FSEL0);
 
 #define N_GPIOS 16
 
-#define PIN_LED      0
-#define PIN_LCD_SCL  1
-#define PIN_LCD_SDO  2
-#define PIN_LCD_CS   3
-#define PIN_LCD_DC   4
-#define PIN_LCD_PWM  5
-#define PIN_LCD_RST  6
-#define PIN_UART_RX  14
-#define PIN_UART_TX  15
+#define PIN_LED        0
+#define PIN_LCD_SCL    1
+#define PIN_LCD_SDO    2
+#define PIN_LCD_CS     3
+#define PIN_LCD_DC     4
+#define PIN_LCD_PWM    5
+#define PIN_LCD_RST    6
+#define PIN_FLASH_CS   10
+#define PIN_FLASH_SCLK 11
+#define PIN_FLASH_MOSI 12
+#define PIN_FLASH_MISO 13
+#define PIN_UART_RX    14
+#define PIN_UART_TX    15
 
 static inline void gpio_out(uint32_t val)
 {

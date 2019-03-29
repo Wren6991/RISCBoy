@@ -78,6 +78,14 @@
 #define UART_FSTAT_TXEMPTY_LSB  9
 #define UART_FSTAT_TXEMPTY_BITS 1
 #define UART_FSTAT_TXEMPTY_MASK 0x200
+// Field FSTAT_TXOVER
+#define UART_FSTAT_TXOVER_LSB  10
+#define UART_FSTAT_TXOVER_BITS 1
+#define UART_FSTAT_TXOVER_MASK 0x400
+// Field FSTAT_TXUNDER
+#define UART_FSTAT_TXUNDER_LSB  11
+#define UART_FSTAT_TXUNDER_BITS 1
+#define UART_FSTAT_TXUNDER_MASK 0x800
 // Field FSTAT_RXLEVEL
 #define UART_FSTAT_RXLEVEL_LSB  16
 #define UART_FSTAT_RXLEVEL_BITS 8
@@ -90,6 +98,14 @@
 #define UART_FSTAT_RXEMPTY_LSB  25
 #define UART_FSTAT_RXEMPTY_BITS 1
 #define UART_FSTAT_RXEMPTY_MASK 0x2000000
+// Field FSTAT_RXOVER
+#define UART_FSTAT_RXOVER_LSB  26
+#define UART_FSTAT_RXOVER_BITS 1
+#define UART_FSTAT_RXOVER_MASK 0x4000000
+// Field FSTAT_RXUNDER
+#define UART_FSTAT_RXUNDER_LSB  27
+#define UART_FSTAT_RXUNDER_BITS 1
+#define UART_FSTAT_RXUNDER_MASK 0x8000000
 
 /*******************************************************************************
 *                                      TX                                      *
