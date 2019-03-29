@@ -76,10 +76,12 @@ always @ (posedge clk or negedge rst_n) begin
 		cs_r <= 1'b1;
 		sclk_r <= 1'b0;
 		sdo <= 1'b0;
+		rxfifo_wen <= 1'b0;
 		tx_shift <= {W_DATA{1'b0}};
 		rx_shift <= {W_DATA{1'b0}};
 		state <= S_IDLE;
 	end else if (clk_en) begin
+		rxfifo_wen <= 1'b0;
 		case (state)
 		S_IDLE: begin
 			if (!txfifo_empty) begin
@@ -101,11 +103,14 @@ always @ (posedge clk or negedge rst_n) begin
 					if (!csr_cpha)
 						sdo <= txfifo_rdata[W_DATA-1];
 				end
+				rxfifo_wen <= 1'b1;
 			end
 			if (csr_cpha) begin
 				if (!sclk_r)
 					sdo <= tx_shift[W_DATA-1];
 			end
+			if (csr_cpha == sclk_r)
+				rx_shift <= {rx_shift[W_DATA-2:0], sdi};
 		end
 		S_BACKPORCH: begin
 			state <= S_IDLE;
@@ -118,15 +123,14 @@ always @ (posedge clk or negedge rst_n) begin
 				state <= state + 1'b1;
 				tx_shift <= tx_shift << 1;
 			end
-			if (csr_cpha) begin
-				if (!sclk_r)
-					sdo <= tx_shift[W_DATA-1];
-			end else begin
-				if (sclk_r)
-					sdo <= tx_shift[W_DATA-2];
-			end
+			if (csr_cpha == sclk_r)
+				rx_shift <= {rx_shift[W_DATA-2:0], sdi};
+			else
+				sdo <= csr_cpha ? tx_shift[W_DATA-1] : tx_shift[W_DATA-2];
 		end
 		endcase
+	end else begin
+		rxfifo_wen <= 1'b0;
 	end
 end
 
@@ -184,7 +188,7 @@ sync_fifo #(
 ) rxfifo (
 	.clk    (clk),
 	.rst_n  (rst_n),
-	.w_data (rx_shifter),
+	.w_data (rx_shift),
 	.w_en   (rxfifo_wen),
 	.r_data (rxfifo_rdata),
 	.r_en   (rxfifo_ren),

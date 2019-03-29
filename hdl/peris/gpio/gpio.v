@@ -124,6 +124,7 @@ end
 // Input assignments (TODO: multi-source input muxing)
 
 assign uart_rx = padin_reg[14]; // UART isn't going to mind an extra clock of latency!
+assign spi_sdi = padin[13];     // SPI certainly will though
 
 // APB Regblock
 
