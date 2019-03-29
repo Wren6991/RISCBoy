@@ -12,6 +12,7 @@ from math import log2, ceil
 
 class RegBlock:
 	bus_types = ["apb"]
+	field_properties = ["name", "b", "access", "info", "rst"]
 	def __init__(self, name, w_data, w_addr, bus):
 		self.name = name
 		self.w_data = w_data
@@ -57,6 +58,9 @@ class RegBlock:
 			reg = Register(rspec["name"], rb.w_data, rspec["info"] if "info" in rspec else None)
 			rb.add(reg)
 			for fspec in rspec["bits"]:
+				for key in fspec:
+					if key not in RegBlock.field_properties:
+						raise Exception("'{}' is not a valid property for a field.".format(key))
 				bitrange = fspec["b"]
 				if type(bitrange) is int:
 					bitrange = [bitrange, bitrange]
