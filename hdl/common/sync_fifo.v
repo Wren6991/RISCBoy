@@ -46,6 +46,9 @@ reg [W_ADDR-1:0] w_ptr;
 reg [W_ADDR-1:0] r_ptr;
 assign r_data = mem[r_ptr];
 
+wire push = w_en && !full;
+wire pop = r_en && !empty;
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		full <= 1'b0;
@@ -54,16 +57,16 @@ always @ (posedge clk or negedge rst_n) begin
 		w_ptr <= {W_ADDR{1'b0}};
 		r_ptr <= {W_ADDR{1'b0}};
 	end else begin
-		w_ptr <= w_ptr + w_en;
-		r_ptr <= r_ptr + r_en;
-		if (w_en) begin
+		w_ptr <= w_ptr + push;
+		r_ptr <= r_ptr + pop;
+		if (push) begin
 			mem[w_ptr] <= w_data;
-			if (!r_en) begin
+			if (!pop) begin
 				level <= level + 1'b1;
 				empty <= 1'b0;
 				full <= level == DEPTH - 1;
 			end
-		end else if (r_en) begin
+		end else if (pop) begin
 			level <= level - 1'b1;
 			full <= 1'b0;
 			empty <= level == 1;
