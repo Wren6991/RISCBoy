@@ -10,6 +10,8 @@ regs:
         info: "If 1, CS pin is driven automatically (low during data transfer, else high)"}
       - {b: 8, name: cs, access: rw,
         info: "If automatic CS is disabled, use this bit to control CS signal."}
+      - {b: 5, name: loopback, access: rw,
+        info: "If 1, connect MOSI to MISO internally, for debugging purposes"}
       - {b: 4, name: read_en, access: rw, rst: 1,
         info: "If 0, the received data will not be pushed to RX FIFO. (Transmit only)"}
       - {b: 3, name: cpol, access: rw,

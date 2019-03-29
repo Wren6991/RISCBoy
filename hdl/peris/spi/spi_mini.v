@@ -31,6 +31,7 @@ reg clk_en;
 
 wire csr_csauto;
 wire csr_cs;
+wire csr_loopback;
 wire csr_read_en;
 wire csr_cpol;
 wire csr_cpha;
@@ -68,6 +69,7 @@ reg [W_DATA-1:0] tx_shift;
 reg [W_DATA-1:0] rx_shift;
 reg cs_r;
 reg sclk_r;
+wire shift_in = csr_loopback ? sdo : sdi;
 
 reg [W_STATE-1:0] state;
 
@@ -103,14 +105,14 @@ always @ (posedge clk or negedge rst_n) begin
 					if (!csr_cpha)
 						sdo <= txfifo_rdata[W_DATA-1];
 				end
-				rxfifo_wen <= 1'b1;
+				rxfifo_wen <= csr_read_en;
 			end
 			if (csr_cpha) begin
 				if (!sclk_r)
 					sdo <= tx_shift[W_DATA-1];
 			end
 			if (csr_cpha == sclk_r)
-				rx_shift <= {rx_shift[W_DATA-2:0], sdi};
+				rx_shift <= {rx_shift[W_DATA-2:0], shift_in};
 		end
 		S_BACKPORCH: begin
 			state <= S_IDLE;
@@ -124,7 +126,7 @@ always @ (posedge clk or negedge rst_n) begin
 				tx_shift <= tx_shift << 1;
 			end
 			if (csr_cpha == sclk_r)
-				rx_shift <= {rx_shift[W_DATA-2:0], sdi};
+				rx_shift <= {rx_shift[W_DATA-2:0], shift_in};
 			else
 				sdo <= csr_cpha ? tx_shift[W_DATA-1] : tx_shift[W_DATA-2];
 		end
@@ -213,6 +215,7 @@ spi_regs regs
 
 	.csr_csauto_o    (csr_csauto),
 	.csr_cs_o        (csr_cs),
+	.csr_loopback_o  (csr_loopback),
 	.csr_read_en_o   (csr_read_en),
 	.csr_cpol_o      (csr_cpol),
 	.csr_cpha_o      (csr_cpha),

@@ -26,6 +26,7 @@ module spi_regs (
 	// Register interfaces
 	output reg  csr_csauto_o,
 	output reg  csr_cs_o,
+	output reg  csr_loopback_o,
 	output reg  csr_read_en_o,
 	output reg  csr_cpol_o,
 	output reg  csr_cpha_o,
@@ -77,6 +78,8 @@ wire  csr_csauto_wdata = wdata[9];
 wire  csr_csauto_rdata;
 wire  csr_cs_wdata = wdata[8];
 wire  csr_cs_rdata;
+wire  csr_loopback_wdata = wdata[5];
+wire  csr_loopback_rdata;
 wire  csr_read_en_wdata = wdata[4];
 wire  csr_read_en_rdata;
 wire  csr_cpol_wdata = wdata[3];
@@ -85,9 +88,10 @@ wire  csr_cpha_wdata = wdata[2];
 wire  csr_cpha_rdata;
 wire  csr_busy_wdata = wdata[0];
 wire  csr_busy_rdata;
-wire [31:0] __csr_rdata = {22'h0, csr_csauto_rdata, csr_cs_rdata, 3'h0, csr_read_en_rdata, csr_cpol_rdata, csr_cpha_rdata, 1'h0, csr_busy_rdata};
+wire [31:0] __csr_rdata = {22'h0, csr_csauto_rdata, csr_cs_rdata, 2'h0, csr_loopback_rdata, csr_read_en_rdata, csr_cpol_rdata, csr_cpha_rdata, 1'h0, csr_busy_rdata};
 assign csr_csauto_rdata = csr_csauto_o;
 assign csr_cs_rdata = csr_cs_o;
+assign csr_loopback_rdata = csr_loopback_o;
 assign csr_read_en_rdata = csr_read_en_o;
 assign csr_cpol_rdata = csr_cpol_o;
 assign csr_cpha_rdata = csr_cpha_o;
@@ -158,6 +162,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		csr_csauto_o <= 1'h1;
 		csr_cs_o <= 1'h0;
+		csr_loopback_o <= 1'h0;
 		csr_read_en_o <= 1'h1;
 		csr_cpol_o <= 1'h0;
 		csr_cpha_o <= 1'h0;
@@ -170,6 +175,8 @@ always @ (posedge clk or negedge rst_n) begin
 			csr_csauto_o <= csr_csauto_wdata;
 		if (__csr_wen)
 			csr_cs_o <= csr_cs_wdata;
+		if (__csr_wen)
+			csr_loopback_o <= csr_loopback_wdata;
 		if (__csr_wen)
 			csr_read_en_o <= csr_read_en_wdata;
 		if (__csr_wen)

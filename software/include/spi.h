@@ -17,7 +17,7 @@ DECL_REG(SPI_BASE + SPI_RX_OFFS, SPI_RX);
 static inline void spi_init(bool cpol, bool cpha)
 {
 	// TODO: need to drain TX FIFO etc
-	*SPI_CSR = (SPI_CSR_CSAUTO_MASK) |
+	*SPI_CSR = (SPI_CSR_CSAUTO_MASK | SPI_CSR_READ_EN_MASK) |
 		(!!cpol << SPI_CSR_CPOL_LSB) |
 		(!!cpha << SPI_CSR_CPHA_LSB);
 
@@ -35,6 +35,30 @@ static inline void spi_write(const uint8_t *data, size_t len)
 			;
 		*SPI_TX = *data++;
 	}
+}
+
+static inline int _spi_get_if_nonempty(uint8_t **rx)
+{
+	if (!(*SPI_FSTAT & SPI_FSTAT_RXEMPTY_MASK))
+		*(*rx)++ = *SPI_RX;
+}
+
+static inline void spi_write_read(const uint8_t *tx, uint8_t *rx, size_t len)
+{
+	while (!(*SPI_FSTAT & SPI_FSTAT_RXEMPTY_MASK))
+		(void)*SPI_RX;
+
+	for (; len > 0; --len)
+	{
+		_spi_get_if_nonempty(&rx);
+		while (*SPI_FSTAT & SPI_FSTAT_TXFULL_MASK)
+			;
+		*SPI_TX = *tx++;
+	}
+	while (*SPI_CSR & SPI_CSR_BUSY_MASK)
+		_spi_get_if_nonempty(&rx);
+	if (!(*SPI_FSTAT & SPI_FSTAT_RXEMPTY_MASK))
+		*rx++ = *SPI_RX;
 }
 
 static inline void spi_wait_done()

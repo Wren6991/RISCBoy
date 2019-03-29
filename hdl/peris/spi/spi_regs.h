@@ -34,6 +34,11 @@
 #define SPI_CSR_CS_LSB  8
 #define SPI_CSR_CS_BITS 1
 #define SPI_CSR_CS_MASK 0x100
+// Field CSR_LOOPBACK
+// If 1, connect MOSI to MISO internally, for debugging purposes
+#define SPI_CSR_LOOPBACK_LSB  5
+#define SPI_CSR_LOOPBACK_BITS 1
+#define SPI_CSR_LOOPBACK_MASK 0x20
 // Field CSR_READ_EN
 // If 0, the received data will not be pushed to RX FIFO. (Transmit only)
 #define SPI_CSR_READ_EN_LSB  4
