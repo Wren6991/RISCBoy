@@ -13,6 +13,7 @@
 #define GPIO_BASE  (PERI_BASE + 0x0000)
 #define UART_BASE  (PERI_BASE + 0x1000)
 #define PWM_BASE   (PERI_BASE + 0x2000)
+#define SPI_BASE   (PERI_BASE + 0x3000)
 #define TBMAN_BASE (PERI_BASE + 0xf000)
 
 #define DECL_REG(addr, name) volatile uint32_t * const (name) = (volatile uint32_t*)(addr)

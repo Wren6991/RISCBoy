@@ -23,11 +23,15 @@ regs:
     info: FIFO status register
     bits:
       - {b: [7, 0], name: txlevel, access: rov}
-      - {b: 8, name: txfull, access: rov}
-      - {b: 9, name: txempty, access: rov}
+      - {b: 8,  name: txfull,  access: rov}
+      - {b: 9,  name: txempty, access: rov}
+      - {b: 10, name: txover,  access: w1c}
+      - {b: 11, name: txunder, access: w1c}
       - {b: [23, 16], name: rxlevel, access: rov}
-      - {b: 24, name: rxfull, access: rov}
+      - {b: 24, name: rxfull,  access: rov}
       - {b: 25, name: rxempty, access: rov}
+      - {b: 26, name: rxover,  access: w1c}
+      - {b: 27, name: rxunder, access: w1c}
   - name: tx
     info: "TX data FIFO"
     bits:

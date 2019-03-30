@@ -3,7 +3,7 @@
 // - APB slave interface
 // - 8 data bits, 1 stop bit, 1 start bit ONLY
 // - fractional clock divider (16:8 by default; changing requires regblock update)
-// - parameterised FIFOs with interrupts
+// - parameterised FIFOs with interrupts, sticky overflow/underflow status
 // - "minimum viable UART"
 
 module uart_mini #(
@@ -271,9 +271,13 @@ uart_regs regs (
 	.fstat_txlevel_i (txfifo_level | 8'h0),
 	.fstat_txfull_i  (txfifo_full),
 	.fstat_txempty_i (txfifo_empty),
+	.fstat_txover_i  (txfifo_full && txfifo_wen),
+	.fstat_txunder_i (txfifo_empty && txfifo_ren),
 	.fstat_rxlevel_i (rxfifo_level | 8'h0),
 	.fstat_rxfull_i  (rxfifo_full),
 	.fstat_rxempty_i (rxfifo_empty),
+	.fstat_rxover_i  (rxfifo_full && rxfifo_wen),
+	.fstat_rxunder_i (rxfifo_empty && rxfifo_ren),
 	.tx_o            (txfifo_wdata),
 	.tx_wen          (txfifo_wen),
 	.rx_i            (rxfifo_rdata),

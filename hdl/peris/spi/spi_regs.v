@@ -4,12 +4,12 @@
 *          Edit the source file (or regblock utility) and regenerate.          *
 *******************************************************************************/
 
-// Block name           : uart
+// Block name           : spi
 // Bus type             : apb
 // Bus data width       : 32
 // Bus address width    : 16
 
-module uart_regs (
+module spi_regs (
 	input wire clk,
 	input wire rst_n,
 	
@@ -24,17 +24,18 @@ module uart_regs (
 	output wire apbs_pslverr,
 	
 	// Register interfaces
-	output reg  csr_en_o,
+	output reg  csr_csauto_o,
+	output reg  csr_cs_o,
+	output reg  csr_loopback_o,
+	output reg  csr_read_en_o,
+	output reg  csr_cpol_o,
+	output reg  csr_cpha_o,
 	input wire  csr_busy_i,
-	output reg  csr_txie_o,
-	output reg  csr_rxie_o,
-	output reg [9:0] div_int_o,
-	output reg [7:0] div_frac_o,
+	output reg [5:0] div_o,
 	input wire [7:0] fstat_txlevel_i,
 	input wire  fstat_txfull_i,
 	input wire  fstat_txempty_i,
 	input wire  fstat_txover_i,
-	input wire  fstat_txunder_i,
 	input wire [7:0] fstat_rxlevel_i,
 	input wire  fstat_rxfull_i,
 	input wire  fstat_rxempty_i,
@@ -73,27 +74,33 @@ wire __tx_ren = ren && addr == ADDR_TX;
 wire __rx_wen = wen && addr == ADDR_RX;
 wire __rx_ren = ren && addr == ADDR_RX;
 
-wire  csr_en_wdata = wdata[0];
-wire  csr_en_rdata;
-wire  csr_busy_wdata = wdata[1];
+wire  csr_csauto_wdata = wdata[9];
+wire  csr_csauto_rdata;
+wire  csr_cs_wdata = wdata[8];
+wire  csr_cs_rdata;
+wire  csr_loopback_wdata = wdata[5];
+wire  csr_loopback_rdata;
+wire  csr_read_en_wdata = wdata[4];
+wire  csr_read_en_rdata;
+wire  csr_cpol_wdata = wdata[3];
+wire  csr_cpol_rdata;
+wire  csr_cpha_wdata = wdata[2];
+wire  csr_cpha_rdata;
+wire  csr_busy_wdata = wdata[0];
 wire  csr_busy_rdata;
-wire  csr_txie_wdata = wdata[2];
-wire  csr_txie_rdata;
-wire  csr_rxie_wdata = wdata[3];
-wire  csr_rxie_rdata;
-wire [31:0] __csr_rdata = {28'h0, csr_rxie_rdata, csr_txie_rdata, csr_busy_rdata, csr_en_rdata};
-assign csr_en_rdata = csr_en_o;
+wire [31:0] __csr_rdata = {22'h0, csr_csauto_rdata, csr_cs_rdata, 2'h0, csr_loopback_rdata, csr_read_en_rdata, csr_cpol_rdata, csr_cpha_rdata, 1'h0, csr_busy_rdata};
+assign csr_csauto_rdata = csr_csauto_o;
+assign csr_cs_rdata = csr_cs_o;
+assign csr_loopback_rdata = csr_loopback_o;
+assign csr_read_en_rdata = csr_read_en_o;
+assign csr_cpol_rdata = csr_cpol_o;
+assign csr_cpha_rdata = csr_cpha_o;
 assign csr_busy_rdata = csr_busy_i;
-assign csr_txie_rdata = csr_txie_o;
-assign csr_rxie_rdata = csr_rxie_o;
 
-wire [9:0] div_int_wdata = wdata[17:8];
-wire [9:0] div_int_rdata;
-wire [7:0] div_frac_wdata = wdata[7:0];
-wire [7:0] div_frac_rdata;
-wire [31:0] __div_rdata = {14'h0, div_int_rdata, div_frac_rdata};
-assign div_int_rdata = div_int_o;
-assign div_frac_rdata = div_frac_o;
+wire [5:0] div_wdata = wdata[5:0];
+wire [5:0] div_rdata;
+wire [31:0] __div_rdata = {26'h0, div_rdata};
+assign div_rdata = div_o;
 
 wire [7:0] fstat_txlevel_wdata = wdata[7:0];
 wire [7:0] fstat_txlevel_rdata;
@@ -103,8 +110,6 @@ wire  fstat_txempty_wdata = wdata[9];
 wire  fstat_txempty_rdata;
 wire  fstat_txover_wdata = wdata[10];
 wire  fstat_txover_rdata;
-wire  fstat_txunder_wdata = wdata[11];
-wire  fstat_txunder_rdata;
 wire [7:0] fstat_rxlevel_wdata = wdata[23:16];
 wire [7:0] fstat_rxlevel_rdata;
 wire  fstat_rxfull_wdata = wdata[24];
@@ -115,14 +120,12 @@ wire  fstat_rxover_wdata = wdata[26];
 wire  fstat_rxover_rdata;
 wire  fstat_rxunder_wdata = wdata[27];
 wire  fstat_rxunder_rdata;
-wire [31:0] __fstat_rdata = {4'h0, fstat_rxunder_rdata, fstat_rxover_rdata, fstat_rxempty_rdata, fstat_rxfull_rdata, fstat_rxlevel_rdata, 4'h0, fstat_txunder_rdata, fstat_txover_rdata, fstat_txempty_rdata, fstat_txfull_rdata, fstat_txlevel_rdata};
+wire [31:0] __fstat_rdata = {4'h0, fstat_rxunder_rdata, fstat_rxover_rdata, fstat_rxempty_rdata, fstat_rxfull_rdata, fstat_rxlevel_rdata, 5'h0, fstat_txover_rdata, fstat_txempty_rdata, fstat_txfull_rdata, fstat_txlevel_rdata};
 assign fstat_txlevel_rdata = fstat_txlevel_i;
 assign fstat_txfull_rdata = fstat_txfull_i;
 assign fstat_txempty_rdata = fstat_txempty_i;
 reg  fstat_txover;
 assign fstat_txover_rdata = fstat_txover;
-reg  fstat_txunder;
-assign fstat_txunder_rdata = fstat_txunder;
 assign fstat_rxlevel_rdata = fstat_rxlevel_i;
 assign fstat_rxfull_rdata = fstat_rxfull_i;
 assign fstat_rxempty_rdata = fstat_rxempty_i;
@@ -157,28 +160,32 @@ end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		csr_en_o <= 1'h0;
-		csr_txie_o <= 1'h0;
-		csr_rxie_o <= 1'h0;
-		div_int_o <= 10'h1;
-		div_frac_o <= 8'h0;
+		csr_csauto_o <= 1'h1;
+		csr_cs_o <= 1'h0;
+		csr_loopback_o <= 1'h0;
+		csr_read_en_o <= 1'h1;
+		csr_cpol_o <= 1'h0;
+		csr_cpha_o <= 1'h0;
+		div_o <= 6'h1;
 		fstat_txover <= 1'h0;
-		fstat_txunder <= 1'h0;
 		fstat_rxover <= 1'h0;
 		fstat_rxunder <= 1'h0;
 	end else begin
 		if (__csr_wen)
-			csr_en_o <= csr_en_wdata;
+			csr_csauto_o <= csr_csauto_wdata;
 		if (__csr_wen)
-			csr_txie_o <= csr_txie_wdata;
+			csr_cs_o <= csr_cs_wdata;
 		if (__csr_wen)
-			csr_rxie_o <= csr_rxie_wdata;
+			csr_loopback_o <= csr_loopback_wdata;
+		if (__csr_wen)
+			csr_read_en_o <= csr_read_en_wdata;
+		if (__csr_wen)
+			csr_cpol_o <= csr_cpol_wdata;
+		if (__csr_wen)
+			csr_cpha_o <= csr_cpha_wdata;
 		if (__div_wen)
-			div_int_o <= div_int_wdata;
-		if (__div_wen)
-			div_frac_o <= div_frac_wdata;
+			div_o <= div_wdata;
 		fstat_txover <= (fstat_txover && !(__fstat_wen && fstat_txover_wdata)) || fstat_txover_i;
-		fstat_txunder <= (fstat_txunder && !(__fstat_wen && fstat_txunder_wdata)) || fstat_txunder_i;
 		fstat_rxover <= (fstat_rxover && !(__fstat_wen && fstat_rxover_wdata)) || fstat_rxover_i;
 		fstat_rxunder <= (fstat_rxunder && !(__fstat_wen && fstat_rxunder_wdata)) || fstat_rxunder_i;
 	end

@@ -21,13 +21,16 @@ module riscboy_fpga (
 
 wire clk_osc;
 wire clk_sys;
+wire rst_n;
+
+assign clk_sys = clk_osc; // TODO PLL
 
 SB_HFOSC #(
   .CLKHF_DIV ("0b10") // divide by 4 -> 12 MHz
 ) inthosc (
   .CLKHFPU (1'b1),
   .CLKHFEN (1'b1),
-  .CLKHF (clk_osc)
+  .CLKHF   (clk_osc)
 );
 
 // We can't close timing at this speed (normally around 14 MHz),
@@ -46,11 +49,14 @@ end else begin: no_pll
 end
 endgenerate
 
-// Crappy behavioural reset generator
-(* keep = 1'b1 *) reg [19:0] rst_delay = 20'h0;
-wire rst_n = rst_delay[0];
-always @ (posedge clk_sys)
-	rst_delay <= ~(~rst_delay >> 1);
+fpga_reset #(
+	.SHIFT (3),
+	.COUNT (200) // need at least 3 us delay before accessing BRAMs on iCE40
+) rstgen (
+	.clk         (clk_osc),
+	.force_rst_n (1'b1),
+	.rst_n       (rst_n)
+);
 
 // Instantiate the actual logic
 

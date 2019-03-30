@@ -56,7 +56,7 @@ RISCBoy is an open source portable games console, designed from scratch:
 \end{itemize}
 
 \begin{displayquote}
-\textit{If you say open source one more time I'm gonna nut instantly} - Oscar Wilde
+{\it If you say open source one more time I'm gonna nut instantly} - Oscar Wilde
 \end{displayquote}
 
 \subsection{Digital Design}
@@ -99,7 +99,7 @@ The heart of the design is a Lattice iCE40-HX8k FPGA, containing 7680 LUT4s and 
 	\end{itemize}
 \end{itemize}
 
-This document attempts to describe some of these, but if you need nitty-gritty detail, the best documentation is the files ending with \texttt{.v}.
+This document attempts to describe some of these, but if you need nitty-gritty detail, the best documentation is the files ending with {\tt .v}.
 
 That a free synthesis tool can cram this into one of the cheapest FPGAs on the market is tremendous. I hope for a situation like software compilers, where free tools such as GCC and LLVM are industry standards.
 
@@ -115,11 +115,11 @@ That a free synthesis tool can cram this into one of the cheapest FPGAs on the m
 
 The board has a 4-layer stackup, illustrated in figure \ref{diagram:stackup_and_bga}. It targets low-cost PCB prototyping services such as iTead, and makes compromises to achieve this, chiefly escape routing from the FPGA ($11 \times 11$ 0.8 mm BGA). To meet iTead's copper-clearance, minimum via drill, and minimum annular ring specifications, the BGA pads must be sized down to 0.23 mm. Reflow this component by hand, with a hot air gun and plenty of flux; your toaster oven isn't going to cut it.
 
-Schematic and layout files are in the \texttt{board/} subdirectory of the git repository.
+Schematic and layout files are in the {\tt board/} subdirectory of the git repository.
 
 \subsection{Licensing}
 
-The Verilog source to this project has no dependencies, and is distributed under the DWTFPL version 3. This is a \textit{very} permissive open-source licence, and its text is included in full at the top of the source files. This license is very similar to the original DWTFPL, which more readers may be familiar with, but has an added indemnification clause.
+The Verilog source to this project has no dependencies, and is distributed under the DWTFPL version 3. This is a {\it very} permissive open-source licence, and its text is included in full at the top of the source files. This license is very similar to the original DWTFPL, which more readers may be familiar with, but has an added indemnification clause.
 
 This license is also known by its more formal name, as the "Do What The Fuck You Want To And Don't Blame Us Public License".
 
@@ -128,11 +128,11 @@ This license is also known by its more formal name, as the "Do What The Fuck You
 Hazard5 is a 32-bit processor based on the RISC-V instruction set architecture. It accesses the system through a single AMBA 3 AHB-Lite master port. Those familiar with the textbook 5-stage RISC pipeline will find Hazard5 mostly straightforward, but hopefully will still find some interesting tricks. We will use the following symbols to refer to the 5 stages:
 
 \begin{itemize}
-\item \texttt{F}: fetch
-\item \texttt{D}: decode
-\item \texttt{X}: execute
-\item \texttt{M}: memory access (load/store)
-\item \texttt{W}: register writeback, fetch address generation
+\item {\tt F}: fetch
+\item {\tt D}: decode
+\item {\tt X}: execute
+\item {\tt M}: memory access (load/store)
+\item {\tt W}: register writeback, fetch address generation
 \end{itemize}
 
 
@@ -164,10 +164,10 @@ Branches are speculated, but there is currently no dynamic branch predictor. Ins
 \label{diagram:frontend}
 \end{figure}
 
-The frontend (figure \ref{diagram:frontend}) consists of stage \texttt{F} and an additional stage which performs the AHB address phase, and can be considered part of \texttt{W}. Its purpose is to feed \texttt{D} with instructions, whilst meeting the following constraints:
+The frontend (figure \ref{diagram:frontend}) consists of stage {\tt F} and an additional stage which performs the AHB address phase, and can be considered part of {\tt W}. Its purpose is to feed {\tt D} with instructions, whilst meeting the following constraints:
 
 \begin{itemize}
-	\item No combinatorial path from AHB-Lite data phase to address phase (e.g. \texttt{hready} $\to$ \texttt{htrans})
+	\item No combinatorial path from AHB-Lite data phase to address phase (e.g. {\tt hready} $\to$ {\tt htrans})
 	\item AHB-Lite compliant: no unaligned transfers, no deassertion or change of active requests
 	\item Provide up to 32 bits of instruction data per clock in steady state, even if instructions are unaligned
 	\item 0-cycle jump/flush to AHB address phase assertion (with minimal logic on this path)
@@ -181,40 +181,40 @@ To meet these constraints, the frontend performs almost exclusively word accesse
 
 \subsubsection{Prefetch Queue}
 
-The frontend queues up fresh instruction data which is waiting to be decoded. The pipelined nature of AHB-Lite means that the bus transfers run ahead of \texttt{D} by at least two clocks, and the prefetch queue is able to buffer these in-flight transfers if \texttt{D} stalls against a later pipe stage. The queue also decouples \texttt{D}'s stall logic (which is a function of \texttt{hready}) from the address phase request, and finally, the queue helps keep \texttt{D} supplied with instructions while the busmaster is busy with load/stores from \texttt{X}.
+The frontend queues up fresh instruction data which is waiting to be decoded. The pipelined nature of AHB-Lite means that the bus transfers run ahead of {\tt D} by at least two clocks, and the prefetch queue is able to buffer these in-flight transfers if {\tt D} stalls against a later pipe stage. The queue also decouples {\tt D}'s stall logic (which is a function of {\tt hready}) from the address phase request, and finally, the queue helps keep {\tt D} supplied with instructions while the busmaster is busy with load/stores from {\tt X}.
 
 There are three parts to the queue:
 
 \begin{itemize}
 	\item A 32-bit FIFO. The depth is configurable, and can be as little as 1 word.
 	\item A halfword buffer which may store the higher-addressed half of a recently-popped FIFO word
-	\item The upper half of the current instruction register (\texttt{CIR}), if the previous instruction was 16-bit
+	\item The upper half of the current instruction register ({\tt CIR}), if the previous instruction was 16-bit
 \end{itemize}
 
-These three sources should service the majority of instruction fetches, and fresh bus data is written only to the FIFO. However, following jumps, flushes, or fetch starvation (either due to load/store activity or bus wait states), bus data can be forwarded directly to \texttt{CIR}.
+These three sources should service the majority of instruction fetches, and fresh bus data is written only to the FIFO. However, following jumps, flushes, or fetch starvation (either due to load/store activity or bus wait states), bus data can be forwarded directly to {\tt CIR}.
 
 \subsubsection{Program Counter}
 
-Hazard5 does \textit{not} use the program counter (\texttt{PC}) for code fetching, during sequential execution. \texttt{PC} is used exclusively for the link value in \texttt{JAL(R)}, mispredict recovery, and PC-relative addressing; it is physically located in \texttt{D}.
+Hazard5 does {\it not} use the program counter ({\tt PC}) for code fetching, during sequential execution. {\tt PC} is used exclusively for the link value in {\tt JAL(R)}, mispredict recovery, and PC-relative addressing; it is physically located in {\tt D}.
 
-The frontend fetches instruction data from consecutive word-aligned addresses, paced by backpressure from the instruction FIFO; \texttt{PC} is not involved. However, as a special case, it \textit{does} need the full jump target address (which becomes the new \texttt{PC}), as unaligned jumps require special attention.
+The frontend fetches instruction data from consecutive word-aligned addresses, paced by backpressure from the instruction FIFO; {\tt PC} is not involved. However, as a special case, it {\it does} need the full jump target address (which becomes the new {\tt PC}), as unaligned jumps require special attention.
 
 \subsubsection{Arbitration of Fetch and Load/Store}
 \label{section:fetch_ls_arb}
 
-The single AHB master port asserts transactions from two sources: the frontend, whose address phase is in \texttt{W}, and the load/store unit, whose address phase is in \texttt{X}. Frontend requests may be linear or non-linear (e.g jumps). The rules are:
+The single AHB master port asserts transactions from two sources: the frontend, whose address phase is in {\tt W}, and the load/store unit, whose address phase is in {\tt X}. Frontend requests may be linear or non-linear (e.g jumps). The rules are:
 
 \begin{enumerate}
-	\item If a jump or mispredict recovery is asserted by \texttt{M}, this wins.
+	\item If a jump or mispredict recovery is asserted by {\tt M}, this wins.
 	\begin{itemize}
 		\item Any requests from earlier stages are logically later in program order.
-		\item If \texttt{M} wants to jump then these instructions are being executed in error, so should certainly not be permitted to access the bus.
+		\item If {\tt M} wants to jump then these instructions are being executed in error, so should certainly not be permitted to access the bus.
 	\end{itemize}
-	\item Else if a load/store is asserted by \texttt{X}, this wins.
+	\item Else if a load/store is asserted by {\tt X}, this wins.
 	\begin{itemize}
-		\item Stalling instruction fetch \textit{may} be covered by the prefetch queue, in which case we've lost nothing
+		\item Stalling instruction fetch {\it may} be covered by the prefetch queue, in which case we've lost nothing
 		\item Stalling a load/store will always increase execution time
-		\item If instead \texttt{X} stalled, and instruction fetch ran ahead, what would we do with the fetched instructions?
+		\item If instead {\tt X} stalled, and instruction fetch ran ahead, what would we do with the fetched instructions?
 	\end{itemize}
 	\item Otherwise, perform any other access requested by the frontend.
 	\begin{itemize}
@@ -230,28 +230,28 @@ Due to the pipelined nature of AHB, we are unable to jump or to take branches in
 
 \begin{itemize}
 \item Cycle 0: AHB data phase for fetch of jump/branch. Next instruction is in address phase concurrently.
-\item Cycle 1: Jump/branch instruction is now available to \texttt{D}
+\item Cycle 1: Jump/branch instruction is now available to {\tt D}
 	\begin{itemize}
 		\item (Quickly) use to control the new address phase
 		\item The immediately following instruction is already in data phase
 	\end{itemize}
 \item Cycle 2: Data phase for jump target instruction
-\item Cycle 3: Jump target is presented to \texttt{D} and decoded.
+\item Cycle 3: Jump target is presented to {\tt D} and decoded.
 \end{itemize}
 
 
-We knew the jump target on cycle 1, but did not begin decoding the targeted instruction until cycle 3. We also made one wasted code fetch. This is suboptimal, but fetching the jump target \textit{before} decoding the jump is tricky, and there are lower-hanging fruit in terms of performance per LUT.
+We knew the jump target on cycle 1, but did not begin decoding the targeted instruction until cycle 3. We also made one wasted code fetch. This is suboptimal, but fetching the jump target {\it before} decoding the jump is tricky, and there are lower-hanging fruit in terms of performance per LUT.
 
-Jumps physically occur in \texttt{W}, directly in front of the fetch address generator. There are two reasons to jump:
+Jumps physically occur in {\tt W}, directly in front of the fetch address generator. There are two reasons to jump:
 
 \begin{itemize}
-	\item Inspecting the \texttt{CIR} in \texttt{F/D} pipe register (\texttt{JAL}, speculated taken branches)
-	\item Inspecting \texttt{X/M} pipe register (\texttt{JALR}, branch mispredict recovery)
+	\item Inspecting the {\tt CIR} in {\tt F/D} pipe register ({\tt JAL}, speculated taken branches)
+	\item Inspecting {\tt X/M} pipe register ({\tt JALR}, branch mispredict recovery)
 \end{itemize}
 
-\texttt{JALR} (indirect jump) is taken later because it uses the register file and the ALU to compute its target.
+{\tt JALR} (indirect jump) is taken later because it uses the register file and the ALU to compute its target.
 
-If both of these sources attempt to jump in the same cycle, \texttt{X/M} takes priority, since it is executing an older instruction. In both cases, the part of the pipeline in the hazard shadow is invalidated; i.e., \texttt{W} $\to$ \texttt{F}, or \texttt{W} $\to$ \texttt{X}. Invalidation is performed by clobbering the pipeline control signals in such a way that these instructions will have no side effects.
+If both of these sources attempt to jump in the same cycle, {\tt X/M} takes priority, since it is executing an older instruction. In both cases, the part of the pipeline in the hazard shadow is invalidated; i.e., {\tt W} $\to$ {\tt F}, or {\tt W} $\to$ {\tt X}. Invalidation is performed by clobbering the pipeline control signals in such a way that these instructions will have no side effects.
 
 The branch prediction scheme is static: take backward branches, and do not take forward branches. The cycle costs are as follows:
 
@@ -276,45 +276,45 @@ Upon jumping, we need some mechanism to invalidate parts of the pipeline: this i
 There is a landmine in the following tableau:
 
 \begin{itemize}
-	\item \texttt{M} contains a load (in data phase), and the bus is stalled
-	\item \texttt{X} contains an instruction dependent on the load result; say an \texttt{AND}
-	\item \texttt{D} contains a branch which is mispredicted taken
+	\item {\tt M} contains a load (in data phase), and the bus is stalled
+	\item {\tt X} contains an instruction dependent on the load result; say an {\tt AND}
+	\item {\tt D} contains a branch which is mispredicted taken
 \end{itemize}
 
-For example, say we are polling a status bit in an IO register, looping until some bit is high. The instruction in \texttt{X} must stall for at least two cycles due to the bus stall and load-use hazard. Due to a frontend design constraint from \ref{section:frontend} -- "No combinatorial path from AHB-Lite data phase to address phase (e.g. \texttt{hready} $\to$ \texttt{htrans})" -- we must not use \texttt{X}'s stall signal to gate the jump request, as this would create such a path. However, \textit{not} gating the jump request is fatal, as new fetches will clobber \texttt{CIR} before the branch instruction can proceed into \texttt{X}, so the mispredict will never recover. \texttt{JAL} has the same problem: it will jump, but not produce a link address.
+For example, say we are polling a status bit in an IO register, looping until some bit is high. The instruction in {\tt X} must stall for at least two cycles due to the bus stall and load-use hazard. Due to a frontend design constraint from \ref{section:frontend} -- "No combinatorial path from AHB-Lite data phase to address phase (e.g. {\tt hready} $\to$ {\tt htrans})" -- we must not use {\tt X}'s stall signal to gate the jump request, as this would create such a path. However, {\it not} gating the jump request is fatal, as new fetches will clobber {\tt CIR} before the branch instruction can proceed into {\tt X}, so the mispredict will never recover. {\tt JAL} has the same problem: it will jump, but not produce a link address.
 
-Hazard5 resolves this with \texttt{CIR} locking. \texttt{D} signals to \texttt{F} that \texttt{CIR} and its validity count must not change on the next clock edge, and uses this same signal to inhibit repeated assertion of its own jump request. In the fetch path, this is achieved by steering the controls on the existing shift/overlay logic in the frontend, and requires no additional muxing.
+Hazard5 resolves this with {\tt CIR} locking. {\tt D} signals to {\tt F} that {\tt CIR} and its validity count must not change on the next clock edge, and uses this same signal to inhibit repeated assertion of its own jump request. In the fetch path, this is achieved by steering the controls on the existing shift/overlay logic in the frontend, and requires no additional muxing.
 
-Whilst the \texttt{CIR} is locked, the frontend is still free to act on the jump request, and fetch ahead along the new code path (more useful for \texttt{JAL}); this data is buffered in the FIFO. Once the roadblock ahead of \texttt{D} clears, the branch instruction proceeds down the pipeline, and the lock is released simultaneously.
+Whilst the {\tt CIR} is locked, the frontend is still free to act on the jump request, and fetch ahead along the new code path (more useful for {\tt JAL}); this data is buffered in the FIFO. Once the roadblock ahead of {\tt D} clears, the branch instruction proceeds down the pipeline, and the lock is released simultaneously.
 
-Note also that a bus stall does not cause the frontend to block jump requests, as this too would create a combinatorial path, since requests are forwarded straight to the bus (due to another constraint from \ref{section:frontend}). The frontend's response to bus stall on jump request is simply to not increment the target before storing to \texttt{FC}, so that the target address continues to be asserted on subsequent cycles. Registered feedback blocks \textit{subsequent} jump requests until the first request completes its address phase.
+Note also that a bus stall does not cause the frontend to block jump requests, as this too would create a combinatorial path, since requests are forwarded straight to the bus (due to another constraint from \ref{section:frontend}). The frontend's response to bus stall on jump request is simply to not increment the target before storing to {\tt FC}, so that the target address continues to be asserted on subsequent cycles. Registered feedback blocks {\it subsequent} jump requests until the first request completes its address phase.
 
 \subsubsection{Instruction Barrier (FENCE.I)}
 
-If the program stores to instruction addresses about to be executed from, which potentially exist in the prefetch queue, a stale instruction will be executed. \texttt{FENCE.I} cannot be decoded as a nop, and requires special handling.
+If the program stores to instruction addresses about to be executed from, which potentially exist in the prefetch queue, a stale instruction will be executed. {\tt FENCE.I} cannot be decoded as a nop, and requires special handling.
 
-Hazard5 decodes \texttt{FENCE.I} as "jump to \texttt{PC} + 4". The jump invalidates the prefetch queue, and the following instruction will be re-fetched from memory.
+Hazard5 decodes {\tt FENCE.I} as "jump to {\tt PC} + 4". The jump invalidates the prefetch queue, and the following instruction will be re-fetched from memory.
 
-Timing analysis shows that calculating a jump target, between \texttt{CIR} and the address bus, is generally on the critical path. To avoid more logic on this path, \texttt{FENCE.I} is instead implemented by spoofing a branch-taken mispredict, which has the same effect. This adds two cycles to the execution time, but performance of this instruction is decidedly noncritical.
+Timing analysis shows that calculating a jump target, between {\tt CIR} and the address bus, is generally on the critical path. To avoid more logic on this path, {\tt FENCE.I} is instead implemented by spoofing a branch-taken mispredict, which has the same effect. This adds two cycles to the execution time, but performance of this instruction is decidedly noncritical.
 
 \subsection{Operand Bypass}
 
 Hazard5 possesses an operand bypass (forwarding) network. Register writes by one instruction must always be visible to later instructions, even before the first instruction reaches register writeback. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
 
-This reduces (and often eliminates) the penalty of read-after-write data hazards in the pipeline, and allows us to approach one-clock-per-instruction (CPI) execution rates. Without bypass, only one instruction could exist present in $\left\{ \texttt{D}, \texttt{X}, \texttt{M}, \texttt{W} \right\}$ at a time, giving a CPI of 4.
+This reduces (and often eliminates) the penalty of read-after-write data hazards in the pipeline, and allows us to approach one-clock-per-instruction (CPI) execution rates. Without bypass, only one instruction could exist present in $\left\{ {\tt D}, {\tt X}, {\tt M}, {\tt W} \right\}$ at a time, giving a CPI of 4.
 
 The following bypasses are available: (notation: pipe register $\to$ pipestage logic)
 
 \begin{itemize}
-	\item \texttt{X/M} $\to$ \texttt{X}
-	\item \texttt{M/W} $\to$ \texttt{X}
-	\item \texttt{M/W} $\to$ \texttt{M}
-	\item \texttt{W/X} $\to$ \texttt{X}
+	\item {\tt X/M} $\to$ {\tt X}
+	\item {\tt M/W} $\to$ {\tt X}
+	\item {\tt M/W} $\to$ {\tt M}
+	\item {\tt W/X} $\to$ {\tt X}
 \end{itemize}
 
 The last is in lieu of a write-to-read bypass in the register file, to avoid difficulties with block-RAM inference on iCE40.
 
-To control the bypassing, some of the register specifiers from \texttt{CIR} are passed down the pipeline alongside the data. \texttt{rs1, rs2, rd} (operand sources and destination) are passed down as far as \texttt{X}. \texttt{rs2, rd} make it to \texttt{M}, and only \texttt{rd} makes it to \texttt{W}.
+To control the bypassing, some of the register specifiers from {\tt CIR} are passed down the pipeline alongside the data. {\tt rs1, rs2, rd} (operand sources and destination) are passed down as far as {\tt X}. {\tt rs2, rd} make it to {\tt M}, and only {\tt rd} makes it to {\tt W}.
 
 The upshot is:
 
@@ -322,65 +322,65 @@ The upshot is:
 	\item Back-to-back ALU operations execute at 1 CPI
 	\item Loads insert 1 stall cycle if immediately required by the ALU. 1 CPI otherwise.
 	\item Stores execute at 1 CPI (bus stall notwithstanding)
-	\item In a load + store pair, the load takes only one cycle, since the \texttt{M} stage has self-forwarding
+	\item In a load + store pair, the load takes only one cycle, since the {\tt M} stage has self-forwarding
 \end{itemize}
 
-Various interesting strategies can alleviate load-use penalty in in-order pipelines, such as adding a second, "late" ALU in the \texttt{M} stage. In our case we judge this to not be worth the LUTs.
+Various interesting strategies can alleviate load-use penalty in in-order pipelines, such as adding a second, "late" ALU in the {\tt M} stage. In our case we judge this to not be worth the LUTs.
 
 \subsection{Pipeline Stalling and Flushing}
 \label{section:stalling_flushing}
 
-Our terminology: stalling means a pipeline stage does not advance its state until some blocking condition has cleared. The instruction residing in this stage will not progress to the next stage, and the previous stage will not write \textit{its} instruction into this stage. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
+Our terminology: stalling means a pipeline stage does not advance its state until some blocking condition has cleared. The instruction residing in this stage will not progress to the next stage, and the previous stage will not write {\it its} instruction into this stage. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
 
-The frontend is decoupled from other stages' stall logic via the prefetch queue. This is important: \texttt{hready} is an input to that stall logic, and the the frontend's address-phase request must not be a function of \texttt{hready}.
+The frontend is decoupled from other stages' stall logic via the prefetch queue. This is important: {\tt hready} is an input to that stall logic, and the the frontend's address-phase request must not be a function of {\tt hready}.
 
-The frontend may not be able to immediately accept a jump request, which may cause other pipe stages to stall if it is low. One cause is the frontend holding an existing address-phase request stable until the cycle \textit{after} \texttt{hready}, which is required for AHB-Lite compliance.
+The frontend may not be able to immediately accept a jump request, which may cause other pipe stages to stall if it is low. One cause is the frontend holding an existing address-phase request stable until the cycle {\it after} {\tt hready}, which is required for AHB-Lite compliance.
 
-For the backend, the stall logic is more intricate, as signals such as \texttt{hready} are used in-cycle to determine whether an instruction progresses to the next pipeline stage:
+For the backend, the stall logic is more intricate, as signals such as {\tt hready} are used in-cycle to determine whether an instruction progresses to the next pipeline stage:
 
 \begin{itemize}
-	\item \texttt{D}:
+	\item {\tt D}:
 	\begin{itemize}
-		\item \texttt{CIR} does not contain a valid instruction (either no data, or half of a 32-bit instruction)
-		\item \texttt{D} asserts jump, but frontend rejects the jump request
-		\item \texttt{X} is stalled
+		\item {\tt CIR} does not contain a valid instruction (either no data, or half of a 32-bit instruction)
+		\item {\tt D} asserts jump, but frontend rejects the jump request
+		\item {\tt X} is stalled
 	\end{itemize}
-	\item \texttt{X}:
+	\item {\tt X}:
 	\begin{itemize}
-		\item \texttt{hready} low and \texttt{X} address-phase request asserted
-		\item RAW hazard on \texttt{M} (load-use)
-		\item \texttt{M} is stalled
+		\item {\tt hready} low and {\tt X} address-phase request asserted
+		\item RAW hazard on {\tt M} (load-use)
+		\item {\tt M} is stalled
 	\end{itemize}
-	\item \texttt{M}:
+	\item {\tt M}:
 	\begin{itemize}
-		\item \texttt{hready} low and data-phase active
-		\item \texttt{M} asserts jump, but frontend rejects the jump request
+		\item {\tt hready} low and data-phase active
+		\item {\tt M} asserts jump, but frontend rejects the jump request
 	\end{itemize}
-	\item \texttt{W}: does not stall
+	\item {\tt W}: does not stall
 \end{itemize}
 
-If a given stage is stalled, but the following stage is not, it must insert a bubble. Bubbles are created by zeroing out control fields, such as \texttt{rd}, so that the instruction cannot affect system or processor state.
+If a given stage is stalled, but the following stage is not, it must insert a bubble. Bubbles are created by zeroing out control fields, such as {\tt rd}, so that the instruction cannot affect system or processor state.
 
 There are two cases where we must flush:
 
 \begin{itemize}
-	\item Branch/jump taken from \texttt{D}; frontend invalidates prefetched data
-	\item Jump/mispredict taken from \texttt{M}; must flush frontend, \texttt{D}, \texttt{X}
+	\item Branch/jump taken from {\tt D}; frontend invalidates prefetched data
+	\item Jump/mispredict taken from {\tt M}; must flush frontend, {\tt D}, {\tt X}
 \end{itemize}
 
 And the flushing mechanisms for each stage are as follows:
 \begin{itemize}
-	\item \texttt{D}: destination register \texttt{rd} cleared, which makes result invisible to register file and operand bypass. \texttt{memop}, \texttt{branchcond} pipe flags are cleared.
-	\item \texttt{X}: same as \texttt{D} (except for \texttt{branchcond}, which does not pass on to \texttt{M} anyway.
+	\item {\tt D}: destination register {\tt rd} cleared, which makes result invisible to register file and operand bypass. {\tt memop}, {\tt branchcond} pipe flags are cleared.
+	\item {\tt X}: same as {\tt D} (except for {\tt branchcond}, which does not pass on to {\tt M} anyway.
 \end{itemize}
 
 Flushing and bubble insertion are very similar in mechanism.
 
 \subsection{Unaligned Memory Accesses}
 
-Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to \textit{natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
+Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to {\it natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
 
-The frontend goes to some length (section \ref{section:frontend}) to maintain high throughput. RV-C instruction streams are \textit{always} unaligned, and \textit{every} instruction must be fetched before it is executed, so Amdahl says it's worth it.
+The frontend goes to some length (section \ref{section:frontend}) to maintain high throughput. RV-C instruction streams are {\it always} unaligned, and {\it every} instruction must be fetched before it is executed, so Amdahl says it's worth it.
 
 As load/stores are less than 100\% of all instructions, and generally much fewer than 100\% of these are unaligned, Hazard5 does not have hardware support for unaligned load/stores. These are trapped (TODO) and handled in software if and when they occur.
 
@@ -388,14 +388,50 @@ As load/stores are less than 100\% of all instructions, and generally much fewer
 
 This section is very much still TBD. (TODO)
 
-Hazard5 will have non-nested priority vectored interrupts, with no register saving, apart from \texttt{ra} (\texttt{x2}; link/return address register) and the \texttt{PC}. Interrupts and exceptions will be implemented with the early jump hardware, so behave as a \texttt{D}-sourced jump.
+Hazard5 will have non-nested priority vectored interrupts, with no register saving, apart from {\tt ra} ({\tt x2}; link/return address register) and the {\tt PC}. Interrupts and exceptions will be implemented with the early jump hardware, so behave as a {\tt D}-sourced jump.
 
-Interrupts/exceptions are implemented as a jump into the vector table. The table is a block of aligned 32-bit instructions, which will most likely be JAL, meaning ISRs must be within $\pm$1 MiB of the vector table. As well as jumping into the table, the interrupt hardware stashes the \texttt{PC} and \texttt{ra} into shadow registers; the second requires a register file read, and the pipeline slot of the (victim) instruction in \texttt{D} is used to perform this read. \texttt{PC} is immediately clobbered by the jump into the table, and \texttt{ra} is clobbered with the magic value 0xffffffff, which is otherwise an invalid return address as its LSB is set.
+Interrupts/exceptions are implemented as a jump into the vector table. The table is a block of aligned 32-bit instructions, which will most likely be JAL, meaning ISRs must be within $\pm$1 MiB of the vector table. As well as jumping into the table, the interrupt hardware stashes the {\tt PC} and {\tt ra} into shadow registers; the second requires a register file read, and the pipeline slot of the (victim) instruction in {\tt D} is used to perform this read. {\tt PC} is immediately clobbered by the jump into the table, and {\tt ra} is clobbered with the magic value 0xffffffff, which is otherwise an invalid return address as its LSB is set.
 
-Upon encountering a \texttt{jalr} to 0xffffffff (most likely a \texttt{ret}), the saved \texttt{PC} and \texttt{ra} are saved.
+Upon encountering a {\tt jalr} to 0xffffffff (most likely a {\tt ret}), the saved {\tt PC} and {\tt ra} are saved.
 
 Consequently, ISRs may not generate exceptions, such as unaligned accesses. TODO: should have some kind of non-returning hardfault exception to deal with things like this.
 
+\subsection{Plugin Interface}
+
+Plugins are pieces of hardware attached to the Hazard5 pipeline to extend its functionality, and instruction set. For example, the M extension (multiply and divide) is implemented using a plugin.
+
+Plugins interact with three pipe stages:
+
+\begin{itemize}
+	\item {\tt D}
+	\begin{itemize}
+		\item Plugins see the current instruction, so that they can decode it
+		\item Plugins notify {\tt D} that an instruction it does not recognise is, in fact, valid
+	\end{itemize}
+	\item {\tt X}
+	\begin{itemize}
+		\item Plugins can see the {\tt rs1} and {\tt rs2} operand bypasses
+		\item Additional control signals provide functionality such as killing an in-progress operation so that e.g. an interrupt can run
+	\end{itemize}
+	\item {\tt M}
+	\begin{itemize}
+		\item All plugins retire their results into {\tt M}.
+		\item This adds a 1-cycle RAW stall if the immediately-following instruction is dependent, but on current iCE40 implementations, {\tt X} is already near-critical-path and very mux heavy.
+		\item Plugins can stall {\tt M} if they need more cycles to produce a result.
+	\end{itemize}
+\end{itemize}
+
+There is no hard limit to the number of plugins that can be added, but the additional muxing and fanout is not free, which constrains practical implementations.
+
+\subsubsection{M-small Plugin}
+
+The M-small plugin implements the RISC-V M standard extension (multiply and divide). To save area, the plugin employs a combined multiply/divide unit which performs the required calculations at 1 bit per clock.
+
+\subsubsection{M-fast Plugin}
+
+The Mfast plugin also implements the M extension, but uses a fast Wallace tree to perform multiplication, allowing a throughput of 1 32-bit multiply per clock.
+
+Other details TBD
 
 \section{Bus Fabric and Memory Subsystem}
 
@@ -406,7 +442,7 @@ Bus fabric is digital plumbing. A master, such as a processor, requests a read o
 \item AMBA 3 APB connects to simple devices such as a UART
 \end{itemize}
 
-Figure \ref{diagram:crossbar_structure} shows the structure of the AHB-Lite crossbar (\texttt{ahbl\_crossbar.v}). The crossbar is shown in context in figure \ref{diagram:system_arch}. An independent AHB-Lite datapath connects each of $m$ masters to each of $n$ slaves. One master can address one slave at a time, and one slave can be in data-phase with one master at a time; subject to these constraints, up to $\min(m,n)$ independent transfers can take place in a single machine clock cycle.
+Figure \ref{diagram:crossbar_structure} shows the structure of the AHB-Lite crossbar ({\tt ahbl\_crossbar.v}). The crossbar is shown in context in figure \ref{diagram:system_arch}. An independent AHB-Lite datapath connects each of $m$ masters to each of $n$ slaves. One master can address one slave at a time, and one slave can be in data-phase with one master at a time; subject to these constraints, up to $\min(m,n)$ independent transfers can take place in a single machine clock cycle.
 
 Some claim AHB-Lite does not "support" multi-master arbitration. Their problem is a lack of enthusiasm: motorbikes do not "support" wheelies by design, but are excellent at it.
 
@@ -446,11 +482,11 @@ Currently, the RISCBoy busfabric does not support AHB-Lite bursts (TODO), and th
 
 \subsection{AHB-Lite Primer}
 
-For a full understanding of the bus standard used by RISCBoy, read through ARM's AMBA 3 AHB-Lite spec. This document is mirrored in the \texttt{reference} folder in the GitHub repository, and gives a clear and comprehensive breakdown of AHB-Lite. However, the following overview should provide sufficient understanding of the standard to read through the Verilog.
+For a full understanding of the bus standard used by RISCBoy, read through ARM's AMBA 3 AHB-Lite spec. This document is mirrored in the {\tt reference} folder in the GitHub repository, and gives a clear and comprehensive breakdown of AHB-Lite. However, the following overview should provide sufficient understanding of the standard to read through the Verilog.
 
-Transactions take place in two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus (\texttt{hrdata} and \texttt{hwdata}), but never both. \texttt{hrdata} is driven by the slave, and \texttt{hwdata} by the master.
+Transactions take place in two phases, named the address phase and the data phase. During the address phase, the master asserts signals which control the nature of the transfer, such as the address, whether the transfer is a read or write, protection/permission information, the width of the data, and so on. During the data phase, data is asserted on either the read or write data bus ({\tt hrdata} and {\tt hwdata}), but never both. {\tt hrdata} is driven by the slave, and {\tt hwdata} by the master.
 
-The central conceit of AHB-Lite is that these two phases are \textit{pipelined}. Whilst the master is asserting or accepting data for an earlier transaction (currently in data phase), it concurrently asserts address and control information for a later transaction (currently in address phase). As is generally the case with pipelining, the goal is to enable higher clock frequencies with undiminished work-per-clock.
+The central conceit of AHB-Lite is that these two phases are {\it pipelined}. Whilst the master is asserting or accepting data for an earlier transaction (currently in data phase), it concurrently asserts address and control information for a later transaction (currently in address phase). As is generally the case with pipelining, the goal is to enable higher clock frequencies with undiminished work-per-clock.
 
 \begin{figure}[H]
 \centering
@@ -459,9 +495,9 @@ The central conceit of AHB-Lite is that these two phases are \textit{pipelined}.
 \label{diagram:ahbl_basic}
 \end{figure}
 
-In figure \ref{diagram:ahbl_basic}, a master carries out two AHB-Lite transactions: a write to address A, followed by a read from address B. Only a subset of AHB-Lite signals are shown on the diagram. \texttt{htrans}, \texttt{haddr}, and \texttt{hwrite} are driven by the master, during the address phase; the other two are data phase signals. \texttt{htrans} indicates the type of transfer the master next wishes to perform, which is one of \texttt{IDLE}, \texttt{NSEQ} (non-sequential), \texttt{SEQ} and \texttt{BUSY}. The latter two are exclusive to burst transactions, which are not used in RISCBoy. (See the ARM spec if you do want details.)
+In figure \ref{diagram:ahbl_basic}, a master carries out two AHB-Lite transactions: a write to address A, followed by a read from address B. Only a subset of AHB-Lite signals are shown on the diagram. {\tt htrans}, {\tt haddr}, and {\tt hwrite} are driven by the master, during the address phase; the other two are data phase signals. {\tt htrans} indicates the type of transfer the master next wishes to perform, which is one of {\tt IDLE}, {\tt NSEQ} (non-sequential), {\tt SEQ} and {\tt BUSY}. The latter two are exclusive to burst transactions, which are not used in RISCBoy. (See the ARM spec if you do want details.)
 
-Sometimes a slave is unable to service a request immediately, as shown in figure \ref{diagram:ahbl_basic_stall}. \texttt{hready} is a data phase signal, which signifies the end of the current data phase.
+Sometimes a slave is unable to service a request immediately, as shown in figure \ref{diagram:ahbl_basic_stall}. {\tt hready} is a data phase signal, which signifies the end of the current data phase.
 
 \begin{figure}[H]
 \centering
@@ -470,19 +506,19 @@ Sometimes a slave is unable to service a request immediately, as shown in figure
 \label{diagram:ahbl_basic_stall}
 \end{figure}
 
-This slave needs two cycles to perform each data phase; perhaps it is an SRAM capable of running only at half the system clock speed. Therefore, \texttt{hready} is low for one cycle, and high for the second (last) cycle of each data phase. The master drives \texttt{hwdata} for the duration of A's data phase, waiting for the slave to signal completion. \texttt{hrdata}, on the other hand, is invalid until the final cycle of a read data phase.
+This slave needs two cycles to perform each data phase; perhaps it is an SRAM capable of running only at half the system clock speed. Therefore, {\tt hready} is low for one cycle, and high for the second (last) cycle of each data phase. The master drives {\tt hwdata} for the duration of A's data phase, waiting for the slave to signal completion. {\tt hrdata}, on the other hand, is invalid until the final cycle of a read data phase.
 
-Note that an address phase does not complete until the preceding transfer's data phase completes. In figure \ref{diagram:ahbl_basic_stall}, address B (and associated address-phase signals) continue to be driven until the A data phase completes. \texttt{IDLE} transactions do have a data phase, which always completes immediately. Consequently, \texttt{hready} idles high while the bus is in an idle state. This is why A's address phase completes immediately in the figure.
+Note that an address phase does not complete until the preceding transfer's data phase completes. In figure \ref{diagram:ahbl_basic_stall}, address B (and associated address-phase signals) continue to be driven until the A data phase completes. {\tt IDLE} transactions do have a data phase, which always completes immediately. Consequently, {\tt hready} idles high while the bus is in an idle state. This is why A's address phase completes immediately in the figure.
 
-In a practical system, there are multiple slaves. Each drives a signal called \texttt{hreadyout}, to indicate that \textit{that slave} is ready. The bus fabric tracks which slave the master is currently accessing in the data phase, and selects that slave's \texttt{hreadyout} to be the global \texttt{hready}. To see why this is necessary, think about the situation where a master is in data phase with one slave, and address phase with a different slave.
+In a practical system, there are multiple slaves. Each drives a signal called {\tt hreadyout}, to indicate that {\it that slave} is ready. The bus fabric tracks which slave the master is currently accessing in the data phase, and selects that slave's {\tt hreadyout} to be the global {\tt hready}. To see why this is necessary, think about the situation where a master is in data phase with one slave, and address phase with a different slave.
 
 \subsection{Multi-Master Operation}
 
-In a single-master busfabric, \texttt{hready} is a global signal, which causes the entire AHB-Lite state machine (masters, slaves, fabric, the lot) to advance. Where multiple masters are concerned, \texttt{hready} is more subtle; in part it is a per-master stall signal. At this point we need to be more specific about the relationship between \texttt{hreadyout} and \texttt{hready}.
+In a single-master busfabric, {\tt hready} is a global signal, which causes the entire AHB-Lite state machine (masters, slaves, fabric, the lot) to advance. Where multiple masters are concerned, {\tt hready} is more subtle; in part it is a per-master stall signal. At this point we need to be more specific about the relationship between {\tt hreadyout} and {\tt hready}.
 
-Any AHB-Lite slave port (of which there is one on the master side of the splitter, $n$ on the master side of the arbiter, and one on each slave device) has an output called \texttt{hreadyout}, which indicates the slave's readiness. Each of these ports also has an input called \texttt{hready}, which indicates that the data phase is ending for the master who is connected to this slave (which does not mean that it is in data phase with \textit{this} slave; it may be addressing this slave while in data phase with another). \texttt{hready} is a function of \texttt{hreadyout}s and bus state. The connections between masters, splitters, arbiters and slaves are shown in figure \ref{diagram:crossbar_structure}.
+Any AHB-Lite slave port (of which there is one on the master side of the splitter, $n$ on the master side of the arbiter, and one on each slave device) has an output called {\tt hreadyout}, which indicates the slave's readiness. Each of these ports also has an input called {\tt hready}, which indicates that the data phase is ending for the master who is connected to this slave (which does not mean that it is in data phase with {\it this} slave; it may be addressing this slave while in data phase with another). {\tt hready} is a function of {\tt hreadyout}s and bus state. The connections between masters, splitters, arbiters and slaves are shown in figure \ref{diagram:crossbar_structure}.
 
-In the single-layer crossbar on RISCBoy, each system AHB-Lite slave is the slave of an arbiter, which is the slave of several splitters, each of which is the slave of a system master. As a general rule, the busfabric must filter system slaves' \texttt{hreadyout}s up to each system master, tie \texttt{hreadyout}s across to \texttt{hready}s at the very top of the busfabric, and then distribute these \texttt{hready} signals down to the correct system slaves.
+In the single-layer crossbar on RISCBoy, each system AHB-Lite slave is the slave of an arbiter, which is the slave of several splitters, each of which is the slave of a system master. As a general rule, the busfabric must filter system slaves' {\tt hreadyout}s up to each system master, tie {\tt hreadyout}s across to {\tt hready}s at the very top of the busfabric, and then distribute these {\tt hready} signals down to the correct system slaves.
 
 \subsubsection{Multiple Masters, One Slave}
 
@@ -504,8 +540,8 @@ If we look at each master's trace, there is no indication at all that there is m
 One odd feature of this trace is that, when the slave sees the address B, no master is asserting this address.
 
 \begin{enumerate}
-	\item Initially, both masters assert \texttt{IDLE}; \texttt{IDLE} data phases complete in one cycle
-	\item \texttt{IDLE} data phases are concurrent with A, B address phases, so these \textit{also} complete immediately
+	\item Initially, both masters assert {\tt IDLE}; {\tt IDLE} data phases complete in one cycle
+	\item {\tt IDLE} data phases are concurrent with A, B address phases, so these {\it also} complete immediately
 	\item From the master 1's point of view, transaction B proceeds immediately to data phase.
 	\item From both the master 0's and the slave's point of view, transaction A proceeds immediately to data phase
 	\item Whilst the slave is in data phase for A, it is simultaneously in address phase for B
@@ -513,7 +549,7 @@ One odd feature of this trace is that, when the slave sees the address B, no mas
 	\item When B data phase completes, master 1 is signaled
 \end{enumerate}
 
-More concisely put, the first clock cycle of a given transaction's data phase may differ between the slave and master, but the \textit{last} cycle of that data phase is always the same clock cycle. The slave address phase will occur some time between the master address phase starting, and the slave data phase starting. These are strong enough guarantees for correct operation.
+More concisely put, the first clock cycle of a given transaction's data phase may differ between the slave and master, but the {\it last} cycle of that data phase is always the same clock cycle. The slave address phase will occur some time between the master address phase starting, and the slave data phase starting. These are strong enough guarantees for correct operation.
 
 Based on this discussion, the AHB-Lite arbiters need the facility to buffer one address-phase request, per master. A buffered request will be applied before any new requests from that master, but after any higher-priority requests. There is a nonzero hardware cost to this buffering, but there are clear engineering benefits to keeping this complexity confined to the arbiters, as they are the only component in the busfabric which is explicitly "multi master".
 
@@ -535,7 +571,7 @@ There is a different case which requires the arbiter's request buffer, shown in 
 \label{diagram:ahbl_mm_simult3}
 \end{figure}
 
-At the instant where D address phase is asserted, \texttt{hready0} is high, because master 0 previously asserted an \texttt{IDLE} transfer. However, the slave is not ready. In this case, the arbiter needs to buffer master 0's request, even though it is the highest-priority master. The buffered request is cleared once its slave address phase completes, as usual.
+At the instant where D address phase is asserted, {\tt hready0} is high, because master 0 previously asserted an {\tt IDLE} transfer. However, the slave is not ready. In this case, the arbiter needs to buffer master 0's request, even though it is the highest-priority master. The buffered request is cleared once its slave address phase completes, as usual.
 
 On the next cycle, B's data phase completes, and master 1 also considers this to be the end of the C address phase. The arbiter must write the C request into master 1's request buffer. Master 0's buffered request will continue to take priority over master 1's buffered request, until the first buffer is cleared.
 
@@ -548,7 +584,7 @@ There is one final case, for two masters accessing one slave, which is worth bei
 \label{diagram:ahbl_mm_latearrival}
 \end{figure}
 
-Whilst \texttt{hreadyout} is low, the C address briefly appears on the slave bus, before being replaced by the higher-priority D request. \textbf{This is a departure from the AHB-Lite standard}, which stipulates the address must be constant during this time. This is deliberate, and easily amended. Slaves are generally insensitive to address-phase request during this time (as there is no performance benefit to latching APR before \texttt{hreadyout}, due to the way the bus operates), and this avoids a priority inversion, reducing average latency for higher-priority masters. If you find something that this breaks, write me an angry email! I would be interested to see such a slave.
+Whilst {\tt hreadyout} is low, the C address briefly appears on the slave bus, before being replaced by the higher-priority D request. \textbf{This is a departure from the AHB-Lite standard}, which stipulates the address must be constant during this time. This is deliberate, and easily amended. Slaves are generally insensitive to address-phase request during this time (as there is no performance benefit to latching APR before {\tt hreadyout}, due to the way the bus operates), and this avoids a priority inversion, reducing average latency for higher-priority masters. If you find something that this breaks, write me an angry email! I would be interested to see such a slave.
 
 The D request causes the low-priority C request to be buffered; the B data phase completes on this cycle, hence, from master 0's point of view, the C address phase does too.
 
@@ -556,19 +592,19 @@ The D request causes the low-priority C request to be buffered; the B data phase
 
 The previous section discussed some cases where multiple masters access a single slave, and showed how the arbiter safely navigates them. There are yet more issues to consider when multiple masters and multiple slaves are involved, which must be handled without added latency cycles, and with minimal extra gate delay.
 
-For example, a master may be engaged in address phase with one arbiter and data phase with another arbiter simultaneously, via a splitter, and these two arbiters will not necessarily signal \texttt{hreadyout} at the same time. Consequently, a master may have a positive \texttt{hready}, filtered from its data phase arbiter, when its address phase arbiter has a negative \texttt{hreadyout}, which requires action on the arbiter's part.
+For example, a master may be engaged in address phase with one arbiter and data phase with another arbiter simultaneously, via a splitter, and these two arbiters will not necessarily signal {\tt hreadyout} at the same time. Consequently, a master may have a positive {\tt hready}, filtered from its data phase arbiter, when its address phase arbiter has a negative {\tt hreadyout}, which requires action on the arbiter's part.
 
-There is also the issue that being in data phase with an arbiter does not mean you are genuinely in data phase with the arbitrated slave; in fact, a very simple sequence of events (all masters \texttt{IDLE} $\to$ all masters \texttt{NSEQ}) will put all masters simultaneously in data phase with the same arbiter. The arbiter behaviour described in the previous section should allow us to abstract this away, provided we can deal with the first issue safely.
+There is also the issue that being in data phase with an arbiter does not mean you are genuinely in data phase with the arbitrated slave; in fact, a very simple sequence of events (all masters {\tt IDLE} $\to$ all masters {\tt NSEQ}) will put all masters simultaneously in data phase with the same arbiter. The arbiter behaviour described in the previous section should allow us to abstract this away, provided we can deal with the first issue safely.
 
-Splitters will filter their slaves' \texttt{hreadyout}s based on which is currently in data phase, and present it on their own slave port. Arbiters will present their slave's \texttt{hreadyout} on any master-facing ports which are in data phase with the arbiter, and will present $\texttt{hreadyout} = 1$ on any idle ports.
+Splitters will filter their slaves' {\tt hreadyout}s based on which is currently in data phase, and present it on their own slave port. Arbiters will present their slave's {\tt hreadyout} on any master-facing ports which are in data phase with the arbiter, and will present ${\tt hreadyout} = 1$ on any idle ports.
 
-Splitters will fan their \texttt{hready} signal out to all of their slaves; a low \texttt{hready} directed at a slave you are not engaged with is harmless.
+Splitters will fan their {\tt hready} signal out to all of their slaves; a low {\tt hready} directed at a slave you are not engaged with is harmless.
 
 
 
 \section{Pixel Processing Unit (PPU)}
 
-\textit{WARNING: This section rambles incoherently over a piece of hardware that does not yet exist, marking a complete departure from the preceding documentation}
+{\it WARNING: This section rambles incoherently over a piece of hardware that does not yet exist, marking a complete departure from the preceding documentation}
 
 \begin{figure}[!htb]
 \centering
@@ -654,7 +690,7 @@ A paletted pixel is transparent if:
 	\item Transparency is enabled for that pixel source
 \end{itemize}
 
-So at e.g. 1 bit per pixel, it is possible to have either 2 colours, or 1 colour plus transparency. It is important that the transparency of a pixel is known as early as possible: this enables the PPU to perform layer composition before palette lookup, so only one palette lookup per \textit{screen} pixel is required.
+So at e.g. 1 bit per pixel, it is possible to have either 2 colours, or 1 colour plus transparency. It is important that the transparency of a pixel is known as early as possible: this enables the PPU to perform layer composition before palette lookup, so only one palette lookup per {\it screen} pixel is required.
 
 
 \subsection{Palettes}
@@ -663,7 +699,7 @@ The PPU contains a single hardware palette memory (PRAM). The PRAM is large enou
 
 Although there is only a single hardware palette, 256 colours in size, backgrounds and sprites can index this palette at an offset. PRAM may be initialised with e.g. multiple 16-colour tables at different (potentially overlapping) locations, giving effectively independent palettes.
 
-PRAM can be addressed through the PPU's configuration interface, for configuration by the system. The PPU has priority access to the PRAM, so attempting to access PRAM during drawing may cause a lengthy stall. As with all PPU configuration state, it can also be updated by the Poker, using a \texttt{poke} instruction; under ideal conditions the PPU can completely replace PRAM contents in 257 cycles.
+PRAM can be addressed through the PPU's configuration interface, for configuration by the system. The PPU has priority access to the PRAM, so attempting to access PRAM during drawing may cause a lengthy stall. As with all PPU configuration state, it can also be updated by the Poker, using a {\tt poke} instruction; under ideal conditions the PPU can completely replace PRAM contents in 257 cycles.
 
 \subsection{Layers}
 
@@ -680,6 +716,36 @@ Each background, and each sprite, can be individually assigned a layer number in
 	\end{itemize}
 \end{itemize}
 
+Layer number can be thought of as depth into the screen. X is positive to the right, and Y is positive downward, so in a right-handed coordinate system, Z would be positive into the screen.
+
+\subsection{Backgrounds}
+
+Backgrounds are composed of tiles. Tiles are composed of pixels.
+
+\begin{figure}[H]
+\centering
+\caption{PPU Background Coordinate System}
+\label{diagram:ppu_bg_coords}
+\includegraphics[width=0.7\textwidth]{diagrams/ppu_bg_coords.pdf}
+\end{figure}
+
+Each tile is a square image, the width and height of which (measured in pixels) is configured per-background, and is always a power of two. Tiles are stored in memory in a packed format: each tile is a sequence of pixels starting at the top left, proceeding left-to-right, then top-to-bottom. A region of memory packed with tile images (or sprites) will be referred to as an atlas. All images in a tile atlas are the same dimensions, and have the same pixel format.
+
+The background itself is defined by:
+
+\begin{itemize}
+	\item A width and height, in tiles.
+	\item A pointer to a tile atlas. The pointer is aligned to a one-tile boundary. The atlas contains up to 256 tiles.
+	\item A pointer to a tilemap. The tilemap is $width \times height$ bytes in size, and byte-aligned.
+\end{itemize}
+
+For each pixel on the screen, the tilemap tells the PPU which tile should be at that location, and the tile image in the atlas tells the PPU the colour of each pixel in that screen tile.
+
+The screen origin is offset into the background by configuring the horizontal and vertical scroll. This allows the game view to move smoothly over a fixed background. If the screen area overhangs the background, coordinates are wrapped. Unfortunately, the physical dimensions of the screen cannot be modified at run time.
+
+\subsection{Sprites}
+
+Sprites are small images which can be displayed at arbitrary screen coordinates; for example, the player character.
 
 \subsection{Poker}
 \label{section:ppu_poker}
@@ -694,55 +760,55 @@ Poker instructions reside in main system memory. Instructions are documented bel
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,11,12,23,24,31} \\
-\bitbox{8}{\texttt{WAIT}} \bitbox{12}{\texttt{x}} \bitbox{12}{\texttt{y}} \\
+\bitbox{8}{{\tt WAIT}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
 \end{bytefield}
 
-Suspend execution, resuming immediately before pixel (\texttt{x}, \texttt{y}). For example \texttt{WAIT 0, 0} will halt Poker execution until the start of the next frame. The Poker should generally spend most of its time in a suspended state, as it blocks pixel data fetches while it is executing.
+Suspend execution, resuming immediately before pixel ({\tt x}, {\tt y}). For example {\tt WAIT 0, 0} will halt Poker execution until the start of the next frame. The Poker should generally spend most of its time in a suspended state, as it blocks pixel data fetches while it is executing.
 
-Setting \texttt{x} or \texttt{y} to the all-ones bit pattern means "any". For example, the Poker may scan a block of sprite configuration at the start of every line, or change background colour at a certain point on every scanline.
+Setting {\tt x} or {\tt y} to the all-ones bit pattern means "any". For example, the Poker may scan a block of sprite configuration at the start of every line, or change background colour at a certain point on every scanline.
 
-Any pixels before (\texttt{x}, \texttt{y}) are unaffected by any changes the Poker may make. Once the Poker finishes poking, and goes back into the \texttt{WAIT} state, all pixels after this point (inclusive of (\texttt{x}, \texttt{y}) take the new values into account.
+Any pixels before ({\tt x}, {\tt y}) are unaffected by any changes the Poker may make. Once the Poker finishes poking, and goes back into the {\tt WAIT} state, all pixels after this point (inclusive of ({\tt x}, {\tt y}) take the new values into account.
 
 \subsubsection*{POKE}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,15,24,31} \\
-\bitbox{8}{\texttt{POKE}} \bitbox{8}{\texttt{count}} \bitbox{16}{\texttt{addr}} \\
+\bitbox{8}{{\tt POKE}} \bitbox{8}{{\tt count}} \bitbox{16}{{\tt addr}} \\
 \bitheader{0, 31} \\
-\bitbox{32}{\texttt{data}} \\
+\bitbox{32}{{\tt data}} \\
 \end{bytefield}
 
-Write \texttt{data} into the PPU's configuration address space, starting at \texttt{addr}. The \texttt{data} payload is $\texttt{count}+ 1$ words in size. Absolutely any state can be modified, but beware that each pixel engine (sprite or background) will perform a reload when relevant config is written to.
+Write {\tt data} into the PPU's configuration address space, starting at {\tt addr}. The {\tt data} payload is ${\tt count}+ 1$ words in size. Absolutely any state can be modified, but beware that each pixel engine (sprite or background) will perform a reload when relevant config is written to.
 
-For example, a background may have its tileset \texttt{POKE}d at a certain point in each scanline, if there is a menu on the side of the screen which uses a font tilemap to draw text.
+For example, a background may have its tileset {\tt POKE}d at a certain point in each scanline, if there is a menu on the side of the screen which uses a font tilemap to draw text.
 
-Some \texttt{POKE}s are more expensive than others: it is possible to change the vertical scroll for every single pixel along a scanline, and this will produce the expected image. However, scrolling the screen invalidates the state of all sprites and backgrounds, which may cause slowdown if done too often.
+Some {\tt POKE}s are more expensive than others: it is possible to change the vertical scroll for every single pixel along a scanline, and this will produce the expected image. However, scrolling the screen invalidates the state of all sprites and backgrounds, which may cause slowdown if done too often.
 
-Note that the Poker's program counter is mapped into the configuration address space; \texttt{POKE} can be used to perform jumps.
+Note that the Poker's program counter is mapped into the configuration address space; {\tt POKE} can be used to perform jumps.
 
 \subsubsection*{SPRITE}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,7,8,15,16,23,24,31} \\
-\bitbox{8}{\texttt{SPRITE}} \bitbox{8}{count} \bitbox{8}{\texttt{start}} \bitbox{8}{\texttt{end}} \\
+\bitbox{8}{{\tt SPRITE}} \bitbox{8}{count} \bitbox{8}{{\tt start}} \bitbox{8}{{\tt end}} \\
 \bitheader{0, 31} \\
-\bitbox{32}{\texttt{addr}} \\
+\bitbox{32}{{\tt addr}} \\
 \end{bytefield}
 
-Scan through \texttt{count} sprite configuration words starting at \texttt{addr} and assign them to sprites in range \texttt{start}...\texttt{end} if they intersect the current scanline. Disable remaining sprites. Stop scanning if \texttt{end} is reached. If the display has a horizontal blanking period, this is the ideal time to perform \texttt{SPRITE} scanning. This instruction is implemented with hardware already present in the PPU, so presents little extra cost.
+Scan through {\tt count} sprite configuration words starting at {\tt addr} and assign them to sprites in range {\tt start}...{\tt end} if they intersect the current scanline. Disable remaining sprites. Stop scanning if {\tt end} is reached. If the display has a horizontal blanking period, this is the ideal time to perform {\tt SPRITE} scanning. This instruction is implemented with hardware already present in the PPU, so presents little extra cost.
 
 This mechanism is similar to GameBoy OAM search. The effect is that the user can define a large number of virtual sprites -- more than are available in hardware -- and the PPU can draw all of these, as long as the number of sprites on one scanline is not greater than the hardware sprite count.
 
-Alternatively, sprite allocation can be performed by software, and the sprites updated using a \texttt{POKE} instruction. The \texttt{POKE} approach is more flexible, and makes it easier to multiplex hard sprites within a single scanline.
+Alternatively, sprite allocation can be performed by software, and the sprites updated using a {\tt POKE} instruction. The {\tt POKE} approach is more flexible, and makes it easier to multiplex hard sprites within a single scanline.
 
 \subsubsection*{SKIP}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{24,31} \\
-\bitbox{8}{\texttt{SKIP}} \bitbox{24}{TBD} \\
+\bitbox{8}{{\tt SKIP}} \bitbox{24}{TBD} \\
 \end{bytefield}
 
-Skip the following instruction, if the beam has reached some point. Full details TBD. It might be better to provide a conditional jump with a target, because not all of our instructions are the same length (especially \texttt{POKE})
+Skip the following instruction, if the beam has reached some point. Full details TBD. It might be better to provide a conditional jump with a target, because not all of our instructions are the same length (especially {\tt POKE})
 
 This allows Poker loops to be programmed, and makes the wait wildcard values much more useful.
 

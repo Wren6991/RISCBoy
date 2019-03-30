@@ -1,0 +1,45 @@
+name: spi
+bus: apb
+addr: 16
+data: 32
+regs:
+  - name: csr
+    info: Control and status register
+    bits:
+      - {b: 9, name: csauto, access: rw, rst: 1,
+        info: "If 1, CS pin is driven automatically (low during data transfer, else high)"}
+      - {b: 8, name: cs, access: rw,
+        info: "If automatic CS is disabled, use this bit to control CS signal."}
+      - {b: 5, name: loopback, access: rw,
+        info: "If 1, connect MOSI to MISO internally, for debugging purposes"}
+      - {b: 4, name: read_en, access: rw, rst: 1,
+        info: "If 0, the received data will not be pushed to RX FIFO. (Transmit only)"}
+      - {b: 3, name: cpol, access: rw,
+        info: "If 0, SCLK low when idle. If 1, high when idle."}
+      - {b: 2, name: cpha, access: rw,
+        info: "If 0, data captured on leading edge of SCLK pulse. If 1, trailing edge."}
+      - {b: 0, name: busy, access: rov, info: A transfer is in progress}
+  - name: div
+    info: Clock divider register
+    bits:
+      - {b: [5, 0], access: rw, rst: 1}
+  - name: fstat
+    info: FIFO status register
+    bits:
+      - {b: [7, 0], name: txlevel, access: rov}
+      - {b: 8,  name: txfull,  access: rov}
+      - {b: 9,  name: txempty, access: rov}
+      - {b: 10, name: txover,  access: w1c}
+      - {b: [23, 16], name: rxlevel, access: rov}
+      - {b: 24, name: rxfull,  access: rov}
+      - {b: 25, name: rxempty, access: rov}
+      - {b: 26, name: rxover,  access: w1c}
+      - {b: 27, name: rxunder, access: w1c}
+  - name: tx
+    info: "TX data FIFO"
+    bits:
+      - {b: [7, 0], access: wf}
+  - name: rx
+    info: "RX data FIFO"
+    bits:
+      - {b: [7, 0], access: rf}
