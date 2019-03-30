@@ -6,15 +6,15 @@ module riscboy_fpga (
 	output wire led_g,
 	output wire led_b,
 
-	output wire uart_tx,
-	input wire uart_rx,
+	inout wire uart_tx,
+	inout wire uart_rx,
 
-	output wire lcd_scl,
-	output wire lcd_sdo,
-	output wire lcd_cs,
-	output wire lcd_dc,
-	output wire lcd_pwm,
-	output wire lcd_rst
+	inout wire lcd_scl,
+	inout wire lcd_sdo,
+	inout wire lcd_cs,
+	inout wire lcd_dc,
+	inout wire lcd_pwm,
+	inout wire lcd_rst
 );
 
 // Clock + Reset resources

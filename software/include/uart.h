@@ -85,7 +85,7 @@ static inline void uart_puts(const char *s)
 	}
 }
 
-static inline void uart_putint(uint32_t i)
+static inline void uart_putint(uint32_t x)
 {
 	static const char hex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
@@ -93,8 +93,8 @@ static inline void uart_putint(uint32_t i)
 	};
 	for (int i = 0; i < 8; ++i)
 	{
-		uart_put((uint8_t)(hex[i >> 28]));
-		i <<= 4;
+		uart_put((uint8_t)(hex[x >> 28]));
+		x <<= 4;
 	}
 }
 

@@ -275,11 +275,6 @@
       <wvobject fp_name="group113" type="group">
          <obj_property name="label">Decode</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/d_pc" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">d_pc[31:0]</obj_property>
-            <obj_property name="ObjectShortName">d_pc[31:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/frontend/cir" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">cir[31:0]</obj_property>
             <obj_property name="ObjectShortName">cir[31:0]</obj_property>
@@ -289,21 +284,9 @@
             <obj_property name="ElementShortName">cir_vld[1:0]</obj_property>
             <obj_property name="ObjectShortName">cir_vld[1:0]</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/d_instr_is_32bit" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">d_instr_is_32bit</obj_property>
-            <obj_property name="ObjectShortName">d_instr_is_32bit</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/d_starved" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">d_starved</obj_property>
-            <obj_property name="ObjectShortName">d_starved</obj_property>
-         </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/d_stall" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">d_stall</obj_property>
             <obj_property name="ObjectShortName">d_stall</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/d_invalid" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">d_invalid</obj_property>
-            <obj_property name="ObjectShortName">d_invalid</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/df_cir_use" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">df_cir_use[1:0]</obj_property>
@@ -383,10 +366,6 @@
             <obj_property name="ElementShortName">x_alu_result[31:0]</obj_property>
             <obj_property name="ObjectShortName">x_alu_result[31:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/x_alu_zero" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">x_alu_zero</obj_property>
-            <obj_property name="ObjectShortName">x_alu_zero</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/ahb_req_d" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">ahb_req_d</obj_property>
@@ -672,6 +651,20 @@
       <wvobject fp_name="/tb/dut/inst_uart_mini/rx" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">rx</obj_property>
          <obj_property name="ObjectShortName">rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rx_state" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_state[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rx_state[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rx_over_ctr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_over_ctr[2:0]</obj_property>
+         <obj_property name="ObjectShortName">rx_over_ctr[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_uart_mini/rx_shifter" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_shifter[7:0]</obj_property>
+         <obj_property name="ObjectShortName">rx_shifter[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/inst_uart_mini/tx" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">tx</obj_property>

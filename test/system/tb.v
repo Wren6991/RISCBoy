@@ -12,6 +12,8 @@ reg rst_n;
 
 wire [15:0] pads;
 
+assign (pull0, pull1) pads = 16'hffff; // stop getting Xs in processor when checking IOs
+
 riscboy_core #(
 	.BOOTRAM_PRELOAD("../ram_init32.hex")
 ) dut (

@@ -57,6 +57,7 @@ wire [W_FLEVEL-1:0] rxfifo_level;
 wire csr_en;
 wire csr_txie;
 wire csr_rxie;
+wire csr_loopback;
 assign irq = (csr_txie && !txfifo_full) || (csr_rxie && !rxfifo_empty);
 assign dreq = irq;
 
@@ -143,11 +144,12 @@ reg [W_OVER-1:0] rx_over_ctr;
 reg [3:0] rx_state;
 reg [7:0] rx_shifter;
 
-localparam RX_IDLE = 0;
-localparam RX_START1 = 1; // 1 bit period
-localparam RX_START2 = 2; // 0.5 bit periods
-// 3...10 are data states
-localparam RX_STOP = 11;
+wire din = csr_loopback ? tx : rx;
+
+localparam RX_IDLE = 0;    // followed by 1 bit period delay
+localparam RX_START = 1;  // followed by 0.5 bit period delay
+// 2...9 are data states
+localparam RX_STOP = 10;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -168,32 +170,27 @@ always @ (posedge clk or negedge rst_n) begin
 			rx_state <= rx_state + 1'b1;
 			case (rx_state)
 			RX_IDLE: begin
-				if (!rx) begin
-					rx_state <= RX_START1;
-				end else begin
+				if (din) begin
 					// Hold oversample counter to maintain readiness
+					rx_state <= RX_IDLE;
 					rx_over_ctr <= {W_OVER{1'b0}};
 				end
 			end
-			RX_START1: begin
-				rx_over_ctr <= OVERSAMPLE / 2;	// shorten next state by 1/2
-			end
-			RX_START2: begin
-				rx_shifter <= (rx_shifter >> 1) | (rx << 7);
+			RX_START: begin
+				rx_over_ctr <= OVERSAMPLE / 2;	// shorten delay to next state by 1/2
 			end
 			RX_STOP: begin
-				// Nothing to do here
+				// Don't push if there is no valid stop bit
+				rxfifo_wen <= din;
+				// No delay before idle state.
+				// Half bit period of slack before next start bit edge,
+				// helps to keep sync when TX clock is a little faster than ours.
+				rx_state <= RX_IDLE;
+				rx_over_ctr <= 0;
 			end
 			default: begin
 				// Data states
-				if (rx_state == RX_STOP - 1) begin
-					// shorten next state; we've been sampling in the middle of bit periods, now get back to edge.
-					rx_over_ctr <= OVERSAMPLE / 2 + 1;
-					// Don't push if there is no valid stop bit
-					rxfifo_wen <= rx;
-				end else begin
-					rx_shifter <= (rx_shifter >> 1) | (rx << 7);
-				end
+				rx_shifter <= (rx_shifter >> 1) | (din << 7);
 			end
 			endcase
 		end
@@ -266,6 +263,7 @@ uart_regs regs (
 	.csr_busy_i      (tx_busy),
 	.csr_txie_o      (csr_txie),
 	.csr_rxie_o      (csr_rxie),
+	.csr_loopback_o  (csr_loopback),
 	.div_int_o       (div_int),
 	.div_frac_o      (div_frac),
 	.fstat_txlevel_i (txfifo_level | 8'h0),

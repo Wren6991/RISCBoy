@@ -44,6 +44,11 @@
 #define UART_CSR_RXIE_LSB  3
 #define UART_CSR_RXIE_BITS 1
 #define UART_CSR_RXIE_MASK 0x8
+// Field CSR_LOOPBACK
+// Connect directly to TX internally (for testing).
+#define UART_CSR_LOOPBACK_LSB  8
+#define UART_CSR_LOOPBACK_BITS 1
+#define UART_CSR_LOOPBACK_MASK 0x100
 
 /*******************************************************************************
 *                                     DIV                                      *
