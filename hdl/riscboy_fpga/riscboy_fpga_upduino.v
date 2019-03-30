@@ -21,7 +21,6 @@ module riscboy_fpga (
 
 wire clk_osc;
 wire clk_sys;
-assign clk_sys = clk_osc; // TODO PLL
 
 SB_HFOSC #(
   .CLKHF_DIV ("0b10") // divide by 4 -> 12 MHz
@@ -30,6 +29,22 @@ SB_HFOSC #(
   .CLKHFEN (1'b1),
   .CLKHF (clk_osc)
 );
+
+// We can't close timing at this speed (normally around 14 MHz),
+// but the timings are conservative, and it seems to work for playing around :)
+localparam USE_PLL = 0;
+
+generate
+if (USE_PLL) begin: has_pll
+	pll_12_18 pll (
+		.clock_in  (clk_osc),
+		.clock_out (clk_sys), // -> 18 MHz
+		.locked    (   )
+	);
+end else begin: no_pll
+	assign clk_sys = clk_osc;
+end
+endgenerate
 
 // Crappy behavioural reset generator
 (* keep = 1'b1 *) reg [19:0] rst_delay = 20'h0;
