@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+
+# Simple utility for programming SPI flash via a UART shell in the bootloader.
+# TODO: make the serial shell more UART-efficient, rather than
+# being human friendly (e.g. use of hex to transfer data...)
+
+import argparse
+import os
+import serial
+import sys
+from time import sleep
+
+PAGESIZE = 64
+SECTORSIZE = 4096
+
+def init_serial(path, baud):
+	port = serial.Serial(path, baud)
+	while not port.read_all().decode().endswith("> "):
+		port.write("\n".encode())
+		sleep(0.001)
+	return port
+
+def iter_bytes(hexstr):
+	for i in range(0, len(hexstr) - 1, 2):
+		yield int(hexstr[i : i + 2], 16)
+
+def wait_for_prompt(port):
+	buf = bytes()
+	while not buf.decode().endswith("> "):
+		buf += port.read_all()
+	return buf
+
+def erase(port, start, n):
+	addr = start - start % SECTORSIZE
+	while addr < start + n:
+		print("Erasing sector @{:06x}".format(addr))
+		port.flushInput()
+		port.write("e{:06x}".format(addr).encode())
+		addr += SECTORSIZE
+		wait_for_prompt(port)
+
+def program(port, start, buf):
+	assert(start % PAGESIZE == 0)
+	if len(buf) % PAGESIZE != 0:
+		buf = buf + bytes(PAGESIZE - (len(buf) % PAGESIZE))
+	for offs in range(0, len(buf), PAGESIZE):
+		port.flushInput()
+		port.write("w{:06x}".format(start + offs).encode())
+		for i in range(PAGESIZE):
+			port.write("{:02x}".format(buf[offs + i]).encode())
+		wait_for_prompt(port)
+
+def read(port, start, n):
+	addr = start
+	readback = bytes()
+	while addr < start + n:
+		port.flushInput()
+		port.write("r{:06x}".format(addr).encode())
+		addr += PAGESIZE
+		buf = wait_for_prompt(port)
+		data = buf.decode().splitlines()[2 : 2 + PAGESIZE // 8]
+		for line in data:
+			readback += bytes(iter_bytes(line))
+	if len(readback) > n:
+		readback = readback[:n]
+	return readback
+
+def any_int(x):
+	return int(x, 0)
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("file", nargs="?", help="Filename to read from or dump to.")
+	parser.add_argument("--uart", "-u", help="Path to UART device (e.g. /dev/ttyUSB0)")
+	parser.add_argument("--write", "-w", action="store_true",
+		help="Write to flash (default is read)")
+	parser.add_argument("--verify", "-v", action="store_true",
+		help="Verify contents after programming (use with --write)")
+	parser.add_argument("--start", "-s", type=any_int, help="Base address to start read/write")
+	parser.add_argument("--len", "-l", type=any_int, help="Number of bytes to read, or override file length for write.")
+	args = parser.parse_args()
+
+	# Do some simple parameter checking to make it harder to accidentally trash your device
+	if args.write and args.file is None:
+		sys.exit("Must specify filename for write")
+	if args.start is None:
+		args.start = 0
+	if args.uart is None:
+		args.uart = "/dev/ttyUSB0"
+	if args.verify and not args.write:
+		sys.exit("Verify is only valid for a write operation")
+	if args.write and (args.start % PAGESIZE != 0):
+		sys.exit("Writes must be aligned on a {}-byte boundary.".format(PAGESIZE))
+	if args.write:
+		try:
+			filesize = os.stat(args.file).st_size
+			if args.len is None:
+				args.len = filesize
+		except:
+			sys.exit("Could not open file '{}'".format(args.file))
+	else:
+		if args.len is None:
+			args.len = PAGESIZE
+
+	# Don't want to overwrite their image if they forget -w
+	if not args.write and args.file and os.path.exists(args.file):
+		resp = ""
+		while not resp in ["y", "n"]:
+			resp = input("File '{}' exists. Overwrite? (y/n) ".format(args.file))
+			resp = resp.lower().strip()
+		if resp == "n":
+			sys.exit(0)
+
+	# Summarise what we're about to do
+	print("{} {} bytes {} {}, starting at address 0x{:06x}".format(
+		"Writing" + (" and verifying" if args.verify else "") if args.write else "Reading",
+		args.len,
+		"from" if args.write else "to",
+		"stdout" if args.file is None else "file " + args.file,
+		args.start,
+		", and verifying" if args.verify else ""
+	))
+
+	# And then do it
+	port = init_serial(args.uart, 115200)
+	if args.write:
+		data = open(args.file, "rb").read()
+		if len(data) > args.len:
+			data = data[:args.len]
+		else:
+			data = data + bytes(args.len - len(data)) # zero padding
+		erase(port, args.start, args.len)
+		print("Programming...")
+		program(port, args.start, data)
+		if (args.verify):
+			print("Verifying...")
+			readback = read(port, args.start, args.len)
+			if readback != data:
+				sys.exit("Verification failed.") # TODO: better info
+		print("Done")
+	else:
+		print("Reading...")
+		data = read(port, args.start, args.len)
+		print("Done")
+		if args.file:
+			open(args.file, "wb").write(data)
+		else:
+			for i, byte in enumerate(data):
+				if i % 8 == 0:
+					sys.stdout.write("{:06x}: ".format(args.start + i))
+				sys.stdout.write("{:02x}".format(byte))
+				sys.stdout.write("\n" if i % 8 == 7 else " ")
+			sys.stdout.write("\n")
