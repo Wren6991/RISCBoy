@@ -37,7 +37,7 @@ static inline void spi_write(const uint8_t *data, size_t len)
 	}
 }
 
-static inline int _spi_get_if_nonempty(uint8_t **rx)
+static inline void _spi_get_if_nonempty(uint8_t **rx)
 {
 	if (!(*SPI_FSTAT & SPI_FSTAT_RXEMPTY_MASK))
 		*(*rx)++ = *SPI_RX;
@@ -57,8 +57,7 @@ static inline void spi_write_read(const uint8_t *tx, uint8_t *rx, size_t len)
 	}
 	while (*SPI_CSR & SPI_CSR_BUSY_MASK)
 		_spi_get_if_nonempty(&rx);
-	if (!(*SPI_FSTAT & SPI_FSTAT_RXEMPTY_MASK))
-		*rx++ = *SPI_RX;
+	_spi_get_if_nonempty(&rx);
 }
 
 static inline void spi_wait_done()

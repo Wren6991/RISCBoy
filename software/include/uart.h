@@ -85,17 +85,25 @@ static inline void uart_puts(const char *s)
 	}
 }
 
+// Have you seen how big printf is?
+static const char hextable[16] = {
+	'0', '1', '2', '3', '4', '5', '6', '7',
+	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+};
+
 static inline void uart_putint(uint32_t x)
 {
-	static const char hex[16] = {
-		'0', '1', '2', '3', '4', '5', '6', '7',
-		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-	};
 	for (int i = 0; i < 8; ++i)
 	{
-		uart_put((uint8_t)(hex[x >> 28]));
+		uart_put((uint8_t)(hextable[x >> 28]));
 		x <<= 4;
 	}
+}
+
+static inline void uart_putbyte(uint8_t x)
+{
+	uart_put((uint8_t)(hextable[x >> 4]));
+	uart_put((uint8_t)(hextable[x & 0xf]));
 }
 
 static inline void uart_wait_done()
