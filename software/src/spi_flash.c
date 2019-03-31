@@ -21,6 +21,7 @@ const char *help =
 "r: read 64B page\n"
 "w: program 64B page\n"
 "e: erase sector\n"
+"L/l: LED on/off\n"
 "h: show this help\n"
 "\n";
 
@@ -91,6 +92,20 @@ int main()
 	spi_init(false, false);
 	spi_clkdiv(CLK_SYS_MHZ / 2); // 1 MHz
 
+	// Blinkity blink motherfucker
+	// I tied the LED to the reset pin on the TinyFPGA.
+	// Why?
+	// One reason:
+	// ¯\_(ツ)_/¯
+
+	gpio_fsel(PIN_LED, 0);
+	gpio_dir_pin(PIN_LED, true);
+	for (int i = 0; i < 6; ++i)
+	{
+		*GPIO_OUT ^= (1ul << PIN_LED);
+		delay_ms(100);
+	}
+
 	uart_puts(splash);
 	uart_puts(help);
 
@@ -102,9 +117,17 @@ int main()
 			txbuf[i] = 0;
 			rxbuf[i] = 0;
 		}
-		char c = uart_get();
-		uart_put(c);
-		uart_puts("\n");
+		char c;
+		do
+		{
+			c = uart_get();
+			if (c != ' ')
+			{
+				uart_put(c);
+				uart_puts("\n");
+			}
+		} while (c == ' ');
+
 		switch (c)
 		{
 			case 'i': {
@@ -163,10 +186,18 @@ int main()
 				uart_puts("done\n");
 				break;
 			}
-			default: {
+			case 'L':
+				gpio_out_pin(PIN_LED, 1);
+				break;
+			case 'l':
+				gpio_out_pin(PIN_LED, 0);
+				break;
+			case '\r':
+			case '\n':
+				break;
+			default:
 				uart_puts(help);
 				break;
-			}
 		}
 	}
 	return 0;

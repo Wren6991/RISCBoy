@@ -1,6 +1,6 @@
 CHIPNAME=riscboy_upduino
 DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_upduino.f
-BOOTAPP=lcd_test
+BOOTAPP=spi_flash
 
 DEVICE=up5k
 PACKAGE=sg48

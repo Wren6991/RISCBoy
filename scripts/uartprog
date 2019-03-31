@@ -45,10 +45,20 @@ def program(port, start, buf):
 		buf = buf + bytes(PAGESIZE - (len(buf) % PAGESIZE))
 	for offs in range(0, len(buf), PAGESIZE):
 		port.flushInput()
-		port.write("w{:06x}".format(start + offs).encode())
+		# This version of the shell echos back our hex input,
+		# AND some other characters like newlines.
+		# This means output > input, at the same baud, so the shell stalls
+		# on its echo and starts dropping input data.
+		# Avoid this by inserting non-echoed characters (spaces)
+		# at regular intervals, to give shell time to catch up.
+		port.write("w{:06x}            ".format(start + offs).encode())
 		for i in range(PAGESIZE):
 			port.write("{:02x}".format(buf[offs + i]).encode())
+			if i % 8 == 7:
+				port.write((" " * 6).encode())
 		wait_for_prompt(port)
+		port.write("    ".encode())
+		print("{:06x}".format(start + offs))
 
 def read(port, start, n):
 	addr = start
