@@ -5,6 +5,7 @@ module riscboy_fpga (
 	output wire led_r,
 	output wire led_g,
 	output wire led_b,
+	output wire led_mirror, // green LED reflected to a GPIO so it can be probed
 
 	inout wire uart_tx,
 	inout wire uart_rx,
@@ -121,5 +122,6 @@ SB_RGBA_DRV #(
   .RGB2(led_r)
 );
 
+assign led_mirror = gpio_led;
 
 endmodule

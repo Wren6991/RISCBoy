@@ -88,7 +88,7 @@ int main()
 	gpio_fsel(PIN_FLASH_MISO, 1);
 
 	uart_init();
-	uart_clkdiv_baud(CLK_SYS_MHZ, 115200);
+	uart_clkdiv_baud(CLK_SYS_MHZ, 500000);
 	spi_init(false, false);
 	spi_clkdiv(CLK_SYS_MHZ / 2); // 1 MHz
 

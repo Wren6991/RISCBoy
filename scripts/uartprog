@@ -51,11 +51,11 @@ def program(port, start, buf):
 		# on its echo and starts dropping input data.
 		# Avoid this by inserting non-echoed characters (spaces)
 		# at regular intervals, to give shell time to catch up.
-		port.write("w{:06x}            ".format(start + offs).encode())
+		port.write("w{:06x}          ".format(start + offs).encode())
 		for i in range(PAGESIZE):
 			port.write("{:02x}".format(buf[offs + i]).encode())
 			if i % 8 == 7:
-				port.write((" " * 6).encode())
+				port.write((" " * 5).encode())
 		wait_for_prompt(port)
 		port.write("    ".encode())
 		print("{:06x}".format(start + offs))
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 	))
 
 	# And then do it
-	port = init_serial(args.uart, 115200)
+	port = init_serial(args.uart, 500000)
 	if args.write:
 		data = open(args.file, "rb").read()
 		if len(data) > args.len:
