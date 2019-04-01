@@ -15,8 +15,11 @@ for line in open(sys.argv[1]).readlines():
 
 failed = failed or uart_lines[0] != "Hello, loopback!"
 failed = failed or tbman_lines[0] != "Hello, loopback!"
-failed = failed or not tbman_lines[1].startswith("CPU requested termination")
-failed = failed or tbman_lines[1].split(" ")[-1] != "0"
+failed = failed or tbman_lines[1] != "Aggressive loopback:"
+failed = failed or tbman_lines[2] != "RX sum:"
+failed = failed or tbman_lines[3] != "00001fc0"
+failed = failed or not tbman_lines[4].startswith("CPU requested termination")
+failed = failed or tbman_lines[4].split(" ")[-1] != "0"
 
 if not failed:
 	print("Test PASSED.")

@@ -144,7 +144,24 @@ reg [W_OVER-1:0] rx_over_ctr;
 reg [3:0] rx_state;
 reg [7:0] rx_shifter;
 
-wire din = csr_loopback ? tx : rx;
+wire din_comb = csr_loopback ? tx : rx;
+
+// Nearly-useless glitch filter
+reg [1:0] din_prev;
+reg din;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		din_prev <= 2'b11;
+		din <= 1'b1;
+	end else begin
+		din_prev <= {din_prev[0], din_comb};
+		if (&{din_comb, din_prev})
+			din <= 1'b1;
+		else if (~|{din_comb, din_prev})
+			din <= 1'b0;
+	end
+end
 
 localparam RX_IDLE = 0;    // followed by 1 bit period delay
 localparam RX_START = 1;  // followed by 0.5 bit period delay

@@ -15,13 +15,67 @@ int main()
 	uart_clkdiv_baud(CLK_SYS_MHZ, 115200);
 	*UART_CSR |= UART_CSR_LOOPBACK_MASK;
 
-	char *p = str;
-	while (*p)
+	// First test is checked externally,
+	// based on observing UART/TBMAN output.
+
+	const char *s = str;
+	while (*s)
 	{
-		uart_put(*p++);
+		uart_put(*s++);
 		char c = uart_get();
 		tbman_putc(c);
 	}
 
-	tbman_exit(0);
+	// Second test is checked internally, and reported on.
+
+	tbman_puts("Aggressive loopback:\n");
+
+	const int test_len = 128;
+	uint8_t txbuf[test_len];
+	uint8_t rxbuf[test_len];
+
+	uint8_t *p = rxbuf;
+
+	for (int i = 0; i < test_len; ++i)
+		txbuf[i] = i;
+
+	for (int i = 0; i < test_len; ++i)
+	{
+		uart_put(txbuf[i]);
+		if (!uart_rx_empty())
+			*p++ = uart_get();
+	}
+	while (*UART_CSR & UART_CSR_BUSY_MASK)
+		if (!uart_rx_empty())
+			*p++ = uart_get();
+	while (!uart_rx_empty)
+		*p++ = uart_get();
+
+	bool failed = false;
+
+	if (p != rxbuf + test_len)
+	{
+		failed = true;
+		tbman_puts("Length mismatch\n");
+	}
+
+
+	if (!failed)
+	{
+		int accum = 0;
+		for (int i = 0; i < test_len; ++i)
+		{
+			accum += rxbuf[i];
+			if (txbuf[i] != rxbuf[i])
+			{
+				failed = true;
+				tbman_puts("Data mismatch @:\n");
+				tbman_putint(i);
+			}
+		}
+		tbman_puts("RX sum:\n");
+		tbman_putint(accum);
+	}
+
+	tbman_exit(failed);
 }
