@@ -724,28 +724,72 @@ Backgrounds are composed of tiles. Tiles are composed of pixels.
 
 \begin{figure}[H]
 \centering
-\caption{PPU Background Coordinate System}
+\caption{PPU background coordinate system}
 \label{diagram:ppu_bg_coords}
 \includegraphics[width=0.7\textwidth]{diagrams/ppu_bg_coords.pdf}
 \end{figure}
 
-Each tile is a square image, the width and height of which (measured in pixels) is configured per-background, and is always a power of two. Tiles are stored in memory in a packed format: each tile is a sequence of pixels starting at the top left, proceeding left-to-right, then top-to-bottom. A region of memory packed with tile images (or sprites) will be referred to as an atlas. All images in a tile atlas are the same dimensions, and have the same pixel format.
+Each tile is a square image, the width and height of which (measured in pixels) is configured per-background, and is always a power of two. Tiles are stored in memory in a packed format: each tile is a sequence of pixels starting at the top left, proceeding left-to-right, then top-to-bottom. A region of memory packed with a series of tile images will be referred to as a tileset. All images in a tileset are the same dimensions, and have the same pixel format.
 
 The background itself is defined by:
 
 \begin{itemize}
 	\item A width and height, in tiles.
-	\item A pointer to a tile atlas. The pointer is aligned to a one-tile boundary. The atlas contains up to 256 tiles.
+	\item A pointer to a tileset. The pointer is aligned to a one-tile boundary. The tileset contains up to 256 tiles.
 	\item A pointer to a tilemap. The tilemap is $width \times height$ bytes in size, and byte-aligned.
 \end{itemize}
 
-For each pixel on the screen, the tilemap tells the PPU which tile should be at that location, and the tile image in the atlas tells the PPU the colour of each pixel in that screen tile.
+For each pixel on the screen, the tilemap tells the PPU which tile should be at that location, and the corresponding tile image in the tileset tells the PPU the colour of each pixel in that screen tile.
 
 The screen origin is offset into the background by configuring the horizontal and vertical scroll. This allows the game view to move smoothly over a fixed background. If the screen area overhangs the background, coordinates are wrapped. Unfortunately, the physical dimensions of the screen cannot be modified at run time.
 
 \subsection{Sprites}
 
 Sprites are small images which can be displayed at arbitrary screen coordinates; for example, the player character.
+
+\subsection{Pixel Gearboxes}
+
+One design challenge the PPU faces is the high ratio of data bus width to smallest pixel size (32:1). Another is the wide variety of pixel sizes (16 $\to$ 1 bits). Consequently, to make efficient use of the bus, sprite and tile engines must be able to capture the result of one bus read, and parcel it out over a number of clock cycles.
+
+A naive but effective implementation is a databus-sized register with mux taps to perform shift-by-16, shift-by-8, and so on, for each pixel size. Unfortunately, this is much too large -- around 120 LUTs on iCE40, if you include the extra mux for loading bus data. Savings can be made by noting we can trash data which will not reach the end (e.g. no need to zero the top half on a shift-by-16), but it is not enough for a component which will be in every sprite and tile engine. The number of taps could be reduced, but this carries a performance cost.
+
+To improve on this, the key observation is that the total shift count will always be 0, modulo the pixel size. Put differently, every shift starts on a bit boundary aligned to at least the size of that shift.
+
+The hardware scheme used by the pixel gearbox is:
+\begin{itemize}
+	\item There is a register the same size as the databus.
+	\item The left half of this register can be copied to the right half
+	\item This continues recursively, to the right:
+	\begin{itemize}
+		\item The left half of the right half can instead be copied to the right half of the right half
+		\item The left half of {\it this} can instead be copied to the right half of this
+		\item So on, down to one bit
+	\end{itemize}
+\end{itemize}
+
+This is dramatically smaller, because the number of mux taps is exponentially distributed over the bits: half of the flops have no taps, a quarter have one, an eighth have two, and so on. (Ignoring the tap used for loading all flops from data bus.) On iCE40 this is 40 LUTs per gearbox, for a 32 bit databus and 1 bit minimum pixels.
+
+\begin{figure}[H]
+\centering
+\caption{Pixel gearbox, shift-by-8}
+\label{diagram:pixel_gearbox_8}
+\includegraphics[width=0.5\textwidth]{diagrams/pixel_gearbox_8.pdf}
+\end{figure}
+
+Figure \ref{diagram:pixel_gearbox_8} shows the sequence for shifting 8-bit pixels through the pixel gearbox. Note that the time-ordered sequence of pixels down the rightmost column is the same as the right-to-left sequence in the top row (recall pixel order is little-endian). All of the shift sizes are possible; proof is left as an exercise!
+
+Based on the above observation about naturally-aligned boundaries, there is a very satisfying way of generating the control signals for the gearbox:
+
+\begin{itemize}
+	\item Initialise a counter
+	\item Every clock, the counter increments by the shift amount
+	\item The next counter value will always have exactly one bit set which is not set in the current counter value (this is a property of counters)
+	\item The weight of this bit is equal to the copy stride of the gearbox for this cycle
+\end{itemize}
+
+I.e. \verb|shamt = ctr_next & ~ctr|. In figure \ref{diagram:pixel_gearbox_8} the counter values would be 0b00000, 0b01000, 0b10000, 0b11000, hence the strides are 8, 16, 8.
+
+Note that this control scheme also allows rapid (log-time) seeking to arbitrary offsets, by adding first the MSB of the offset to the counter, then the next bit, and so on. This maintains the invariant that we are aligned to a shift-sized boundary, since we have sorted our shifts in descending size order.
 
 \subsection{Poker}
 \label{section:ppu_poker}
