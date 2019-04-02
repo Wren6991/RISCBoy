@@ -7,11 +7,12 @@ PACKAGE?=bg121
 
 DEFINES+=FPGA TRISTATE_ICE40
 
+SYNTH_OPT?=
 SYNTH_CMD=read_verilog $(addprefix -D,$(DEFINES)) $(SRCS);
 ifneq (,$(TOP))
 	SYNTH_CMD+=hierarchy -top $(TOP);
 endif
-SYNTH_CMD+=synth_ice40 -json $(CHIPNAME).json
+SYNTH_CMD+=synth_ice40 $(SYNTH_OPT) -json $(CHIPNAME).json
 
 # Kill implicit rules
 .SUFFIXES:

@@ -29,8 +29,6 @@ wire clk_osc;
 wire clk_sys;
 wire rst_n;
 
-assign clk_sys = clk_osc; // TODO PLL
-
 SB_HFOSC #(
   .CLKHF_DIV ("0b10") // divide by 4 -> 12 MHz
 ) inthosc (

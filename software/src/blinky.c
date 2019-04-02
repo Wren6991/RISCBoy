@@ -1,18 +1,23 @@
+#define CLK_SYS_MHZ 24
+
+#include "delay.h"
 #include "gpio.h"
-
-#define LED_PIN 0
-#define LED_MASK (1ul << LED_PIN)
-
-#define DELAY_COUNT 100000
 
 int main()
 {
-	gpio_fsel(LED_PIN, 0);
-	gpio_dir_pin(LED_PIN, 1);
+	gpio_fsel(PIN_LED, 0);
+	gpio_dir_pin(PIN_LED, 1);
 	while (true)
 	{
-		for (volatile int i = 0; i < DELAY_COUNT; ++i)
-			;
-		*GPIO_OUT ^= LED_MASK;
+		for (int i = 0; i < 6; ++i)
+		{
+			delay_ms(100);
+			*GPIO_OUT ^= (1ul << PIN_LED);
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			delay_ms(300);
+			*GPIO_OUT ^= (1ul << PIN_LED);
+		}
 	}
 }
