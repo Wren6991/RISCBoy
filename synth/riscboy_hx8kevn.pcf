@@ -1,0 +1,23 @@
+# LEDs
+set_io led[0] B5
+set_io led[1] B4
+set_io led[2] A2
+set_io led[3] A1
+set_io led[4] C5
+set_io led[5] C4
+set_io led[6] B3
+set_io led[7] C3
+
+# To FT2233H UART:
+set_io uart_tx B12
+set_io uart_rx B10
+
+# Connect SPI master to configuration flash!
+set_io flash_mosi P12
+set_io flash_miso P11
+set_io flash_sclk R11
+set_io flash_cs R12
+
+# 12 MHz oscillator
+set_io clk_osc J3
+

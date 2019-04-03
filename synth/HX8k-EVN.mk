@@ -1,11 +1,11 @@
-CHIPNAME=riscboy_tinybx
-DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_tinybx.f
+CHIPNAME=riscboy_hx8kevn
+DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_hx8kevn.f
 BOOTAPP=blinky
 
 SYNTH_OPT=-retime
 
-DEVICE=lp8k
-PACKAGE=cm81
+DEVICE=hx8k
+PACKAGE=ct256
 
 include $(SCRIPTS)/synth_ice40.mk
 
@@ -22,4 +22,4 @@ clean::
 	rm -f bootram_init*.hex
 
 prog: bit
-	tinyprog -p $(CHIPNAME).bin
+	iceprog $(CHIPNAME).bin
