@@ -1,0 +1,866 @@
+EESchema Schematic File Version 4
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "SRAM Breakout for HX8k-EVN"
+Date "2019-04-04"
+Rev "A"
+Comp "Luke Wren"
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L fpgaboy-cache:fpgaboy-rescue_GS74116AGP_ U1
+U 1 1 5CA64AA2
+P 6500 3650
+F 0 "U1" H 6500 5087 60  0000 C CNN
+F 1 "GS74116AGP" H 6500 4981 60  0000 C CNN
+F 2 "fpgaboy_parts:TSOP_II_44" H 6500 3650 60  0001 C CNN
+F 3 "" H 6500 3650 60  0001 C CNN
+	1    6500 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1900 3000 1800 3000
+Wire Wire Line
+	1800 3000 1800 3400
+Wire Wire Line
+	1900 3400 1800 3400
+Connection ~ 1800 3400
+Wire Wire Line
+	1800 3400 1800 3800
+$Comp
+L Connector_Generic:Conn_02x15_Odd_Even J1
+U 1 1 5CA64F4F
+P 2100 3400
+F 0 "J1" H 2150 4225 50  0000 C CNN
+F 1 "Conn_02x15_Odd_Even" H 2150 4226 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x15_P2.54mm_Vertical" H 2100 3400 50  0001 C CNN
+F 3 "~" H 2100 3400 50  0001 C CNN
+	1    2100 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1900 3800 1800 3800
+Connection ~ 1800 3800
+Wire Wire Line
+	1800 3800 1800 4400
+Wire Wire Line
+	2400 3000 2500 3000
+Wire Wire Line
+	2500 3000 2500 3400
+Wire Wire Line
+	2400 3400 2500 3400
+Connection ~ 2500 3400
+Wire Wire Line
+	2500 3400 2500 3800
+Wire Wire Line
+	2400 3800 2500 3800
+Connection ~ 2500 3800
+Wire Wire Line
+	2500 3800 2500 4300
+Wire Wire Line
+	1900 2700 1700 2700
+Wire Wire Line
+	1900 2800 1700 2800
+Wire Wire Line
+	1900 2900 1700 2900
+Wire Wire Line
+	1900 3100 1700 3100
+Wire Wire Line
+	1900 3200 1700 3200
+Wire Wire Line
+	1900 3300 1700 3300
+Wire Wire Line
+	1900 3500 1700 3500
+Wire Wire Line
+	1900 3600 1700 3600
+Wire Wire Line
+	1900 3700 1700 3700
+Wire Wire Line
+	1900 3900 1700 3900
+Wire Wire Line
+	1900 4000 1700 4000
+Wire Wire Line
+	1900 4100 1700 4100
+Wire Wire Line
+	2400 2800 2600 2800
+Wire Wire Line
+	2400 2900 2600 2900
+Wire Wire Line
+	2400 3100 2600 3100
+Wire Wire Line
+	2400 3200 2600 3200
+Wire Wire Line
+	2400 3300 2600 3300
+Wire Wire Line
+	2400 3500 2600 3500
+Wire Wire Line
+	2400 3600 2600 3600
+Wire Wire Line
+	2400 3700 2600 3700
+Wire Wire Line
+	2400 3900 2600 3900
+Wire Wire Line
+	2400 4000 2600 4000
+Wire Wire Line
+	2400 4100 2600 4100
+$Comp
+L power:GND #PWR0101
+U 1 1 5CA654D8
+P 1800 4400
+F 0 "#PWR0101" H 1800 4150 50  0001 C CNN
+F 1 "GND" H 1805 4227 50  0000 C CNN
+F 2 "" H 1800 4400 50  0001 C CNN
+F 3 "" H 1800 4400 50  0001 C CNN
+	1    1800 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0102
+U 1 1 5CA65542
+P 2500 4400
+F 0 "#PWR0102" H 2500 4150 50  0001 C CNN
+F 1 "GND" H 2505 4227 50  0000 C CNN
+F 2 "" H 2500 4400 50  0001 C CNN
+F 3 "" H 2500 4400 50  0001 C CNN
+	1    2500 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0103
+U 1 1 5CA656FC
+P 2500 2400
+F 0 "#PWR0103" H 2500 2250 50  0001 C CNN
+F 1 "+3V3" H 2515 2573 50  0000 C CNN
+F 2 "" H 2500 2400 50  0001 C CNN
+F 3 "" H 2500 2400 50  0001 C CNN
+	1    2500 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2400 2700 2500 2700
+Wire Wire Line
+	2500 2700 2500 2500
+Wire Wire Line
+	3850 3000 3750 3000
+Wire Wire Line
+	3750 3000 3750 3400
+Wire Wire Line
+	3850 3400 3750 3400
+Connection ~ 3750 3400
+Wire Wire Line
+	3750 3400 3750 3800
+$Comp
+L Connector_Generic:Conn_02x15_Odd_Even J2
+U 1 1 5CA65E5B
+P 4050 3400
+F 0 "J2" H 4100 4225 50  0000 C CNN
+F 1 "Conn_02x15_Odd_Even" H 4100 4226 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x15_P2.54mm_Vertical" H 4050 3400 50  0001 C CNN
+F 3 "~" H 4050 3400 50  0001 C CNN
+	1    4050 3400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 3800 3750 3800
+Connection ~ 3750 3800
+Wire Wire Line
+	3750 3800 3750 4400
+Wire Wire Line
+	4350 3000 4450 3000
+Wire Wire Line
+	4450 3000 4450 3400
+Wire Wire Line
+	4350 3400 4450 3400
+Connection ~ 4450 3400
+Wire Wire Line
+	4450 3400 4450 3800
+Wire Wire Line
+	4350 3800 4450 3800
+Connection ~ 4450 3800
+Wire Wire Line
+	4450 3800 4450 4400
+Wire Wire Line
+	3850 2700 3750 2700
+Wire Wire Line
+	3850 2800 3750 2800
+Wire Wire Line
+	3850 2900 3650 2900
+Wire Wire Line
+	3850 3100 3650 3100
+Wire Wire Line
+	3850 3200 3650 3200
+Wire Wire Line
+	3850 3300 3650 3300
+Wire Wire Line
+	3850 3500 3650 3500
+Wire Wire Line
+	3850 3600 3650 3600
+Wire Wire Line
+	3850 3700 3650 3700
+Wire Wire Line
+	3850 3900 3650 3900
+Wire Wire Line
+	3850 4000 3650 4000
+Wire Wire Line
+	3850 4100 3650 4100
+Wire Wire Line
+	4350 2900 4550 2900
+Wire Wire Line
+	4350 3100 4550 3100
+Wire Wire Line
+	4350 3200 4550 3200
+Wire Wire Line
+	4350 3300 4550 3300
+Wire Wire Line
+	4350 3500 4550 3500
+Wire Wire Line
+	4350 3600 4550 3600
+Wire Wire Line
+	4350 3700 4550 3700
+Wire Wire Line
+	4350 3900 4550 3900
+Wire Wire Line
+	4350 4000 4550 4000
+Wire Wire Line
+	4350 4100 4550 4100
+$Comp
+L power:GND #PWR0104
+U 1 1 5CA65E83
+P 3750 4400
+F 0 "#PWR0104" H 3750 4150 50  0001 C CNN
+F 1 "GND" H 3755 4227 50  0000 C CNN
+F 2 "" H 3750 4400 50  0001 C CNN
+F 3 "" H 3750 4400 50  0001 C CNN
+	1    3750 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0105
+U 1 1 5CA65E89
+P 4450 4400
+F 0 "#PWR0105" H 4450 4150 50  0001 C CNN
+F 1 "GND" H 4455 4227 50  0000 C CNN
+F 2 "" H 4450 4400 50  0001 C CNN
+F 3 "" H 4450 4400 50  0001 C CNN
+	1    4450 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0106
+U 1 1 5CA65E8F
+P 4450 2400
+F 0 "#PWR0106" H 4450 2250 50  0001 C CNN
+F 1 "+3V3" H 4465 2573 50  0000 C CNN
+F 2 "" H 4450 2400 50  0001 C CNN
+F 3 "" H 4450 2400 50  0001 C CNN
+	1    4450 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4350 2700 4450 2700
+Wire Wire Line
+	4450 2700 4450 2400
+Wire Wire Line
+	3750 2700 3750 2400
+$Comp
+L power:+3V3 #PWR0107
+U 1 1 5CA6C188
+P 3750 2400
+F 0 "#PWR0107" H 3750 2250 50  0001 C CNN
+F 1 "+3V3" H 3765 2573 50  0000 C CNN
+F 2 "" H 3750 2400 50  0001 C CNN
+F 3 "" H 3750 2400 50  0001 C CNN
+	1    3750 2400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C1
+U 1 1 5CA6F64A
+P 2650 5600
+F 0 "C1" H 2765 5646 50  0000 L CNN
+F 1 "1u" H 2765 5555 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 2688 5450 50  0001 C CNN
+F 3 "~" H 2650 5600 50  0001 C CNN
+	1    2650 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0108
+U 1 1 5CA71178
+P 2650 5900
+F 0 "#PWR0108" H 2650 5650 50  0001 C CNN
+F 1 "GND" H 2655 5727 50  0000 C CNN
+F 2 "" H 2650 5900 50  0001 C CNN
+F 3 "" H 2650 5900 50  0001 C CNN
+	1    2650 5900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0109
+U 1 1 5CA7118F
+P 2650 5300
+F 0 "#PWR0109" H 2650 5150 50  0001 C CNN
+F 1 "+3V3" H 2665 5473 50  0000 C CNN
+F 2 "" H 2650 5300 50  0001 C CNN
+F 3 "" H 2650 5300 50  0001 C CNN
+	1    2650 5300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2650 5300 2650 5450
+Wire Wire Line
+	2650 5750 2650 5900
+$Comp
+L Device:C C2
+U 1 1 5CA744FC
+P 3000 5600
+F 0 "C2" H 3115 5646 50  0000 L CNN
+F 1 "1u" H 3115 5555 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 3038 5450 50  0001 C CNN
+F 3 "~" H 3000 5600 50  0001 C CNN
+	1    3000 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0110
+U 1 1 5CA74502
+P 3000 5900
+F 0 "#PWR0110" H 3000 5650 50  0001 C CNN
+F 1 "GND" H 3005 5727 50  0000 C CNN
+F 2 "" H 3000 5900 50  0001 C CNN
+F 3 "" H 3000 5900 50  0001 C CNN
+	1    3000 5900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0111
+U 1 1 5CA74508
+P 3000 5300
+F 0 "#PWR0111" H 3000 5150 50  0001 C CNN
+F 1 "+3V3" H 3015 5473 50  0000 C CNN
+F 2 "" H 3000 5300 50  0001 C CNN
+F 3 "" H 3000 5300 50  0001 C CNN
+	1    3000 5300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3000 5300 3000 5450
+Wire Wire Line
+	3000 5750 3000 5900
+$Comp
+L Device:C C3
+U 1 1 5CA760C1
+P 8150 5550
+F 0 "C3" H 8265 5596 50  0000 L CNN
+F 1 "100n" H 8265 5505 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 8188 5400 50  0001 C CNN
+F 3 "~" H 8150 5550 50  0001 C CNN
+	1    8150 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0112
+U 1 1 5CA760C7
+P 8150 5850
+F 0 "#PWR0112" H 8150 5600 50  0001 C CNN
+F 1 "GND" H 8155 5677 50  0000 C CNN
+F 2 "" H 8150 5850 50  0001 C CNN
+F 3 "" H 8150 5850 50  0001 C CNN
+	1    8150 5850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0113
+U 1 1 5CA760CD
+P 8150 5250
+F 0 "#PWR0113" H 8150 5100 50  0001 C CNN
+F 1 "+3V3" H 8165 5423 50  0000 C CNN
+F 2 "" H 8150 5250 50  0001 C CNN
+F 3 "" H 8150 5250 50  0001 C CNN
+	1    8150 5250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8150 5250 8150 5400
+Wire Wire Line
+	8150 5700 8150 5850
+$Comp
+L Device:C C4
+U 1 1 5CA760D5
+P 8600 5550
+F 0 "C4" H 8715 5596 50  0000 L CNN
+F 1 "100n" H 8715 5505 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 8638 5400 50  0001 C CNN
+F 3 "~" H 8600 5550 50  0001 C CNN
+	1    8600 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0114
+U 1 1 5CA760DB
+P 8600 5850
+F 0 "#PWR0114" H 8600 5600 50  0001 C CNN
+F 1 "GND" H 8605 5677 50  0000 C CNN
+F 2 "" H 8600 5850 50  0001 C CNN
+F 3 "" H 8600 5850 50  0001 C CNN
+	1    8600 5850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0115
+U 1 1 5CA760E1
+P 8600 5250
+F 0 "#PWR0115" H 8600 5100 50  0001 C CNN
+F 1 "+3V3" H 8615 5423 50  0000 C CNN
+F 2 "" H 8600 5250 50  0001 C CNN
+F 3 "" H 8600 5250 50  0001 C CNN
+	1    8600 5250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8600 5250 8600 5400
+Wire Wire Line
+	8600 5700 8600 5850
+Text Notes 8050 6200 0    50   ~ 0
+One at each supply pin\n
+Text Notes 2350 6350 0    50   ~ 0
+"Bulk"\nplace near to pin headers\n
+Wire Wire Line
+	6000 2500 5900 2500
+Wire Wire Line
+	5900 2500 5900 2250
+Wire Wire Line
+	5900 2500 5900 2600
+Wire Wire Line
+	5900 2600 6000 2600
+Connection ~ 5900 2500
+$Comp
+L power:+3V3 #PWR0116
+U 1 1 5CA828CF
+P 5900 2250
+F 0 "#PWR0116" H 5900 2100 50  0001 C CNN
+F 1 "+3V3" H 5915 2423 50  0000 C CNN
+F 2 "" H 5900 2250 50  0001 C CNN
+F 3 "" H 5900 2250 50  0001 C CNN
+	1    5900 2250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6000 4700 5900 4700
+Wire Wire Line
+	5900 4700 5900 4800
+Wire Wire Line
+	6000 4800 5900 4800
+Connection ~ 5900 4800
+Wire Wire Line
+	5900 4800 5900 5100
+$Comp
+L power:GND #PWR0117
+U 1 1 5CA8683B
+P 5900 5100
+F 0 "#PWR0117" H 5900 4850 50  0001 C CNN
+F 1 "GND" H 5905 4927 50  0000 C CNN
+F 2 "" H 5900 5100 50  0001 C CNN
+F 3 "" H 5900 5100 50  0001 C CNN
+	1    5900 5100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4350 2800 4550 2800
+Wire Wire Line
+	3750 2700 3750 2800
+Connection ~ 3750 2700
+Text Label 4550 2800 0    50   ~ 0
+R1
+Text Label 4550 2900 0    50   ~ 0
+P2
+Text Label 4550 3100 0    50   ~ 0
+N2
+Text Label 4550 3200 0    50   ~ 0
+M1
+Text Label 4550 3300 0    50   ~ 0
+L1
+Text Label 4550 3500 0    50   ~ 0
+K1
+Text Label 4550 3600 0    50   ~ 0
+J1
+Text Label 4550 3700 0    50   ~ 0
+J3
+Text Label 4550 3900 0    50   ~ 0
+H1
+Text Label 4550 4000 0    50   ~ 0
+G1
+Text Label 4550 4100 0    50   ~ 0
+F1
+Text Label 3650 2900 2    50   ~ 0
+P1
+Text Label 3650 3100 2    50   ~ 0
+N3
+Text Label 3650 3200 2    50   ~ 0
+M2
+Text Label 3650 3300 2    50   ~ 0
+L3
+Text Label 3650 3500 2    50   ~ 0
+K3
+Text Label 3650 3600 2    50   ~ 0
+J2
+Text Label 3650 3700 2    50   ~ 0
+H2
+Text Label 3650 3900 2    50   ~ 0
+G2
+Text Label 3650 4000 2    50   ~ 0
+F2
+Text Label 3650 4100 2    50   ~ 0
+E2
+Text Notes 3850 1950 2    50   ~ 0
+Names are ball IDs on the BGA.\nShould make it easier to write PCF.\n(actual mapping to SRAM pins is arbitrary,\nto ease routing on 2-layer board.)\n
+Text Label 2600 2800 0    50   ~ 0
+T16
+Text Label 2600 2900 0    50   ~ 0
+T14
+Text Label 2600 3100 0    50   ~ 0
+P13
+Text Label 2600 3200 0    50   ~ 0
+M11
+Text Label 2600 3300 0    50   ~ 0
+P10
+Text Label 2600 3500 0    50   ~ 0
+R10
+Text Label 2600 3600 0    50   ~ 0
+P9
+Text Label 2600 3700 0    50   ~ 0
+R9
+Text Label 2600 3900 0    50   ~ 0
+T8
+Text Label 2600 4000 0    50   ~ 0
+R6
+Text Label 2600 4100 0    50   ~ 0
+R5
+Text Label 1700 2700 2    50   ~ 0
+R16
+Text Label 1700 2800 2    50   ~ 0
+T15
+Text Label 1700 2900 2    50   ~ 0
+T13
+Text Label 1700 3100 2    50   ~ 0
+N12
+Text Label 1700 3200 2    50   ~ 0
+N10
+Text Label 1700 3300 2    50   ~ 0
+T11
+Text Label 1700 3500 2    50   ~ 0
+T10
+Text Label 1700 3600 2    50   ~ 0
+P8
+Text Label 1700 3700 2    50   ~ 0
+T9
+Text Label 1700 3900 2    50   ~ 0
+T7
+Text Label 1700 4000 2    50   ~ 0
+T6
+Text Label 1700 4100 2    50   ~ 0
+T5
+Wire Wire Line
+	7000 2600 7200 2600
+Wire Wire Line
+	7000 2700 7200 2700
+Wire Wire Line
+	7000 2800 7200 2800
+Wire Wire Line
+	7000 2900 7200 2900
+Wire Wire Line
+	7000 3000 7200 3000
+Wire Wire Line
+	7000 3100 7200 3100
+Wire Wire Line
+	7000 3200 7200 3200
+Wire Wire Line
+	7000 3300 7200 3300
+Wire Wire Line
+	7000 3400 7200 3400
+Wire Wire Line
+	7000 3500 7200 3500
+Wire Wire Line
+	7000 3600 7200 3600
+Wire Wire Line
+	7000 3700 7200 3700
+Wire Wire Line
+	7000 3800 7200 3800
+Wire Wire Line
+	7000 3900 7200 3900
+Wire Wire Line
+	7000 4000 7200 4000
+Wire Wire Line
+	7000 4100 7200 4100
+Wire Wire Line
+	7000 4300 7200 4300
+Wire Wire Line
+	7000 4400 7200 4400
+Wire Wire Line
+	7000 4500 7200 4500
+Wire Wire Line
+	7000 4600 7200 4600
+Wire Wire Line
+	7000 4700 7200 4700
+Wire Wire Line
+	6000 2800 5800 2800
+Wire Wire Line
+	6000 2900 5800 2900
+Wire Wire Line
+	6000 3000 5800 3000
+Wire Wire Line
+	6000 3100 5800 3100
+Wire Wire Line
+	6000 3200 5800 3200
+Wire Wire Line
+	6000 3300 5800 3300
+Wire Wire Line
+	6000 3400 5800 3400
+Wire Wire Line
+	6000 3500 5800 3500
+Wire Wire Line
+	6000 3600 5800 3600
+Wire Wire Line
+	6000 3700 5800 3700
+Wire Wire Line
+	6000 3800 5800 3800
+Wire Wire Line
+	6000 3900 5800 3900
+Wire Wire Line
+	6000 4000 5800 4000
+Wire Wire Line
+	6000 4100 5800 4100
+Wire Wire Line
+	6000 4200 5800 4200
+Wire Wire Line
+	6000 4300 5800 4300
+Wire Wire Line
+	6000 4400 5800 4400
+Wire Wire Line
+	6000 4500 5800 4500
+$Comp
+L fpgaboy-cache:Switch_SW_Push SW1
+U 1 1 5CA90704
+P 10050 3250
+F 0 "SW1" H 10050 3535 50  0000 C CNN
+F 1 "Switch_SW_Push" H 10050 3444 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_SPST_EVQP0" H 10050 3450 50  0001 C CNN
+F 3 "" H 10050 3450 50  0001 C CNN
+	1    10050 3250
+	1    0    0    -1  
+$EndComp
+Text Notes 10400 2050 2    50   ~ 0
+5 spare IOs\nuse them for pushbuttons\n(since none on dev board)
+$Comp
+L fpgaboy-cache:Switch_SW_Push SW2
+U 1 1 5CA9086D
+P 10050 3650
+F 0 "SW2" H 10050 3935 50  0000 C CNN
+F 1 "Switch_SW_Push" H 10050 3844 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_SPST_EVQP0" H 10050 3850 50  0001 C CNN
+F 3 "" H 10050 3850 50  0001 C CNN
+	1    10050 3650
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-cache:Switch_SW_Push SW3
+U 1 1 5CA908A6
+P 10050 4050
+F 0 "SW3" H 10050 4335 50  0000 C CNN
+F 1 "Switch_SW_Push" H 10050 4244 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_SPST_EVQP0" H 10050 4250 50  0001 C CNN
+F 3 "" H 10050 4250 50  0001 C CNN
+	1    10050 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L fpgaboy-cache:Switch_SW_Push SW4
+U 1 1 5CA908E0
+P 10050 4450
+F 0 "SW4" H 10050 4735 50  0000 C CNN
+F 1 "Switch_SW_Push" H 10050 4644 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_SPST_EVQP0" H 10050 4650 50  0001 C CNN
+F 3 "" H 10050 4650 50  0001 C CNN
+	1    10050 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10250 3250 10450 3250
+Wire Wire Line
+	10450 3250 10450 3650
+Wire Wire Line
+	10250 4450 10450 4450
+Wire Wire Line
+	10450 4850 10450 5100
+Wire Wire Line
+	10250 4050 10450 4050
+Connection ~ 10450 4050
+Wire Wire Line
+	10450 4050 10450 4450
+Wire Wire Line
+	10250 3650 10450 3650
+Connection ~ 10450 3650
+Wire Wire Line
+	10450 3650 10450 4050
+$Comp
+L power:GND #PWR0118
+U 1 1 5CAA4B65
+P 10450 5100
+F 0 "#PWR0118" H 10450 4850 50  0001 C CNN
+F 1 "GND" H 10455 4927 50  0000 C CNN
+F 2 "" H 10450 5100 50  0001 C CNN
+F 3 "" H 10450 5100 50  0001 C CNN
+	1    10450 5100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9850 3250 9650 3250
+Wire Wire Line
+	9850 3650 9650 3650
+Wire Wire Line
+	9850 4050 9650 4050
+Wire Wire Line
+	9850 4450 9650 4450
+Text Label 5800 4500 2    50   ~ 0
+N12
+Text Label 5800 3900 2    50   ~ 0
+T13
+Text Label 5800 3800 2    50   ~ 0
+R16
+Text Label 5800 3700 2    50   ~ 0
+T15
+Text Label 5800 3600 2    50   ~ 0
+N10
+Text Label 7200 3400 0    50   ~ 0
+T16
+Text Label 7200 3500 0    50   ~ 0
+T14
+Text Label 7200 3600 0    50   ~ 0
+M11
+Text Label 7200 3700 0    50   ~ 0
+P13
+Text Label 7200 3800 0    50   ~ 0
+R1
+Text Label 7200 3900 0    50   ~ 0
+P1
+Text Label 7200 4000 0    50   ~ 0
+P2
+Text Label 7200 4100 0    50   ~ 0
+N3
+Text Label 7200 4700 0    50   ~ 0
+N2
+Text Label 7200 4600 0    50   ~ 0
+T11
+Text Label 5800 3500 2    50   ~ 0
+M1
+Text Label 5800 3400 2    50   ~ 0
+M2
+Text Label 7200 4500 0    50   ~ 0
+P10
+Text Label 5800 4400 2    50   ~ 0
+L1
+Text Label 5800 4000 2    50   ~ 0
+T10
+Text Label 5800 4100 2    50   ~ 0
+R10
+Text Label 5800 4200 2    50   ~ 0
+P8
+Text Label 5800 4300 2    50   ~ 0
+K3
+Text Label 7200 4400 0    50   ~ 0
+K1
+Text Label 7200 3300 0    50   ~ 0
+P9
+Text Label 7200 3200 0    50   ~ 0
+J2
+Text Label 7200 3100 0    50   ~ 0
+J1
+Text Label 7200 3000 0    50   ~ 0
+T9
+Text Label 5800 3300 2    50   ~ 0
+L3
+Text Label 7200 2900 0    50   ~ 0
+R9
+Text Label 7200 2800 0    50   ~ 0
+J3
+Text Label 7200 2700 0    50   ~ 0
+H2
+Text Label 7200 2600 0    50   ~ 0
+T7
+Text Label 7200 4300 0    50   ~ 0
+T8
+Text Label 5800 2800 2    50   ~ 0
+G2
+Text Label 5800 2900 2    50   ~ 0
+H1
+Text Label 5800 3000 2    50   ~ 0
+T6
+Text Label 5800 3100 2    50   ~ 0
+R6
+Text Label 5800 3200 2    50   ~ 0
+G1
+NoConn ~ 7000 4800
+$Comp
+L fpgaboy-cache:Switch_SW_Push SW5
+U 1 1 5CADD0FC
+P 10050 4850
+F 0 "SW5" H 10050 5135 50  0000 C CNN
+F 1 "Switch_SW_Push" H 10050 5044 50  0000 C CNN
+F 2 "Button_Switch_SMD:SW_SPST_EVQP0" H 10050 5050 50  0001 C CNN
+F 3 "" H 10050 5050 50  0001 C CNN
+	1    10050 4850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10250 4850 10450 4850
+Wire Wire Line
+	10450 4450 10450 4850
+Wire Wire Line
+	9850 4850 9650 4850
+Connection ~ 10450 4850
+Connection ~ 10450 4450
+Text Label 9650 4050 2    50   ~ 0
+F2
+Text Label 9650 3250 2    50   ~ 0
+F1
+Text Label 9650 3650 2    50   ~ 0
+E2
+Text Label 9650 4450 2    50   ~ 0
+T5
+Text Label 9650 4850 2    50   ~ 0
+R5
+$Comp
+L power:PWR_FLAG #FLG?
+U 1 1 5CAE8E8B
+P 2500 2500
+F 0 "#FLG?" H 2500 2575 50  0001 C CNN
+F 1 "PWR_FLAG" V 2500 2628 50  0000 L CNN
+F 2 "" H 2500 2500 50  0001 C CNN
+F 3 "~" H 2500 2500 50  0001 C CNN
+	1    2500 2500
+	0    1    1    0   
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG?
+U 1 1 5CAF4DA5
+P 2500 4300
+F 0 "#FLG?" H 2500 4375 50  0001 C CNN
+F 1 "PWR_FLAG" V 2500 4428 50  0000 L CNN
+F 2 "" H 2500 4300 50  0001 C CNN
+F 3 "~" H 2500 4300 50  0001 C CNN
+	1    2500 4300
+	0    1    1    0   
+$EndComp
+Connection ~ 2500 4300
+Wire Wire Line
+	2500 4300 2500 4400
+Connection ~ 2500 2500
+Wire Wire Line
+	2500 2500 2500 2400
+$EndSCHEMATC

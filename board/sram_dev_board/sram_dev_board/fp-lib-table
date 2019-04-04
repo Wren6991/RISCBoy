@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name fpgaboy_parts)(type KiCad)(uri /home/luke/proj/riscboy/board/fpgaboy_parts.pretty)(options "")(descr ""))
+)
