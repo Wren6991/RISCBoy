@@ -7,7 +7,7 @@
 
 #define UART_BAUD (500 * 1000)
 #define SPI_CLK_MHZ 6
-#define HOST_TIMEOUT_MS 500
+#define HOST_TIMEOUT_MS 1000
 
 const char *splash =
 "\n"
@@ -87,6 +87,9 @@ int main()
 	spi_init(false, false);
 	spi_clkdiv(CLK_SYS_MHZ / (2 * SPI_CLK_MHZ));
 
+	gpio_fsel(PIN_LED, 0);
+	gpio_dir_pin(PIN_LED, 1);
+
 	gpio_fsel(PIN_UART_TX, 1);
 	gpio_fsel(PIN_UART_RX, 1);
 	gpio_fsel(PIN_FLASH_CS, 1);
@@ -95,6 +98,7 @@ int main()
 	gpio_fsel(PIN_FLASH_MISO, 1);
 
 	uart_puts(splash);
+	gpio_out_pin(PIN_LED, 1);
 
 	int nop_count = 0;
 	int t;
@@ -108,6 +112,7 @@ int main()
 		delay_us(1000);
 	}
 
+	gpio_out_pin(PIN_LED, 0);
 	if (t >= HOST_TIMEOUT_MS)
 		run_2nd_stage();
 
@@ -116,15 +121,16 @@ int main()
 	run_flash_shell();
 }
 
-
 void run_2nd_stage()
 {
-	// Just hang the processor :)
-	uart_puts("Loading 2nd stage... NOT\n");
-	uart_puts("Actually hanging the processor #YOLO\n");
-	volatile int x = 1;
-	while (x)
-		;
+	uart_puts("Loading 2nd stage... kinda\n");
+	while (true)
+	{
+		delay_ms(500);
+		gpio_out_pin(PIN_LED, 1);
+		delay_ms(500);
+		gpio_out_pin(PIN_LED, 0);
+	}
 }
 
 static inline void flash_set_write_enable()
@@ -204,20 +210,26 @@ void run_flash_shell()
 			}
 			case WRITE_FLASH:
 			{
+				gpio_out_pin(PIN_LED, 1);
 				if (!(addr & (PAGESIZE - 1)))
 				{
 					flash_set_write_enable();
 					cmdbuf[0] = 0x02;
+					cmdbuf[1] = (addr >> 16) & 0xff;
+					cmdbuf[2] = (addr >> 8 ) & 0xff;
+					cmdbuf[3] = (addr >> 0 ) & 0xff;
 					spi_write(cmdbuf, PAGESIZE + 4);
 					spi_wait_done();
 					flash_wait_done();
 					addr += PAGESIZE;
 				}
 				uart_put(ACK);
+				gpio_out_pin(PIN_LED, 0);
 				break;
 			}
 			case READ_FLASH:
 			{
+				gpio_out_pin(PIN_LED, 1);
 				cmdbuf[0] = 0x03;
 				cmdbuf[1] = (addr >> 16) & 0xff;
 				cmdbuf[2] = (addr >> 8 ) & 0xff;
@@ -226,10 +238,12 @@ void run_flash_shell()
 				spi_wait_done();
 				addr += PAGESIZE;
 				uart_put(ACK);
+				gpio_out_pin(PIN_LED, 0);
 				break;
 			}
 			case ERASE_SECTOR:
 			{
+				gpio_out_pin(PIN_LED, 1);
 				if (!(addr & (SECTORSIZE - 1)))
 				{
 					flash_set_write_enable();
@@ -243,6 +257,7 @@ void run_flash_shell()
 					addr += SECTORSIZE;
 				}
 				uart_put(ACK);
+				gpio_out_pin(PIN_LED, 0);
 				break;
 			}
 			case BOOT_2ND:

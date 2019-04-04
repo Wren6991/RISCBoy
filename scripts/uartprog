@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 # Simple utility for programming SPI flash via a UART shell in the bootloader.
-# TODO: make the serial shell more UART-efficient, rather than
-# being human friendly (e.g. use of hex to transfer data...)
+# The bootloader possesses a 1-page buffer which we can write to, read from and
+# checksum.
+# It also possesses commands for transfers between this buffer and the SPI flash,
+# flash erasure, and launching the 2nd stage boot code.
 
 import argparse
 import os
@@ -10,70 +12,113 @@ import serial
 import sys
 from time import sleep
 
-PAGESIZE = 64
+PAGESIZE = 256
 SECTORSIZE = 4096
 
-def init_serial(path, baud):
-	port = serial.Serial(path, baud)
-	while not port.read_all().decode().endswith("> "):
-		port.write("\n".encode())
-		sleep(0.001)
-	return port
+def progress(header, frac, width=40):
+	n = int(width * frac)
+	sys.stdout.write("\r" + header + "▕" + "▒" * n + " " * (width - n) + "▏")
 
-def iter_bytes(hexstr):
-	for i in range(0, len(hexstr) - 1, 2):
-		yield int(hexstr[i : i + 2], 16)
+# TODO: handle this gracefully!
+# Go up as few levels as possible,
+# do a shell reset sequence, fix any damage done
+# to flash state (i.e. erase anything potentially
+# programmed with wrong data), and keep going.
+class ProtocolError(Exception):
+	pass
 
-def wait_for_prompt(port):
-	buf = bytes()
-	while not buf.decode().endswith("> "):
-		buf += port.read_all()
-	return buf
+class CMD:
+	NOP          = '\n'.encode()
+	WRITE_BUF    = 'w'.encode()
+	READ_BUF     = 'r'.encode()
+	GET_CHECKSUM = 'c'.encode()
+	SET_ADDR     = 'a'.encode()
+	WRITE_FLASH  = 'W'.encode()
+	READ_FLASH   = 'R'.encode()
+	ERASE_SECTOR = 'E'.encode()
+	BOOT_2ND     = 'B'.encode()
+	ACK          = ':'.encode()
 
-def erase(port, start, n):
-	addr = start - start % SECTORSIZE
-	while addr < start + n:
-		print("Erasing sector @{:06x}".format(addr))
+def reset_shell(port):
+	while True:
+		port.write(CMD.NOP * (PAGESIZE + 1))
+		port.flushOutput()
+		sleep(0.02)
 		port.flushInput()
-		port.write("e{:06x}".format(addr).encode())
-		addr += SECTORSIZE
-		wait_for_prompt(port)
+		port.write(CMD.NOP)
+		sleep(0.02)
+		if port.readable() and port.read_all().endswith(CMD.ACK):
+			break
 
-def program(port, start, buf):
-	assert(start % PAGESIZE == 0)
-	if len(buf) % PAGESIZE != 0:
-		buf = buf + bytes(PAGESIZE - (len(buf) % PAGESIZE))
-	for offs in range(0, len(buf), PAGESIZE):
-		port.flushInput()
-		# This version of the shell echos back our hex input,
-		# AND some other characters like newlines.
-		# This means output > input, at the same baud, so the shell stalls
-		# on its echo and starts dropping input data.
-		# Avoid this by inserting non-echoed characters (spaces)
-		# at regular intervals, to give shell time to catch up.
-		port.write("w{:06x}          ".format(start + offs).encode())
-		for i in range(PAGESIZE):
-			port.write("{:02x}".format(buf[offs + i]).encode())
-			if i % 8 == 7:
-				port.write((" " * 5).encode())
-		wait_for_prompt(port)
-		port.write("    ".encode())
-		print("{:06x}".format(start + offs))
+def check_ack(port):
+	resp = port.read()
+	if len(resp) == 0 or resp != CMD.ACK:
+		raise ProtocolError()
 
-def read(port, start, n):
-	addr = start
-	readback = bytes()
-	while addr < start + n:
-		port.flushInput()
-		port.write("r{:06x}".format(addr).encode())
-		addr += PAGESIZE
-		buf = wait_for_prompt(port)
-		data = buf.decode().splitlines()[2 : 2 + PAGESIZE // 8]
-		for line in data:
-			readback += bytes(iter_bytes(line))
-	if len(readback) > n:
-		readback = readback[:n]
-	return readback
+def write_buf(port, data):
+	assert(len(data) == 256)
+	port.write(CMD.WRITE_BUF)
+	port.write(data)
+	check_ack(port)
+	# TODO checksum
+
+def read_buf(port):
+	port.write(CMD.READ_BUF)
+	resp = port.read(PAGESIZE)
+	if len(resp) != PAGESIZE:
+		raise ProtocolError()
+	return resp
+	# TODO checksum
+
+def set_addr(port, addr):
+	addr_b = bytes([
+		(addr >> 16) & 0xff,
+		(addr >>  8) & 0xff,
+		(addr >>  0) & 0xff
+	])
+	port.write(CMD.SET_ADDR + addr_b)
+	echo = port.read(3)
+	if echo != addr_b:
+		raise ProtocolError()
+	check_ack(port)
+
+def read_flash(port, addr, size):
+	set_addr(port, addr)
+	data = bytes()
+	for _ in range(addr, addr + size, PAGESIZE):
+		progress("Read:  ", (_ - addr) / size)
+		port.write(CMD.READ_FLASH)
+		check_ack(port)
+		data += read_buf(port)
+	progress("Read:  ", 1)
+	print()
+	if len(data) > size:
+		data = data[:size] # ouch
+	return data
+
+def write_flash(port, addr, data):
+	assert(addr % PAGESIZE == 0)
+	if len(data) % PAGESIZE != 0:
+		data += bytes(PAGESIZE - len(data) % PAGESIZE)
+	set_addr(port, addr)
+	for i in range(len(data) // PAGESIZE):
+		progress("Write: ", i / (len(data) // PAGESIZE))
+		write_buf(port, data[i * PAGESIZE : (i + 1) * PAGESIZE])
+		port.write(CMD.WRITE_FLASH)
+		check_ack(port)
+	progress("Write: ", 1)
+	print("")
+
+def erase_flash(port, addr, size):
+	end = addr + size
+	start = addr - addr % SECTORSIZE
+	set_addr(port, start)
+	for _ in range(start, end, SECTORSIZE):
+		progress("Erase: ", (_ - start) / (end - start))
+		port.write(CMD.ERASE_SECTOR)
+		check_ack(port)
+	progress("Erase: ", 1)
+	print("")
 
 def any_int(x):
 	return int(x, 0)
@@ -132,26 +177,31 @@ if __name__ == "__main__":
 	))
 
 	# And then do it
-	port = init_serial(args.uart, 500000)
+	# need to allow for page erase, upward of 60 ms.
+	port = serial.Serial(args.uart, 500000, timeout=1)
+	print("Waiting for bootloader...")
+	reset_shell(port)
+	print("")
+
 	if args.write:
 		data = open(args.file, "rb").read()
 		if len(data) > args.len:
 			data = data[:args.len]
 		else:
 			data = data + bytes(args.len - len(data)) # zero padding
-		erase(port, args.start, args.len)
-		print("Programming...")
-		program(port, args.start, data)
+		erase_flash(port, args.start, args.len)
+		print("")
+		write_flash(port, args.start, data)
+		print("")
 		if (args.verify):
-			print("Verifying...")
-			readback = read(port, args.start, args.len)
+			readback = read_flash(port, args.start, args.len)
+			print("")
 			if readback != data:
 				sys.exit("Verification failed.") # TODO: better info
 		print("Done")
 	else:
-		print("Reading...")
-		data = read(port, args.start, args.len)
-		print("Done")
+		data = read_flash(port, args.start, args.len)
+		print("\nDone")
 		if args.file:
 			open(args.file, "wb").write(data)
 		else:
