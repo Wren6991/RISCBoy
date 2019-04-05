@@ -10,10 +10,11 @@ import argparse
 import os
 import serial
 import sys
-from time import sleep
+import time
 
 PAGESIZE = 256
 SECTORSIZE = 4096
+TIMEOUT=0.5
 
 def progress(header, frac, width=40):
 	n = int(width * frac)
@@ -43,10 +44,10 @@ def reset_shell(port):
 	while True:
 		port.write(CMD.NOP * (PAGESIZE + 1))
 		port.flushOutput()
-		sleep(0.02)
+		time.sleep(0.02)
 		port.flushInput()
 		port.write(CMD.NOP)
-		sleep(0.02)
+		time.sleep(0.02)
 		if port.readable() and port.read_all().endswith(CMD.ACK):
 			break
 
@@ -55,15 +56,17 @@ def check_ack(port):
 	if len(resp) == 0 or resp != CMD.ACK:
 		raise ProtocolError()
 
-def write_buf(port, data):
+def write_buf(port, data, check=True):
 	assert(len(data) == 256)
 	port.write(CMD.WRITE_BUF)
 	port.write(data)
-	check_ack(port)
+	if check:
+		check_ack(port)
 	# TODO checksum
 
-def read_buf(port):
-	port.write(CMD.READ_BUF)
+def read_buf(port, pipelined=False):
+	if not pipelined:
+		port.write(CMD.READ_BUF)
 	resp = port.read(PAGESIZE)
 	if len(resp) != PAGESIZE:
 		raise ProtocolError()
@@ -85,13 +88,14 @@ def set_addr(port, addr):
 def read_flash(port, addr, size):
 	set_addr(port, addr)
 	data = bytes()
-	for _ in range(addr, addr + size, PAGESIZE):
-		progress("Read:  ", (_ - addr) / size)
+	addr_range = range(addr, addr + size, PAGESIZE)
+	for a in addr_range:
 		port.write(CMD.READ_FLASH)
+		port.write(CMD.READ_BUF) # Should have space for 2 cmds in FIFO. Hoist this one up from read_buf()
+		progress("Read:  ", (a - addr) / size)
 		check_ack(port)
-		data += read_buf(port)
+		data += read_buf(port, pipelined=True)
 	progress("Read:  ", 1)
-	print()
 	if len(data) > size:
 		data = data[:size] # ouch
 	return data
@@ -102,23 +106,27 @@ def write_flash(port, addr, data):
 		data += bytes(PAGESIZE - len(data) % PAGESIZE)
 	set_addr(port, addr)
 	for i in range(len(data) // PAGESIZE):
-		progress("Write: ", i / (len(data) // PAGESIZE))
-		write_buf(port, data[i * PAGESIZE : (i + 1) * PAGESIZE])
+		write_buf(port, data[i * PAGESIZE : (i + 1) * PAGESIZE], check=False)
 		port.write(CMD.WRITE_FLASH)
+		progress("Write: ", i / (len(data) // PAGESIZE))
+		check_ack(port)
 		check_ack(port)
 	progress("Write: ", 1)
-	print("")
 
 def erase_flash(port, addr, size):
 	end = addr + size
 	start = addr - addr % SECTORSIZE
 	set_addr(port, start)
+	# Always have one iron in the fire
+	first = True
 	for _ in range(start, end, SECTORSIZE):
 		progress("Erase: ", (_ - start) / (end - start))
 		port.write(CMD.ERASE_SECTOR)
-		check_ack(port)
+		if not first:
+			check_ack(port)
+		first = False
+	check_ack(port)
 	progress("Erase: ", 1)
-	print("")
 
 def any_int(x):
 	return int(x, 0)
@@ -127,6 +135,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("file", nargs="?", help="Filename to read from or dump to.")
 	parser.add_argument("--uart", "-u", help="Path to UART device (e.g. /dev/ttyUSB0)")
+	parser.add_argument("--baud", "-b", help="Baud rate for UART. Default 0.5 Mbaud")
 	parser.add_argument("--write", "-w", action="store_true",
 		help="Write to flash (default is read)")
 	parser.add_argument("--verify", "-v", action="store_true",
@@ -142,6 +151,8 @@ if __name__ == "__main__":
 		args.start = 0
 	if args.uart is None:
 		args.uart = "/dev/ttyUSB0"
+	if args.baud is None:
+		args.baud = 500000
 	if args.verify and not args.write:
 		sys.exit("Verify is only valid for a write operation")
 	if args.write and (args.start % PAGESIZE != 0):
@@ -177,8 +188,8 @@ if __name__ == "__main__":
 	))
 
 	# And then do it
-	# need to allow for page erase, upward of 60 ms.
-	port = serial.Serial(args.uart, 500000, timeout=1)
+	# need to allow for page erase, upward of 60 ms. (Uh, actually it seems to be much longer)
+	port = serial.Serial(args.uart, args.baud, timeout=0.5)
 	print("Waiting for bootloader...")
 	reset_shell(port)
 	print("")
@@ -189,19 +200,24 @@ if __name__ == "__main__":
 			data = data[:args.len]
 		else:
 			data = data + bytes(args.len - len(data)) # zero padding
+
+		start = time.time()
 		erase_flash(port, args.start, args.len)
-		print("")
+		print(" Took {:.1f} s\n".format(time.time() - start))
+		start = time.time()
 		write_flash(port, args.start, data)
-		print("")
+		print(" Took {:.1f} s\n".format(time.time() - start))
 		if (args.verify):
+			start = time.time()
 			readback = read_flash(port, args.start, args.len)
-			print("")
+			print(" Took {:.1f} s".format(time.time() - start))
 			if readback != data:
 				sys.exit("Verification failed.") # TODO: better info
 		print("Done")
 	else:
+		start = time.time()
 		data = read_flash(port, args.start, args.len)
-		print("\nDone")
+		print(" Took {:.1f} s\nDone".format(time.time() - start))
 		if args.file:
 			open(args.file, "wb").write(data)
 		else:
