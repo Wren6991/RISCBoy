@@ -12,19 +12,10 @@ import serial
 import sys
 import time
 
-PAGESIZE = 256
-SECTORSIZE = 4096
-TIMEOUT=0.5
+PAGESIZE   = 2 ** 8
+SECTORSIZE = 2 ** 12
+BLOCKSIZE  = 2 ** 16
 
-def progress(header, frac, width=40):
-	n = int(width * frac)
-	sys.stdout.write("\r" + header + "▕" + "▒" * n + " " * (width - n) + "▏")
-
-# TODO: handle this gracefully!
-# Go up as few levels as possible,
-# do a shell reset sequence, fix any damage done
-# to flash state (i.e. erase anything potentially
-# programmed with wrong data), and keep going.
 class ProtocolError(Exception):
 	pass
 
@@ -37,7 +28,8 @@ class CMD:
 	WRITE_FLASH  = 'W'.encode()
 	READ_FLASH   = 'R'.encode()
 	ERASE_SECTOR = 'E'.encode()
-	BOOT_2ND     = 'B'.encode()
+	ERASE_BLOCK  = 'B'.encode()
+	BOOT_2ND     = '2'.encode()
 	ACK          = ':'.encode()
 
 def reset_shell(port):
@@ -85,6 +77,10 @@ def set_addr(port, addr):
 		raise ProtocolError()
 	check_ack(port)
 
+def progress(header, frac, width=40):
+	n = int(width * frac)
+	sys.stdout.write("\r" + header + "▕" + "▒" * n + " " * (width - n) + "▏")
+
 def read_flash(port, addr, size):
 	set_addr(port, addr)
 	data = bytes()
@@ -115,17 +111,20 @@ def write_flash(port, addr, data):
 
 def erase_flash(port, addr, size):
 	end = addr + size
+	if end % SECTORSIZE != 0:
+		end += SECTORSIZE - end % SECTORSIZE
 	start = addr - addr % SECTORSIZE
 	set_addr(port, start)
-	# Always have one iron in the fire
-	first = True
-	for _ in range(start, end, SECTORSIZE):
-		progress("Erase: ", (_ - start) / (end - start))
-		port.write(CMD.ERASE_SECTOR)
-		if not first:
-			check_ack(port)
-		first = False
-	check_ack(port)
+	a = start
+	while a < end:
+		progress("Erase: ", (a - start) / (end - start))
+		if end - a >= BLOCKSIZE and a % BLOCKSIZE == 0:
+			port.write(CMD.ERASE_BLOCK)
+			a += BLOCKSIZE
+		else:
+			port.write(CMD.ERASE_SECTOR)
+			a += SECTORSIZE
+		check_ack(port)
 	progress("Erase: ", 1)
 
 def any_int(x):
@@ -189,7 +188,7 @@ if __name__ == "__main__":
 
 	# And then do it
 	# need to allow for page erase, upward of 60 ms. (Uh, actually it seems to be much longer)
-	port = serial.Serial(args.uart, args.baud, timeout=0.5)
+	port = serial.Serial(args.uart, args.baud, timeout=1)
 	print("Waiting for bootloader...")
 	reset_shell(port)
 	print("")

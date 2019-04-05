@@ -52,6 +52,7 @@ const char *splash =
 // - wait for ACK
 // - if no ACK after 20 ms, repeat
 
+#define BLOCKSIZE 65536
 #define SECTORSIZE 4096
 #define PAGESIZE 256
 #define ADDRSIZE 3
@@ -68,7 +69,9 @@ const char *splash =
 #define WRITE_FLASH  'W' // No effect if addr isn't page-aligned
 #define READ_FLASH   'R'
 #define ERASE_SECTOR 'E' // No effect if addr isn't sector-aligned
-#define BOOT_2ND     'B' // No effect if addr isn't magic 0x123456
+#define ERASE_BLOCK  'B' // No effect if addr isn't block-aligned
+
+#define BOOT_2ND     '2' // No effect if addr isn't magic 0x123456
                          // (since this is a destructive thing to do if
                          // the device is partially programmed!)
 
@@ -161,6 +164,13 @@ uint16_t checksum(uint8_t *data, size_t len)
 		sum = (sum + (sum << 3) + 1) ^ (data[i] + (data[i] << 5) + (data[i] << 9));
 }
 
+static inline void set_cmd_addr(uint32_t addr)
+{
+	cmdbuf[1] = (addr >> 16) & 0xff;
+	cmdbuf[2] = (addr >> 8 ) & 0xff;
+	cmdbuf[3] = (addr >> 0 ) & 0xff;
+}
+
 void run_flash_shell()
 {
 	uint32_t addr = 123; // Deliberately non-aligned. W/E are NOPs until this is initialised
@@ -215,9 +225,7 @@ void run_flash_shell()
 				{
 					flash_set_write_enable();
 					cmdbuf[0] = 0x02;
-					cmdbuf[1] = (addr >> 16) & 0xff;
-					cmdbuf[2] = (addr >> 8 ) & 0xff;
-					cmdbuf[3] = (addr >> 0 ) & 0xff;
+					set_cmd_addr(addr);
 					spi_write(cmdbuf, PAGESIZE + 4);
 					spi_wait_done();
 					flash_wait_done();
@@ -231,9 +239,7 @@ void run_flash_shell()
 			{
 				gpio_out_pin(PIN_LED, 1);
 				cmdbuf[0] = 0x03;
-				cmdbuf[1] = (addr >> 16) & 0xff;
-				cmdbuf[2] = (addr >> 8 ) & 0xff;
-				cmdbuf[3] = (addr >> 0 ) & 0xff;
+				set_cmd_addr(addr);
 				spi_write_read(cmdbuf, cmdbuf, PAGESIZE + 4);
 				spi_wait_done();
 				addr += PAGESIZE;
@@ -248,13 +254,28 @@ void run_flash_shell()
 				{
 					flash_set_write_enable();
 					cmdbuf[0] = 0x20;
-					cmdbuf[1] = (addr >> 16) & 0xff;
-					cmdbuf[2] = (addr >> 8 ) & 0xff;
-					cmdbuf[3] = (addr >> 0 ) & 0xff;
+					set_cmd_addr(addr);
 					spi_write(cmdbuf, 4);
 					spi_wait_done();
 					flash_wait_done();
 					addr += SECTORSIZE;
+				}
+				uart_put(ACK);
+				gpio_out_pin(PIN_LED, 0);
+				break;
+			}
+			case ERASE_BLOCK:
+			{
+				gpio_out_pin(PIN_LED, 1);
+				if (!(addr & (BLOCKSIZE - 1)))
+				{
+					flash_set_write_enable();
+					cmdbuf[0] = 0xd8;
+					set_cmd_addr(addr);
+					spi_write(cmdbuf, 4);
+					spi_wait_done();
+					flash_wait_done();
+					addr += BLOCKSIZE;
 				}
 				uart_put(ACK);
 				gpio_out_pin(PIN_LED, 0);
