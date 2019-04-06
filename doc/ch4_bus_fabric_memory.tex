@@ -165,4 +165,62 @@ Splitters will filter their slaves' {\tt hreadyout}s based on which is currently
 
 Splitters will fan their {\tt hready} signal out to all of their slaves; a low {\tt hready} directed at a slave you are not engaged with is harmless.
 
+\subsection{Memories}
 
+RISCBoy possesses two memory areas for data and code: an external SRAM (512 kiB, 16 b wide, asynchronous), and internal RAM (8 kiB, 32 b wide, synchronous), assembled from FPGA block RAMs. The former is the main system memory, which most games will simply load into as a flat image; the latter is intended to be used for processor stack, and some critical code sections, including ISRs. Internal RAM also contains the first-stage bootloader, as it can be initialised during FPGA configuration, so is a convenient place to put the first few thousand instructions the processor will execute at start-of-day. SRAM was chosen for the external memory due to the low initial access latency -- this permits reasonable performance without building complex cache hierarchies into the system bus masters. On a larger FPGA we could consider something like HyperRAM, or even DDRx SDRAM.
+
+Both memories need to be interfaced to the AHB-lite system bus. SRAMs aren't too complex, but they can be a little fiddly to use efficiently due to the timing of AHB-lite -- in particular, the alignment of {\tt haddr} and {\tt hwdata} is more or less the opposite of what you want for a synchronous SRAM.
+
+The internal SRAM can perform one 32-bit read or write per cycle. The external SRAM can also service a 32-bit AHB-lite read every cycle, because it is double-pumped; the controller performs two back-to-back 16 bit SRAM reads in one clock cycle. However, writes to external SRAM are limited to 16 bits per clock cycle, due to the timing of the {\tt WE} pin, which is deasserted part way through each access. This is reasonable -- reads are more common than writes, for almost any workload. However, special cases like the processor stack will benefit from the improved write performance of IRAM.
+
+\subsubsection{Internal RAM}
+
+Synchronous SRAMs typically behave as follows (ignoring details such as transparency):
+
+\begin{itemize}
+	\item Address, write data and write enable are presented on one clock
+	\item Read data is available on the next clock (and the whole process is pipelined)
+	\item Byte-enables allow narrow writes to be performed without a read-modify-write sequence.
+\end{itemize}
+
+This is shown in figure \ref{diagram:sync_sram_only}. However, in AHB-lite, read and write data are both presented during the data phase, which begins on the cycle after the address phase completes. The timing of this is shown in figure \ref{diagram:sync_sram_ahb_access}. Note the difference in timing between {\tt wdata} in figure \ref{diagram:sync_sram_only} and {\tt hwdata} in figure \ref{diagram:sync_sram_ahb_access}.
+
+
+\begin{figure}[H]
+\centering
+\caption{Timing of synchronous SRAM interface}
+\includegraphics[width=0.7\textwidth]{waves/sync_sram_only.pdf}
+\label{diagram:sync_sram_only}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\caption{Timing of AHB-lite SRAM accesses, showing write data misalignment}
+\includegraphics[width=0.7\textwidth]{waves/sync_sram_ahb_access.pdf}
+\label{diagram:sync_sram_ahb_access}
+\end{figure}
+
+The issue is that, as we can't source signals from the future, the SRAM write cycle muust be delayed so that write address is aligned with write data. However, if the next transfer is a read, there is a collision: the delayed write address would need to be presented on the same cycle as the read address, which is impossible for a single-port SRAM. One way to resolve this is to simply insert wait states on write access, shown in figure \ref{diagram:sync_sram_ahb_stall}.
+
+\begin{figure}[H]
+\centering
+\caption{AHB-lite SRAM access: resolving address collision with wait states}
+\includegraphics[width=0.76\textwidth]{waves/sync_sram_ahb_stall.pdf}
+\label{diagram:sync_sram_ahb_stall}
+\end{figure}
+
+This works, but the performance cost is significant if you are constantly swapping back and forth between reads and writes (like, say, a processor!). This needn't be so. Noting that:
+
+\begin{itemize}
+	\item Multiple consecutive writes can proceed fine; all of their addresses are delayed, so there is no overlap
+	\item Write-to-read has a single collision, and no more
+	\item Consecutive reads are also fine
+	\item A run of consecutive reads is always followed by either an idle cycle or a write cycle
+\end{itemize}
+
+We can surmise that there will never be more than one write pending at a time, and we will {\it always} eventually get a chance to commit that write to SRAM, even if traffic is completely back-to-back.
+
+\subsubsection{Main Memory}
+
+TODO
