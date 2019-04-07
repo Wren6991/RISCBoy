@@ -137,6 +137,58 @@ initial begin
 		end
 	end
 
+	$display("Back to back, 1W1R");
+	@(posedge clk);
+	ahbl_hsize <= 3'd2;
+	ahbl_htrans <= 2'b10;
+	for (i = 0; i < MEM_DEPTH; i = i + 1) begin
+		ahbl_haddr <= i * 4;
+		ahbl_hwrite <= 1'b1;
+		@ (posedge clk);
+		ahbl_hwdata <= test_vec[i];
+		ahbl_hwrite <= 1'b0;
+		@ (posedge clk);
+		#1;
+		if (ahbl_hrdata != test_vec[i]) begin
+			$display("Test FAILED: Mismatch at %h: %h (r) != %h (w)", i * 4, ahbl_hrdata, test_vec[i]);
+			$finish;
+		end
+	end
+	ahbl_htrans <= 0;
+	@ (posedge clk);
+	@ (posedge clk);
+	@ (posedge clk);
+
+	$display("Back to back, 2W2R");
+	@(posedge clk);
+	ahbl_hsize <= 3'd2;
+	ahbl_htrans <= 2'b10;
+	for (i = 0; i < MEM_DEPTH; i = i + 1) begin
+		ahbl_haddr <= 0;
+		ahbl_hwrite <= 1'b1;
+		@ (posedge clk);
+		ahbl_hwdata <= test_vec[0];
+		ahbl_haddr <= i * 4;
+		@ (posedge clk);
+		ahbl_hwdata <= test_vec[i];
+		ahbl_hwrite <= 1'b0;
+		ahbl_haddr <= 0;
+		@ (posedge clk);
+		#1;
+		ahbl_haddr <= i * 4;
+		if (ahbl_hrdata != test_vec[0]) begin
+			$display("Test FAILED: Mismatch at 0 (next %h): %h (r) != %h (w)", i, ahbl_hrdata, test_vec[0]);
+			$finish;
+		end
+		@ (posedge clk);
+		#1;
+		if (ahbl_hrdata != test_vec[i]) begin
+			$display("Test FAILED: Mismatch at %h: %h (r) != %h (w)", i, ahbl_hrdata, test_vec[i]);
+			$finish;
+		end
+	end
+
+
 	$display("Test PASSED.");
 	$finish;
 end

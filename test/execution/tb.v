@@ -9,6 +9,7 @@ localparam SRAM_DEPTH = SRAM_SIZE_BYTES * 8 / W_DATA;
 
 reg                       clk;
 reg                       rst_n;
+reg                       rst_n_proc;
 
 wire                      cpu_hready;
 wire                      cpu_hresp;
@@ -51,7 +52,7 @@ hazard5_cpu #(
 	.RESET_VECTOR(32'h0000_0000)
 ) cpu0 (
 	.clk             (clk),
-	.rst_n           (rst_n),
+	.rst_n           (rst_n_proc),
 
 	.ahblm_hready    (cpu_hready),
 	.ahblm_hresp     (cpu_hresp),
@@ -73,7 +74,7 @@ trafficgen #(
 	.IDLENESS (2)
 ) trafficgen0 (
 	.clk             (clk),
-	.rst_n           (rst_n),
+	.rst_n           (rst_n_proc),
 
 	.ahblm_hready    (trafficgen_hready),
 	.ahblm_hresp     (trafficgen_hresp),
@@ -154,6 +155,7 @@ reg [31:0] result_end_ptr;
 
 initial begin
 	clk = 1'b0;
+	rst_n_proc = 1'b0;
 	rst_n = 1'b0;
 
 	result_ptr_mem[0] = 0;
@@ -169,6 +171,7 @@ initial begin
 
 
 	#(10 * CLK_PERIOD);
+	rst_n_proc = 1'b1;
 	rst_n = 1'b1;
 
 	#(5000 * CLK_PERIOD);
@@ -177,6 +180,13 @@ initial begin
 	for (i = 0; i < 32; i = i + 1) begin
 		$display("%h", cpu0.inst_regfile_1w2r.\real_dualport_reset.mem [i]);
 	end
+
+	// Reset the processor (+ trafficgen) and wait a couple cycles.
+	// This allows a potentially-buffered write (inside controller) to be
+	// committed to SRAM, so we can read it out.
+	rst_n_proc = 1'b0;
+	@ (posedge clk);
+	@ (posedge clk);
 
 	$display("Test results:");
 	for (i = result_base_ptr; i < result_end_ptr; i = i + 4)
