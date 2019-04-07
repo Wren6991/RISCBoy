@@ -1,9 +1,9 @@
 {config: {hscale: 2},
  signal: [
   {name: 'clk', wave:    'P.......'},
-  {name: 'addr', wave:  'x=====xx', data: ['A', 'B', 'C', 'D', 'E']},
+  {name: 'addr', wave:  'x=345=xx', data: ['A', 'B', 'C', 'D', 'E']},
   {name: 'wen', wave: '01010...'},
-  {name: 'wdata', wave: 'x=x=xxxx', data: ['A', 'C']},
-  {name: 'rdata', wave: 'xxx=x==x', data: ['B', 'D', 'E']},
+  {name: 'wdata', wave: 'x=x4xxxx', data: ['A', 'C']},
+  {name: 'rdata', wave: 'xxx3x5=x', data: ['B', 'D', 'E']},
 ]}
 

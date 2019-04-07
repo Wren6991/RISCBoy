@@ -5,7 +5,7 @@ PDFVIEWER=evince
 
 all: $(DOCNAME).pdf
 
-$(DOCNAME).pdf: $(wildcard *.tex)
+$(DOCNAME).pdf: $(wildcard *.tex) $(wildcard waves/*.svg)
 	make -C waves
 	$(LATEX) $(LATEXARGS) $(DOCNAME).tex
 	$(LATEX) $(LATEXARGS) $(DOCNAME).tex

@@ -2,15 +2,15 @@
  signal: [
    {name: 'clk', wave:    'P........'},
    {name: 'htrans', wave: '==......=', data: ['IDLE', 'NSEQ', 'IDLE']},
-   {name: 'haddr', wave:  'x==.==.=x', data: ['A', 'B', 'C', 'D', 'E']},
+   {name: 'haddr', wave:  'x=3.45.=x', data: ['A', 'B', 'C', 'D', 'E']},
    {name: 'hready', wave: '1.01.01..'},
    {name: 'hwrite', wave: '010.10...'},
-   {name: 'hwdata', wave: 'xx=.x=.xx', data: ['A', 'C']},
-   {name: 'hrdata', wave: 'xxxx=xx==', data: ['B', 'D', 'E']},
+   {name: 'hwdata', wave: 'xx=.x4.xx', data: ['A', 'C']},
+   {name: 'hrdata', wave: 'xxxx3xx5=', data: ['B', 'D', 'E']},
    {},
-   {name: 'sram_addr', wave: 'xx==x===x', data: ['A', 'B', 'C', 'D', 'E']},
+   {name: 'sram_addr', wave: 'xx=3x45=x', data: ['A', 'B', 'C', 'D', 'E']},
    {name: 'sram_wen', wave: '0.10.10..'},
-   {name: 'sram_wdata', wave: 'xx=xx=xxx', data: ['A', 'C']},
-   {name: 'sram_rdata', wave: 'xxxx=xx==', data: ['B', 'D', 'E']}
+   {name: 'sram_wdata', wave: 'xx=xx4xxx', data: ['A', 'C']},
+   {name: 'sram_rdata', wave: 'xxxx3xx5=', data: ['B', 'D', 'E']}
 ]}
 

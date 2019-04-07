@@ -2,9 +2,9 @@
  signal: [
   {name: 'clk', wave:    'P.......'},
    {name: 'htrans', wave: '==....=.', data: ['IDLE', 'NSEQ', 'IDLE']},
-  {name: 'haddr', wave:  'x=====xx', data: ['A', 'B', 'C', 'D', 'E']},
+  {name: 'haddr', wave:  'x=345=xx', data: ['A', 'B', 'C', 'D', 'E']},
   {name: 'hwrite', wave: '01010...'},
-  {name: 'hwdata', wave: 'xx=x=xxx', data: ['A', 'C']},
-  {name: 'hrdata', wave: 'xxx=x==x', data: ['B', 'D', 'E']},
+  {name: 'hwdata', wave: 'xx=x4xxx', data: ['A', 'C']},
+  {name: 'hrdata', wave: 'xxx3x5=x', data: ['B', 'D', 'E']},
 ]}
 

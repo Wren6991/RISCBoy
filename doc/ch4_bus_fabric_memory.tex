@@ -175,7 +175,7 @@ The internal SRAM can perform one 32-bit read or write per cycle. The external S
 
 \subsubsection{Internal RAM}
 
-Synchronous SRAMs typically behave as follows (ignoring details such as transparency):
+Synchronous single-port SRAMs typically behave as follows:
 
 \begin{itemize}
 	\item Address, write data and write enable are presented on one clock
@@ -201,26 +201,52 @@ This is shown in figure \ref{diagram:sync_sram_only}. However, in AHB-lite, read
 \label{diagram:sync_sram_ahb_access}
 \end{figure}
 
-The issue is that, as we can't source signals from the future, the SRAM write cycle muust be delayed so that write address is aligned with write data. However, if the next transfer is a read, there is a collision: the delayed write address would need to be presented on the same cycle as the read address, which is impossible for a single-port SRAM. One way to resolve this is to simply insert wait states on write access, shown in figure \ref{diagram:sync_sram_ahb_stall}.
+The issue is that, as we can't source signals from the future, the SRAM write cycle must be delayed so that write address is aligned with write data. However, if the next transfer is a read, there is a collision: the delayed write address would need to be presented on the same cycle as the read address, which is impossible for a single-port SRAM. One way to resolve this is to simply insert wait states on write access, shown in figure \ref{diagram:sync_sram_ahb_stall}.
 
 \begin{figure}[H]
 \centering
 \caption{AHB-lite SRAM access: resolving address collision with wait states}
-\includegraphics[width=0.76\textwidth]{waves/sync_sram_ahb_stall.pdf}
+\includegraphics[width=0.8\textwidth]{waves/sync_sram_ahb_stall.pdf}
 \label{diagram:sync_sram_ahb_stall}
 \end{figure}
 
 This works, but the performance cost is significant if you are constantly swapping back and forth between reads and writes (like, say, a processor!). This needn't be so. Noting that:
 
 \begin{itemize}
-	\item Multiple consecutive writes can proceed fine; all of their addresses are delayed, so there is no overlap
+	\item Multiple consecutive writes are fine; all addresses are delayed equally, so do not collide
 	\item Write-to-read has a single collision, and no more
-	\item Consecutive reads are also fine
-	\item A run of consecutive reads is always followed by either an idle cycle or a write cycle
+	\item A run of consecutive reads is always followed by either an idle cycle or a write cycle (by definition)
+	\item Read-to-write leaves the SRAM idle for one cycle; this is seen in figure \ref{diagram:sync_sram_ahb_stall}
 \end{itemize}
 
-We can surmise that there will never be more than one write pending at a time, and we will {\it always} eventually get a chance to commit that write to SRAM, even if traffic is completely back-to-back.
+If we are able to buffer a single write, and hold onto it until the SRAM is idle (either AHB idle or read-to-write), we never need wait states. The only additional wrinkle is that, if a read is issued to an address we are currently holding a buffered write to, we will need to merge the buffered write data into the read data on-the-fly. As the write may be narrower than the SRAM, this needs to be done on a byte-by-byte basis. Use of a write buffer is shown in figure \ref{diagram:sync_sram_ahb_buffer}.
+
+\begin{figure}[H]
+\centering
+\caption{AHB-lite SRAM access: resolving address collision with a write buffer}
+\includegraphics[width=0.75\textwidth]{waves/sync_sram_ahb_buffer.pdf}
+\label{diagram:sync_sram_ahb_buffer}
+\end{figure}
+
+It's probably worth staring at for a short while. Key observations for figure \ref{diagram:sync_sram_ahb_buffer}:
+
+\begin{itemize}
+	\item SRAM reads are always aligned with AHB-lite reads, to avoid adding latency
+	\item SRAM writes are in-order with respect to other SRAM writes (otherwise we'd need more buffering)
+	\item An SRAM write can be deferred for any number of read cycles, after which the SRAM address bus will be free
+	\item The data buffer is only needed for write-to-read, not write-to-write or write-to-idle.
+\end{itemize}
+
 
 \subsubsection{Main Memory}
 
-TODO
+{\it Warning: hardware for this section is not yet in place; need PCBs to test thoroughly. This is just a sketch of ideas.}
+
+Main memory consists of a 16-bit-wide, 512 kiB asynchronous SRAM. The rough timing of read and write cycles is shown below (just signal alignment, no timing parameters):
+
+(TODO)
+
+The part used has a 10 ns access time, and RISCBoy is targeting around a 36 MHz system clock period (\textasciitilde 28 ns), so with some care we should be able to perform two reads in the same clock cycle, using a DDR output on the least-significant address bit, and an optional negedge capture fed into the lower half of the AHB-lite data bus. This means we can service one 32-bit AHB-lite read each cycle, which is ideal for a 32-bit processor with up to 32-bit instructions!
+
+Writes are more problematic: due to the timing of the {\tt WE} pin, we need a full cycle for each 16-bit write cycle, so 32-bit writes will stall for one cycle. Write-intensive memory regions such as the processor stack should be located in IRAM if possible, to avoid this performance penalty.
+

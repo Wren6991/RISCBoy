@@ -1,0 +1,18 @@
+{config: {hscale: 2},
+ signal: [
+   {name: 'clk', wave:    'P.......'},
+   {name: 'htrans', wave: '==....==', data: ['IDLE', 'NSEQ', 'IDLE']},
+   {name: 'haddr', wave:  'x=345=xx', data: ['A', 'B', 'C', 'D', 'E']},
+   {name: 'hwrite', wave: '01010...'},
+   {name: 'hwdata', wave: 'xx=x4xxx', data: ['A', 'C']},
+   {name: 'hrdata', wave: 'xxx3x5=x', data: ['B', 'D', 'E']},
+   {},
+   {name: 'sram_addr', wave: 'xx325=4x', data: ['B', 'A', 'D', 'E', 'C']},
+   {name: 'sram_wen', wave: '0..10.10'},
+   {name: 'sram_wdata', wave: 'xxx=xx4x', data: ['A', 'C']},
+   {name: 'sram_rdata', wave: 'xxx3x5=x', data: ['B', 'D', 'E']},
+   {},
+   {name: 'data_buf', wave: 'xxx=.4..', data: ['A', 'C']},
+   {name: 'buf_capture', wave: '0.1010..'},
+]}
+
