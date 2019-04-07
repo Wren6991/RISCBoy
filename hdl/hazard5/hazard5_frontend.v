@@ -189,12 +189,19 @@ end
 
 // Combinatorially generate the address-phase request
 
+reg reset_holdoff;
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		reset_holdoff <= 1'b1;
+	else
+		reset_holdoff <= 1'b0;
+
 reg [W_ADDR-1:0] mem_addr_r;
 reg mem_addr_vld_r;
 reg mem_size_r;
 
 assign mem_addr = mem_addr_r;
-assign mem_addr_vld = mem_addr_vld_r;
+assign mem_addr_vld = mem_addr_vld_r && !reset_holdoff;
 assign mem_size = mem_size_r;
 
 always @ (*) begin
