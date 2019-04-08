@@ -54,10 +54,6 @@ parameter  W_BYTEADDR  = $clog2(W_BYTES);
 assign ahbls_hresp = 1'b0;
 assign ahbls_hready_resp = 1'b1;
 
-// Figure out byte lane masks
-wire [W_BYTES-1:0] wmask_noshift = ~({W_BYTES{1'b1}} << (1 << ahbls_hsize));
-wire [W_BYTES-1:0] wmask = wmask_noshift << ahbls_haddr[W_BYTEADDR-1:0];
-
 // Need to buffer at least a write address,
 // and potentially the data too:
 reg [W_SRAM_ADDR-1:0] addr_saved;
@@ -72,6 +68,8 @@ wire write_retire = |wmask_saved && !ahb_read_aphase;
 wire write_capture = !wbuf_vld && |wmask_saved && ahb_read_aphase;
 
 wire [W_SRAM_ADDR-1:0] haddr_row = ahbls_haddr[W_BYTEADDR +: W_SRAM_ADDR];
+wire [W_BYTES-1:0] wmask_noshift = ~({W_BYTES{1'b1}} << (1 << ahbls_hsize));
+wire [W_BYTES-1:0] wmask = wmask_noshift << ahbls_haddr[W_BYTEADDR-1:0];
 
 // AHBL state machine (mainly controlling write buffer)
 always @ (posedge clk or negedge rst_n) begin
@@ -99,12 +97,9 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-// Hook up SRAM
-
-wire [W_BYTES-1:0] sram_wen =
-	write_retire ? wmask_saved : {W_BYTES{1'b0}};
-wire [W_SRAM_ADDR-1:0] sram_addr =
-	write_retire ? addr_saved : haddr_row;
+// SRAM controls
+wire [W_BYTES-1:0] sram_wen = write_retire ? wmask_saved : {W_BYTES{1'b0}};
+wire [W_SRAM_ADDR-1:0] sram_addr = write_retire ? addr_saved : haddr_row;
 wire [W_DATA-1:0] sram_wdata = wbuf_vld ? wdata_saved : ahbls_hwdata;
 wire [W_DATA-1:0] sram_rdata;
 
@@ -119,10 +114,10 @@ always @ (posedge clk or negedge rst_n)
 
 genvar b;
 generate
-	for (b = 0; b < W_BYTES; b = b + 1) begin: write_merge
-		assign ahbls_hrdata[b * 8 +: 8] = addr_match && wbuf_vld && wmask_saved[b] ?
-			wdata_saved[b * 8 +: 8] : sram_rdata[b * 8 +: 8];
-	end
+for (b = 0; b < W_BYTES; b = b + 1) begin: write_merge
+	assign ahbls_hrdata[b * 8 +: 8] = addr_match && wbuf_vld && wmask_saved[b] ?
+		wdata_saved[b * 8 +: 8] : sram_rdata[b * 8 +: 8];
+end
 endgenerate
 
 sram_sync #(
