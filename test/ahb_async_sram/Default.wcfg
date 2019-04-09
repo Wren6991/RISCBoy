@@ -32,10 +32,12 @@
    <wvobject fp_name="/tb/uut/ahbls_htrans" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">ahbls_htrans[1:0]</obj_property>
       <obj_property name="ObjectShortName">ahbls_htrans[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/uut/ahbls_hsize" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">ahbls_hsize[2:0]</obj_property>
       <obj_property name="ObjectShortName">ahbls_hsize[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/uut/ahbls_hwrite" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">ahbls_hwrite</obj_property>

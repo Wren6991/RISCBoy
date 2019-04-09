@@ -10,7 +10,7 @@ module ddr_out (
 	input wire d_rise,
 	input wire d_fall,
 	output reg q
-)
+);
 
 `ifdef DDROUT_ICE40
 
@@ -37,16 +37,18 @@ SB_IO #(
 
 `else
 
-// Note blocking assignment to intermediates
+// Blocking to intermediates, nonblocking to outputs
+// to avoid simulation issues
 reg q0, q1;
 always @ (posedge clk or negedge rst_n)
 	if (!rst_n)
 		{q0, q1} = 2'd0;
 	else
-		{q0, q1} = d_rise, d_fall;
+		{q0, q1} = {d_rise, d_fall};
 
-// Note nonblocking assignment to output
 always @ (*)
 	q <= clk ? q0 : q1;
 
 `endif
+
+endmodule

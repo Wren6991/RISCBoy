@@ -25,7 +25,7 @@ module ahb_async_sram #(
 	output reg [W_SRAM_ADDR-1:0] sram_addr,
 	inout wire [W_DATA-1:0]      sram_dq,
 	output reg                   sram_ce_n,
-	output reg                   sram_we_n,
+	output wire                  sram_we_n, // DDR output
 	output reg                   sram_oe_n,
 	output reg [W_DATA/8-1:0]    sram_byte_n
 );
@@ -44,31 +44,35 @@ wire [W_DATA/8-1:0] bytemask = bytemask_noshift << ahbls_haddr[W_BYTEADDR-1:0];
 
 // AHBL request marshalling/translation
 
-reg we_r;
-always @ (*) sram_we_n = we_r | clk; // TODO: use DDR cell instead of gate
+wire we_next = ahbls_htrans[1] && ahbls_hwrite && ahbls_hready;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		sram_addr <= {W_SRAM_ADDR{1'b0}};
 		sram_ce_n <= 1'b1;
-		we_r <= 1'b1;
 		sram_oe_n <= 1'b1;
 		sram_byte_n <= {W_DATA/8{1'b1}};
 	end else if (ahbls_hready) begin
 		if (ahbls_htrans[1]) begin
 			sram_addr <= ahbls_haddr[W_BYTEADDR +: W_SRAM_ADDR];
 			sram_ce_n <= 1'b0;
-			we_r <= !ahbls_hwrite;
 			sram_oe_n <= ahbls_hwrite;
 			sram_byte_n <= ~bytemask;
 		end	else begin
 			sram_ce_n <= 1'b1;
-			we_r <= 1'b1;
 			sram_oe_n <= 1'b1;
 			sram_byte_n <= {W_DATA/8{1'b1}};
 		end
 	end
 end
+
+ddr_out we_ddr (
+	.clk    (clk),
+	.rst_n  (rst_n),
+	.d_rise (!we_next),
+	.d_fall (1'b1),
+	.q      (sram_we_n)
+);
 
 // SRAM tristating
 
@@ -76,7 +80,7 @@ wire [W_DATA-1:0] sram_q;
 assign ahbls_hrdata = sram_q & {W_DATA{!sram_oe_n}};
 
 tristate_io iobuf [W_DATA-1:0] (
-	.out_en(!we_r),
+	.out_en(sram_oe_n),
 	.out   (ahbls_hwdata),
 	.in    (sram_q),
 	.pad   (sram_dq)
