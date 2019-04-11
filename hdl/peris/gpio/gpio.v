@@ -2,8 +2,7 @@
 // APB master can bitbash, and control muxing of peripheral onto pad.
 
 module gpio #(
-	parameter N_PADS  = 16,
-	parameter USE_BUF = 16'hffff
+	parameter N_PADS  = 16
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -18,7 +17,9 @@ module gpio #(
 	output wire apbs_pready,
 	output wire apbs_pslverr,
 
-	inout wire [N_PADS-1:0] pads,
+	output reg [N_PADS-1:0] padout,
+	output reg [N_PADS-1:0] padoe,
+	input wire [N_PADS-1:0] padin,
 
 	// Peripheral signals
 
@@ -35,30 +36,6 @@ localparam W_FSEL = 1;
 localparam N_FSELS = 1 << W_FSEL;
 
 wire [W_FSEL-1:0] fsel [0:N_PADS-1];
-
-reg  [N_PADS-1:0] padout;
-reg  [N_PADS-1:0] padoe;
-wire [N_PADS-1:0] padin;
-
-genvar g;
-generate
-for (g = 0; g < N_PADS; g = g + 1) begin: gen_buf
-	if (USE_BUF[g]) begin: has_buf
-		tristate_io padbuf (
-			.out    (padout[g]),
-			.out_en (padoe[g]),
-			.in     (padin[g]),
-			.pad    (pads[g])
-		);
-	end else begin: no_buf
-		// On some FPGAs, different primitives are used to drive some package pins
-		// e.g. RGB driver on iCE40UP.
-		// Instantiating an iobuf would cause problems for these pins.
-		assign pads[g] = padout[g];
-		assign padin[g] = pads[g];
-	end
-end
-endgenerate
 
 // Output muxing
 

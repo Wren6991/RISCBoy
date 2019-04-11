@@ -15,20 +15,22 @@
  *                                                                    *
  *********************************************************************/
 
-// riscboy_core contains the full system, except for 
+// riscboy_core contains the full system, except for
 // Clock, Reset and Power (CRaP)
 // which lives in the chip/fpga/testbench top level
 
 
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
-	parameter GPIO_IS_PAD = 16'hffff,
-	parameter W_SRAM0_ADDR = 18
+	parameter W_SRAM0_ADDR = 18,
+	parameter N_PADS = 16 // Let this default
 ) (
 	input wire                     clk,
 	input wire                     rst_n,
 
-	inout wire [15:0]              gpio,
+	output wire [N_PADS-1:0]       padout,
+	output wire [N_PADS-1:0]       padoe,
+	input  wire [N_PADS-1:0]       padin,
 
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
 	inout  wire [15:0]             sram_dq,
@@ -444,8 +446,7 @@ spi_mini #(
 );
 
 gpio #(
-	.N_PADS(16),
-	.USE_BUF(GPIO_IS_PAD)
+	.N_PADS (N_PADS)
 ) inst_gpio (
 	.clk          (clk),
 	.rst_n        (rst_n),
@@ -457,7 +458,11 @@ gpio #(
 	.apbs_prdata  (gpio_prdata),
 	.apbs_pready  (gpio_pready),
 	.apbs_pslverr (gpio_pslverr),
-	.pads         (gpio),
+
+	.padout       (padout),
+	.padoe        (padoe),
+	.padin        (padin),
+
 	.lcd_pwm      (lcd_pwm),
 	.uart_tx      (uart_tx),
 	.uart_rx      (uart_rx),

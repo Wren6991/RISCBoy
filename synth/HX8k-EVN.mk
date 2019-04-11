@@ -1,6 +1,6 @@
 CHIPNAME=riscboy_hx8kevn
 DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_hx8kevn.f
-BOOTAPP=blinky
+BOOTAPP=riscboy_bootloader
 
 SYNTH_OPT=-retime
 

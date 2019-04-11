@@ -44,15 +44,34 @@ fpga_reset #(
 
 // Instantiate the actual logic
 
-wire [2:0] gpio_unused;
+localparam N_PADS = 16;
+
+wire [N_PADS-1:0] padout;
+wire [N_PADS-1:0] padoe;
+wire [N_PADS-1:0] padin;
 
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex")
 ) core (
-	.clk(clk_sys),
-	.rst_n(rst_n),
+	.clk    (clk_sys),
+	.rst_n  (rst_n),
 
-	.gpio({
+	.padout (padout),
+	.padoe  (padoe),
+	.padin  (padin)
+);
+
+// GPIO
+
+wire [2:0] gpio_unused;
+
+tristate_io  pads [N_PADS-1:0] (
+
+	.out    (padout),
+	.out_en (padoe),
+	.in     (padin),
+
+	.pad ({
 		uart_tx,
 		uart_rx,
 		flash_miso,
@@ -70,6 +89,8 @@ riscboy_core #(
 	})
 );
 
-assign led[7:1] = 0;
+assign led[7] = !padout[15]; // uart_tx
+assign led[6] = !padin[14];  // uart_rx
+assign led[5:1] = 0;
 
 endmodule
