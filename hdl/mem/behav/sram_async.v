@@ -1,4 +1,3 @@
-
 /**********************************************************************
  * DO WHAT THE FUCK YOU WANT TO AND DON'T BLAME US PUBLIC LICENSE     *
  *                    Version 3, April 2008                           *

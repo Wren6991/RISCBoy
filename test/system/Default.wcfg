@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="23" />
+   <WVObjectSize size="24" />
    <wave_markers>
       <marker time="16730000000" label="" />
    </wave_markers>
@@ -770,5 +770,44 @@
    <wvobject fp_name="/tb/uart_rx/BIT_PERIOD" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">BIT_PERIOD</obj_property>
       <obj_property name="ObjectShortName">BIT_PERIOD</obj_property>
+   </wvobject>
+   <wvobject fp_name="group173" type="group">
+      <obj_property name="label">Main Memory</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_haddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_haddr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_hwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_hwrite</obj_property>
+         <obj_property name="ObjectShortName">ahbls_hwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_htrans[1:0]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_htrans[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_hsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_hsize[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_hready_resp" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_hready_resp</obj_property>
+         <obj_property name="ObjectShortName">ahbls_hready_resp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_hready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_hready</obj_property>
+         <obj_property name="ObjectShortName">ahbls_hready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_hwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_hwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_hwdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_ctrl/ahbls_hrdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ahbls_hrdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">ahbls_hrdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>

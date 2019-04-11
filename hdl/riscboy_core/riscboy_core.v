@@ -22,12 +22,20 @@
 
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
-	parameter GPIO_IS_PAD = 16'hffff
+	parameter GPIO_IS_PAD = 16'hffff,
+	parameter W_SRAM0_ADDR = 18
 ) (
-	input wire clk,
-	input wire rst_n,
+	input wire                     clk,
+	input wire                     rst_n,
 
-	inout wire [15:0] gpio
+	inout wire [15:0]              gpio,
+
+	output wire [W_SRAM0_ADDR-1:0] sram_addr,
+	inout  wire [15:0]             sram_dq,
+	output wire                    sram_ce_n,
+	output wire                    sram_we_n,
+	output wire                    sram_oe_n,
+	output wire [1:0]              sram_byte_n
 );
 
 localparam W_ADDR = 32;
@@ -307,6 +315,38 @@ apb_splitter #(
 //  Slaves
 // =============================================================================
 
+// SRAM 0: external asynchronous SRAM.
+// Second stage is loaded into here by the initial bootloader.
+// Vast majority of code and data for games will be here.
+
+ahb_async_sram_halfwidth #(
+	.W_DATA(W_DATA),
+	.W_ADDR(W_ADDR),
+	.DEPTH(1 << W_SRAM0_ADDR)
+) sram0_ctrl (
+	.clk               (clk),
+	.rst_n             (rst_n),
+	.ahbls_hready_resp (sram0_hready_resp),
+	.ahbls_hready      (sram0_hready),
+	.ahbls_hresp       (sram0_hresp),
+	.ahbls_haddr       (sram0_haddr),
+	.ahbls_hwrite      (sram0_hwrite),
+	.ahbls_htrans      (sram0_htrans),
+	.ahbls_hsize       (sram0_hsize),
+	.ahbls_hburst      (sram0_hburst),
+	.ahbls_hprot       (sram0_hprot),
+	.ahbls_hmastlock   (sram0_hmastlock),
+	.ahbls_hwdata      (sram0_hwdata),
+	.ahbls_hrdata      (sram0_hrdata),
+
+	.sram_addr         (sram_addr),
+	.sram_dq           (sram_dq),
+	.sram_ce_n         (sram_ce_n),
+	.sram_we_n         (sram_we_n),
+	.sram_oe_n         (sram_oe_n),
+	.sram_byte_n       (sram_byte_n)
+);
+
 // SRAM 1: internal synchronous SRAM.
 // Used for first-stage bootcode, and thereafter for processor stack
 // + small amount of hot code
@@ -332,13 +372,6 @@ ahb_sync_sram #(
 	.ahbls_hwdata      (sram1_hwdata),
 	.ahbls_hrdata      (sram1_hrdata)
 );
-
-// Tie off sram0 for now
-// Need a proper AHBL narrower to attach the controller.
-
-assign sram0_hready_resp = 1'b1;
-assign sram0_hresp = 1'b0;
-assign sram0_hrdata = 32'h0;
 
 tbman inst_tbman (
 	.clk              (clk),

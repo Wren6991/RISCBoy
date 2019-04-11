@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import sys
+
+failed = False
+
+tbman_lines = []
+
+for line in open(sys.argv[1]).readlines():
+	if line.startswith("TBMAN:"):
+		tbman_lines.append(line.strip()[7:])
+
+failed = failed or tbman_lines[0] != "Byte write random"
+failed = failed or tbman_lines[1] != "Readback"
+failed = failed or tbman_lines[2] != "Halfword write random"
+failed = failed or tbman_lines[3] != "Readback"
+failed = failed or tbman_lines[4] != "Word write random"
+failed = failed or tbman_lines[5] != "Readback"
+failed = failed or not tbman_lines[6].startswith("CPU requested termination")
+failed = failed or tbman_lines[6].split(" ")[-1] != "0"
+
+if not failed:
+	print("Test PASSED.")
