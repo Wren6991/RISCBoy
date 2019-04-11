@@ -123,5 +123,5 @@ system TEST=uart_tx
 system TEST=uart_loopback
 system TEST=spi_smoke
 system TEST=memtest_basic
-#system TEST=gpio
+system TEST=gpio
 #system TEST=printf_int
