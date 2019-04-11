@@ -42,7 +42,6 @@
 // Write timing: assert address, CE, byte enables, data. Wait 3 ns. 
 //  Assert WE. Wait 7 ns.
 // Data sampled by SRAM on rising edge (deassertion; active low!)
-// However, this model will sample on the falling edge, to avoid potential race conditions.
 
 module sram_async #(
 	parameter W_DATA = 16,            // Must be power of 2, >= 8
@@ -72,7 +71,7 @@ always @ (*) begin: readport
 	end 	
 end
 
-always @ (negedge we_n) begin: writeport
+always @ (posedge we_n) begin: writeport
 	integer i;
 	for (i = 0; i < W_BYTES; i = i + 1) begin
 		if (!ce_n && !ben_n[i])
