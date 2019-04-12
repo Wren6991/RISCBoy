@@ -1,1 +1,2 @@
 wildcard .v .
+include .

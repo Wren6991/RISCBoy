@@ -32,6 +32,8 @@ module gpio #(
 	output wire spi_sdi
 );
 
+`include "gpio_pinmap.vh"
+
 localparam W_FSEL = 1;
 localparam N_FSELS = 1 << W_FSEL;
 
@@ -41,48 +43,21 @@ wire [W_FSEL-1:0] fsel [0:N_PADS-1];
 
 wire [N_PADS-1:0] proc_out;
 wire [N_PADS-1:0] proc_oe;
-wire [N_FSELS-1:0] padout_all [0:N_PADS-1];
-wire [N_FSELS-1:0] padoe_all [0:N_PADS-1];
-
-assign padout_all[0 ] = {1'b0                , proc_out[0 ]        };
-assign padout_all[1 ] = {1'b0                , proc_out[1 ]        };
-assign padout_all[2 ] = {1'b0                , proc_out[2 ]        };
-assign padout_all[3 ] = {1'b0                , proc_out[3 ]        };
-assign padout_all[4 ] = {1'b0                , proc_out[4 ]        };
-assign padout_all[5 ] = {lcd_pwm             , proc_out[5 ]        };
-assign padout_all[6 ] = {1'b0                , proc_out[6 ]        };
-assign padout_all[7 ] = {1'b0                , proc_out[7 ]        };
-assign padout_all[8 ] = {1'b0                , proc_out[8 ]        };
-assign padout_all[9 ] = {1'b0                , proc_out[9 ]        };
-assign padout_all[10] = {spi_cs              , proc_out[10]        };
-assign padout_all[11] = {spi_sclk            , proc_out[11]        };
-assign padout_all[12] = {spi_sdo             , proc_out[12]        };
-assign padout_all[13] = {spi_sdi             , proc_out[13]        };
-assign padout_all[14] = {1'b0                , proc_out[14]        };
-assign padout_all[15] = {uart_tx             , proc_out[15]        };
-
-assign padoe_all[0 ]  = {1'b0                , proc_oe[0 ]         };
-assign padoe_all[1 ]  = {1'b0                , proc_oe[1 ]         };
-assign padoe_all[2 ]  = {1'b0                , proc_oe[2 ]         };
-assign padoe_all[3 ]  = {1'b0                , proc_oe[3 ]         };
-assign padoe_all[4 ]  = {1'b0                , proc_oe[4 ]         };
-assign padoe_all[5 ]  = {1'b1                , proc_oe[5 ]         };
-assign padoe_all[6 ]  = {1'b0                , proc_oe[6 ]         };
-assign padoe_all[7 ]  = {1'b0                , proc_oe[7 ]         };
-assign padoe_all[8 ]  = {1'b0                , proc_oe[8 ]         };
-assign padoe_all[9 ]  = {1'b0                , proc_oe[9 ]         };
-assign padoe_all[10]  = {1'b1                , proc_oe[10]         };
-assign padoe_all[11]  = {1'b1                , proc_oe[11]         };
-assign padoe_all[12]  = {1'b1                , proc_oe[12]         };
-assign padoe_all[13]  = {1'b0                , proc_oe[13]         };
-assign padoe_all[14]  = {1'b0                , proc_oe[14]         };
-assign padoe_all[15]  = {1'b1                , proc_oe[15]         };
 
 always @ (*) begin: gpio_mux
 	integer i;
 	for (i = 0; i < N_PADS; i = i + 1) begin
-		padout[i] = padout_all[i][fsel[i]];
-		padoe[i] = padoe_all[i][fsel[i]];
+		if (fsel[i] == 1'b0) begin
+			padout[i] = proc_out[i];
+			padoe[0] = proc_oe[i];
+		end else case (i)
+			PIN_UART_TX    : begin padout[i] = uart_tx;  padoe[i] = 1'b1; end
+			PIN_FLASH_CS   : begin padout[i] = spi_cs;   padoe[i] = 1'b1; end
+			PIN_FLASH_SCLK : begin padout[i] = spi_sclk; padoe[i] = 1'b1; end
+			PIN_FLASH_MOSI : begin padout[i] = spi_sdo;  padoe[i] = 1'b1; end
+			PIN_LCD_PWM    : begin padout[i] = lcd_pwm;  padoe[i] = 1'b1; end
+			default        : begin                       padoe[i] = 1'b0; end
+		endcase
 	end
 end
 
@@ -98,10 +73,10 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-// Input assignments (TODO: multi-source input muxing)
+// Input assignments (TODO: multi-source input muxing? When needed)
 
-assign uart_rx = padin_reg[14]; // UART isn't going to mind an extra clock of latency!
-assign spi_sdi = padin[13];     // SPI certainly will though
+assign uart_rx = padin_reg[PIN_UART_RX]; // UART isn't going to mind an extra clock of latency!
+assign spi_sdi = padin[PIN_FLASH_MISO];  // SPI certainly will though
 
 // APB Regblock
 

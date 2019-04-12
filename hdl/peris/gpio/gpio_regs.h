@@ -25,8 +25,8 @@
 
 // Field OUT
 #define GPIO_OUT_LSB  0
-#define GPIO_OUT_BITS 16
-#define GPIO_OUT_MASK 0xffff
+#define GPIO_OUT_BITS 23
+#define GPIO_OUT_MASK 0x7fffff
 
 /*******************************************************************************
 *                                     DIR                                      *
@@ -36,8 +36,8 @@
 
 // Field DIR
 #define GPIO_DIR_LSB  0
-#define GPIO_DIR_BITS 16
-#define GPIO_DIR_MASK 0xffff
+#define GPIO_DIR_BITS 23
+#define GPIO_DIR_MASK 0x7fffff
 
 /*******************************************************************************
 *                                      IN                                      *
@@ -47,8 +47,8 @@
 
 // Field IN
 #define GPIO_IN_LSB  0
-#define GPIO_IN_BITS 16
-#define GPIO_IN_MASK 0xffff
+#define GPIO_IN_BITS 23
+#define GPIO_IN_MASK 0x7fffff
 
 /*******************************************************************************
 *                                    FSEL0                                     *
@@ -120,5 +120,33 @@
 #define GPIO_FSEL0_P15_LSB  15
 #define GPIO_FSEL0_P15_BITS 1
 #define GPIO_FSEL0_P15_MASK 0x8000
+// Field FSEL0_P16
+#define GPIO_FSEL0_P16_LSB  16
+#define GPIO_FSEL0_P16_BITS 1
+#define GPIO_FSEL0_P16_MASK 0x10000
+// Field FSEL0_P17
+#define GPIO_FSEL0_P17_LSB  17
+#define GPIO_FSEL0_P17_BITS 1
+#define GPIO_FSEL0_P17_MASK 0x20000
+// Field FSEL0_P18
+#define GPIO_FSEL0_P18_LSB  18
+#define GPIO_FSEL0_P18_BITS 1
+#define GPIO_FSEL0_P18_MASK 0x40000
+// Field FSEL0_P19
+#define GPIO_FSEL0_P19_LSB  19
+#define GPIO_FSEL0_P19_BITS 1
+#define GPIO_FSEL0_P19_MASK 0x80000
+// Field FSEL0_P20
+#define GPIO_FSEL0_P20_LSB  20
+#define GPIO_FSEL0_P20_BITS 1
+#define GPIO_FSEL0_P20_MASK 0x100000
+// Field FSEL0_P21
+#define GPIO_FSEL0_P21_LSB  21
+#define GPIO_FSEL0_P21_BITS 1
+#define GPIO_FSEL0_P21_MASK 0x200000
+// Field FSEL0_P22
+#define GPIO_FSEL0_P22_LSB  22
+#define GPIO_FSEL0_P22_BITS 1
+#define GPIO_FSEL0_P22_MASK 0x400000
 
 #endif // _GPIO_REGS_H_

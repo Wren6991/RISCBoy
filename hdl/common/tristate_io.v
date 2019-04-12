@@ -8,17 +8,16 @@ module tristate_io (
 	inout wire pad
 );
 
-
 `ifdef TRISTATE_ICE40
 
 SB_IO #(
-    .PIN_TYPE(6'b 1010_01),
-    .PULLUP(1'b 0)
+    .PIN_TYPE (6'b1010_01),
+    .PULLUP   (1'b0)
 ) buffer (
-    .PACKAGE_PIN(pad),
-    .OUTPUT_ENABLE(out_en),
-    .D_OUT_0(out),
-    .D_IN_0(in)
+    .PACKAGE_PIN   (pad),
+    .OUTPUT_ENABLE (out_en),
+    .D_OUT_0       (out),
+    .D_IN_0        (in)
 );
 
 `else

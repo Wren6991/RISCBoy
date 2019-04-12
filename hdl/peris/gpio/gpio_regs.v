@@ -24,9 +24,9 @@ module gpio_regs (
 	output wire apbs_pslverr,
 	
 	// Register interfaces
-	output reg [15:0] out_o,
-	output reg [15:0] dir_o,
-	input wire [15:0] in_i,
+	output reg [22:0] out_o,
+	output reg [22:0] dir_o,
+	input wire [22:0] in_i,
 	output reg  fsel0_p0_o,
 	output reg  fsel0_p1_o,
 	output reg  fsel0_p2_o,
@@ -42,7 +42,14 @@ module gpio_regs (
 	output reg  fsel0_p12_o,
 	output reg  fsel0_p13_o,
 	output reg  fsel0_p14_o,
-	output reg  fsel0_p15_o
+	output reg  fsel0_p15_o,
+	output reg  fsel0_p16_o,
+	output reg  fsel0_p17_o,
+	output reg  fsel0_p18_o,
+	output reg  fsel0_p19_o,
+	output reg  fsel0_p20_o,
+	output reg  fsel0_p21_o,
+	output reg  fsel0_p22_o
 );
 
 // APB adapter
@@ -69,19 +76,19 @@ wire __in_ren = ren && addr == ADDR_IN;
 wire __fsel0_wen = wen && addr == ADDR_FSEL0;
 wire __fsel0_ren = ren && addr == ADDR_FSEL0;
 
-wire [15:0] out_wdata = wdata[15:0];
-wire [15:0] out_rdata;
-wire [31:0] __out_rdata = {16'h0, out_rdata};
+wire [22:0] out_wdata = wdata[22:0];
+wire [22:0] out_rdata;
+wire [31:0] __out_rdata = {9'h0, out_rdata};
 assign out_rdata = out_o;
 
-wire [15:0] dir_wdata = wdata[15:0];
-wire [15:0] dir_rdata;
-wire [31:0] __dir_rdata = {16'h0, dir_rdata};
+wire [22:0] dir_wdata = wdata[22:0];
+wire [22:0] dir_rdata;
+wire [31:0] __dir_rdata = {9'h0, dir_rdata};
 assign dir_rdata = dir_o;
 
-wire [15:0] in_wdata = wdata[15:0];
-wire [15:0] in_rdata;
-wire [31:0] __in_rdata = {16'h0, in_rdata};
+wire [22:0] in_wdata = wdata[22:0];
+wire [22:0] in_rdata;
+wire [31:0] __in_rdata = {9'h0, in_rdata};
 assign in_rdata = in_i;
 
 wire  fsel0_p0_wdata = wdata[0];
@@ -116,7 +123,21 @@ wire  fsel0_p14_wdata = wdata[14];
 wire  fsel0_p14_rdata;
 wire  fsel0_p15_wdata = wdata[15];
 wire  fsel0_p15_rdata;
-wire [31:0] __fsel0_rdata = {16'h0, fsel0_p15_rdata, fsel0_p14_rdata, fsel0_p13_rdata, fsel0_p12_rdata, fsel0_p11_rdata, fsel0_p10_rdata, fsel0_p9_rdata, fsel0_p8_rdata, fsel0_p7_rdata, fsel0_p6_rdata, fsel0_p5_rdata, fsel0_p4_rdata, fsel0_p3_rdata, fsel0_p2_rdata, fsel0_p1_rdata, fsel0_p0_rdata};
+wire  fsel0_p16_wdata = wdata[16];
+wire  fsel0_p16_rdata;
+wire  fsel0_p17_wdata = wdata[17];
+wire  fsel0_p17_rdata;
+wire  fsel0_p18_wdata = wdata[18];
+wire  fsel0_p18_rdata;
+wire  fsel0_p19_wdata = wdata[19];
+wire  fsel0_p19_rdata;
+wire  fsel0_p20_wdata = wdata[20];
+wire  fsel0_p20_rdata;
+wire  fsel0_p21_wdata = wdata[21];
+wire  fsel0_p21_rdata;
+wire  fsel0_p22_wdata = wdata[22];
+wire  fsel0_p22_rdata;
+wire [31:0] __fsel0_rdata = {9'h0, fsel0_p22_rdata, fsel0_p21_rdata, fsel0_p20_rdata, fsel0_p19_rdata, fsel0_p18_rdata, fsel0_p17_rdata, fsel0_p16_rdata, fsel0_p15_rdata, fsel0_p14_rdata, fsel0_p13_rdata, fsel0_p12_rdata, fsel0_p11_rdata, fsel0_p10_rdata, fsel0_p9_rdata, fsel0_p8_rdata, fsel0_p7_rdata, fsel0_p6_rdata, fsel0_p5_rdata, fsel0_p4_rdata, fsel0_p3_rdata, fsel0_p2_rdata, fsel0_p1_rdata, fsel0_p0_rdata};
 assign fsel0_p0_rdata = fsel0_p0_o;
 assign fsel0_p1_rdata = fsel0_p1_o;
 assign fsel0_p2_rdata = fsel0_p2_o;
@@ -133,6 +154,13 @@ assign fsel0_p12_rdata = fsel0_p12_o;
 assign fsel0_p13_rdata = fsel0_p13_o;
 assign fsel0_p14_rdata = fsel0_p14_o;
 assign fsel0_p15_rdata = fsel0_p15_o;
+assign fsel0_p16_rdata = fsel0_p16_o;
+assign fsel0_p17_rdata = fsel0_p17_o;
+assign fsel0_p18_rdata = fsel0_p18_o;
+assign fsel0_p19_rdata = fsel0_p19_o;
+assign fsel0_p20_rdata = fsel0_p20_o;
+assign fsel0_p21_rdata = fsel0_p21_o;
+assign fsel0_p22_rdata = fsel0_p22_o;
 
 always @ (*) begin
 	case (addr)
@@ -146,8 +174,8 @@ end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		out_o <= 16'h0;
-		dir_o <= 16'h0;
+		out_o <= 23'h0;
+		dir_o <= 23'h0;
 		fsel0_p0_o <= 1'h0;
 		fsel0_p1_o <= 1'h0;
 		fsel0_p2_o <= 1'h0;
@@ -164,6 +192,13 @@ always @ (posedge clk or negedge rst_n) begin
 		fsel0_p13_o <= 1'h0;
 		fsel0_p14_o <= 1'h0;
 		fsel0_p15_o <= 1'h0;
+		fsel0_p16_o <= 1'h0;
+		fsel0_p17_o <= 1'h0;
+		fsel0_p18_o <= 1'h0;
+		fsel0_p19_o <= 1'h0;
+		fsel0_p20_o <= 1'h0;
+		fsel0_p21_o <= 1'h0;
+		fsel0_p22_o <= 1'h0;
 	end else begin
 		if (__out_wen)
 			out_o <= out_wdata;
@@ -201,6 +236,20 @@ always @ (posedge clk or negedge rst_n) begin
 			fsel0_p14_o <= fsel0_p14_wdata;
 		if (__fsel0_wen)
 			fsel0_p15_o <= fsel0_p15_wdata;
+		if (__fsel0_wen)
+			fsel0_p16_o <= fsel0_p16_wdata;
+		if (__fsel0_wen)
+			fsel0_p17_o <= fsel0_p17_wdata;
+		if (__fsel0_wen)
+			fsel0_p18_o <= fsel0_p18_wdata;
+		if (__fsel0_wen)
+			fsel0_p19_o <= fsel0_p19_wdata;
+		if (__fsel0_wen)
+			fsel0_p20_o <= fsel0_p20_wdata;
+		if (__fsel0_wen)
+			fsel0_p21_o <= fsel0_p21_wdata;
+		if (__fsel0_wen)
+			fsel0_p22_o <= fsel0_p22_wdata;
 	end
 end
 

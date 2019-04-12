@@ -3,7 +3,7 @@ bus: apb
 addr: 16
 data: 32
 params:
-  N_PADS: 16
+  N_PADS: 23
   W_FSEL: 1
 regs:
   - name: out
