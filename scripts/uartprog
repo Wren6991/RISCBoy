@@ -9,6 +9,7 @@
 import argparse
 import os
 import serial
+import serial.tools.list_ports
 import sys
 import time
 
@@ -149,7 +150,7 @@ if __name__ == "__main__":
 	if args.start is None:
 		args.start = 0
 	if args.uart is None:
-		args.uart = "/dev/ttyUSB0"
+		args.uart = serial.tools.list_ports.comports()[-1].device
 	if args.baud is None:
 		args.baud = 500000
 	if args.verify and not args.write:
@@ -189,7 +190,7 @@ if __name__ == "__main__":
 	# And then do it
 	# need to allow for page erase, upward of 60 ms. (Uh, actually it seems to be much longer)
 	port = serial.Serial(args.uart, args.baud, timeout=1)
-	print("Waiting for bootloader...")
+	print("Waiting for bootloader on {}...".format(port.name))
 	reset_shell(port)
 	print("")
 
