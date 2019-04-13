@@ -2,7 +2,7 @@
 // APB master can bitbash, and control muxing of peripheral onto pad.
 
 module gpio #(
-	parameter N_PADS  = 16
+	parameter N_PADS = 23
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -49,14 +49,14 @@ always @ (*) begin: gpio_mux
 	for (i = 0; i < N_PADS; i = i + 1) begin
 		if (fsel[i] == 1'b0) begin
 			padout[i] = proc_out[i];
-			padoe[0] = proc_oe[i];
+			padoe[i] = proc_oe[i];
 		end else case (i)
 			PIN_UART_TX    : begin padout[i] = uart_tx;  padoe[i] = 1'b1; end
 			PIN_FLASH_CS   : begin padout[i] = spi_cs;   padoe[i] = 1'b1; end
 			PIN_FLASH_SCLK : begin padout[i] = spi_sclk; padoe[i] = 1'b1; end
 			PIN_FLASH_MOSI : begin padout[i] = spi_sdo;  padoe[i] = 1'b1; end
 			PIN_LCD_PWM    : begin padout[i] = lcd_pwm;  padoe[i] = 1'b1; end
-			default        : begin                       padoe[i] = 1'b0; end
+			default        : begin padout[i] = 1'b0;     padoe[i] = 1'b0; end
 		endcase
 	end
 end
@@ -95,22 +95,29 @@ gpio_regs inst_gpio_regs
 	.out_o        (proc_out),
 	.dir_o        (proc_oe),
 	.in_i         (padin_reg),
-	.fsel0_p0_o   (fsel[0 ]),
-	.fsel0_p1_o   (fsel[1 ]),
-	.fsel0_p2_o   (fsel[2 ]),
-	.fsel0_p3_o   (fsel[3 ]),
-	.fsel0_p4_o   (fsel[4 ]),
-	.fsel0_p5_o   (fsel[5 ]),
-	.fsel0_p6_o   (fsel[6 ]),
-	.fsel0_p7_o   (fsel[7 ]),
-	.fsel0_p8_o   (fsel[8 ]),
-	.fsel0_p9_o   (fsel[9 ]),
-	.fsel0_p10_o  (fsel[10]),
-	.fsel0_p11_o  (fsel[11]),
-	.fsel0_p12_o  (fsel[12]),
-	.fsel0_p13_o  (fsel[13]),
-	.fsel0_p14_o  (fsel[14]),
-	.fsel0_p15_o  (fsel[15])
+	.fsel0_p0_o    (fsel[0 ]),
+	.fsel0_p1_o    (fsel[1 ]),
+	.fsel0_p2_o    (fsel[2 ]),
+	.fsel0_p3_o    (fsel[3 ]),
+	.fsel0_p4_o    (fsel[4 ]),
+	.fsel0_p5_o    (fsel[5 ]),
+	.fsel0_p6_o    (fsel[6 ]),
+	.fsel0_p7_o    (fsel[7 ]),
+	.fsel0_p8_o    (fsel[8 ]),
+	.fsel0_p9_o    (fsel[9 ]),
+	.fsel0_p10_o   (fsel[10]),
+	.fsel0_p11_o   (fsel[11]),
+	.fsel0_p12_o   (fsel[12]),
+	.fsel0_p13_o   (fsel[13]),
+	.fsel0_p14_o   (fsel[14]),
+	.fsel0_p15_o   (fsel[15]),
+	.fsel0_p16_o   (fsel[16]),
+	.fsel0_p17_o   (fsel[17]),
+	.fsel0_p18_o   (fsel[18]),
+	.fsel0_p19_o   (fsel[19]),
+	.fsel0_p20_o   (fsel[20]),
+	.fsel0_p21_o   (fsel[21]),
+	.fsel0_p22_o   (fsel[22])
 );
 
 endmodule

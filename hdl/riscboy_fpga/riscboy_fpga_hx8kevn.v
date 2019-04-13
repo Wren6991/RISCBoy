@@ -21,6 +21,8 @@ module riscboy_fpga (
 	inout wire flash_cs
 );
 
+`include "gpio_pinmap.vh"
+
 // Clock + Reset resources
 
 wire clk_sys;
@@ -44,7 +46,7 @@ fpga_reset #(
 
 // Instantiate the actual logic
 
-localparam N_PADS = 16;
+localparam N_PADS = N_GPIOS;
 
 wire [N_PADS-1:0] padout;
 wire [N_PADS-1:0] padoe;
@@ -63,34 +65,55 @@ riscboy_core #(
 
 // GPIO
 
-wire [2:0] gpio_unused;
+// TODO this isn't great.
+// Ideally we would have an array of tristate_ios and connect up the pads.
+// However it seems like there is no way of connecting inout ports together in Verilog
+// apart from in the module instantiation???
 
-tristate_io  pads [N_PADS-1:0] (
-
-	.out    (padout),
-	.out_en (padoe),
-	.in     (padin),
-
-	.pad ({
-		uart_tx,
-		uart_rx,
-		flash_miso,
-		flash_mosi,
-		flash_sclk,
-		flash_cs,
-		gpio_unused,
-		lcd_rst,
-		lcd_pwm,
-		lcd_dc,
-		lcd_cs,
-		lcd_scl,
-	    lcd_sdo,
-		led[0]
-	})
+tristate_io pad_uart_tx (
+	.out (padout[PIN_UART_TX]),
+	.oe  (padoe[PIN_UART_TX]),
+	.in  (padin[PIN_UART_TX]),
+	.pad (uart_tx)
 );
 
-assign led[7] = !padout[15]; // uart_tx
-assign led[6] = !padin[14];  // uart_rx
+tristate_io pad_uart_rx (
+	.out (padout[PIN_UART_RX]),
+	.oe  (padoe[PIN_UART_RX]),
+	.in  (padin[PIN_UART_RX]),
+	.pad (uart_rx)
+);
+
+tristate_io pad_flash_miso (
+	.out (padout[PIN_FLASH_MISO]),
+	.oe  (padoe[PIN_FLASH_MISO]),
+	.in  (padin[PIN_FLASH_MISO]),
+	.pad (flash_miso)
+);
+
+tristate_io pad_flash_mosi (
+	.out (padout[PIN_FLASH_MOSI]),
+	.oe  (padoe[PIN_FLASH_MOSI]),
+	.in  (padin[PIN_FLASH_MOSI]),
+	.pad (flash_mosi)
+);
+
+tristate_io pad_flash_sclk (
+	.out (padout[PIN_FLASH_SCLK]),
+	.oe  (padoe[PIN_FLASH_SCLK]),
+	.in  (padin[PIN_FLASH_SCLK]),
+	.pad (flash_sclk)
+);
+
+tristate_io pad_flash_cs (
+	.out (padout[PIN_FLASH_CS]),
+	.oe  (padoe[PIN_FLASH_CS]),
+	.in  (padin[PIN_FLASH_CS]),
+	.pad (flash_cs)
+);
+
+assign led[7] = !padout[PIN_UART_RX]; // uart_tx
+assign led[6] = !padin[PIN_UART_TX];  // uart_rx
 assign led[5:1] = 0;
 
 endmodule

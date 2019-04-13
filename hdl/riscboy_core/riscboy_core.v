@@ -23,7 +23,7 @@
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
 	parameter W_SRAM0_ADDR = 18,
-	parameter N_PADS = 16 // Let this default
+	parameter N_PADS = 23 // Let this default
 ) (
 	input wire                     clk,
 	input wire                     rst_n,

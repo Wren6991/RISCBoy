@@ -1,4 +1,4 @@
-localparam N_PINS = 23;
+localparam N_GPIOS = 23;
 
 localparam PIN_LED        = 0;
 

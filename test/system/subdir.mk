@@ -1,4 +1,4 @@
-TEST?=$(shell basename $(PWD))
+TEST?=$(basename $(PWD))
 
 DOTF=../tb.f
 SRCS=init.S $(TEST).c
@@ -20,6 +20,6 @@ test:
 	./test_script sim.log
 
 clean::
-	rm ram*.hex
+	rm -f ram*.hex
 	make -C $(SOFTWARE)/build APPNAME=$(TEST) clean
 	rm -f sim.log

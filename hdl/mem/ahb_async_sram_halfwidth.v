@@ -105,10 +105,10 @@ ddr_out we_ddr (
 );
 
 tristate_io iobuf [W_SRAM_DATA-1:0] (
-	.out_en(sram_oe_n),
-	.out   (sram_wdata),
-	.in    (sram_q),
-	.pad   (sram_dq)
+	.out (sram_wdata),
+	.oe  (sram_oe_n),
+	.in  (sram_q),
+	.pad (sram_dq)
 );
 
 endmodule

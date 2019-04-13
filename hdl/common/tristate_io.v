@@ -2,8 +2,8 @@
 // Use this wrapper to instantiate an IO block directly.
 
 module tristate_io (
-	input wire out_en,
 	input wire out,
+	input wire oe,
 	output wire in,
 	inout wire pad
 );
@@ -15,14 +15,14 @@ SB_IO #(
     .PULLUP   (1'b0)
 ) buffer (
     .PACKAGE_PIN   (pad),
-    .OUTPUT_ENABLE (out_en),
+    .OUTPUT_ENABLE (oe),
     .D_OUT_0       (out),
     .D_IN_0        (in)
 );
 
 `else
 
-assign pad = out_en ? out : 1'bz;
+assign pad = oe ? out : 1'bz;
 assign in = pad;
 
 `endif

@@ -80,10 +80,10 @@ wire [W_DATA-1:0] sram_q;
 assign ahbls_hrdata = sram_q & {W_DATA{!sram_oe_n}};
 
 tristate_io iobuf [W_DATA-1:0] (
-	.out_en(sram_oe_n),
-	.out   (ahbls_hwdata),
-	.in    (sram_q),
-	.pad   (sram_dq)
+	.out (ahbls_hwdata),
+	.oe  (sram_oe_n),
+	.in  (sram_q),
+	.pad (sram_dq)
 );
 
 endmodule

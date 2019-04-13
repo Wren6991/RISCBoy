@@ -7,7 +7,7 @@
 int main()
 {
 	// Connect UART out to pad
-	gpio_fsel(15, 1);
+	gpio_fsel(PIN_UART_TX, 1);
 
 	// Float stuff should all be compile-time. 115200 baud.
 	uart_init();
