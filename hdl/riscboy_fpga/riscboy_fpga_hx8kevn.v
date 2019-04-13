@@ -8,12 +8,11 @@ module riscboy_fpga (
 	inout wire uart_tx,
 	inout wire uart_rx,
 
-	// inout wire lcd_scl,
-	// inout wire lcd_sdo,
-	// inout wire lcd_cs,
-	// inout wire lcd_dc,
-	// inout wire lcd_pwm,
-	// inout wire lcd_rst,
+	inout wire dpad_u,
+	inout wire dpad_d,
+	inout wire dpad_l,
+	inout wire dpad_r,
+	inout wire btn_a,
 
 	inout wire flash_miso,
 	inout wire flash_mosi,
@@ -112,8 +111,40 @@ tristate_io pad_flash_cs (
 	.pad (flash_cs)
 );
 
-assign led[7] = !padout[PIN_UART_RX]; // uart_tx
-assign led[6] = !padin[PIN_UART_TX];  // uart_rx
-assign led[5:1] = 0;
+pullup_input in_u (
+	.in  (padin[PIN_DPAD_U]),
+	.pad (dpad_u)
+);
+
+pullup_input in_d (
+	.in  (padin[PIN_DPAD_D]),
+	.pad (dpad_d)
+);
+
+pullup_input in_l (
+	.in  (padin[PIN_DPAD_L]),
+	.pad (dpad_l)
+);
+
+pullup_input in_r (
+	.in  (padin[PIN_DPAD_R]),
+	.pad (dpad_r)
+);
+
+pullup_input in_a (
+	.in  (padin[PIN_BTN_A]),
+	.pad (btn_a)
+);
+
+assign led = {
+	!padout[PIN_UART_TX],
+	!padin[PIN_UART_RX],
+	padin[PIN_DPAD_U],
+	padin[PIN_DPAD_D],
+	padin[PIN_DPAD_L],
+	padin[PIN_DPAD_R],
+	padin[PIN_BTN_A],
+	pads[PIN_LED]
+};
 
 endmodule

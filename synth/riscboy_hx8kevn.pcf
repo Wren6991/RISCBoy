@@ -21,3 +21,10 @@ set_io flash_cs R12
 # 12 MHz oscillator
 set_io clk_osc J3
 
+# Breakout board
+
+set_io dpad_u F1
+set_io dpad_d E2
+set_io dpad_l F2
+set_io dpad_r T5
+set_io btn_a R5
