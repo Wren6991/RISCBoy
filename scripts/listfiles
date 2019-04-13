@@ -82,6 +82,7 @@ if __name__ == "__main__":
 	parser.add_argument("src", help="File list source file")
 	parser.add_argument("--format", "-f", help="Format to generate output in. Allowed: isim, make, flat (default)")
 	parser.add_argument("--relative", "-r", action="store_true", help="Use relative paths in output file")
+	parser.add_argument("--relativeto", help="Use relative paths, relative to some specified path")
 	parser.add_argument("--output", "-o", help="Output file name")
 	args = parser.parse_args()
 	if args.format is None:
@@ -93,6 +94,9 @@ if __name__ == "__main__":
 	func = lambda l: list(dict.fromkeys(l))
 	if args.relative:
 		func = lambda l, func=func: [os.path.relpath(f) for f in func(l)]
+	elif args.relativeto:
+		func = lambda l, func=func: [os.path.relpath(f, args.relativeto) for f in func(l)]
+
 	files, includes = map(func, (files, includes))
 	if args.format not in formats:
 		sys.exit("Unknown format: " + arg.format)

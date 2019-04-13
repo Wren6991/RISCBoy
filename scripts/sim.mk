@@ -19,8 +19,8 @@ gui: build
 
 build:
 	mkdir -p sim
-	$(SCRIPTS)/listfiles --relative -f isim $(DOTF) -o sim.prj
-	(cd sim; $(FUSE) -d SIM -prj ../sim.prj $(TOP) -o $(SIMNAME))
+	$(SCRIPTS)/listfiles --relativeto sim -f isim $(DOTF) -o sim/sim.prj
+	(cd sim; $(FUSE) -d SIM -prj sim.prj $(TOP) -o $(SIMNAME))
 
 clean::
-	rm -rf sim sim.prj
+	rm -rf sim

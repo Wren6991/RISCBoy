@@ -8,7 +8,7 @@ PACKAGE?=bg121
 DEFINES+=FPGA TRISTATE_ICE40
 
 SYNTH_OPT?=
-SYNTH_CMD=read_verilog $(addprefix -D,$(DEFINES)) $(SRCS);
+SYNTH_CMD=read_verilog $(addprefix -I,$(INCDIRS)) $(addprefix -D,$(DEFINES)) $(SRCS);
 ifneq (,$(TOP))
 	SYNTH_CMD+=hierarchy -top $(TOP);
 endif
