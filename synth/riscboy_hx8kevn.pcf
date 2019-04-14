@@ -28,3 +28,45 @@ set_io dpad_d E2
 set_io dpad_l F2
 set_io dpad_r T5
 set_io btn_a R5
+
+set_io sram_dq[0]  T7
+set_io sram_dq[1]  H2
+set_io sram_dq[2]  J3
+set_io sram_dq[3]  R9
+set_io sram_dq[4]  T9
+set_io sram_dq[5]  J1
+set_io sram_dq[6]  J2
+set_io sram_dq[7]  P9
+set_io sram_dq[8]  T16
+set_io sram_dq[9]  T14
+set_io sram_dq[10] M11
+set_io sram_dq[11] P13
+set_io sram_dq[12] R1
+set_io sram_dq[13] P1
+set_io sram_dq[14] P2
+set_io sram_dq[15] N3
+
+set_io sram_addr[0]  G2
+set_io sram_addr[1]  H1
+set_io sram_addr[2]  T6
+set_io sram_addr[3]  R6
+set_io sram_addr[4]  G1
+set_io sram_addr[5]  L3
+set_io sram_addr[6]  M2
+set_io sram_addr[7]  M1
+set_io sram_addr[8]  N10
+set_io sram_addr[9]  T15
+set_io sram_addr[10] R16
+set_io sram_addr[11] T13
+set_io sram_addr[12] T10
+set_io sram_addr[13] R10
+set_io sram_addr[14] P8
+set_io sram_addr[15] K3
+set_io sram_addr[16] L1
+set_io sram_addr[17] N12
+
+set_io sram_ce_n T8
+set_io sram_we_n K1
+set_io sram_oe_n P10
+set_io sram_byte_n[1] T11
+set_io sram_byte_n[0] N2

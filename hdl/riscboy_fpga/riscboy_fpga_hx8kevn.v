@@ -1,23 +1,30 @@
 // Modified FPGA top-level suitable for the TinyFPGA BX
 
 module riscboy_fpga (
-	input wire clk_osc,
+	input wire                     clk_osc,
 
-	output wire [7:0] led,
+	output wire [7:0]              led,
 
-	inout wire uart_tx,
-	inout wire uart_rx,
+	inout wire                     uart_tx,
+	inout wire                     uart_rx,
 
-	inout wire dpad_u,
-	inout wire dpad_d,
-	inout wire dpad_l,
-	inout wire dpad_r,
-	inout wire btn_a,
+	inout wire                     dpad_u,
+	inout wire                     dpad_d,
+	inout wire                     dpad_l,
+	inout wire                     dpad_r,
+	inout wire                     btn_a,
 
-	inout wire flash_miso,
-	inout wire flash_mosi,
-	inout wire flash_sclk,
-	inout wire flash_cs
+	inout wire                     flash_miso,
+	inout wire                     flash_mosi,
+	inout wire                     flash_sclk,
+	inout wire                     flash_cs,
+
+	output wire [W_SRAM0_ADDR-1:0] sram_addr,
+	inout  wire [15:0]             sram_dq,
+	output wire                    sram_ce_n,
+	output wire                    sram_we_n,
+	output wire                    sram_oe_n,
+	output wire [1:0]              sram_byte_n
 );
 
 `include "gpio_pinmap.vh"
@@ -45,6 +52,7 @@ fpga_reset #(
 
 // Instantiate the actual logic
 
+localparam W_SRAM0_ADDR = 18;
 localparam N_PADS = N_GPIOS;
 
 wire [N_PADS-1:0] padout;
@@ -54,12 +62,19 @@ wire [N_PADS-1:0] padin;
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex")
 ) core (
-	.clk    (clk_sys),
-	.rst_n  (rst_n),
+	.clk         (clk_sys),
+	.rst_n       (rst_n),
 
-	.padout (padout),
-	.padoe  (padoe),
-	.padin  (padin)
+	.sram_addr   (sram_addr),
+	.sram_dq     (sram_dq),
+	.sram_ce_n   (sram_ce_n),
+	.sram_we_n   (sram_we_n),
+	.sram_oe_n   (sram_oe_n),
+	.sram_byte_n (sram_byte_n),
+
+	.padout      (padout),
+	.padoe       (padoe),
+	.padin       (padin)
 );
 
 // GPIO
