@@ -69,8 +69,8 @@ end
 ddr_out we_ddr (
 	.clk    (clk),
 	.rst_n  (rst_n),
-	.d_rise (!we_next),
-	.d_fall (1'b1),
+	.d_rise (1'b1),
+	.d_fall (!we_next),
 	.q      (sram_we_n)
 );
 

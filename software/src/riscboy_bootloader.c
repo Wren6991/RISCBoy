@@ -1,4 +1,4 @@
-#define CLK_SYS_MHZ 36
+#define CLK_SYS_MHZ 18
 
 #include "delay.h"
 #include "gpio.h"
@@ -74,6 +74,8 @@ const char *splash =
 #define BOOT_2ND     '2' // No effect if addr isn't magic 0x123456
                          // (since this is a destructive thing to do if
                          // the device is partially programmed!)
+
+#define TEST_MEM     'm'
 
 #define ACK          ':' // a toggle-y sequence
 
@@ -170,6 +172,8 @@ static inline void set_cmd_addr(uint32_t addr)
 	cmdbuf[2] = (addr >> 8 ) & 0xff;
 	cmdbuf[3] = (addr >> 0 ) & 0xff;
 }
+
+void test_mem(size_t size);
 
 void run_flash_shell()
 {
@@ -286,9 +290,102 @@ void run_flash_shell()
 				if (addr == BOOT_2ND_MAGIC)
 					run_2nd_stage();
 				break;
+			case TEST_MEM:
+				uart_put(ACK);
+				test_mem(addr); // pass addr as test size!
+				uart_puts("::::");
+				break;
 			default:
 				break;
 		}
 	}
 }
 
+uint32_t rand_state = 0xf00fa55a;
+static inline uint32_t randu()
+{
+	// Cheesy implementation of the LCG used in glibc.
+	// Faster than software multiply routine.
+	// FIXME just use a multiply once we have ISA support
+	rand_state =
+		(rand_state <<  0) +
+		(rand_state <<  2) +
+		(rand_state <<  3) +
+		(rand_state <<  5) +
+		(rand_state <<  6) +
+		(rand_state <<  9) +
+		(rand_state << 10) +
+		(rand_state << 11) +
+		(rand_state << 14) +
+		(rand_state << 17) +
+		(rand_state << 18) +
+		(rand_state << 22) +
+		(rand_state << 23) +
+		(rand_state << 24) +
+		(rand_state << 30) +
+		12345;
+	return rand_state;
+}
+
+void test_mem(size_t size)
+{
+	volatile uint8_t *mem = (volatile uint8_t*)SRAM0_BASE;
+
+	if (size > SRAM0_SIZE)
+		return;
+
+	int fail_count = 0;
+
+	uart_puts("\nTesting 0x");
+	uart_putint((uint32_t)&mem[0]);
+	uart_puts(" to 0x");
+	uart_putint((uint32_t)&mem[size]);
+	uart_puts("\nZeroing...\n");
+
+	for (size_t i = 0; i < size; ++i)
+		mem[i] = 0;
+
+	uart_puts("Checking...\n");
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (mem[i])
+		{
+			uart_puts("FAIL @");
+			uart_putint((uint32_t)&mem[i]);
+			uart_puts("\n");
+			++fail_count;
+		}
+	}
+	if (!fail_count)
+		uart_puts("OK.\n");
+
+	uart_puts("Writing random bytes...\n");
+	uint32_t rand_state_saved = rand_state;
+	for (size_t i = 0; i < size; ++i)
+		mem[i] = randu();
+
+	uart_puts("Checking...\n");
+	fail_count = 0;
+	rand_state = rand_state_saved;
+
+	for (size_t i = 0; i < size; ++i)
+	{
+		uint8_t expect = randu();
+		uint8_t actual = mem[i];
+		if (expect != actual)
+		{
+			++fail_count;
+			uart_puts("FAIL @");
+			uart_putint((uint32_t)&mem[i]);
+			uart_puts(": expected ");
+			uart_putbyte(expect);
+			uart_puts(", got ");
+			uart_putbyte(actual);
+			uart_puts("\n");
+		}
+	}
+
+	if (!fail_count)
+		uart_puts("OK.\n");
+}
