@@ -21,7 +21,7 @@ module riscboy_fpga (
 
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
 	inout  wire [15:0]             sram_dq,
-	output wire                    sram_ce_n,
+	// output wire                    sram_ce_n,  Tied to ground externally. See PCF file
 	output wire                    sram_we_n,
 	output wire                    sram_oe_n,
 	output wire [1:0]              sram_byte_n
@@ -159,7 +159,7 @@ assign led = {
 	padin[PIN_DPAD_L],
 	padin[PIN_DPAD_R],
 	padin[PIN_BTN_A],
-	pads[PIN_LED]
+	padout[PIN_LED] && padoe[PIN_LED]
 };
 
 endmodule

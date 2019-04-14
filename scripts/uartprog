@@ -150,7 +150,7 @@ if __name__ == "__main__":
 	if args.start is None:
 		args.start = 0
 	if args.uart is None:
-		args.uart = serial.tools.list_ports.comports()[-1].device
+		args.uart = sorted(p.device for p in serial.tools.list_ports.comports())[-1]
 	if args.baud is None:
 		args.baud = 500000
 	if args.verify and not args.write:

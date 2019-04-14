@@ -1,3 +1,7 @@
+###############################################################################
+# EVN board
+###############################################################################
+
 # LEDs
 set_io led[0] B5
 set_io led[1] B4
@@ -21,7 +25,9 @@ set_io flash_cs R12
 # 12 MHz oscillator
 set_io clk_osc J3
 
+###############################################################################
 # Breakout board
+###############################################################################
 
 set_io dpad_u F1
 set_io dpad_d E2
@@ -31,7 +37,11 @@ set_io btn_a R5
 
 set_io sram_dq[0]  T7
 set_io sram_dq[1]  H2
-set_io sram_dq[2]  J3
+
+# See note on CE below
+# set_io sram_dq[2]  J3
+set_io sram_dq[2]  T8
+
 set_io sram_dq[3]  R9
 set_io sram_dq[4]  T9
 set_io sram_dq[5]  J1
@@ -65,7 +75,12 @@ set_io sram_addr[15] K3
 set_io sram_addr[16] L1
 set_io sram_addr[17] N12
 
-set_io sram_ce_n T8
+# CE was tied to ground to free up an IO to drive DQ2.
+# DQ2 was supposed to be tied to J3, but this ball is actually tied to the oscillator
+# on the HX8k-EVN board, and Lattice still exposed it on the header for some reason.
+
+#set_io sram_ce_n T8
+
 set_io sram_we_n K1
 set_io sram_oe_n P10
 set_io sram_byte_n[1] T11
