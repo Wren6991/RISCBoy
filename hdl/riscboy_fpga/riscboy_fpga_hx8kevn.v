@@ -45,7 +45,7 @@ fpga_reset #(
 	.SHIFT (3),
 	.COUNT (200) // need at least 3 us delay before accessing BRAMs on iCE40
 ) rstgen (
-	.clk         (clk_osc),
+	.clk         (clk_sys),
 	.force_rst_n (pll_lock),
 	.rst_n       (rst_n)
 );
