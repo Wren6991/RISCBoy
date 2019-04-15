@@ -5,7 +5,7 @@ module pullup_input #(
 	inout wire pad
 );
 
-`ifdef PULLUP_ICE40
+`ifdef FPGA_ICE40
 
 wire padin;
 assign in = padin ^ INVERT;

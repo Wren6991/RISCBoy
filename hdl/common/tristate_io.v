@@ -8,7 +8,7 @@ module tristate_io (
 	inout wire pad
 );
 
-`ifdef TRISTATE_ICE40
+`ifdef FPGA_ICE40
 
 SB_IO #(
     .PIN_TYPE (6'b1010_01),

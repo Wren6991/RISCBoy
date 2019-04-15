@@ -12,7 +12,7 @@ module ddr_out (
 	output reg q
 );
 
-`ifdef DDROUT_ICE40
+`ifdef FPGA_ICE40
 
 reg d_fall_r;
 always @ (posedge clk or negedge rst_n)
@@ -22,18 +22,18 @@ always @ (posedge clk or negedge rst_n)
 		d_fall_r <= d_fall;
 
 SB_IO #(
-	.PIN_TYPE(6'b01_00_00),
-	//           |  |  |
-	//           |  |  \----- Registered input (save a little power as unused)
-	//           |  \-------- DDR output
-	//           \----------- Permanent output enable
-	.PULLUP(1'b 0)
+	.PIN_TYPE (6'b01_00_00),
+	//            |  |  |
+	//            |  |  \----- Registered input (and no clock!)
+	//            |  \-------- DDR output
+	//            \----------- Permanent output enable
+	.PULLUP (1'b 0)
 ) buffer (
-	.PACKAGE_PIN(q),
-	.D_OUT_0(d_rise),
-	.D_OUT_1(d_fall_r)
+	.PACKAGE_PIN (q),
+	.OUTPUT_CLK  (clk),
+	.D_OUT_0     (d_rise),
+	.D_OUT_1     (d_fall_r)
 );
-
 
 `else
 

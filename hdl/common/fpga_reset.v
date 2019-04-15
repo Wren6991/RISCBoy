@@ -14,7 +14,7 @@ module fpga_reset #(
 	output wire rst_n
 );
 
-wire stage1_out;
+(* keep = 1'b1 *) wire stage1_out;
 
 generate
 if (SHIFT != 0) begin: has_shifter
