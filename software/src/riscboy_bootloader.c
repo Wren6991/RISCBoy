@@ -1,4 +1,4 @@
-#define CLK_SYS_MHZ 18
+#define CLK_SYS_MHZ 36
 
 #include "delay.h"
 #include "gpio.h"

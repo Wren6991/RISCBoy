@@ -35,7 +35,7 @@ wire clk_sys;
 wire rst_n;
 wire pll_lock;
 
-pll_12_18 pll (
+pll_12_36 pll (
 	.clock_in  (clk_osc),
 	.clock_out (clk_sys),
 	.locked    (pll_lock)
