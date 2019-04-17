@@ -9,6 +9,7 @@ module ddr_out (
 
 	input wire d_rise,
 	input wire d_fall,
+	input wire e,
 	output reg q
 );
 
@@ -29,10 +30,11 @@ SB_IO #(
 	//            \----------- Permanent output enable
 	.PULLUP (1'b 0)
 ) buffer (
-	.PACKAGE_PIN (q),
-	.OUTPUT_CLK  (clk),
-	.D_OUT_0     (d_rise),
-	.D_OUT_1     (d_fall_r)
+	.PACKAGE_PIN  (q),
+	.OUTPUT_CLK   (clk),
+	.CLOCK_ENABLE (e),
+	.D_OUT_0      (d_rise),
+	.D_OUT_1      (d_fall_r)
 );
 
 `else
@@ -43,7 +45,7 @@ reg q0, q1;
 always @ (posedge clk or negedge rst_n)
 	if (!rst_n)
 		{q0, q1} = 2'd0;
-	else
+	else if (e === 1'b1 || e === 1'bz) // Cell enabled if disconnected (iCE40)
 		{q0, q1} = {d_rise, d_fall};
 
 always @ (*)

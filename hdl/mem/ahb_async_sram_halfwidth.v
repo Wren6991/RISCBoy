@@ -60,7 +60,7 @@ wire we_next = ahbls_htrans[1] && ahbls_hwrite && ahbls_hready
 
 wire [W_SRAM_DATA-1:0] sram_q;
 wire [W_SRAM_DATA-1:0] sram_rdata = sram_q & {W_SRAM_DATA{read_dph}};
-wire [W_SRAM_DATA-1:0] sram_wdata = ahbls_hwdata[(addr_lsb ? W_SRAM_DATA : 0) +: W_SRAM_DATA];	
+wire [W_SRAM_DATA-1:0] sram_wdata = ahbls_hwdata[(addr_lsb ? W_SRAM_DATA : 0) +: W_SRAM_DATA];
 reg  [W_SRAM_DATA-1:0] rdata_buf;
 assign ahbls_hrdata = {sram_rdata, long_dphase ? rdata_buf : sram_rdata};
 
@@ -102,6 +102,7 @@ ddr_out we_ddr (
 	.rst_n  (rst_n),
 	.d_rise (1'b1),
 	.d_fall (!we_next),
+	.e      (1'b1),
 	.q      (sram_we_n)
 );
 
@@ -115,7 +116,7 @@ dffe_out addr_dffe [W_SRAM_ADDR-2:0] (
 dffe_out addr0_dffe (
 	.clk (clk),
 	.d   (ahbls_haddr[W_BYTEADDR] || (long_dphase && !ahbls_hready)),
-	.e   (1'b1),           // HACK 1'b1 is overgenerous, but tying high means we can colocate with 
+	.e   (1'b1),           // HACK 1'b1 is overgenerous, but tying high means we can colocate with
 	.q   (sram_addr[0])    // WEn. Any other address pin would put clock enable on WEn which is fatal.
 );
 
