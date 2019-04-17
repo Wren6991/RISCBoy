@@ -114,9 +114,9 @@ dffe_out addr_dffe [W_SRAM_ADDR-2:0] (
 
 dffe_out addr0_dffe (
 	.clk (clk),
-	.d   (ahbls_haddr[W_BYTEADDR] || long_dphase),
-	.e   (ahbls_htrans[1] && ahbls_hready || long_dphase && !hready_r),
-	.q   (sram_addr[0])
+	.d   (ahbls_haddr[W_BYTEADDR] || (long_dphase && !ahbls_hready)),
+	.e   (1'b1),           // HACK 1'b1 is overgenerous, but tying high means we can colocate with 
+	.q   (sram_addr[0])    // WEn. Any other address pin would put clock enable on WEn which is fatal.
 );
 
 dffe_out ce_dffe (

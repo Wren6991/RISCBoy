@@ -56,7 +56,19 @@ set_io sram_dq[13] P1
 set_io sram_dq[14] P2
 set_io sram_dq[15] N3
 
-set_io sram_addr[0]  G2
+# NB: addr[0] and addr[15] have been pinswapped!
+# Due to combination of:
+# - addr[15] was constrained into the same tile as WE
+# - clock enable is global to tile, i.e. shared between two IOs
+# - addr[15] has a clock enable, WE doesn't
+# - nextpnr silently just drives clock enable into both (fatal, and a nightmare to debug)
+#
+# (HACK) solution was to drive addr[0] clock enable to 1'b1 (which is safe/ok) and swap
+# this one to be next to WEn.
+# The SRAM doesn't care about address bit order; just needs to be an invertible mapping
+# into processor address space.
+
+set_io sram_addr[0]  K3 # G2
 set_io sram_addr[1]  H1
 set_io sram_addr[2]  T6
 set_io sram_addr[3]  R6
@@ -71,7 +83,7 @@ set_io sram_addr[11] T13
 set_io sram_addr[12] T10
 set_io sram_addr[13] R10
 set_io sram_addr[14] P8
-set_io sram_addr[15] K3
+set_io sram_addr[15] G2 # K3
 set_io sram_addr[16] L1
 set_io sram_addr[17] N12
 
