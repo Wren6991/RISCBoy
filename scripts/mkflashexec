@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import argparse
+import struct
+
+parser = argparse.ArgumentParser()
+parser.add_argument("ifile")
+parser.add_argument("ofile")
+args = parser.parse_args()
+data = open(args.ifile, "rb").read()
+with open(args.ofile, "wb") as ofile:
+	ofile.write("RISCBoy".encode() + bytes(1))
+	ofile.write(struct.pack("<L", len(data)))
+	ofile.write(data)

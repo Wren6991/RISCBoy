@@ -31,6 +31,9 @@ all: compile
 $(APPNAME).elf: $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS) -o $(APPNAME).elf
 
+%.bin: %.elf
+	$(OBJCOPY) -O binary	 $< $@
+
 %8.hex: %.elf
 	$(OBJCOPY) -O verilog $< $@
 
