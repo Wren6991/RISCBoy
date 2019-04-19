@@ -1,21 +1,26 @@
 Processor:
-  ☐ Get float printf working @high
+  ☐ Implement RVFI for use with riscv-formal
+  ☐ Work through riscv-formal tests and fix all the bugs that crop up. Do a detailed writeup.
+  ☐ Integrate riscv-formal into regressions, perhaps optionally.
+  ☐ Why does float printf still not work :D
     Everything else I try seems to pass!
     There are some questionable things in the code, e.g. performing a 
     sh on some address, and an lw immediately afterward, which
     causes Xs to get written to register file. Definitely needs investigation.
-  ☐ Fix this:
+  ✔ Fix this: @done (19-04-19 03:53)
     Currently early jumps are performed whenever the CIR contains a valid JAL or backward branch. This interacts poorly with X's stall logic: if X is stalled AND the jump request goes through (jump requests can be accepted whilst hready is low; just goes into fetch counter and subsequent cycles perform normal fetch attempts from the now registered jump target) then the CIR will be clobbered. This is an issue for JALR, which will lose its side effects, and is particularly an issue for branch mispredicts.
     Trying to hold off the jump requst using X's stall signal seems a no-go, because this is a function of hready, and we've just created a path from this to haddr etc.
     A different solution is to somehow protect the CIR so that the instruction currently in D will eventually progress down the pipeline and have its intended side effect. Should use this same protection signal to gate the jump request. The frontend can still be fetching during this time, but the data will just stack up in the FIFO.
     Note this also enables an optimisation floated a while back which saves a cycle when a load/store is followed by a branch/JAL: boost the priority of early jump accesses over load/store accesses. Jumps create a fetch bubble due to pipelined bus operation, but if the jump access occurs before that of a load/store occupying X, the load/store address phase will be aligned with the fetch bubble, and fill it. When this happens the jump is still sitting in D, but its jumpiness has been defused, and it will meekly follow the load/store down the pipeline to produce its secondary side effect.
-  ☐ Look closely at riscv-formal to see if suitable
-  ☐ Stick some traffic generation into the execution tb so that stall logic can be stressed a little. Separately re-run the compliance tests with this enabled.
+    -> Fixed by CIR locking mechanism.
+  ✔ Stick some traffic generation into the execution tb so that stall logic can be stressed a little. Separately re-run the compliance tests with this enabled. @done (19-04-19 03:54)
   ✔ Factor out decode to separate module @done (18-11-30 08:31)
   ☐ Iterate on decode synths to try and pack gates down
+    Still an open issue. Have investigated the instruction decompressor and it's no larger than the crazy hand-Espresso'd one in SWeRV. Rest of decode potentially still has some savings in the non-RV-specific parts.
   ☐ Identify other sources of high gate count
     ✔ ALU: shared adder for add sub, and LT/LTU changes this necessitates @done (18-11-30 08:31)
-    ☐ Is the jump target adder in X really necessary? For JALR we can use the ALU. For branches it's PC-relative, so could be computed in D (and we are probably already computing this.)
+    ✔ Is the jump target adder in X really necessary? For JALR we can use the ALU. For branches it's PC-relative, so could be computed in D (and we are probably already computing this.) @done (19-04-19 03:55)
+    Did this optimisation. It's not a *huge* win due to the extra muxes inserted, but still a win.
   ☐ Add exceptions
     ☐ CSR for unaligned info?
     ☐ Non-returning hardfault exception for e.g. exception during exception
@@ -24,6 +29,7 @@ Processor:
     (e.g. perform just byte accesses; just has to be better than software).
   ☐ Port more advanced/larger C testcases
   ☐ Investigate negedge read for register file to improve timing
+    On hold at the moment; this is not on the critical path on iCE40.
   ☐ Support for M extension, potentially trap for divides
   ☐ Consider a generic extension interface which could also be used by M extension
   ☐ Add CSR support, with parameters to disable. @low
@@ -41,21 +47,23 @@ DMA:
   ☐ Spec it!
 
 Other Chip:
-  ☐ Proper async SRAM controller
+  ✔ Proper async SRAM controller @done (19-04-19 03:48)
     After some thinking, this seems to break down into two parts;
-    ☐ A simple async sram controller where the SRAM width is the same as the data bus width
-    ☐ A generic AHB-lite narrower that translates wide transactions on one bus into multiple transactions on another bus
-  ☐ Remove wait states from sync SRAM controller
+    ✔ A simple async sram controller where the SRAM width is the same as the data bus width @done (19-04-19 03:47)
+    ✘ A generic AHB-lite narrower that translates wide transactions on one bus into multiple transactions on another bus @cancelled (19-04-19 03:47)
+    Decided not to do this as 2:1 ratio has special properties (e.g. ability to double-pump reads) so not much use in a fully generic solution at the moment
+  ✔ Remove wait states from sync SRAM controller @done (19-04-19 03:48)
   ☐ Support bursts in AHB-lite fabric
   ☐ More aggressive busfabric verification (UVM? Formal?)
   ☐ Support partial crossbars in ahbl_crossbar
   ☐ GPIO: multiple-pad peripheral inputs
     (not totally critical for this project)
-  ☐ SD controller
+  ✘ SD controller @cancelled (19-04-19 03:49)
     Can be a simple SPI, or more sophisticated e.g. some kind of XIP with cache,
     or manual paging into internal buffers which can then be random-accessed,
     or protocol-oriented but with FIFO interface rather than internal buffers
     (i.e. optimised for streaming into main memory)
+    update: removing SD card; want to keep board simple and low-BoM-cost. Will use a large (Q)SPI flash, and use sw bootloader on the FPGA to update this over UART shell, kind of like Arduino. Bitstream and user programs stored in same flash.
   ☐ Audio
     Initially, some FIFOs and simple PWM.
     Can then add e.g. interpolator and improved modulation. Not critical.
@@ -67,9 +75,11 @@ PCB:
       says the cfg slave needs to be clocked at 1...25 MHz "without interruption".
       Decided to use a different micro: SAML22G18A. This has USB, and also has sufficient
       program storage to hold the bitstream.
-  ☐ Find example code for SAML22G18A USB-UART bridge
-  ☐ Write simple block-oriented SD read/write code for Atmel and expose this over USB
-  ☐ Hazard5 bootloader: load 2nd stage from SD card into memory and execute it
+  ✘ Find example code for SAML22G18A USB-UART bridge @cancelled (19-04-19 03:56)
+    Nah, just use a CP2102 USB-UART bridge. The SAML22G18A no longer makes much sense after removing the SD card, and the iCE40 slave config mode seems flakey in general; caused some issues during Rev A board bringup, never got BRAMs correctly initialised.
+  ✘ Write simple block-oriented SD read/write code for Atmel and expose this over USB @cancelled (19-04-19 03:57)
+  ✔ Hazard5 bootloader: load 2nd stage from SD card into memory and execute it @done (19-04-19 03:57)
+    Can read/write SPI flash through a UART shell ala Arduino, and then load code from flash into external SRAM, and execute it.
   ✔ Initial PCB layout @done (18-11-30 08:32)
   ✔ Final review of schematic + PCB before sending to iTead @done (18-11-30 20:02)
     Found a couple of silkscreen issues, and a keepout issue under the SD card. Fixed and shipped :)
