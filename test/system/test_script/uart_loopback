@@ -7,7 +7,8 @@ failed = False
 tbman_lines = []
 uart_lines = []
 
-for line in open(sys.argv[1]).readlines():
+# Behavioural UART RX will produce garbage chars once we crank the baud rate; ignore them!
+for line in open(sys.argv[1], "rb").read().decode(errors='ignore').splitlines():
 	if line.startswith("TBMAN:"):
 		tbman_lines.append(line.strip()[7:])
 	elif line.startswith("UART:"):

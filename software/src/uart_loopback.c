@@ -30,6 +30,8 @@ int main()
 
 	tbman_puts("Aggressive loopback:\n");
 
+	uart_clkdiv_baud(CLK_SYS_MHZ, 1000 * 1000);
+
 	const int test_len = 128;
 	uint8_t txbuf[test_len];
 	uint8_t rxbuf[test_len];
