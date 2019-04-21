@@ -41,13 +41,6 @@ module hazard5_cpu #(
 
 `include "hazard5_ops.vh"
 
-`undef ASSERT
-`ifdef ENABLE_ASSERTIONS
-`define ASSERT(x) assert(x)
-`else
-`define ASSERT(x)
-`endif
-
 localparam N_REGS = 32;
 // should be localparam but ISIM can't cope
 parameter W_REGADDR = $clog2(N_REGS);
@@ -378,7 +371,7 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_except_invalid_instr <= 1'b0;
 		xm_except_unaligned <= 1'b0;
 	end else begin
-		`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
+		//`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
 			xm_memop <= dx_memop;
@@ -543,9 +536,5 @@ hazard5_regfile_1w2r #(
 	.wdata  (m_result),
 	.wen    (w_reg_wen)
 );
-
-`ifdef FORMAL
-`include "hazard5_formal.vh"
-`endif
 
 endmodule

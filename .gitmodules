@@ -1,6 +1,6 @@
 [submodule "test/execution/riscv_compliance/riscv-compliance"]
 	path = test/execution/riscv_compliance/riscv-compliance
 	url = https://github.com/riscv/riscv-compliance.git
-[submodule "test/hazard5_formal/riscv-formal"]
-	path = test/hazard5_formal/riscv-formal
-	url = https://github.com/SymbioticEDA/riscv-formal.git
+[submodule "test/riscv-formal"]
+	path = test/riscv-formal
+	url = https://github.com/Wren6991/riscv-formal.git
