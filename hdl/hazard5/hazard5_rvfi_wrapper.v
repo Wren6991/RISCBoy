@@ -5,7 +5,7 @@ module rvfi_wrapper (
 );
 
 // ----------------------------------------------------------------------------
-// Memory interface
+// Memory Interface
 // ----------------------------------------------------------------------------
 
 (* keep *) wire [31:0] haddr;
@@ -30,17 +30,17 @@ always assume(!hresp);
 
 `ifdef MEMIO_FAIRNESS
 always @ (posedge clock)
-	assume(
-		hready ||
-		$past(hready, 1) ||
-		$past(hready, 2) ||
-		$past(hready, 3) ||
+	assume(|{
+		hready,
+		$past(hready, 1),
+		$past(hready, 2),
+		$past(hready, 3),
 		$past(hready, 4)
-	);
+	});
 `endif
 
 // ----------------------------------------------------------------------------
-// Device under test
+// Device Under Test
 // ----------------------------------------------------------------------------
 
 hazard5_cpu #(
@@ -63,18 +63,51 @@ hazard5_cpu #(
 );
 
 // ----------------------------------------------------------------------------
-// RVFI instrumentation
+// RVFI Instrumentation
 // ----------------------------------------------------------------------------
 
-// One mismatch between Hazard5 and RVFI is it does not have a concept of
-// whether a given pipestage contains a valid instruction; upon flush
-// it tries to change the minimum amount of pipeline state to suppress side-
-// effects (since this reduces control-path fanout).
-//
-// This means we need to attach significant state modelling to diagnose exactly
-// what the core is up to and document it in a way that RVFI understands.
-//
 // We consider instructions to "retire" as they cross the M/W pipe register.
+
+// ----------------------------------------------------------------------------
+// Instruction monitor
+
+// Diagnose whether X, M contain valid in-flight instructions, to produce
+// rvfi_valid signal.
+
+reg x_valid, m_valid;
+reg [31:0] x_instr;
+reg [31:0] m_instr;
+
+always @ (posedge clock or posedge reset) begin
+	if (reset) begin
+		x_valid <= 1'b0;
+		m_valid <= 1'b0;
+		rvfi_valid <= 1'b0;
+		rvfi_trap <= 1'b0;
+	end else begin
+		if (!x_stall) begin
+			m_valid <= x_valid;
+			m_instr <= x_instr;
+			x_valid <= 1'b0;
+		end
+		if (dut.flush_d_x) begin
+			x_valid <= 1'b0;
+			m_valid <= m_valid && m_stall;
+		end else if (dut.df_cir_use) begin
+			x_valid <= 1'b1;
+			x_instr <= {
+				dut.cir[31:16] & {16{dut.df_cir_use[1]}},
+				dut.cir[15:0]
+			};
+		end
+		rvfi_valid <= dut.m_valid && !dut.m_stall;
+		rvfi_insn <= m_instr;
+		rvfi_trap <=
+			dut.xm_except_invalid_instr ||
+			dut.xm_except_unaligned ||
+			dut.m_except_bus_fault;
+	end
+end
 
 // Hazard5 is an in-order core:
 reg [63:0] retire_ctr;
@@ -85,11 +118,64 @@ always @ (posedge clock or posedge reset)
 	else if (rvfi_valid)
 		retire_ctr <= retire_ctr + 1;
 
+assign rvfi_mode = 2'h3; // M-mode only
+assign rvfi_intr = 1'b0; // TODO
 
+// ----------------------------------------------------------------------------
+// PC and jump monitor
+
+reg [31:0] xm_pc;
+reg [31:0] xm_pc_next;
+
+always @ (posedge clock or posedge reset) begin
+	if (reset) begin
+		xm_pc <= 0;
+		xm_pc_next <= 0;
+	end else begin
+		xm_pc <= dut.dx_pc;
+		// Will take early jump into account, but not mispredict or late jump:
+		xm_pc_next <= dut.inst_hazard5_decode.pc;
+	end
+end
+
+always @ (posedge clock) begin
+	if (!m_stall) begin
+		rvfi_pc_rdata <= xm_pc;
+		rvfi_pc_wdata <= dut.m_jump_req ? dut.m_jump_target : xm_pc_next;
+	end
+end
+
+// ----------------------------------------------------------------------------
 // Register file monitor:
 assign rvfi_rd_addr = dut.mw_rd;
 assign rvfi_rd_wdata = dut.mw_result;
 
+// Do not reimplement internal bypassing logic. Danger of implementing
+// it correctly here but incorrectly in core.
+
+reg [31:0] xm_rdata1;
+
+always @ (posedge clock or posedge reset)
+	if (reset)
+		xm_rdata1 <= 32'h0;
+	else if (!x_stall)
+		xm_rdata1 <= dut.x_rs1_bypass;
+
+always @ (posedge clock or posedge reset) begin
+	if (reset) begin
+		rvfi_rs1_addr <= 5'h0;
+		rvfi_rs2_addr <= 5'h0;
+		rvfi_rs1_rdata <= 32'h0;
+		rvfi_rs2_rdata <= 32'h0;
+	end else begin
+		rvfi_rs1_addr <= m_stall ? 5'h0 : dut.xm_rs1;
+		rvfi_rs2_addr <= m_stall ? 5'h0 : dut.xm_rs2;
+		rvfi_rs1_rdata <= xm_rdata1;
+		rvfi_rs2_rdata <= dut.m_wdata;
+	end
+end
+
+// ----------------------------------------------------------------------------
 // Load/store monitor: based on bus signals, NOT processor internals.
 // Marshal up a description of the current data phase, and then register this
 // into the RVFI signals.
