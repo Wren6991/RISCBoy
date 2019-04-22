@@ -315,9 +315,14 @@ always @ (*) begin
 end
 
 // AHB transaction request
+
+wire x_memop_vld = !dx_memop[3];
+wire x_unaligned_addr =
+	ahb_hsize_d == HSIZE_WORD && |ahb_haddr_d[1:0] ||
+	ahb_hsize_d == HSIZE_HWORD && ahb_haddr_d[0];
+
 always @ (*) begin
 	// Need to be careful not to use anything hready-sourced to gate htrans!
-	ahb_req_d = ~|(dx_memop & 4'h8) && !x_stall_raw && !flush_d_x;
 	ahb_haddr_d = x_alu_add;
 	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 	case (dx_memop)
@@ -328,6 +333,7 @@ always @ (*) begin
 		MEMOP_SH:  ahb_hsize_d = HSIZE_HWORD;
 		default:   ahb_hsize_d = HSIZE_BYTE;
 	endcase
+	ahb_req_d = x_memop_vld && !x_stall_raw && !flush_d_x && !x_unaligned_addr;
 end
 
 // ALU operand muxes and bypass
@@ -392,8 +398,7 @@ always @ (posedge clk or negedge rst_n) begin
 					default xm_jump <= 1'b0;
 				endcase
 				xm_except_invalid_instr <= dx_except_invalid_instr;
-				xm_except_unaligned <= ahb_hsize_d == HSIZE_WORD && |ahb_haddr_d[1:0]
-					|| ahb_hsize_d == HSIZE_HWORD && ahb_haddr_d[0];
+				xm_except_unaligned <= x_memop_vld && x_unaligned_addr;
 			end
 		end
 	end
@@ -420,13 +425,15 @@ hazard5_alu alu (
 //                               Pipe Stage M
 // ============================================================================
 
-reg [W_DATA-1:0]    m_rdata_shift;
-reg [W_DATA-1:0]    m_wdata;
-reg [W_DATA-1:0]    m_result;
+reg [W_DATA-1:0] m_rdata_shift;
+reg [W_DATA-1:0] m_wdata;
+reg [W_DATA-1:0] m_result;
 assign m_jump_req = xm_jump;
 assign m_jump_target = xm_jump_target;
 
 assign m_stall = (ahb_active_dph_d && !ahblm_hready) || (m_jump_req && !f_jump_rdy);
+
+wire m_except_bus_fault = ahblm_hresp; // TODO: handle differently for LSU/ifetch?
 
 always @ (*) begin
 	// Local forwarding of store data
@@ -475,7 +482,7 @@ always @ (posedge clk or negedge rst_n) begin
 			$display("Unaligned load/store!");
 			$finish;
 		end
-		if (ahblm_hresp) begin
+		if (m_except_bus_fault) begin
 			$display("Bus fault!");
 			$finish;
 		end
