@@ -78,31 +78,40 @@ reg x_valid, m_valid;
 reg [31:0] x_instr;
 reg [31:0] m_instr;
 
+reg rvfi_valid_r;
+reg [31:0] rvfi_insn_r;
+reg rvfi_trap_r;
+
+assign rvfi_valid = rvfi_valid_r;
+assign rvfi_insn = rvfi_insn_r;
+assign rvfi_trap = rvfi_trap_r;
+
 always @ (posedge clock or posedge reset) begin
 	if (reset) begin
 		x_valid <= 1'b0;
 		m_valid <= 1'b0;
-		rvfi_valid <= 1'b0;
-		rvfi_trap <= 1'b0;
+		rvfi_valid_r <= 1'b0;
+		rvfi_trap_r <= 1'b0;
+		rvfi_insn_r <= 32'h0;
 	end else begin
-		if (!x_stall) begin
+		if (!dut.x_stall) begin
 			m_valid <= x_valid;
 			m_instr <= x_instr;
 			x_valid <= 1'b0;
 		end
 		if (dut.flush_d_x) begin
 			x_valid <= 1'b0;
-			m_valid <= m_valid && m_stall;
+			m_valid <= m_valid && dut.m_stall;
 		end else if (dut.df_cir_use) begin
 			x_valid <= 1'b1;
 			x_instr <= {
-				dut.cir[31:16] & {16{dut.df_cir_use[1]}},
-				dut.cir[15:0]
+				dut.fd_cir[31:16] & {16{dut.df_cir_use[1]}},
+				dut.fd_cir[15:0]
 			};
 		end
-		rvfi_valid <= dut.m_valid && !dut.m_stall;
-		rvfi_insn <= m_instr;
-		rvfi_trap <=
+		rvfi_valid_r <= dut.m_valid && !dut.m_stall;
+		rvfi_insn_r <= m_instr;
+		rvfi_trap_r <=
 			dut.xm_except_invalid_instr ||
 			dut.xm_except_unaligned ||
 			dut.m_except_bus_fault;
@@ -138,10 +147,16 @@ always @ (posedge clock or posedge reset) begin
 	end
 end
 
+reg [31:0] rvfi_pc_rdata_r;
+reg [31:0] rvfi_pc_wdata_r;
+
+assign rvfi_pc_rdata = rvfi_pc_rdata_r;
+assign rvfi_pc_wdata = rvfi_pc_wdata_r;
+
 always @ (posedge clock) begin
-	if (!m_stall) begin
-		rvfi_pc_rdata <= xm_pc;
-		rvfi_pc_wdata <= dut.m_jump_req ? dut.m_jump_target : xm_pc_next;
+	if (!dut.m_stall) begin
+		rvfi_pc_rdata_r <= xm_pc;
+		rvfi_pc_wdata_r <= dut.m_jump_req ? dut.m_jump_target : xm_pc_next;
 	end
 end
 
@@ -158,20 +173,30 @@ reg [31:0] xm_rdata1;
 always @ (posedge clock or posedge reset)
 	if (reset)
 		xm_rdata1 <= 32'h0;
-	else if (!x_stall)
+	else if (!dut.x_stall)
 		xm_rdata1 <= dut.x_rs1_bypass;
+
+reg [4:0]  rvfi_rs1_addr_r;
+reg [4:0]  rvfi_rs2_addr_r;
+reg [31:0] rvfi_rs1_rdata_r;
+reg [31:0] rvfi_rs2_rdata_r;
+
+assign rvfi_rs1_addr = rvfi_rs1_addr_r;
+assign rvfi_rs2_addr = rvfi_rs2_addr_r;
+assign rvfi_rs1_rdata = rvfi_rs1_rdata_r;
+assign rvfi_rs2_rdata = rvfi_rs2_rdata_r;
 
 always @ (posedge clock or posedge reset) begin
 	if (reset) begin
-		rvfi_rs1_addr <= 5'h0;
-		rvfi_rs2_addr <= 5'h0;
-		rvfi_rs1_rdata <= 32'h0;
-		rvfi_rs2_rdata <= 32'h0;
+		rvfi_rs1_addr_r <= 5'h0;
+		rvfi_rs2_addr_r <= 5'h0;
+		rvfi_rs1_rdata_r <= 32'h0;
+		rvfi_rs2_rdata_r <= 32'h0;
 	end else begin
-		rvfi_rs1_addr <= m_stall ? 5'h0 : dut.xm_rs1;
-		rvfi_rs2_addr <= m_stall ? 5'h0 : dut.xm_rs2;
-		rvfi_rs1_rdata <= xm_rdata1;
-		rvfi_rs2_rdata <= dut.m_wdata;
+		rvfi_rs1_addr_r <= dut.m_stall ? 5'h0 : dut.xm_rs1;
+		rvfi_rs2_addr_r <= dut.m_stall ? 5'h0 : dut.xm_rs2;
+		rvfi_rs1_rdata_r <= xm_rdata1;
+		rvfi_rs2_rdata_r <= dut.m_wdata;
 	end
 end
 
@@ -189,7 +214,7 @@ reg        hwrite_dph;
 reg [1:0]  htrans_dph;
 reg [2:0]  hsize_dph;
 
-always @ (posedge clk) begin
+always @ (posedge clock) begin
 	if (hready) begin
 		htrans_dph <= htrans & {2{dut.ahb_gnt_d}}; // Load/store only!
 		haddr_dph <= haddr;
@@ -204,21 +229,33 @@ wire [3:0] mem_bytemask_dph = (
 	                    4'hf
 	) << haddr_dph[1:0];
 
-always @ (posedge clk) begin
+reg [31:0] rvfi_mem_addr_r;
+reg [3:0]  rvfi_mem_rmask_r;
+reg [31:0] rvfi_mem_rdata_r;
+reg [3:0]  rvfi_mem_wmask_r;
+reg [31:0] rvfi_mem_wdata_r;
+
+assign rvfi_mem_addr = rvfi_mem_addr_r;
+assign rvfi_mem_rmask = rvfi_mem_rmask_r;
+assign rvfi_mem_rdata = rvfi_mem_rdata_r;
+assign rvfi_mem_wmask = rvfi_mem_wmask_r;
+assign rvfi_mem_wdata = rvfi_mem_wdata_r;
+
+always @ (posedge clock) begin
 	if (hready) begin
 		// RVFI has an AXI-like concept of byte strobes, rather than AHB-like
-		rvfi_mem_addr <= haddr_dph & 32'hffff_fffc;
-		{rvfi_mem_rmask, rvfi_mem_wmask} <= 0;
+		rvfi_mem_addr_r <= haddr_dph & 32'hffff_fffc;
+		{rvfi_mem_rmask_r, rvfi_mem_wmask_r} <= 0;
 		if (htrans_dph[1] && hwrite_dph) begin
-			rvfi_mem_wmask <= mem_bytemask_dph;
-			rvfi_mem_wdata <= hwdata;
+			rvfi_mem_wmask_r <= mem_bytemask_dph;
+			rvfi_mem_wdata_r <= hwdata;
 		end else if (htrans_dph[1] && !hwrite_dph) begin
-			rvfi_mem_rmask <= mem_bytemask_dph;
-			rvfi_mem_rmask <= hrdata;
+			rvfi_mem_rmask_r <= mem_bytemask_dph;
+			rvfi_mem_rdata_r <= hrdata;
 		end
 	end else begin
 		// As far as RVFI is concerned nothing happens except final cycle of dphase
-		{rvfi_mem_rmask, rvfi_mem_wmask} <= 0;
+		{rvfi_mem_rmask_r, rvfi_mem_wmask_r} <= 0;
 	end
 end
 
