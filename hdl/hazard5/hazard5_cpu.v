@@ -25,6 +25,10 @@ module hazard5_cpu #(
 	input wire               clk,
 	input wire               rst_n,
 
+	`ifdef RISCV_FORMAL
+	`RVFI_OUTPUTS ,
+	`endif
+
 	// AHB-lite Master port
 	output reg  [W_ADDR-1:0] ahblm_haddr,
 	output reg               ahblm_hwrite,
@@ -192,6 +196,8 @@ always @ (posedge clk) begin
 	end
 end
 //synthesis translate_on
+
+wire [W_ADDR-1:0]    d_pc; // FIXME only used for riscv-formal
 
 // To register file
 wire [W_REGADDR-1:0] d_rs1;
@@ -543,5 +549,9 @@ hazard5_regfile_1w2r #(
 	.wdata  (m_result),
 	.wen    (w_reg_wen)
 );
+
+`ifdef RISCV_FORMAL
+`include "hazard5_rvfi_monitor.vh"
+`endif
 
 endmodule

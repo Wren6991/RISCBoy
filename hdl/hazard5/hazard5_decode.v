@@ -8,22 +8,23 @@ module hazard5_decode #(
 	input wire clk,
 	input wire rst_n,
 
-	input wire  [31:0] fd_cir,
-	input wire  [1:0] fd_cir_vld,
-	output wire [1:0] df_cir_use,
-	output wire       df_cir_lock,
-	output reg               d_jump_req,
-	output reg  [W_ADDR-1:0] d_jump_target,
+	input wire  [31:0]          fd_cir,
+	input wire  [1:0]           fd_cir_vld,
+	output wire [1:0]           df_cir_use,
+	output wire                 df_cir_lock,
+	output reg                  d_jump_req,
+	output reg  [W_ADDR-1:0]    d_jump_target,
+	output wire [W_ADDR-1:0]    d_pc, // FIXME only added for riscv-formal
 
-	output wire d_stall,
-	input wire  x_stall,
-	input wire  flush_d_x,
-	input wire  f_jump_rdy,
-	input wire  f_jump_now,
-	input wire  [W_ADDR-1:0] f_jump_target,
+	output wire                 d_stall,
+	input wire                  x_stall,
+	input wire                  flush_d_x,
+	input wire                  f_jump_rdy,
+	input wire                  f_jump_now,
+	input wire  [W_ADDR-1:0]    f_jump_target,
 
-	output reg [W_REGADDR-1:0] d_rs1, // combinatorial
-	output reg [W_REGADDR-1:0] d_rs2, // combinatorial
+	output reg  [W_REGADDR-1:0] d_rs1, // combinatorial
+	output reg  [W_REGADDR-1:0] d_rs2, // combinatorial
 
 	output reg  [W_DATA-1:0]    dx_imm,
 	output reg  [W_REGADDR-1:0] dx_rs1,
@@ -95,6 +96,8 @@ always @ (posedge clk or negedge rst_n) begin
 			pc <= pc_next;
 	end
 end
+
+assign d_pc = pc;
 
 // If the current CIR is there due to locking, it is a jump which has already had primary effect.
 wire jump_enable = !d_starved && !cir_lock_prev;
