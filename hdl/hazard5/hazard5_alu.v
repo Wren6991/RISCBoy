@@ -81,6 +81,7 @@ always @ (*) begin
 end
 
 `ifdef FORMAL
+`ifndef RISCV_FORMAL
 // Really we're just interested in the shifts and comparisons, as these are
 // the nontrivial ones. However, easier to test everything!
 
@@ -100,6 +101,7 @@ always @ (posedge clk) begin
 	ALUOP_SLL: assert(result == op_a << op_b[4:0]);
 	endcase
 end
+`endif
 `endif
 
 endmodule
