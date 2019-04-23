@@ -236,6 +236,7 @@ hazard5_decode #(
 	.df_cir_lock             (df_cir_lock),
 	.d_jump_req              (d_jump_req),
 	.d_jump_target           (d_jump_target),
+	.d_pc                    (d_pc),
 
 	.d_stall                 (d_stall),
 	.x_stall                 (x_stall),

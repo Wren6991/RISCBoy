@@ -38,6 +38,8 @@ always @ (posedge clk or negedge rst_n) begin
 			rvfm_m_valid <= rvfm_x_valid;
 			rvfm_m_instr <= rvfm_x_instr;
 			rvfm_x_valid <= 1'b0;
+		end else if (!m_stall) begin
+			rvfm_m_valid <= 1'b0;
 		end
 		if (flush_d_x) begin
 			rvfm_x_valid <= 1'b0;
