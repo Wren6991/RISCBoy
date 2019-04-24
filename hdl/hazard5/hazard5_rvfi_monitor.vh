@@ -14,6 +14,8 @@
 // Diagnose whether X, M contain valid in-flight instructions, to produce
 // rvfi_valid signal.
 
+// TODO fix all the redundant RVFI registers in a nice way
+
 reg rvfm_x_valid, rvfm_m_valid;
 reg [31:0] rvfm_x_instr;
 reg [31:0] rvfm_m_instr;
@@ -105,7 +107,7 @@ end
 // ----------------------------------------------------------------------------
 // Register file monitor:
 assign rvfi_rd_addr = mw_rd;
-assign rvfi_rd_wdata = mw_result;
+assign rvfi_rd_wdata = mw_rd ? mw_result : 32'h0;
 
 // Do not reimplement internal bypassing logic. Danger of implementing
 // it correctly here but incorrectly in core.
@@ -169,7 +171,7 @@ wire [3:0] rvfm_mem_bytemask_dph = (
 	rvfm_hsize_dph == 3'h0 ? 4'h1 :
 	rvfm_hsize_dph == 3'h1 ? 4'h3 :
 	                    4'hf
-	) << ahblm_haddr_dph[1:0];
+	) << rvfm_haddr_dph[1:0];
 
 reg [31:0] rvfi_mem_addr_r;
 reg [3:0]  rvfi_mem_rmask_r;

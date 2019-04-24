@@ -8,17 +8,17 @@ module rvfi_wrapper (
 // Memory Interface
 // ----------------------------------------------------------------------------
 
-(* keep *) wire [31:0] haddr;
-(* keep *) wire        hwrite;
-(* keep *) wire [1:0]  htrans;
-(* keep *) wire [2:0]  hsize;
-(* keep *) wire [2:0]  hburst;
-(* keep *) wire [3:0]  hprot;
-(* keep *) wire        hmastlock;
-(* keep *) wire        hready;
-(* keep *) wire        hresp;
-(* keep *) wire [31:0] hwdata;
-(* keep *) wire [31:0] hrdata;
+(* keep *) wire               [31:0]  haddr;
+(* keep *) wire                       hwrite;
+(* keep *) wire               [1:0]   htrans;
+(* keep *) wire               [2:0]   hsize;
+(* keep *) wire               [2:0]   hburst;
+(* keep *) wire               [3:0]   hprot;
+(* keep *) wire                       hmastlock;
+(* keep *) `rvformal_rand_reg         hready;
+(* keep *) wire                       hresp;
+(* keep *) wire               [31:0]  hwdata;
+(* keep *) `rvformal_rand_reg [31:0]  hrdata;
 
 // AHB-lite requires: data phase of IDLE has no wait states
 always @ (posedge clock)
