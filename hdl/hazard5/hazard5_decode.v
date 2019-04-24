@@ -85,6 +85,7 @@ always @ (posedge clk or negedge rst_n)
 
 reg  [W_ADDR-1:0]    pc;
 wire [W_ADDR-1:0]    pc_next = pc + (d_instr_is_32bit ? 32'h4 : 32'h2);
+assign d_pc = pc;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -97,10 +98,9 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-assign d_pc = pc;
-
 // If the current CIR is there due to locking, it is a jump which has already had primary effect.
-wire jump_enable = !d_starved && !cir_lock_prev;
+wire d_invalid;
+wire jump_enable = !d_starved && !cir_lock_prev && !d_invalid;
 reg [W_ADDR-1:0] d_jump_offs;
 
 
@@ -134,7 +134,7 @@ wire [31:0] d_instr;
 wire        d_instr_is_32bit;
 wire        d_invalid_16bit;
 reg         d_invalid_32bit;
-wire        d_invalid = d_invalid_16bit || d_invalid_32bit;
+assign      d_invalid = d_invalid_16bit || d_invalid_32bit;
 
 hazard5_instr_decompress #(
 	.PASSTHROUGH(!EXTENSION_C)
@@ -248,19 +248,21 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_result_is_linkaddr <= 1'b0;
 		dx_except_invalid_instr <= 1'b0;
 	end else if (!x_stall) begin
-		dx_rs1 <= d_rs1;
-		dx_rs2 <= d_rs2;
-		dx_rd <= d_rd;
+		// These ones can have side effects
+		dx_rs1        <= d_invalid ? {W_REGADDR{1'b0}} : d_rs1;
+		dx_rs2        <= d_invalid ? {W_REGADDR{1'b0}} : d_rs2;
+		dx_rd         <= d_invalid ? {W_REGADDR{1'b0}} : d_rd;
+		dx_memop      <= d_invalid ? MEMOP_NONE        : d_memop;
+		dx_branchcond <= d_invalid ? BCOND_NEVER       : d_branchcond;
+		// These can't
 		dx_alusrc_a <= d_alusrc_a;
 		dx_alusrc_b <= d_alusrc_b;
 		dx_aluop <= d_aluop;
-		dx_memop <= d_memop;
-		dx_branchcond <= d_branchcond;
 		dx_jump_is_regoffs <= d_jump_is_regoffs;
 		dx_result_is_linkaddr <= d_result_is_linkaddr;
 		dx_except_invalid_instr <= d_invalid;
 
-		// Bubble assertion
+		// Bubble insertion
 		if (d_stall || flush_d_x) begin
 			dx_branchcond <= BCOND_NEVER;
 			dx_memop <= MEMOP_NONE;

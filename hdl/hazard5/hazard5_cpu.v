@@ -531,6 +531,8 @@ hazard5_regfile_1w2r #(
 	.FAKE_DUALPORT(0),
 `ifdef SIM
 	.RESET_REGS(1),
+`elsif FORMAL
+	.RESET_REGS(1),
 `else
 	.RESET_REGS(0),
 `endif
