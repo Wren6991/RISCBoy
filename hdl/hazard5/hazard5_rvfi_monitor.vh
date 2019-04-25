@@ -77,17 +77,24 @@ assign rvfi_intr = 1'b0; // TODO
 // ----------------------------------------------------------------------------
 // PC and jump monitor
 
+reg        rvfm_dx_have_jumped;
+
 reg [31:0] rvfm_xm_pc;
 reg [31:0] rvfm_xm_pc_next;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
+		rvfm_dx_have_jumped <= 0;
 		rvfm_xm_pc <= 0;
 		rvfm_xm_pc_next <= 0;
 	end else begin
-		rvfm_xm_pc <= dx_pc;
-		// Will take early jump into account, but not mispredict or late jump:
-		rvfm_xm_pc_next <= d_pc;
+		if (!d_stall) begin
+			rvfm_dx_have_jumped <= d_jump_req && f_jump_now || $past(df_cir_lock);
+		end
+		if (!x_stall) begin
+			rvfm_xm_pc <= dx_pc;
+			rvfm_xm_pc_next <= rvfm_dx_have_jumped ? dx_jump_target : dx_mispredict_addr;
+		end
 	end
 end
 
