@@ -91,9 +91,9 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		pc <= RESET_VECTOR;
 	end else begin
-		if (f_jump_now)
+		if ((f_jump_now && !assert_cir_lock) || (cir_lock_prev && deassert_cir_lock))
 			pc <= f_jump_target;
-		else if (!d_stall && !cir_lock_prev)
+		else if (!d_stall && !df_cir_lock)
 			pc <= pc_next;
 	end
 end
@@ -287,17 +287,8 @@ always @ (posedge clk) begin
 		dx_imm <= d_imm;
 		dx_jump_target <= d_jump_target;
 		dx_pc <= pc;
-	end
-	// When we lock CIR, PC changes immediately afterward due to jump.
-	// However the locked instruction will still need its mispredict/link value
-	// (JAL or branch) so we need to calculate this *immediately*
-	// and then leave the precalculated value in place during lock.
-	if (assert_cir_lock || (!x_stall && !cir_lock_prev))
 		dx_mispredict_addr <= pc_next;
-	// This relies on the assumption (which should be tested..!) that,
-	// when executing a locked instruction, the instruction in X
-	// does not need the prior contents of dx_mispredict_addr.
-	// At time of writing these are JAL, JALR and mispredicted branches.
+	end
 end
 
 endmodule
