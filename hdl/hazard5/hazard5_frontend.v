@@ -47,7 +47,7 @@ module hazard5_frontend #(
 );
 
 `undef ASSERT
-`ifdef ENABLE_ASSERTIONS
+`ifdef HAZARD5_FRONTEND_ASSERTIONS
 `define ASSERT(x) assert(x)
 `else
 `define ASSERT(x)
