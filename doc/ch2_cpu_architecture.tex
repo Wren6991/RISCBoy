@@ -15,20 +15,6 @@ Hazard5 supports the RV32IC instruction set, whose encoding is variable-width. T
 
 Branches are speculated, but there is currently no dynamic branch predictor. Instead, we use the static prediction scheme described in the RV ISA manual (based on sign of branch offset).
 
-% \newpage
-
-% \begin{center}
-% 	\begin{sideways}
-% 		\begin{minipage}{\textheight}
-% 			\includegraphics[width=\textheight]{diagrams/cpu_full.pdf}
-% 			\captionof{figure}{Hazard5 architectural block diagram}
-% 			\label{diagram:cpu_pipeline}
-% 		\end{minipage}
-% 	\end{sideways}
-% \end{center}
-
-% \newpage
-
 \subsection{Frontend}
 \label{section:frontend}
 
@@ -172,13 +158,32 @@ Hazard5 decodes {\tt FENCE.I} as "jump to {\tt PC} + 4". The jump invalidates th
 
 Timing analysis shows that calculating a jump target, between {\tt CIR} and the address bus, is generally on the critical path. To avoid more logic on this path, {\tt FENCE.I} is instead implemented by spoofing a branch-taken mispredict, which has the same effect. This adds two cycles to the execution time, but performance of this instruction is decidedly noncritical.
 
-\subsection{Operand Bypass}
+\subsection{Backend}
 
-Hazard5 possesses an operand bypass (forwarding) network. Register writes by one instruction must always be visible to later instructions, even before the first instruction reaches register writeback. This is shown as multiplexers on the ALU inputs in figure \ref{diagram:cpu_pipeline}.
+The backend is the hardware which manipulates the processor's architectural state according to the stream of instruction data from the frontend. Architectural state refers to the state you will read about in the ISA manual, and includes the register file and program counter; the backend also contains some non-architectural state, e.g. holding intermediate results in between pipeline stages.
 
-This reduces (and often eliminates) the penalty of read-after-write data hazards in the pipeline, and allows us to approach one-clock-per-instruction (CPI) execution rates. Without bypass, only one instruction could exist present in $\left\{ {\tt D}, {\tt X}, {\tt M}, {\tt W} \right\}$ at a time, giving a CPI of 4.
+The backend consists of stages {\tt D}, {\tt X}, {\tt M}. Its overall structure is depicted by figure \ref{diagram:cpu_backend}. This is a pretty large figure -- too large to print really -- so you can view it separately at \url{https://github.com/Wren6991/RISCBoy/raw/master/doc/diagrams/cpu_backend.pdf}
 
-The following bypasses are available: (notation: pipe register $\to$ pipestage logic)
+\newpage
+
+\begin{center}
+	\begin{sideways}
+		\begin{minipage}{\textheight}
+			\includegraphics[width=\textheight]{diagrams/cpu_backend.pdf}
+			\captionof{figure}{Hazard5 processor backend, block diagram}
+			\label{diagram:cpu_backend}
+		\end{minipage}
+	\end{sideways}
+\end{center}
+
+\newpage
+
+
+\subsubsection{Operand Bypass}
+
+Hazard5 possesses an operand bypass (forwarding) network. Register writes must always be visible to later instructions, even before an earlier instruction reaches register writeback. One solution is to detect that one instruction depends on the result of an earlier instruction (a read-after-write, or RAW hazard) and stall the later instruction until the earlier one completes. This is safe, but incurs a hefty performance penalty; a more elegant solution is to pluck the result of the earlier instruction straight from the pipeline, before it finishes executing (but after the result is valid!).
+
+Locations of bypasses are shown in figure \ref{diagram:cpu_backend}. The following bypasses are available:
 
 \begin{itemize}
 	\item {\tt X/M} $\to$ {\tt X}
@@ -187,7 +192,7 @@ The following bypasses are available: (notation: pipe register $\to$ pipestage l
 	\item {\tt W/X} $\to$ {\tt X}
 \end{itemize}
 
-The last is in lieu of a write-to-read bypass in the register file, to avoid difficulties with block-RAM inference on iCE40.
+The last is in lieu of a write-to-read bypass in the register file; some tools (not Yosys!) struggle with inferring memories from transparent memory models, so it's better to be explicit.
 
 To control the bypassing, some of the register specifiers from {\tt CIR} are passed down the pipeline alongside the data. {\tt rs1, rs2, rd} (operand sources and destination) are passed down as far as {\tt X}. {\tt rs2, rd} make it to {\tt M}, and only {\tt rd} makes it to {\tt W}.
 
@@ -202,7 +207,9 @@ The upshot is:
 
 Various interesting strategies can alleviate load-use penalty in in-order pipelines, such as adding a second, "late" ALU in the {\tt M} stage. In our case we judge this to not be worth the LUTs.
 
-\subsection{Pipeline Stalling and Flushing}
+Another interesting strategy is to add muxing at the register file write port, to select which stage to retire from. This has the dual benefit of firstly simplifying the operand bypass, and secondly reducing dynamic power, since there is no need to pass data through unused stages (and they can be clock gated). Hazard5 does not use this strategy either -- maybe the next project.
+
+\subsubsection{Pipeline Stalling and Flushing}
 \label{section:stalling_flushing}
 
 Our terminology: stalling means a pipeline stage does not advance its state until some blocking condition has cleared. The instruction residing in this stage will not progress to the next stage, and the previous stage will not write {\it its} instruction into this stage. Flushing is when in-flight instructions in some stages are replaced with NOPs, and their results are discarded.
@@ -255,9 +262,7 @@ Flushing and bubble insertion are very similar in mechanism.
 
 Alignment is the constraint that the address of a memory access be equal to zero, modulo some size. Where no size is specified, we refer to {\it natural} alignment, i.e. modulo the size of this particular memory operation. RISC-V requires that memory is byte-addressable.
 
-The frontend goes to some length (section \ref{section:frontend}) to maintain high throughput. RV-C instruction streams are {\it always} unaligned, and {\it every} instruction must be fetched before it is executed, so Amdahl says it's worth it.
-
-As load/stores are less than 100\% of all instructions, and generally much fewer than 100\% of these are unaligned, Hazard5 does not have hardware support for unaligned load/stores. These are trapped (TODO) and handled in software if and when they occur.
+The frontend goes to some length (section \ref{section:frontend}) to maintain high throughput. RV-C instruction streams are {\it always} unaligned, and {\it every} instruction must be fetched before it is executed, so Amdahl says it's worth it. On the other hand load/stores are less than 100\% of all instructions, and the vast majority are unaligned; consequently, Hazard5 does not have hardware support for unaligned load/stores. These are trapped (TODO) and handled in software if and when they occur.
 
 \subsection{Interrupts and Exceptions}
 
