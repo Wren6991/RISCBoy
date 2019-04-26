@@ -1,0 +1,2 @@
+SRCS=/home/luke/proj/riscboy/test/hazard5_formal_frontend/tb.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_alu.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_cpu.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_decode.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_frontend.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_instr_decompress.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_regfile_1w2r.v /home/luke/proj/riscboy/hdl/hazard5/hazard5_shift_rla.v
+INCDIRS=/home/luke/proj/riscboy/hdl/hazard5 /home/luke/proj/riscboy/test/hazard5_formal_frontend

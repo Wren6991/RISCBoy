@@ -1,0 +1,155 @@
+[*]
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Fri Apr 26 06:45:17 2019
+[*]
+[dumpfile] "/home/luke/proj/riscboy/test/hazard5_formal_frontend/tb.vcd"
+[dumpfile_mtime] "Fri Apr 26 06:43:58 2019"
+[dumpfile_size] 83685
+[savefile] "/home/luke/proj/riscboy/test/hazard5_formal_frontend/waves.gtkw"
+[timestart] 23
+[size] 1249 1080
+[pos] -1 -1
+*-4.716502 48 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb.
+[treeopen] tb.dut.
+[sst_width] 233
+[signals_width] 314
+[sst_expanded] 1
+[sst_vpaned_height] 311
+@200
+-Frontend Interfaces
+@28
+tb.dut.frontend.mem_size
+@22
+tb.dut.frontend.mem_addr[31:0]
+@28
+tb.dut.frontend.mem_addr_vld
+tb.dut.frontend.mem_addr_rdy
+@22
+tb.dut.frontend.mem_data[31:0]
+@28
+tb.dut.frontend.mem_data_vld
+@29
+tb.dut.frontend.jump_target_vld
+@28
+tb.dut.frontend.jump_target_rdy
+@22
+tb.dut.frontend.jump_target[31:0]
+tb.dut.frontend.cir[31:0]
+@28
+tb.dut.frontend.cir_vld[1:0]
+tb.dut.frontend.cir_use[1:0]
+tb.dut.frontend.cir_lock
+@200
+-Frontent Internals
+@28
+tb.dut.frontend.fifo_level[1:0]
+@22
+tb.dut.frontend.fifo_mem<0>[31:0]
+tb.dut.frontend.fifo_mem<1>[31:0]
+@28
+tb.dut.frontend.fifo_empty
+tb.dut.frontend.fifo_full
+tb.dut.frontend.fifo_almost_full
+tb.dut.frontend.fifo_pop
+tb.dut.frontend.fifo_push
+@c00028
+tb.dut.frontend.buf_level[1:0]
+@28
+(0)tb.dut.frontend.buf_level[1:0]
+(1)tb.dut.frontend.buf_level[1:0]
+@1401200
+-group_end
+@28
+tb.dut.frontend.buf_level_next[1:0]
+tb.dut.frontend.cir_must_refill
+tb.dut.frontend.clk
+tb.dut.frontend.cir_use_clipped[1:0]
+tb.dut.frontend.ctr_flush_pending[1:0]
+@22
+tb.dut.frontend.fetch_addr[31:0]
+tb.dut.frontend.fetch_data[31:0]
+@28
+tb.dut.frontend.fetch_data_vld
+tb.dut.frontend.fetch_stall
+@22
+tb.dut.frontend.fifo_rdata[31:0]
+@28
+tb.dut.frontend.fifo_rptr[1:0]
+@22
+tb.dut.frontend.fifo_wdata[31:0]
+@28
+tb.dut.frontend.fifo_wptr[1:0]
+@22
+tb.dut.frontend.hwbuf[15:0]
+tb.dut.frontend.instr_data_plus_fetch[47:0]
+tb.dut.frontend.instr_data_shifted[47:0]
+@28
+tb.dut.frontend.level_next_no_fetch[1:0]
+tb.dut.frontend.mem_addr_hold
+@200
+-Decode
+@22
+tb.dut.d_pc[31:0]
+@28
+tb.dut.fd_cir_vld[1:0]
+@22
+tb.dut.cir_expected[31:0]
+@28
+tb.dut.frontend.mem_size_r
+tb.dut.frontend.pending_fetches[1:0]
+tb.dut.dx_alusrc_a[1:0]
+tb.dut.frontend.pending_fetches_next[1:0]
+tb.dut.frontend.rst_n
+tb.dut.frontend.unaligned_jump_aph
+tb.dut.frontend.unaligned_jump_dph
+tb.dut.frontend.unaligned_jump_now
+@22
+tb.dut.fd_cir[31:0]
+@200
+-X
+@28
+tb.dut.x_stall
+tb.dut.x_memop_vld
+tb.dut.ahblm_hready
+@22
+tb.dut.dx_aluop[3:0]
+@28
+tb.dut.dx_alusrc_b[1:0]
+tb.dut.dx_branchcond[1:0]
+tb.dut.dx_except_invalid_instr
+@22
+tb.dut.dx_imm[31:0]
+@28
+tb.dut.dx_jump_is_regoffs
+@22
+tb.dut.dx_jump_target[31:0]
+tb.dut.dx_memop[3:0]
+tb.dut.dx_mispredict_addr[31:0]
+tb.dut.dx_pc[31:0]
+tb.dut.dx_rd[4:0]
+tb.dut.dx_rdata1[31:0]
+tb.dut.dx_rdata2[31:0]
+@200
+-M
+@28
+tb.dut.m_stall
+tb.dut.ahb_gnt_d
+tb.dut.ahb_gnt_i
+tb.dut.ahb_active_dph_d
+tb.dut.ahb_active_dph_i
+tb.dut.dx_result_is_linkaddr
+@22
+tb.dut.dx_rs1[4:0]
+tb.dut.dx_rs2[4:0]
+@28
+tb.dut.xm_jump
+@22
+tb.dut.xm_jump_target[31:0]
+tb.dut.xm_memop[3:0]
+tb.dut.xm_rd[4:0]
+tb.dut.xm_result[31:0]
+tb.dut.xm_rs2[4:0]
+tb.dut.xm_store_data[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

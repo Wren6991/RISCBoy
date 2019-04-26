@@ -87,15 +87,18 @@ end else begin
 				end
 			end
 			RV_C_MV: begin
-				if (rs2_l) begin
+				if (rs2_l) begin // mv
 					instr_out = RV_NOZ_ADD | (rd_l << RV_RD_LSB) | (rs2_l << RV_RS2_LSB);
 				end else begin // jr
 					instr_out = RV_NOZ_JALR | (rs1_l << RV_RS1_LSB);
 					invalid = !rs1_l; // RESERVED
 				end
 			end
-			RV_C_LWSP:     instr_out = RV_NOZ_LW | (rd_l << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
+			RV_C_LWSP: begin
+				instr_out = RV_NOZ_LW | (rd_l << RV_RD_LSB) | (5'h2 << RV_RS1_LSB)
 				| ({instr_in[3:2], instr_in[12], instr_in[6:4], 2'b00} << 20);
+				invalid = !rd_l; // RESERVED
+			end
 			RV_C_SWSP:    instr_out = RV_NOZ_SW | (rs2_l << RV_RS2_LSB) | (5'h2 << RV_RS1_LSB)
 				| ({instr_in[11:9], 2'b00} << 7) | ({instr_in[8:7], instr_in[12]} << 25);
 			RV_C_BEQZ:     instr_out = RV_NOZ_BEQ | (rs1_s << RV_RS1_LSB) | imm_cb;

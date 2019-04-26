@@ -8,15 +8,31 @@ srcs.mk: Makefile $(DOTF)
 
 YOSYS=yosys
 YOSYS_SMTBMC=$(YOSYS)-smtbmc
-PREP_CMD="read_verilog -formal $(SRCS); prep -top $(TOP) -nordff; techmap -map +/adff2dff.v; write_smt2 -wires $(TOP).smt2"
 
+DEPTH=20
 
-BMC_ARGS=-s z3 --dump-vcd $(TOP).vcd
+DEFINES?=
+
+PREP_CMD =read_verilog -formal
+PREP_CMD+=$(addprefix -I,$(INCDIRS))
+PREP_CMD+=$(addprefix -D,$(DEFINES) )
+PREP_CMD+= $(SRCS);
+PREP_CMD+=prep -top $(TOP) -nordff; techmap -map +/adff2dff.v; write_smt2 -wires $(TOP).smt2
+
+BMC_ARGS=-s z3 --dump-vcd $(TOP).vcd -t $(DEPTH)
 IND_ARGS=-i $(BMC_ARGS)
 
-formal: clean
-	$(YOSYS) -p $(PREP_CMD)
+.PHONY: prove prep bmc induct clean
+
+prove: bmc induct
+
+prep:
+	$(YOSYS) -p "$(PREP_CMD)"
+
+bmc: prep
 	$(YOSYS_SMTBMC) $(BMC_ARGS) $(TOP).smt2
+
+induct: prep
 	$(YOSYS_SMTBMC) $(IND_ARGS) $(TOP).smt2
 
 clean::

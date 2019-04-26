@@ -557,4 +557,9 @@ hazard5_regfile_1w2r #(
 `include "hazard5_rvfi_monitor.vh"
 `endif
 
+`ifdef HAZARD5_FORMAL_REGRESSION
+// Each formal regression provides its own file with the below name:
+`include "hazard5_formal_regression.vh"
+`endif
+
 endmodule
