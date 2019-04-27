@@ -69,6 +69,8 @@ parameter W_FIFO_PTR = $clog2(FIFO_DEPTH + 1);
 // This is a little different from either a normal sync fifo or sync fwft fifo
 // so it's worth implementing from scratch
 
+wire jump_now = jump_target_vld && jump_target_rdy;
+
 reg [W_DATA-1:0] fifo_mem [0:FIFO_DEPTH-1];
 reg [W_FIFO_PTR-1:0] fifo_wptr;
 reg [W_FIFO_PTR-1:0] fifo_rptr;
@@ -90,11 +92,12 @@ always @ (posedge clk or negedge rst_n) begin
 	end else begin
 		`ASSERT(!(fifo_pop && fifo_empty));
 		`ASSERT(!(fifo_push && fifo_full));
+		`ASSERT(fifo_level <= FIFO_DEPTH);
 		if (fifo_push) begin
 			fifo_wptr <= fifo_wptr + 1'b1;
 			fifo_mem[fifo_wptr & ~FIFO_DEPTH] <= fifo_wdata;
 		end
-		if (jump_target_vld && jump_target_rdy) begin
+		if (jump_now) begin
 			fifo_rptr <= fifo_wptr + fifo_push;
 		end else if (fifo_pop) begin
 			fifo_rptr <= fifo_rptr + 1'b1;
@@ -128,9 +131,10 @@ always @ (posedge clk or negedge rst_n) begin
 		`ASSERT(ctr_flush_pending <= pending_fetches);
 		`ASSERT(pending_fetches < 2'd3);
 		`ASSERT(!(mem_data_vld && !pending_fetches));
+		// `ASSERT(!($past(mem_addr_hold) && $past(mem_addr_vld) && !$stable(mem_addr)));
 		mem_addr_hold <= mem_addr_vld && !mem_addr_rdy;
 		pending_fetches <= pending_fetches_next;
-		if (jump_target_vld && jump_target_rdy) begin
+		if (jump_now) begin
 			ctr_flush_pending <= pending_fetches - mem_data_vld;
 		end else if (|ctr_flush_pending && mem_data_vld) begin
 			ctr_flush_pending <= ctr_flush_pending - 1'b1;
@@ -145,7 +149,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		fetch_addr <= RESET_VECTOR;
 	end else begin
-		if (jump_target_vld && jump_target_rdy) begin
+		if (jump_now) begin
 			// Post-increment if jump request is going straight through
 			fetch_addr <= {jump_target[W_ADDR-1:2] + (mem_addr_rdy && !mem_addr_hold), 2'b00};
 		end else if (mem_addr_vld && mem_addr_rdy) begin
@@ -162,10 +166,11 @@ wire fetch_stall = fifo_full
 
 
 // unaligned jump is handled in two different places:
-// - during address phase, offset may be applied to fetch_addr if hready was low when jump_vld was high
+// - during address phase, offset may be applied to fetch_addr if hready was low when jump_target_vld was high
 // - during data phase, need to assemble CIR differently.
 
-wire unaligned_jump_now = EXTENSION_C && jump_target_rdy && jump_target_vld && jump_target[1];
+
+wire unaligned_jump_now = EXTENSION_C && jump_now && jump_target[1];
 reg unaligned_jump_aph;
 reg unaligned_jump_dph;
 
@@ -174,10 +179,14 @@ always @ (posedge clk or negedge rst_n) begin
 		unaligned_jump_aph <= 1'b0;
 		unaligned_jump_dph <= 1'b0;
 	end else if (EXTENSION_C) begin
-		if (mem_addr_rdy) begin
+		`ASSERT(!(unaligned_jump_aph && !unaligned_jump_dph));
+		`ASSERT(!($past(jump_now && !jump_target[1]) && unaligned_jump_aph));
+		`ASSERT(!($past(jump_now && !jump_target[1]) && unaligned_jump_dph));
+		if (mem_addr_rdy || (jump_now && !unaligned_jump_now)) begin
 			unaligned_jump_aph <= 1'b0;
 		end
-		if (mem_data_vld && ~|ctr_flush_pending) begin
+		if ((mem_data_vld && ~|ctr_flush_pending)
+			|| (jump_now && !unaligned_jump_now)) begin
 			unaligned_jump_dph <= 1'b0;
 		end
 		if (unaligned_jump_now) begin
@@ -259,7 +268,7 @@ assign cir_must_refill = !cir_lock && !level_next_no_fetch[1];
 assign fifo_pop = cir_must_refill && !fifo_empty;
 
 wire [1:0] buf_level_next =
-	(jump_target_vld && jump_target_rdy) || |ctr_flush_pending ? 2'h0 :
+	jump_now || |ctr_flush_pending ? 2'h0 :
 	fetch_data_vld && unaligned_jump_dph ? 2'h1 :
 	buf_level + {cir_must_refill && fetch_data_vld, 1'b0} - cir_use_clipped;
 
@@ -272,7 +281,7 @@ always @ (posedge clk or negedge rst_n) begin
 		`ASSERT(cir_vld <= 2);
 		`ASSERT(cir_use <= 2);
 		`ASSERT(cir_use <= cir_vld);
-		`ASSERT(cir_vld <= buf_level || cir_lock);
+		`ASSERT(cir_vld <= buf_level || $past(cir_lock));
 		// Update CIR flags
 		buf_level <= buf_level_next;
 		hwbuf_vld <= &buf_level_next;
