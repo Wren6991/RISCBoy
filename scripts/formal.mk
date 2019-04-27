@@ -17,7 +17,7 @@ PREP_CMD =read_verilog -formal
 PREP_CMD+=$(addprefix -I,$(INCDIRS))
 PREP_CMD+=$(addprefix -D,$(DEFINES) )
 PREP_CMD+= $(SRCS);
-PREP_CMD+=prep -top $(TOP) -nordff; techmap -map +/adff2dff.v; write_smt2 -wires $(TOP).smt2
+PREP_CMD+=prep -top $(TOP) -nordff; async2sync; write_smt2 -wires $(TOP).smt2
 
 BMC_ARGS=-s z3 --dump-vcd $(TOP).vcd -t $(DEPTH)
 IND_ARGS=-i $(BMC_ARGS)
@@ -27,13 +27,13 @@ IND_ARGS=-i $(BMC_ARGS)
 prove: bmc induct
 
 prep:
-	$(YOSYS) -p "$(PREP_CMD)"
+	$(YOSYS) -p "$(PREP_CMD)" > prep.log
 
 bmc: prep
-	$(YOSYS_SMTBMC) $(BMC_ARGS) $(TOP).smt2
+	$(YOSYS_SMTBMC) $(BMC_ARGS) $(TOP).smt2 | tee bmc.log
 
 induct: prep
-	$(YOSYS_SMTBMC) $(IND_ARGS) $(TOP).smt2
+	$(YOSYS_SMTBMC) $(IND_ARGS) $(TOP).smt2 | tee induct.log
 
 clean::
-	rm -f $(TOP).vcd $(TOP).smt2 srcs.mk
+	rm -f $(TOP).vcd $(TOP).smt2 srcs.mk prep.log bmc.log induct.log
