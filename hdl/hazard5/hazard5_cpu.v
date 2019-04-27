@@ -387,7 +387,8 @@ always @ (posedge clk or negedge rst_n) begin
 		//`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
-			xm_memop <= dx_memop;
+			// If the transfer is unaligned, make sure it is completely NOP'd on the bus
+			xm_memop <= dx_memop | {x_unaligned_addr, 3'h0};
 			if (x_stall || flush_d_x) begin
 				// Insert bubble
 				xm_rd <= {W_REGADDR{1'b0}};
