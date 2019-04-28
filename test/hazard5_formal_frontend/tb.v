@@ -23,17 +23,17 @@ hazard5_cpu #(
 ) dut (
 	.clk             (clk),
 	.rst_n           (rst_n),
-	.ahblm_haddr     (ahblm_haddr),
-	.ahblm_hwrite    (ahblm_hwrite),
-	.ahblm_htrans    (ahblm_htrans),
-	.ahblm_hsize     (ahblm_hsize),
-	.ahblm_hburst    (ahblm_hburst),
-	.ahblm_hprot     (ahblm_hprot),
-	.ahblm_hmastlock (ahblm_hmastlock),
-	.ahblm_hready    (ahblm_hready),
-	.ahblm_hresp     (ahblm_hresp),
-	.ahblm_hwdata    (ahblm_hwdata),
-	.ahblm_hrdata    (ahblm_hrdata)
+	.ahblm_haddr     (haddr),
+	.ahblm_hwrite    (hwrite),
+	.ahblm_htrans    (htrans),
+	.ahblm_hsize     (hsize),
+	.ahblm_hburst    (hburst),
+	.ahblm_hprot     (hprot),
+	.ahblm_hmastlock (hmastlock),
+	.ahblm_hready    (hready),
+	.ahblm_hresp     (hresp),
+	.ahblm_hwdata    (hwdata),
+	.ahblm_hrdata    (hrdata)
 );
 
 initial assume(rst_n == 0);
