@@ -88,6 +88,7 @@ const char *stage2_magic = "RISCBoy";
 uint8_t cmdbuf[1 + ADDRSIZE + PAGESIZE];
 uint8_t *pagebuf = cmdbuf + 1 + ADDRSIZE;
 
+int test_mem();
 void run_2nd_stage();
 void run_flash_shell();
 
@@ -124,12 +125,17 @@ int main()
 	}
 
 	gpio_out_pin(PIN_LED, 0);
-	if (t >= HOST_TIMEOUT_MS)
-		run_2nd_stage();
-
-	uart_put(ACK);
-
-	run_flash_shell();
+	if (t < HOST_TIMEOUT_MS)
+	{
+		uart_put(ACK);
+		run_flash_shell();
+	}
+	if (test_mem())
+	{
+		uart_puts("Memtest failed. Falling back to flash shell.\n");
+		run_flash_shell();
+	}
+	run_2nd_stage();
 }
 
 void run_2nd_stage()
@@ -219,8 +225,6 @@ static inline void set_cmd_addr(uint32_t addr)
 	cmdbuf[2] = (addr >> 8 ) & 0xff;
 	cmdbuf[3] = (addr >> 0 ) & 0xff;
 }
-
-void test_mem(size_t size);
 
 void run_flash_shell()
 {
@@ -339,7 +343,7 @@ void run_flash_shell()
 				break;
 			case TEST_MEM:
 				uart_put(ACK);
-				test_mem(addr); // pass addr as test size!
+				test_mem();
 				uart_puts("::::");
 				break;
 			default:
@@ -374,13 +378,11 @@ static inline uint32_t randu()
 	return rand_state;
 }
 
-void test_mem(size_t size)
+int test_mem()
 {
 	volatile uint8_t *mem8 = (volatile uint8_t*)SRAM0_BASE;
 	volatile uint32_t *mem32 = (volatile uint32_t*)SRAM0_BASE;
-
-	if (size > SRAM0_SIZE)
-		return;
+	const size_t size = SRAM0_SIZE;
 
 	int fail_count = 0;
 
@@ -388,12 +390,10 @@ void test_mem(size_t size)
 	uart_putint((uint32_t)&mem8[0]);
 	uart_puts(" to 0x");
 	uart_putint((uint32_t)&mem8[size]);
-	uart_puts("\nZeroing bytes...\n");
+	uart_puts("\nZero bytes...\n");
 
 	for (size_t i = 0; i < size; ++i)
 		mem8[i] = 0;
-
-	uart_puts("Checking...\n");
 
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -405,12 +405,14 @@ void test_mem(size_t size)
 			++fail_count;
 		}
 		if (fail_count > 20)
-		{	
+		{
 			uart_puts("Too many failures.\n");
 			break;
 		}
 	}
-	if (!fail_count)
+	if (fail_count)
+		return -1;
+	else
 		uart_puts("OK.\n");
 
 	uart_puts("Random bytes...\n");
@@ -418,7 +420,6 @@ void test_mem(size_t size)
 	for (size_t i = 0; i < size; ++i)
 		mem8[i] = randu() >> 20;
 
-	uart_puts("Checking...\n");
 	fail_count = 0;
 	rand_state = rand_state_saved;
 
@@ -444,18 +445,17 @@ void test_mem(size_t size)
 		}
 	}
 
-	if (!fail_count)
+	if (fail_count)
+		return -1;
+	else
 		uart_puts("OK.\n");
 
-	size /= sizeof(uint32_t);
-
-	uart_puts("Zeroing words...\n");
-	for (int i = 0; i < size; ++i)
+	uart_puts("Zero words...\n");
+	for (int i = 0; i < size / 4; ++i)
 		mem32[i] = 0;
 
-	uart_puts("Checking...\n");
 	fail_count = 0;
-	for (size_t i = 0; i < size; ++i)
+	for (size_t i = 0; i < size / 4; ++i)
 	{
 		uint32_t actual = mem32[i];
 		if (actual)
@@ -473,19 +473,21 @@ void test_mem(size_t size)
 			break;
 		}
 	}
-	if (!fail_count)
+
+	if (fail_count)
+		return -1;
+	else
 		uart_puts("OK.\n");
 
 	uart_puts("Random words...\n");
 	rand_state_saved = rand_state;
-	for (size_t i = 0; i < size; ++i)
+	for (size_t i = 0; i < size / 4; ++i)
 		mem32[i] = randu();
 
-	uart_puts("Checking...\n");
 	fail_count = 0;
 	rand_state = rand_state_saved;
 
-	for (size_t i = 0; i < size; ++i)
+	for (size_t i = 0; i < size / 4; ++i)
 	{
 		uint32_t expect = randu();
 		uint32_t actual = mem32[i];
@@ -507,6 +509,9 @@ void test_mem(size_t size)
 		}
 	}
 
-	if (!fail_count)
+	if (fail_count)
+		return -1;
+	else
 		uart_puts("OK.\n");
+	return 0;
 }
