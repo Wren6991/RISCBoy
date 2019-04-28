@@ -86,11 +86,25 @@ wire m_jump_req;
 wire ahb_gnt_i;
 wire ahb_gnt_d;
 
+reg       bus_hold_aph;
+reg [1:0] ahb_gnt_id_prev;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		bus_hold_aph <= 1'b0;
+		ahb_gnt_id_prev <= 2'h0;
+	end else begin
+		bus_hold_aph <= ahblm_htrans[1] && !ahblm_hready;
+		ahb_gnt_id_prev <= {ahb_gnt_i, ahb_gnt_d};
+	end
+end
+
 assign {ahb_gnt_i, ahb_gnt_d} =
-	m_jump_req ? 2'b10 :
-	ahb_req_d  ? 2'b01 :
-	ahb_req_i  ? 2'b10 :
-	             2'b00 ;
+	bus_hold_aph ? ahb_gnt_id_prev :
+	m_jump_req   ? 2'b10 :
+	ahb_req_d    ? 2'b01 :
+	ahb_req_i    ? 2'b10 :
+	               2'b00 ;
 
 // Keep track of whether instr/data access is active in AHB dataphase.
 reg ahb_active_dph_i;
