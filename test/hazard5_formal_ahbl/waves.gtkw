@@ -1,21 +1,34 @@
 [*]
-[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Fri Apr 26 06:45:17 2019
+[*] GTKWave Analyzer v3.3.93 (w)1999-2018 BSI
+[*] Sun Apr 28 13:14:40 2019
 [*]
-[dumpfile] "/home/luke/proj/riscboy/test/hazard5_formal_frontend/tb.vcd"
-[dumpfile_mtime] "Fri Apr 26 06:43:58 2019"
-[dumpfile_size] 83685
-[savefile] "/home/luke/proj/riscboy/test/hazard5_formal_frontend/waves.gtkw"
-[timestart] 23
-[size] 1249 1080
-[pos] -1 -1
-*-4.716502 48 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[dumpfile] "/home/luke/proj/riscboy/test/hazard5_formal_ahbl/tb.vcd"
+[dumpfile_mtime] "Sun Apr 28 12:51:50 2019"
+[dumpfile_size] 82355
+[savefile] "/home/luke/proj/riscboy/test/hazard5_formal_ahbl/waves.gtkw"
+[timestart] 0
+[size] 1808 1440
+[pos] -781 -402
+*-5.123123 110 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb.
 [treeopen] tb.dut.
+[treeopen] tb.dut.alu.
 [sst_width] 233
 [signals_width] 314
 [sst_expanded] 1
-[sst_vpaned_height] 311
+[sst_vpaned_height] 919
+@200
+-Bus
+@22
+tb.haddr[31:0]
+@28
+tb.hsize[2:0]
+tb.htrans[1:0]
+tb.hwrite
+tb.hready
+@23
+tb.hrdata[31:0]
+tb.hwdata[31:0]
 @200
 -Frontend Interfaces
 @28
@@ -29,9 +42,7 @@ tb.dut.frontend.mem_addr_rdy
 tb.dut.frontend.mem_data[31:0]
 @28
 tb.dut.frontend.mem_data_vld
-@29
 tb.dut.frontend.jump_target_vld
-@28
 tb.dut.frontend.jump_target_rdy
 @22
 tb.dut.frontend.jump_target[31:0]
@@ -93,9 +104,6 @@ tb.dut.frontend.mem_addr_hold
 tb.dut.d_pc[31:0]
 @28
 tb.dut.fd_cir_vld[1:0]
-@22
-tb.dut.cir_expected[31:0]
-@28
 tb.dut.frontend.mem_size_r
 tb.dut.frontend.pending_fetches[1:0]
 tb.dut.dx_alusrc_a[1:0]

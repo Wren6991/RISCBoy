@@ -75,7 +75,7 @@ end
 // Actual bus properties
 always @ (posedge clk) if (rst_n) begin
 	// 3.6.1 and 3.6.2: no change to an active aphase request
-	if (!$past(ahblm_hready && rst_n && ahblm_htrans[1])) begin
+	if ($past(rst_n && !ahblm_hready && ahblm_htrans[1])) begin
 		assert($stable(ahblm_haddr));
 		assert($stable(ahblm_hwrite));
 		assert($stable(ahblm_htrans));
@@ -83,7 +83,11 @@ always @ (posedge clk) if (rst_n) begin
 	end
 	// Natural alignment of transfers is required in AHB-lite
 	assert(!(ahbl_htrans[1] && ahblm_haddr & ~({32{1'b1}} << ahblm_hsize)));
+	// We are a 32-bit master
+	assert(ahblm_hsize <= 2);
 	// hwdata must be stable during write data phase
 	if (write_dph && !$past(ahblm_hready))
 		assert($stable(ahblm_hwdata));
+	// We don't do bursted transfers
+	assert(ahblm_htrans == 2'b10 || ahblm_htrans == 2'b00);
 end
