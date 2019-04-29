@@ -1,6 +1,6 @@
 Processor:
-  ☐ Implement RVFI for use with riscv-formal
-  ☐ Work through riscv-formal tests and fix all the bugs that crop up. Do a detailed writeup.
+  ✔ Implement RVFI for use with riscv-formal @done (19-04-29 18:55)
+  ✔ Work through riscv-formal tests and fix all the bugs that crop up. Do a detailed writeup. @done (19-04-29 18:55)
   ☐ Integrate riscv-formal into regressions, perhaps optionally.
   ☐ Why does float printf still not work :D
     Everything else I try seems to pass!
@@ -28,10 +28,11 @@ Processor:
   ☐ Consider hardware unaligned load/store support
     (e.g. perform just byte accesses; just has to be better than software).
   ☐ Port more advanced/larger C testcases
-  ☐ Investigate negedge read for register file to improve timing
+  ✘ Investigate negedge read for register file to improve timing @cancelled (19-04-29 18:57)
     On hold at the moment; this is not on the critical path on iCE40.
-  ☐ Support for M extension, potentially trap for divides
   ☐ Consider a generic extension interface which could also be used by M extension
+    Have some thinkings/scratchings in the documentation
+  ☐ Support for M extension, potentially trap for divides
   ☐ Add CSR support, with parameters to disable. @low
     Low priority. None of our software will care about CSRs,
     except perhaps for some nonstandard exception info.
@@ -42,6 +43,8 @@ Graphics:
   ☐ Consider memory writeback for compositing multiple layers
   ☐ Consider mode7-esque
   ☐ Consider pixel modes
+  ☐ Design display interface: a FIFO to shove pixels into, and maybe expose a command interface (or maybe just bitbang this)
+  ☐ Bring up an ILI9341 display in bitbanged mode for proof of concept/future reference
 
 DMA:
   ☐ Spec it!
