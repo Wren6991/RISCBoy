@@ -71,9 +71,10 @@ def read_filelist(fname):
 	return (files, includes)
 
 formats = {
-	"isim": lambda f, i: "verilog work {} {}\n".format(" ".join(f), " ".join("-i " + inc for inc in i)),
-	"flat": lambda f, i: " ".join(f) + "\n",
-	"make": lambda f, i: "SRCS={}\nINCDIRS={}\n".format(" ".join(f), " ".join(i))
+	"isim":  lambda f, i: "verilog work {} {}\n".format(" ".join(f), " ".join("-i " + inc for inc in i)),
+	"flat":  lambda f, i: " ".join(f) + "\n",
+	"flati": lambda f, i: " ".join(i) + "\n",
+	"make":  lambda f, i: "SRCS={}\nINCDIRS={}\n".format(" ".join(f), " ".join(i))
 }
 
 if __name__ == "__main__":
@@ -87,8 +88,6 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	if args.format is None:
 		args.format = "flat"
-	if args.output is None:
-		args.output = "files"
 	files, includes = read_filelist(args.src)
 	# Uniquify whilst preserving order
 	func = lambda l: list(dict.fromkeys(l))
@@ -99,6 +98,6 @@ if __name__ == "__main__":
 
 	files, includes = map(func, (files, includes))
 	if args.format not in formats:
-		sys.exit("Unknown format: " + arg.format)
-	ofile = open("files" if args.output is None else args.output, "w")
+		sys.exit("Unknown format: " + args.format)
+	ofile = sys.stdout if args.output is None else open(args.output, "w")
 	ofile.write(formats[args.format](files, includes))

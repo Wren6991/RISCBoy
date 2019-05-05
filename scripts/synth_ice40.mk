@@ -12,7 +12,7 @@ SYNTH_CMD=read_verilog $(addprefix -I,$(INCDIRS)) $(addprefix -D,$(DEFINES)) $(S
 ifneq (,$(TOP))
 	SYNTH_CMD+=hierarchy -top $(TOP);
 endif
-SYNTH_CMD+=synth_ice40 $(SYNTH_OPT) -json $(CHIPNAME).json
+SYNTH_CMD+=synth_ice40 $(SYNTH_OPT); write_json $(CHIPNAME).json
 
 # Kill implicit rules
 .SUFFIXES:
@@ -28,10 +28,8 @@ dump: romfiles
 pnr: synth $(CHIPNAME).asc
 bit: pnr $(CHIPNAME).bin
 
-srcs.mk: Makefile $(DOTF)
-	$(SCRIPTS)/listfiles --relative -f make -o srcs.mk $(DOTF)
-
--include srcs.mk
+SRCS=$(shell $(SCRIPTS)/listfiles --relative -f flat $(DOTF))
+INCDIRS=$(shell $(SCRIPTS)/listfiles --relative -f flati $(DOTF))
 
 dump:
 	$(YOSYS) -p "$(SYNTH_CMD); write_verilog $(CHIPNAME)_synth.v"
@@ -57,4 +55,3 @@ $(CHIPNAME).bin: $(CHIPNAME).asc
 clean::
 	rm -f $(CHIPNAME).json $(CHIPNAME).asc $(CHIPNAME).bin $(CHIPNAME)_synth.v
 	rm -f synth.log pnr.log
-	rm -f srcs.mk

@@ -2,9 +2,8 @@
 # DOTF: .f file containing root of file list
 # TOP: name of top-level module
 
-srcs.mk: Makefile $(DOTF)
-	$(SCRIPTS)/listfiles -f make $(DOTF) -o srcs.mk
--include srcs.mk
+SRCS=$(shell $(SCRIPTS)/listfiles --relative -f flat $(DOTF))
+INCDIRS=$(shell $(SCRIPTS)/listfiles --relative -f flati $(DOTF))
 
 YOSYS=yosys
 YOSYS_SMTBMC=$(YOSYS)-smtbmc
