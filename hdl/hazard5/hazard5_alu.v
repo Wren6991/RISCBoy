@@ -51,7 +51,7 @@ wire [W_DATA-1:0] shift_dout;
 reg shift_right_nleft;
 reg shift_arith;
 
-hazard5_shift_rla #(
+hazard5_shift_barrel #(
 	.W_DATA(W_DATA),
 	.W_SHAMT(5)
 ) shifter (
@@ -62,21 +62,31 @@ hazard5_shift_rla #(
 	.dout(shift_dout)
 );
 
+// We can implement all bitwise ops with 1 LUT4/bit total, since each result bit
+// uses only two operand bits. Much better than feeding each into main mux tree.
+
+reg [W_DATA-1:0] bitwise;
+
+always @ (*) begin: bitwise_ops
+	case (aluop[1:0])
+		ALUOP_AND[1:0]: bitwise = op_a & op_b;
+		ALUOP_OR[1:0]:  bitwise = op_a | op_b;
+		default:        bitwise = op_a ^ op_b;
+	endcase
+end
 
 always @ (*) begin
 	shift_right_nleft = 1'b0;
 	shift_arith = 1'b0;
 	case (aluop)
-		/*ALUOP_ADD*/default: begin result = sum; end
+		ALUOP_ADD: begin result = sum; end
 		ALUOP_SUB: begin result = sum; end
 		ALUOP_LT:  begin result = {{W_DATA-1{1'b0}}, lt}; end
 		ALUOP_LTU: begin result = {{W_DATA-1{1'b0}}, lt}; end
-		ALUOP_AND: begin result = op_a & op_b; end
-		ALUOP_OR:  begin result = op_a | op_b; end
-		ALUOP_XOR: begin result = op_xor; end
 		ALUOP_SRL: begin shift_right_nleft = 1'b1; result = shift_dout; end
 		ALUOP_SRA: begin shift_right_nleft = 1'b1; shift_arith = 1'b1; result = shift_dout; end
 		ALUOP_SLL: begin result = shift_dout; end
+		default:   begin result = bitwise; end
 	endcase
 end
 
