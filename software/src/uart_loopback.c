@@ -50,7 +50,7 @@ int main()
 	while (*UART_CSR & UART_CSR_BUSY_MASK)
 		if (!uart_rx_empty())
 			*p++ = uart_get();
-	while (!uart_rx_empty)
+	while (!uart_rx_empty())
 		*p++ = uart_get();
 
 	bool failed = false;
