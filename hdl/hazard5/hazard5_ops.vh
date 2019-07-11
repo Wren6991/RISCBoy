@@ -41,3 +41,22 @@ localparam BCOND_NEVER  = 2'h0;
 localparam BCOND_ALWAYS = 2'h1;
 localparam BCOND_ZERO   = 2'h2;
 localparam BCOND_NZERO  = 2'h3;
+
+// CSR access types
+
+localparam CSR_WTYPE_NONE = 2'h0;
+localparam CSR_WTYPE_W    = 2'h1;
+localparam CSR_WTYPE_S    = 2'h2;
+localparam CSR_WTYPE_C    = 2'h3;
+
+// Operations for M extension
+
+localparam W_M_OP      = 3;
+localparam M_OP_MUL    = 3'h0;
+localparam M_OP_MULH   = 3'h1;
+localparam M_OP_MULHSU = 3'h2;
+localparam M_OP_MULHU  = 3'h3;
+localparam M_OP_DIV    = 3'h4;
+localparam M_OP_DIVU   = 3'h5;
+localparam M_OP_MOD    = 3'h6;
+localparam M_OP_MODU   = 3'h7;
