@@ -1,4 +1,4 @@
-TEST?=$(basename $(PWD))
+TEST?=$(notdir $(PWD))
 
 DOTF=../tb.f
 SRCS=init.S $(TEST).c
