@@ -16,10 +16,13 @@
  *********************************************************************/
 
 module hazard5_cpu #(
-	parameter RESET_VECTOR = 32'h0000_0000,
-	localparam W_ADDR = 32,
-	localparam W_DATA = 32,
-	parameter EXTENSION_C = 1    // Support for compressed instructions. Don't recommend turning this off for now (TODO)
+	parameter RESET_VECTOR    = 32'h0,// Address of first instruction executed
+	parameter W_ADDR          = 32,   // Do not modify
+	parameter W_DATA          = 32,   // Do not modify
+	parameter EXTENSION_C     = 1,    // Support for compressed (variable-width) instructions
+	parameter CSR_M_MANDATORY = 0,    // Bare minimum e.g. misa. Spec says must = 1, but I won't tell anyone
+	parameter CSR_M_TRAP      = 0,    // Include M-mode trap-handling CSRs
+	parameter CSR_COUNTER     = 0     // Include performance counters and relevant M-mode CSRs
 ) (
 	// Global signals
 	input wire               clk,
@@ -233,13 +236,18 @@ wire                 dx_result_is_linkaddr;
 wire [W_ADDR-1:0]    dx_pc;
 wire [W_ADDR-1:0]    dx_mispredict_addr;
 wire                 dx_except_invalid_instr;
+wire                 dx_csr_ren;
+wire                 dx_csr_wen;
+wire [1:0]           dx_csr_wtype;
+wire                 dx_csr_w_imm;
 
 hazard5_decode #(
-	.EXTENSION_C(EXTENSION_C),
-	.W_ADDR(W_ADDR),
-	.W_DATA(W_DATA),
-	.RESET_VECTOR(RESET_VECTOR),
-	.W_REGADDR(W_REGADDR)
+	.EXTENSION_C  (EXTENSION_C),
+	.HAVE_CSR     (CSR_M_MANDATORY || CSR_M_TRAP || CSR_COUNTER),
+	.W_ADDR       (W_ADDR),
+	.W_DATA       (W_DATA),
+	.RESET_VECTOR (RESET_VECTOR),
+	.W_REGADDR    (W_REGADDR)
 ) inst_hazard5_decode (
 	.clk                     (clk),
 	.rst_n                   (rst_n),
@@ -269,6 +277,10 @@ hazard5_decode #(
 	.dx_alusrc_b             (dx_alusrc_b),
 	.dx_aluop                (dx_aluop),
 	.dx_memop                (dx_memop),
+	.dx_csr_ren              (dx_csr_ren),
+	.dx_csr_wen              (dx_csr_wen),
+	.dx_csr_wtype            (dx_csr_wtype),
+	.dx_csr_w_imm            (dx_csr_w_imm),
 	.dx_branchcond           (dx_branchcond),
 	.dx_jump_target          (dx_jump_target),
 	.dx_jump_is_regoffs      (dx_jump_is_regoffs),
@@ -389,6 +401,35 @@ always @ (*) begin
 		x_op_b = x_rs2_bypass;
 end
 
+// CSRs
+wire x_csr_wen = dx_csr_wen && !x_stall;
+wire x_csr_ren = dx_csr_ren && !x_stall;
+
+wire [W_DATA-1:0] x_csr_wdata = dx_csr_w_imm ?
+	{{W_DATA-5{1'b0}}, dx_rs1} : x_rs1_bypass;
+
+wire [W_DATA-1:0] x_csr_rdata;
+wire              x_csr_error;
+
+hazard5_csr #(
+	.W_DATA          (W_DATA),
+	.CSR_M_MANDATORY (CSR_M_MANDATORY),
+	.CSR_M_TRAP      (CSR_M_TRAP),
+	.CSR_COUNTER     (CSR_COUNTER),
+	.EXTENSION_C     (EXTENSION_C),
+	.EXTENSION_M     (0)
+) inst_hazard5_csr (
+	.clk   (clk),
+	.rst_n (rst_n),
+	.addr  (dx_imm[11:0]),
+	.wdata (x_csr_wdata),
+	.wen   (x_csr_wen),
+	.wtype (dx_csr_wtype),
+	.rdata (x_csr_rdata),
+	.ren   (x_csr_ren),
+	.error (x_csr_error)
+);
+
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -419,7 +460,7 @@ always @ (posedge clk or negedge rst_n) begin
 					BCOND_NZERO: xm_jump <= x_alu_cmp ^ dx_imm[31];
 					default xm_jump <= 1'b0;
 				endcase
-				xm_except_invalid_instr <= dx_except_invalid_instr;
+				xm_except_invalid_instr <= dx_except_invalid_instr || x_csr_error;
 				xm_except_unaligned <= x_memop_vld && x_unaligned_addr;
 			end
 		end
@@ -429,7 +470,10 @@ end
 // No reset on datapath flops
 always @ (posedge clk)
 	if (!m_stall) begin
-		xm_result <= dx_result_is_linkaddr ? dx_mispredict_addr : x_alu_result;
+		xm_result <=
+			dx_result_is_linkaddr ? dx_mispredict_addr :
+			dx_csr_ren            ? x_csr_rdata :
+			                        x_alu_result;
 		xm_store_data <= x_rs2_bypass;
 		xm_jump_target <= x_jump_target;
 	end

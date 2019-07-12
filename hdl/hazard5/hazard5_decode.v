@@ -1,5 +1,23 @@
+/******************************************************************************
+ *     DO WHAT THE FUCK YOU WANT TO AND DON'T BLAME US PUBLIC LICENSE         *
+ *                        Version 3, April 2008                               *
+ *                                                                            *
+ *     Copyright (C) 2019 Luke Wren                                           *
+ *                                                                            *
+ *     Everyone is permitted to copy and distribute verbatim or modified      *
+ *     copies of this license document and accompanying software, and         *
+ *     changing either is allowed.                                            *
+ *                                                                            *
+ *       TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION      *
+ *                                                                            *
+ *     0. You just DO WHAT THE FUCK YOU WANT TO.                              *
+ *     1. We're NOT RESPONSIBLE WHEN IT DOESN'T FUCKING WORK.                 *
+ *                                                                            *
+ *****************************************************************************/
+
 module hazard5_decode #(
 	parameter EXTENSION_C = 1,   // compressed instruction extension
+	parameter HAVE_CSR = 0,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
 	parameter RESET_VECTOR = 32'h0,
@@ -34,6 +52,10 @@ module hazard5_decode #(
 	output reg  [W_ALUSRC-1:0]  dx_alusrc_b,
 	output reg  [W_ALUOP-1:0]   dx_aluop,
 	output reg  [W_MEMOP-1:0]   dx_memop,
+	output reg                  dx_csr_ren,
+	output reg                  dx_csr_wen,
+	output reg  [1:0]           dx_csr_wtype,
+	output reg                  dx_csr_w_imm,
 	output reg  [W_BCOND-1:0]   dx_branchcond,
 	output reg  [W_ADDR-1:0]    dx_jump_target,
 	output reg                  dx_jump_is_regoffs,
@@ -139,10 +161,10 @@ assign      d_invalid = d_invalid_16bit || d_invalid_32bit;
 hazard5_instr_decompress #(
 	.PASSTHROUGH(!EXTENSION_C)
 ) decomp (
-	.instr_in(fd_cir),
-	.instr_is_32bit(d_instr_is_32bit),
-	.instr_out(d_instr),
-	.invalid(d_invalid_16bit)
+	.instr_in       (fd_cir),
+	.instr_is_32bit (d_instr_is_32bit),
+	.instr_out      (d_instr),
+	.invalid        (d_invalid_16bit)
 );
 
 // ============================================================================
@@ -167,6 +189,10 @@ reg  [W_MEMOP-1:0]   d_memop;
 reg  [W_BCOND-1:0]   d_branchcond;
 reg                  d_jump_is_regoffs;
 reg                  d_result_is_linkaddr;
+reg                  d_csr_ren;
+reg                  d_csr_wen;
+reg  [1:0]           d_csr_wtype;
+reg                  d_csr_w_imm;
 
 localparam X0 = {W_REGADDR{1'b0}};
 
@@ -181,6 +207,10 @@ always @ (*) begin
 	d_alusrc_b = ALUSRCB_RS2;
 	d_aluop = ALUOP_ADD;
 	d_memop = MEMOP_NONE;
+	d_csr_ren = 1'b0;
+	d_csr_wen = 1'b0;
+	d_csr_wtype = CSR_WTYPE_W;
+	d_csr_w_imm = 1'b0;
 	d_branchcond = BCOND_NEVER;
 	d_jump_is_regoffs = 1'b0;
 	d_result_is_linkaddr = 1'b0;
@@ -226,6 +256,12 @@ always @ (*) begin
 	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = X0; end
 	RV_FENCE:   begin d_rd = X0; end  // NOP
 	RV_FENCE_I: begin d_rd = X0; end  // NOP // TODO: this should be jump to PC + 4. Evaluate the cost of doing this in decode (or find a way of doing it in X).
+	RV_CSRRW:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rd; d_csr_ren = 1'b1  ; d_csr_wtype = CSR_WTYPE_W; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRS:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_S; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRC:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_C; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRWI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rd; d_csr_ren = 1'b1  ; d_csr_wtype = CSR_WTYPE_W; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRSI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_S; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRCI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_C; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
 	RV_SYSTEM:  begin
 		//synthesis translate_off
 		if (!d_stall) $display("Syscall @ PC %h: %h", pc, d_instr);
@@ -243,6 +279,10 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_RS2;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
+		dx_csr_ren <= 1'b0;
+		dx_csr_wen <= 1'b0;
+		dx_csr_wtype <= CSR_WTYPE_W;
+		dx_csr_w_imm <= 1'b0;
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 		dx_result_is_linkaddr <= 1'b0;
@@ -254,6 +294,9 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_rd         <= d_invalid ? {W_REGADDR{1'b0}} : d_rd;
 		dx_memop      <= d_invalid ? MEMOP_NONE        : d_memop;
 		dx_branchcond <= d_invalid ? BCOND_NEVER       : d_branchcond;
+		dx_csr_ren    <= d_invalid ? 1'b0              : d_csr_ren;
+		dx_csr_wen    <= d_invalid ? 1'b0              : d_csr_wen;
+
 		// These can't
 		dx_alusrc_a <= d_alusrc_a;
 		dx_alusrc_b <= d_alusrc_b;
@@ -261,6 +304,8 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_jump_is_regoffs <= d_jump_is_regoffs;
 		dx_result_is_linkaddr <= d_result_is_linkaddr;
 		dx_except_invalid_instr <= d_invalid;
+		dx_csr_wtype <= d_csr_wtype;
+		dx_csr_w_imm <= d_csr_w_imm;
 
 		// Bubble insertion
 		if (d_stall || flush_d_x) begin
@@ -268,6 +313,8 @@ always @ (posedge clk or negedge rst_n) begin
 			dx_memop <= MEMOP_NONE;
 			dx_rd <= 5'h0;
 			dx_except_invalid_instr <= 1'b0;
+			dx_csr_ren <= 1'b0;
+			dx_csr_wen <= 1'b0;
 			// Also need to clear rs1, rs2, due to a nasty sequence of events:
 			// Suppose we have a load, followed by a dependent branch, which is predicted taken
 			// - branch will stall in D until AHB master becomes free

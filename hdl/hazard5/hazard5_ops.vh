@@ -44,10 +44,9 @@ localparam BCOND_NZERO  = 2'h3;
 
 // CSR access types
 
-localparam CSR_WTYPE_NONE = 2'h0;
-localparam CSR_WTYPE_W    = 2'h1;
-localparam CSR_WTYPE_S    = 2'h2;
-localparam CSR_WTYPE_C    = 2'h3;
+localparam CSR_WTYPE_W    = 2'h0;
+localparam CSR_WTYPE_S    = 2'h1;
+localparam CSR_WTYPE_C    = 2'h2;
 
 // Operations for M extension
 
