@@ -54,15 +54,14 @@ module hazard5_muldiv_seq #(
 `include "hazard5_ops.vh"
 
 //synthesis translate_off
-generate if (UNROLL & (UNROLL - 1))
-	$fatal("%m: UNROLL must be a power of 2");
+generate if (UNROLL & (UNROLL - 1) || ~|UNROLL)
+	initial $fatal("%m: UNROLL must be a positive power of 2");
 endgenerate
 //synthesis translate_on
 
 // ----------------------------------------------------------------------------
 // Operation decode, operand sign adjustment
 
-reg [W_M_OP-1:0] op_r;
 
 wire op_a_signed =
 	op == M_OP_MULH ||
@@ -76,18 +75,21 @@ wire op_b_signed =
 	op == M_OP_MOD;
 
 wire op_a_neg = op_a_signed && op_a[XLEN-1];
-wire op_b_neg = op_b_signed && op_a[XLEN-1];
+wire op_b_neg = op_b_signed && op_b[XLEN-1];
 wire [XLEN-1:0] op_a_abs = op_a_neg ? -op_a : op_a;
 wire [XLEN-1:0] op_b_abs = op_b_neg ? -op_b : op_b;
 
+
+// ----------------------------------------------------------------------------
+// Arithmetic circuit
+
+reg [W_M_OP-1:0] op_r;
 reg [2*XLEN-1:0] accum;
 reg [XLEN-1:0]   op_b_r;
 reg              op_a_neg_r;
 reg              op_b_neg_r;
 
-// ----------------------------------------------------------------------------
-// Arithmetic circuit
-
+// Combinatorials:
 reg [2*XLEN-1:0] accum_next;
 reg [2*XLEN-1:0] addend;
 reg [2*XLEN-1:0] shift_tmp;
@@ -147,13 +149,13 @@ assign result_vld = ~|ctr;
 // For division:
 // We seek d, q to satisfy n = p * q + d, where n and p are given,
 // and |d| < p. One way to do this is if
-// sgn(d) = sgn(p)
-// sgn(q) = sgn(p) ^ sgn(n)
+// sgn(d) = sgn(n)
+// sgn(q) = sgn(n) ^ sgn(p)
 // This has additional nice properties like
 // -(n / p) == (-n) / p == n / (-p)
 
-wire [XLEN-1:0] result_mod = op_b_neg_r ? -accum[XLEN +: XLEN] : accum[XLEN +: XLEN];
-wire [XLEN-1:0] result_div = op_b_neg_r ^ op_a_neg_r ? -accum[XLEN-1:0] : accum[XLEN-1:0];
+wire [XLEN-1:0] result_mod = op_a_neg_r ? -accum[XLEN +: XLEN] : accum[XLEN +: XLEN];
+wire [XLEN-1:0] result_div = op_a_neg_r ^ op_b_neg_r ? -accum[XLEN-1:0] : accum[XLEN-1:0];
 
 // For multiplication, we have calculated the 2*XLEN result of |a| * |b|.
 // Just negate if signs of a and b differ.
