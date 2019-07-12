@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="33" />
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider33" type="divider">
+      <obj_property name="label">I/O</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op[2:0]</obj_property>
+      <obj_property name="ObjectShortName">op[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_vld</obj_property>
+      <obj_property name="ObjectShortName">op_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_rdy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_rdy</obj_property>
+      <obj_property name="ObjectShortName">op_rdy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_force" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_force</obj_property>
+      <obj_property name="ObjectShortName">op_force</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_a" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op_a[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op_a[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_b" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op_b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op_b[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/result_h" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">result_h[31:0]</obj_property>
+      <obj_property name="ObjectShortName">result_h[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/result_l" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">result_l[31:0]</obj_property>
+      <obj_property name="ObjectShortName">result_l[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/result_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">result_vld</obj_property>
+      <obj_property name="ObjectShortName">result_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider12" type="divider">
+      <obj_property name="label">Internals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/ctr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ctr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">ctr[5:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_a_signed" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_a_signed</obj_property>
+      <obj_property name="ObjectShortName">op_a_signed</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_b_signed" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_b_signed</obj_property>
+      <obj_property name="ObjectShortName">op_b_signed</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_a_neg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_a_neg</obj_property>
+      <obj_property name="ObjectShortName">op_a_neg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_b_neg" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_b_neg</obj_property>
+      <obj_property name="ObjectShortName">op_b_neg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_a_abs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op_a_abs[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op_a_abs[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_b_abs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op_b_abs[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op_b_abs[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/is_div" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">is_div</obj_property>
+      <obj_property name="ObjectShortName">is_div</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/result_mod" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">result_mod[31:0]</obj_property>
+      <obj_property name="ObjectShortName">result_mod[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/result_div" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">result_div[31:0]</obj_property>
+      <obj_property name="ObjectShortName">result_div[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/result_mul_full" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">result_mul_full[63:0]</obj_property>
+      <obj_property name="ObjectShortName">result_mul_full[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op_r[2:0]</obj_property>
+      <obj_property name="ObjectShortName">op_r[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/accum" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">accum[63:0]</obj_property>
+      <obj_property name="ObjectShortName">accum[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_b_r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">op_b_r[31:0]</obj_property>
+      <obj_property name="ObjectShortName">op_b_r[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_a_neg_r" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_a_neg_r</obj_property>
+      <obj_property name="ObjectShortName">op_a_neg_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/op_b_neg_r" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">op_b_neg_r</obj_property>
+      <obj_property name="ObjectShortName">op_b_neg_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/accum_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">accum_next[63:0]</obj_property>
+      <obj_property name="ObjectShortName">accum_next[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/addend" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addend[63:0]</obj_property>
+      <obj_property name="ObjectShortName">addend[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/shift_tmp" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shift_tmp[63:0]</obj_property>
+      <obj_property name="ObjectShortName">shift_tmp[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_hazard5_muldiv_seq/addsub_tmp" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addsub_tmp[63:0]</obj_property>
+      <obj_property name="ObjectShortName">addsub_tmp[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>

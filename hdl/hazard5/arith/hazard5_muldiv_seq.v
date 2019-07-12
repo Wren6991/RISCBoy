@@ -37,24 +37,30 @@ module hazard5_muldiv_seq #(
 	parameter UNROLL = 1,
 	parameter W_CTR = $clog2(XLEN + 1) // do not modify
 ) (
+	input  wire              clk,
+	input  wire              rst_n,
 	input  wire [2:0]        op,
 	input  wire              op_vld,
-	output reg               op_rdy,
+	output wire              op_rdy,
 	input  wire              op_force,
 	input  wire [XLEN-1:0]   op_a,
-	input wire  [XLEN-1:0]   op_b,
+	input  wire [XLEN-1:0]   op_b,
 
-	output wire [XLEN-1:0]   result_h,
-	output wire [XLEN-1:0]   result_l,
-	output reg  [XLEN-1:0]   result_vld
+	output wire [XLEN-1:0]   result_h, // mulh* or mod*
+	output wire [XLEN-1:0]   result_l, // mul   or div*
+	output wire              result_vld
 );
 
 `include "hazard5_ops.vh"
 
 //synthesis translate_off
-initial if (UNROLL & (UNROLL - 1))
-	$error("%m: UNROLL must be a power of 2");
+generate if (UNROLL & (UNROLL - 1))
+	$fatal("%m: UNROLL must be a power of 2");
+endgenerate
 //synthesis translate_on
+
+// ----------------------------------------------------------------------------
+// Operation decode, operand sign adjustment
 
 reg [W_M_OP-1:0] op_r;
 
@@ -71,36 +77,42 @@ wire op_b_signed =
 
 wire op_a_neg = op_a_signed && op_a[XLEN-1];
 wire op_b_neg = op_b_signed && op_a[XLEN-1];
-wire op_a_abs = op_a_neg ? -op_a : op_a;
-wire op_b_abs = op_b_neg ? -op_b : op_b;
+wire [XLEN-1:0] op_a_abs = op_a_neg ? -op_a : op_a;
+wire [XLEN-1:0] op_b_abs = op_b_neg ? -op_b : op_b;
 
 reg [2*XLEN-1:0] accum;
-reg [XLEN-1:0]   op_b_r; // Divisor or multiplier
+reg [XLEN-1:0]   op_b_r;
 reg              op_a_neg_r;
 reg              op_b_neg_r;
 
-// Arithmetic circuits
+// ----------------------------------------------------------------------------
+// Arithmetic circuit
 
 reg [2*XLEN-1:0] accum_next;
-reg [XLEN-1:0]   addend;
-reg [XLEN  :0]   addsub_tmp;
-reg              add_inhibit;
-reg [XLEN-1:0]   alu_result;
+reg [2*XLEN-1:0] addend;
+reg [2*XLEN-1:0] shift_tmp;
+reg [2*XLEN-1:0] addsub_tmp;
 
 wire is_div = op_r[2];
 
 always @ (*) begin: alu
 	integer i;
 	accum_next = accum;
-	for (i = 0; i < UNROLL; ++i) begin
-		addend = is_div ? -op_b_r : op_b_r;
-		addsub_tmp = {1'b0, accum[XLEN +: XLEN]} + {1'b0, addend};
-		add_inhibit = is_div ? addsub_tmp[XLEN] : !op_b_r[XLEN-1]
-        alu_result = add_inhibit ? accum_next[XLEN +: XLEN] : addsub_tmp[XLEN-1:0];
-        accum_next = {alu_result[XLEN-2:1], accum_next[XLEN-1:0], alu_result[XLEN-1]};
+	addend = {2*XLEN{1'b0}};
+	addsub_tmp = {2*XLEN{1'b0}};
+	for (i = 0; i < UNROLL; i = i + 1) begin
+		addend = {1'b0, op_b_r, {XLEN-1{1'b0}}};
+		addend = is_div ? -addend : addend;
+		shift_tmp = is_div ? accum_next : accum_next >> 1;
+		addsub_tmp = shift_tmp + addend;
+		accum_next = (is_div ? !addsub_tmp[2 * XLEN - 1] : accum_next[0]) ?
+			addsub_tmp : shift_tmp;
+		if (is_div)
+			accum_next = {accum_next[2*XLEN-2:0], !addsub_tmp[2 * XLEN - 1]};
 	end
 end
 
+// ----------------------------------------------------------------------------
 // Main state machine
 
 reg [W_CTR-1:0] ctr;
@@ -125,5 +137,31 @@ always @ (posedge clk or negedge rst_n) begin
 		accum <= accum_next;
 	end
 end
+
+assign op_rdy = ~|ctr;
+assign result_vld = ~|ctr;
+
+// ----------------------------------------------------------------------------
+// Result sign adjustment
+
+// For division:
+// We seek d, q to satisfy n = p * q + d, where n and p are given,
+// and |d| < p. One way to do this is if
+// sgn(d) = sgn(p)
+// sgn(q) = sgn(p) ^ sgn(n)
+// This has additional nice properties like
+// -(n / p) == (-n) / p == n / (-p)
+
+wire [XLEN-1:0] result_mod = op_b_neg_r ? -accum[XLEN +: XLEN] : accum[XLEN +: XLEN];
+wire [XLEN-1:0] result_div = op_b_neg_r ^ op_a_neg_r ? -accum[XLEN-1:0] : accum[XLEN-1:0];
+
+// For multiplication, we have calculated the 2*XLEN result of |a| * |b|.
+// Just negate if signs of a and b differ.
+// This does produce a rather long carry chain...
+
+wire [2*XLEN-1:0] result_mul_full = op_a_neg_r ^ op_b_neg_r ? -accum : accum;
+
+assign result_h = is_div ? result_mod : result_mul_full[XLEN +: XLEN];
+assign result_l = is_div ? result_div : result_mul_full[0    +: XLEN];
 
 endmodule
