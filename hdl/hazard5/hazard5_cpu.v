@@ -20,8 +20,8 @@ module hazard5_cpu #(
 	parameter W_ADDR          = 32,   // Do not modify
 	parameter W_DATA          = 32,   // Do not modify
 	parameter EXTENSION_C     = 1,    // Support for compressed (variable-width) instructions
-	parameter CSR_M_MANDATORY = 0,    // Bare minimum e.g. misa. Spec says must = 1, but I won't tell anyone
-	parameter CSR_M_TRAP      = 0,    // Include M-mode trap-handling CSRs
+	parameter CSR_M_MANDATORY = 1,    // Bare minimum e.g. misa. Spec says must = 1, but I won't tell anyone
+	parameter CSR_M_TRAP      = 1,    // Include M-mode trap-handling CSRs
 	parameter CSR_COUNTER     = 0     // Include performance counters and relevant M-mode CSRs
 ) (
 	// Global signals
@@ -412,7 +412,7 @@ wire [W_DATA-1:0] x_csr_rdata;
 wire              x_csr_error;
 
 hazard5_csr #(
-	.W_DATA          (W_DATA),
+	.XLEN            (W_DATA),
 	.CSR_M_MANDATORY (CSR_M_MANDATORY),
 	.CSR_M_TRAP      (CSR_M_TRAP),
 	.CSR_COUNTER     (CSR_COUNTER),

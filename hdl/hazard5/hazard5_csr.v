@@ -20,65 +20,189 @@
 // Write port is registered, writes are visible on next cycle.
 
 module hazard5_csr #(
-	parameter W_DATA          = 32,
-	parameter CSR_M_MANDATORY = 0, // Include mandatory M-mode CSRs
-	parameter CSR_M_TRAP      = 0, // Include M-mode trap-handling CSRs
-	parameter CSR_COUNTER     = 0, // Include counter/timer CSRs
+	parameter XLEN            = 32,// Must be 32
+	parameter CSR_M_MANDATORY = 1, // Include mandatory M-mode CSRs e.g. misa, marchid
+	parameter CSR_M_TRAP      = 1, // Include M-mode trap setup/handling CSRs
+	parameter CSR_COUNTER     = 1, // Include counter/timer CSRs
 	parameter EXTENSION_C     = 0, // For misa
-	parameter EXTENSION_M     = 0  // For misa
+	parameter EXTENSION_M     = 0, // For misa
+	parameter W_COUNTER       = 64 // This *should* be 64, but can be reduced to save gates.
+	                               // The full 64 bits is writeable, so high-word increment can
+	                               // be implemented in software, and a narrower hw counter used
 ) (
-	input  wire              clk,
-	input  wire              rst_n,
+	input  wire            clk,
+	input  wire            rst_n,
 
-	input  wire [11:0]       addr,
-	input  wire [W_DATA-1:0] wdata,
-	input  wire              wen,
-	input  wire [1:0]        wtype,
-	output reg  [W_DATA-1:0] rdata,
-	input  wire              ren,
+	input  wire [11:0]     addr,
+	input  wire [XLEN-1:0] wdata,
+	input  wire            wen,
+	input  wire [1:0]      wtype,
+	output reg  [XLEN-1:0] rdata,
+	input  wire            ren,
 
-	output reg               error
+	output reg             error,
+
+	// CSR-specific signalling
+	input wire             instr_ret
 );
 
 `include "hazard5_ops.vh"
+
+localparam X0 = {XLEN{1'b0}};
 
 // ----------------------------------------------------------------------------
 // List of M-mode CSRs (we implement a configurable subset of M-mode).
 // The CSR block is the only piece of hardware which needs to know this mapping.
 
 // Machine Information Registers (RO)
-localparam MVENDORID  = 12'hf11; // Vendor ID.
-localparam MARCHID    = 12'hf12; // Architecture ID.
-localparam MIMPID     = 12'hf13; // Implementation ID.
-localparam MHARTID    = 12'hf14; // Hardware thread ID.
+localparam MVENDORID      = 12'hf11; // Vendor ID.
+localparam MARCHID        = 12'hf12; // Architecture ID.
+localparam MIMPID         = 12'hf13; // Implementation ID.
+localparam MHARTID        = 12'hf14; // Hardware thread ID.
 
 // Machine Trap Setup (RW)
-localparam MSTATUS    = 12'h300; // Machine status register.
-localparam MISA       = 12'h301; // ISA and extensions
-localparam MEDELEG    = 12'h302; // Machine exception delegation register.
-localparam MIDELEG    = 12'h303; // Machine interrupt delegation register.
-localparam MIE        = 12'h304; // Machine interrupt-enable register.
-localparam MTVEC      = 12'h305; // Machine trap-handler base address.
-localparam MCOUNTEREN = 12'h306; // Machine counter enable.
+localparam MSTATUS        = 12'h300; // Machine status register.
+localparam MISA           = 12'h301; // ISA and extensions
+localparam MEDELEG        = 12'h302; // Machine exception delegation register.
+localparam MIDELEG        = 12'h303; // Machine interrupt delegation register.
+localparam MIE            = 12'h304; // Machine interrupt-enable register.
+localparam MTVEC          = 12'h305; // Machine trap-handler base address.
+localparam MCOUNTEREN     = 12'h306; // Machine counter enable.
 
 // Machine Trap Handling (RW)
-localparam MSCRATCH   = 12'h340; // Scratch register for machine trap handlers.
-localparam MEPC       = 12'h341; // Machine exception program counter.
-localparam MCAUSE     = 12'h342; // Machine trap cause.
-localparam MTVAL      = 12'h343; // Machine bad address or instruction.
-localparam MIP        = 12'h344; // Machine interrupt pending.
+localparam MSCRATCH       = 12'h340; // Scratch register for machine trap handlers.
+localparam MEPC           = 12'h341; // Machine exception program counter.
+localparam MCAUSE         = 12'h342; // Machine trap cause.
+localparam MTVAL          = 12'h343; // Machine bad address or instruction.
+localparam MIP            = 12'h344; // Machine interrupt pending.
 
 // Machine Memory Protection (RW)
-localparam PMPCFG0    = 12'h3a0; // Physical memory protection configuration.
-localparam PMPCFG1    = 12'h3a1; // Physical memory protection configuration, RV32 only.
-localparam PMPCFG2    = 12'h3a2; // Physical memory protection configuration.
-localparam PMPCFG3    = 12'h3a3; // Physical memory protection configuration, RV32 only.
-localparam PMPADDR0   = 12'h3b0; // Physical memory protection address register.
-localparam PMPADDR1   = 12'h3b1; // Physical memory protection address register.
+localparam PMPCFG0        = 12'h3a0; // Physical memory protection configuration.
+localparam PMPCFG1        = 12'h3a1; // Physical memory protection configuration, RV32 only.
+localparam PMPCFG2        = 12'h3a2; // Physical memory protection configuration.
+localparam PMPCFG3        = 12'h3a3; // Physical memory protection configuration, RV32 only.
+localparam PMPADDR0       = 12'h3b0; // Physical memory protection address register.
+localparam PMPADDR1       = 12'h3b1; // Physical memory protection address register.
+
+// Performance counters (RW)
+localparam MCYCLE         = 12'hb00; // Raw cycles since start of day
+localparam MTIME          = 12'hb01; // "Wall clock", can be aliased to MCYCLE
+localparam MINSTRET       = 12'hb02; // Instruction retire count since start of day
+localparam MHPMCOUNTER3   = 12'hb03; // WARL (we tie to 0)
+localparam MHPMCOUNTER4   = 12'hb04; // WARL (we tie to 0)
+localparam MHPMCOUNTER5   = 12'hb05; // WARL (we tie to 0)
+localparam MHPMCOUNTER6   = 12'hb06; // WARL (we tie to 0)
+localparam MHPMCOUNTER7   = 12'hb07; // WARL (we tie to 0)
+localparam MHPMCOUNTER8   = 12'hb08; // WARL (we tie to 0)
+localparam MHPMCOUNTER9   = 12'hb09; // WARL (we tie to 0)
+localparam MHPMCOUNTER10  = 12'hb0a; // WARL (we tie to 0)
+localparam MHPMCOUNTER11  = 12'hb0b; // WARL (we tie to 0)
+localparam MHPMCOUNTER12  = 12'hb0c; // WARL (we tie to 0)
+localparam MHPMCOUNTER13  = 12'hb0d; // WARL (we tie to 0)
+localparam MHPMCOUNTER14  = 12'hb0e; // WARL (we tie to 0)
+localparam MHPMCOUNTER15  = 12'hb0f; // WARL (we tie to 0)
+localparam MHPMCOUNTER16  = 12'hb10; // WARL (we tie to 0)
+localparam MHPMCOUNTER17  = 12'hb11; // WARL (we tie to 0)
+localparam MHPMCOUNTER18  = 12'hb12; // WARL (we tie to 0)
+localparam MHPMCOUNTER19  = 12'hb13; // WARL (we tie to 0)
+localparam MHPMCOUNTER20  = 12'hb14; // WARL (we tie to 0)
+localparam MHPMCOUNTER21  = 12'hb15; // WARL (we tie to 0)
+localparam MHPMCOUNTER22  = 12'hb16; // WARL (we tie to 0)
+localparam MHPMCOUNTER23  = 12'hb17; // WARL (we tie to 0)
+localparam MHPMCOUNTER24  = 12'hb18; // WARL (we tie to 0)
+localparam MHPMCOUNTER25  = 12'hb19; // WARL (we tie to 0)
+localparam MHPMCOUNTER26  = 12'hb1a; // WARL (we tie to 0)
+localparam MHPMCOUNTER27  = 12'hb1b; // WARL (we tie to 0)
+localparam MHPMCOUNTER28  = 12'hb1c; // WARL (we tie to 0)
+localparam MHPMCOUNTER29  = 12'hb1d; // WARL (we tie to 0)
+localparam MHPMCOUNTER30  = 12'hb1e; // WARL (we tie to 0)
+localparam MHPMCOUNTER31  = 12'hb1f; // WARL (we tie to 0)
+
+localparam MCYCLEH        = 12'hb80; // High halves of each counter
+localparam MTIMEH         = 12'hb81;
+localparam MINSTRETH      = 12'hb82;
+localparam MHPMCOUNTER3H  = 12'hb83;
+localparam MHPMCOUNTER4H  = 12'hb84;
+localparam MHPMCOUNTER5H  = 12'hb85;
+localparam MHPMCOUNTER6H  = 12'hb86;
+localparam MHPMCOUNTER7H  = 12'hb87;
+localparam MHPMCOUNTER8H  = 12'hb88;
+localparam MHPMCOUNTER9H  = 12'hb89;
+localparam MHPMCOUNTER10H = 12'hb8a;
+localparam MHPMCOUNTER11H = 12'hb8b;
+localparam MHPMCOUNTER12H = 12'hb8c;
+localparam MHPMCOUNTER13H = 12'hb8d;
+localparam MHPMCOUNTER14H = 12'hb8e;
+localparam MHPMCOUNTER15H = 12'hb8f;
+localparam MHPMCOUNTER16H = 12'hb90;
+localparam MHPMCOUNTER17H = 12'hb91;
+localparam MHPMCOUNTER18H = 12'hb92;
+localparam MHPMCOUNTER19H = 12'hb93;
+localparam MHPMCOUNTER20H = 12'hb94;
+localparam MHPMCOUNTER21H = 12'hb95;
+localparam MHPMCOUNTER22H = 12'hb96;
+localparam MHPMCOUNTER23H = 12'hb97;
+localparam MHPMCOUNTER24H = 12'hb98;
+localparam MHPMCOUNTER25H = 12'hb99;
+localparam MHPMCOUNTER26H = 12'hb9a;
+localparam MHPMCOUNTER27H = 12'hb9b;
+localparam MHPMCOUNTER28H = 12'hb9c;
+localparam MHPMCOUNTER29H = 12'hb9d;
+localparam MHPMCOUNTER30H = 12'hb9e;
+localparam MHPMCOUNTER31H = 12'hb9f;
+
+localparam MCOUNTINHIBIT  = 12'h302; // WARL (we must tie 0 as CYCLE and TIME are aliased)
+localparam MHPMEVENT3     = 12'h323; // WARL (we tie to 0)
+localparam MHPMEVENT4     = 12'h324; // WARL (we tie to 0)
+localparam MHPMEVENT5     = 12'h325; // WARL (we tie to 0)
+localparam MHPMEVENT6     = 12'h326; // WARL (we tie to 0)
+localparam MHPMEVENT7     = 12'h327; // WARL (we tie to 0)
+localparam MHPMEVENT8     = 12'h328; // WARL (we tie to 0)
+localparam MHPMEVENT9     = 12'h329; // WARL (we tie to 0)
+localparam MHPMEVENT10    = 12'h32a; // WARL (we tie to 0)
+localparam MHPMEVENT11    = 12'h32b; // WARL (we tie to 0)
+localparam MHPMEVENT12    = 12'h32c; // WARL (we tie to 0)
+localparam MHPMEVENT13    = 12'h32d; // WARL (we tie to 0)
+localparam MHPMEVENT14    = 12'h32e; // WARL (we tie to 0)
+localparam MHPMEVENT15    = 12'h32f; // WARL (we tie to 0)
+localparam MHPMEVENT16    = 12'h330; // WARL (we tie to 0)
+localparam MHPMEVENT17    = 12'h331; // WARL (we tie to 0)
+localparam MHPMEVENT18    = 12'h332; // WARL (we tie to 0)
+localparam MHPMEVENT19    = 12'h333; // WARL (we tie to 0)
+localparam MHPMEVENT20    = 12'h334; // WARL (we tie to 0)
+localparam MHPMEVENT21    = 12'h335; // WARL (we tie to 0)
+localparam MHPMEVENT22    = 12'h336; // WARL (we tie to 0)
+localparam MHPMEVENT23    = 12'h337; // WARL (we tie to 0)
+localparam MHPMEVENT24    = 12'h338; // WARL (we tie to 0)
+localparam MHPMEVENT25    = 12'h339; // WARL (we tie to 0)
+localparam MHPMEVENT26    = 12'h33a; // WARL (we tie to 0)
+localparam MHPMEVENT27    = 12'h33b; // WARL (we tie to 0)
+localparam MHPMEVENT28    = 12'h33c; // WARL (we tie to 0)
+localparam MHPMEVENT29    = 12'h33d; // WARL (we tie to 0)
+localparam MHPMEVENT30    = 12'h33e; // WARL (we tie to 0)
+localparam MHPMEVENT31    = 12'h33f; // WARL (we tie to 0)
+
+// TODO
+// Decoding all these damn HPMs bloats the logic. If we don't decode them, we
+// can still trap the illegal opcode and emulate them. This is ugly and
+// contravenes the standard, but why on earth would they mandate 100 useless
+// registers with no defined operation?
+// If you really want them, set this to 1:
+localparam DECODE_HPM = 0;
 
 // ----------------------------------------------------------------------------
 // CSR state + update logic
 // Names are (reg)_(field)
+
+function [XLEN-1:0] update;
+	input [XLEN-1:0] prev;
+begin
+	update =
+		wtype == CSR_WTYPE_C ? prev & ~wdata :
+		wtype == CSR_WTYPE_S ? prev | wdata :
+		wdata;
+end
+endfunction
 
 reg mstatus_mpie;
 reg mstatus_mie;
@@ -87,9 +211,65 @@ reg mstatus_mie;
 // TODO
 
 always @ (posedge clk or negedge rst_n) begin
-	mstatus_mpie <= 1'b0;
-	mstatus_mie <= 1'b0;
+	if (!rst_n) begin
+		mstatus_mpie <= 1'b0;
+		mstatus_mie <= 1'b0;
+	end else if (CSR_M_TRAP) begin
+		// TODO
+	end
 end
+
+reg [XLEN-1:0] mscratch;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mscratch <= X0;
+	end else if (CSR_M_TRAP) begin
+		if (wen && addr == MSCRATCH)
+			mscratch <= update(mscratch);
+	end
+end
+
+// Counters
+// MCYCLE and MTIME are aliased (fine as long as MCOUNTINHIBIT[0] is tied low)
+reg [XLEN-1:0] mcycleh;
+reg [XLEN-1:0] mcycle;
+reg [XLEN-1:0] minstreth;
+reg [XLEN-1:0] minstret;
+
+wire [XLEN-1:0] ctr_update = update(
+	{addr[7], addr[1]} == 2'b00 ? mcycle   :
+	{addr[7], addr[1]} == 2'b01 ? minstret :
+	{addr[7], addr[1]} == 2'b10 ? mcycleh  :
+	                              minstreth
+);
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mcycleh <= X0;
+		mcycle <= X0;
+		minstreth <= X0;
+		minstret <= X0;
+	end else if (CSR_COUNTER) begin
+		// Hold the top (2 * XLEN - W_COUNTER) bits constant to save gates:
+		{mcycleh, mcycle} <= (({mcycleh, mcycle} + 1'b1) & ~({2*XLEN{1'b1}} << W_COUNTER))
+			| ({mcycleh, mcycle} & ({2*XLEN{1'b1}} << W_COUNTER));
+		if (instr_ret)
+			{minstreth, minstret} <= (({minstreth, minstret} + 1'b1) & ~({2*XLEN{1'b1}} << W_COUNTER))
+				| ({minstreth, minstret} & ({2*XLEN{1'b1}} << W_COUNTER));
+		if (wen) begin
+			if (addr == MCYCLEH)
+				mcycleh <= ctr_update;
+			if (addr == MCYCLE)
+				mcycle <= ctr_update;
+			if (addr == MINSTRETH)
+				minstreth <= ctr_update;
+			if (addr == MINSTRET)
+				minstret <= ctr_update;
+		end
+	end
+end
+
 // ----------------------------------------------------------------------------
 // Read port + detect addressing of unmapped CSRs
 
@@ -97,14 +277,18 @@ reg decode_match;
 
 always @ (*) begin
 	decode_match = 1'b0;
-	rdata = {W_DATA{1'b0}};
+	rdata = {XLEN{1'b0}};
 	case (addr)
+
+    // ------------------------------------------------------------------------
+	// Mandatory CSRs
+
 	MISA: if (CSR_M_MANDATORY) begin
 		// WARL, so it is legal to be tied constant
 		decode_match = 1'b1;
 		rdata = {
 			2'h1,              // MXL: 32-bit
-			{W_DATA-28{1'b0}}, // WLRL
+			{XLEN-28{1'b0}}, // WLRL
 
 			13'd0,             // Z...N, no
 			|EXTENSION_M,
@@ -116,24 +300,24 @@ always @ (*) begin
 		};
 	end
 	MVENDORID: if (CSR_M_MANDATORY) begin
-		decode_match = 1'b1;
+		decode_match = !wen; // MRO
 		// I don't have a JEDEC ID. It is legal to tie this to 0 if non-commercial.
-		rdata = {W_DATA{1'b0}};
+		rdata = {XLEN{1'b0}};
 	end
 	MARCHID: if (CSR_M_MANDATORY) begin
-		decode_match = 1'b1;
+		decode_match = !wen; // MRO
 		// I don't have a RV foundation ID. It is legal to tie this to 0.
-		rdata = {W_DATA{1'b0}};
+		rdata = {XLEN{1'b0}};
 	end
 	MIMPID: if (CSR_M_MANDATORY) begin
-		decode_match = 1'b1;
+		decode_match = !wen; // MRO
 		// TODO put git SHA or something here
-		rdata = {W_DATA{1'b0}};
+		rdata = {XLEN{1'b0}};
 	end
 	MHARTID: if (CSR_M_MANDATORY) begin
-		decode_match = 1'b1;
+		decode_match = !wen; // MRO
 		// There is only one hart, and spec says this must be numbered 0.
-		rdata = {W_DATA{1'b0}};
+		rdata = {XLEN{1'b0}};
 	end
 
 	MSTATUS: if (CSR_M_MANDATORY) begin
@@ -160,12 +344,144 @@ always @ (*) begin
 	MTVEC: if (CSR_M_MANDATORY) begin
 		decode_match = 1'b1;
 		rdata = {
-			{W_DATA-2{1'b0}}, // BASE is a WARL field, tie off for now
+			{XLEN-2{1'b0}}, // BASE is a WARL field, tie off for now
 			2'h1              // MODE = Vectored (Direct is useless)
 		};
 	end
 	// MEDELEG, MIDELEG should not exist for M-only implementations. Will raise
 	// illegal instruction exception if accessed.
+
+    // ------------------------------------------------------------------------
+	// Trap-handling CSRs
+
+	MSCRATCH: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		rdata = mscratch;
+	end
+
+    // ------------------------------------------------------------------------
+	// Counter CSRs
+
+	// Get the tied WARLs out the way first
+	MHPMCOUNTER3:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER4:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER5:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER6:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER7:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER8:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER9:   if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER10:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER11:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER12:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER13:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER14:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER15:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER16:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER17:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER18:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER19:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER20:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER21:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER22:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER23:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER24:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER25:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER26:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER27:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER28:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER29:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER30:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER31:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+
+	MHPMCOUNTER3H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER4H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER5H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER6H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER7H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER8H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER9H:  if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER10H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER11H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER12H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER13H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER14H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER15H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER16H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER17H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER18H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER19H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER20H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER21H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER22H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER23H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER24H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER25H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER26H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER27H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER28H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER29H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER30H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMCOUNTER31H: if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+
+	MHPMEVENT3:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT4:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT5:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT6:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT7:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT8:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT9:     if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT10:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT11:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT12:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT13:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT14:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT15:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT16:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT17:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT18:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT19:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT20:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT21:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT22:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT23:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT24:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT25:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT26:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT27:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT28:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT29:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT30:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+	MHPMEVENT31:    if (DECODE_HPM && CSR_COUNTER) begin decode_match = 1'b1; end
+
+	MCOUNTINHIBIT:  if (CSR_COUNTER) begin decode_match = 1'b1; end
+	// Phew...
+
+	MCYCLE: if (CSR_COUNTER) begin
+		decode_match = 1'b1;
+		rdata = mcycle;
+	end
+	MTIME: if (CSR_COUNTER) begin
+		decode_match = 1'b1;
+		rdata = mcycle; // Can be aliased as long as we tie MCOUNTINHIBIT[0] to 0
+	end
+	MINSTRET: if (CSR_COUNTER) begin
+		decode_match = 1'b1;
+		rdata = minstret;
+	end
+
+	MCYCLEH: if (CSR_COUNTER) begin
+		decode_match = 1'b1;
+		rdata = mcycleh;
+	end
+	MTIMEH: if (CSR_COUNTER) begin
+		decode_match = 1'b1;
+		rdata = mcycleh; // Can be aliased as long as we tie MCOUNTINHIBIT[0] to 0
+	end
+	MINSTRETH: if (CSR_COUNTER) begin
+		decode_match = 1'b1;
+		rdata = minstreth;
+	end
+
 	default: begin end
 	endcase
 end
