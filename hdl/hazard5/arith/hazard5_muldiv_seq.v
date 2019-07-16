@@ -23,8 +23,8 @@
 // When op_force is high, the vld/rdy handshake is ignored, and a new operation
 // starts immediately. Needed for processor flushing (e.g. mispredict, trap)
 //
-// The actual multiply/divide hardware is just unsigned. We handle signedness
-// at input/output.
+// The actual multiply/divide hardware is unsigned. We handle signedness at
+// input/output.
 
 module hazard5_muldiv_seq #(
 	parameter XLEN = 32,
@@ -81,6 +81,8 @@ wire op_b_signed =
 wire op_a_neg = op_a_signed && accum[XLEN-1];
 wire op_b_neg = op_b_signed && op_b_r[XLEN-1];
 
+wire is_div = op_r[2];
+
 // Controls for modifying sign of all/part of accumulator
 wire accum_neg_l;
 wire accum_inv_h;
@@ -94,9 +96,7 @@ reg [2*XLEN-1:0] accum_next;
 reg [2*XLEN-1:0] addend;
 reg [2*XLEN-1:0] shift_tmp;
 reg [2*XLEN-1:0] addsub_tmp;
-reg              neg_l_carry;
-
-wire is_div = op_r[2];
+reg              neg_l_borrow;
 
 always @ (*) begin: alu
 	integer i;
@@ -104,10 +104,9 @@ always @ (*) begin: alu
 	accum_next = accum;
 	addend = {2*XLEN{1'b0}};
 	addsub_tmp = {2*XLEN{1'b0}};
-	neg_l_carry = 1'b0;
+	neg_l_borrow = 1'b0;
 	for (i = 0; i < UNROLL; i = i + 1) begin
-		addend = {1'b0, op_b_r, {XLEN-1{1'b0}}};
-		addend = is_div ? -addend : addend;
+		addend = {is_div, op_b_r, {XLEN-1{1'b0}}};
 		shift_tmp = is_div ? accum_next : accum_next >> 1;
 		addsub_tmp = shift_tmp + addend;
 		accum_next = (is_div ? !addsub_tmp[2 * XLEN - 1] : accum_next[0]) ?
@@ -117,7 +116,7 @@ always @ (*) begin: alu
 	end
 	// Alternative path for negation of all/part of accumulator
 	if (accum_neg_l)
-		{neg_l_carry, accum_next[0 +: XLEN]} = ~accum[0 +: XLEN] + 1'b1;
+		{neg_l_borrow, accum_next[XLEN-1:0]} = {~accum[XLEN-1:0]} + 1'b1;
 	if (accum_incr_h || accum_inv_h)
 		accum_next[XLEN +: XLEN] = (accum[XLEN +: XLEN] ^ {XLEN{accum_inv_h}})
 			+ accum_incr_h;
@@ -158,10 +157,10 @@ always @ (posedge clk or negedge rst_n) begin
 		op_a_neg_r <= op_a_neg;
 		op_b_neg_r <= op_b_neg;
 		sign_preadj_done <= 1'b1;
-		if (op_a_neg || op_b_neg) begin
-			if (op_a_neg)
+		if (accum_neg_l || (op_b_neg ^ is_div)) begin
+			if (accum_neg_l)
 				accum[0 +: XLEN] <= accum_next[0 +: XLEN];
-			if (op_b_neg)
+			if (op_b_neg ^ is_div)
 				op_b_r <= -op_b_r;
 		end else begin
 			ctr <= ctr - UNROLL[W_CTR-1:0];
@@ -177,8 +176,8 @@ always @ (posedge clk or negedge rst_n) begin
 		if (accum_neg_l) begin
 			accum[0 +: XLEN] <= accum_next[0 +: XLEN];
 			if (!is_div) begin
-				sign_postadj_carry <= neg_l_carry;
-				sign_postadj_done <= !neg_l_carry;
+				sign_postadj_carry <= neg_l_borrow;
+				sign_postadj_done <= !neg_l_borrow;
 			end
 		end
 	end
@@ -201,7 +200,7 @@ end
 // Post-adjustment for multiplication:
 // We have calculated the 2*XLEN result of |a| * |b|.
 // Negate the entire accumulator if sgn(a) ^ sgn(b).
-// This is done in two steps (so that it can share the negation hw for div/mod):
+// This is done in two steps (to share div/mod circuit, and avoid 64-bit carry):
 // - Negate lower half of accumulator, and invert upper half
 // - Increment upper half if lower half carried
 
