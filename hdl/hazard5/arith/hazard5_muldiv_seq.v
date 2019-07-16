@@ -106,7 +106,7 @@ always @ (*) begin: alu
 	addsub_tmp = {2*XLEN{1'b0}};
 	neg_l_borrow = 1'b0;
 	for (i = 0; i < UNROLL; i = i + 1) begin
-		addend = {is_div, op_b_r, {XLEN-1{1'b0}}};
+		addend = {is_div && |op_b_r, op_b_r, {XLEN-1{1'b0}}};
 		shift_tmp = is_div ? accum_next : accum_next >> 1;
 		addsub_tmp = shift_tmp + addend;
 		accum_next = (is_div ? !addsub_tmp[2 * XLEN - 1] : accum_next[0]) ?
@@ -209,7 +209,7 @@ wire op_signs_differ = op_a_neg_r ^ op_b_neg_r;
 
 assign accum_neg_l =
 	!sign_preadj_done && op_a_neg ||
-	do_postadj && !sign_postadj_carry && op_signs_differ;
+	do_postadj && !sign_postadj_carry && op_signs_differ && !(is_div && ~|op_b_r);
 
 assign {accum_incr_h, accum_inv_h} =
 	do_postadj &&  is_div && op_a_neg_r                             ? 2'b11 :

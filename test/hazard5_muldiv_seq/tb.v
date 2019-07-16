@@ -203,6 +203,48 @@ initial begin: stimulus
 		end
 	end
 
+	$display("DIVU + MODU by 0");
+
+	for (i = 0; i < TEST_SIZE; i = i + 1) begin
+		a_tmp = $random;
+		b_tmp = 0;
+		gold_result_l = {XLEN{1'b1}};
+		gold_result_h = a_tmp;
+		do_calc(a_tmp, b_tmp, M_OP_DIVU);
+		if ({gold_result_h, gold_result_l} != {result_h, result_l}) begin
+			$display("Mismatch: %h (gold) != %h (gate)", {gold_result_h, gold_result_l}, {result_h, result_l});
+			$display("Operands: %h %h", a_tmp, b_tmp);
+			$finish;
+		end
+	end
+
+	$display("DIV + MOD by 0");
+
+	for (i = 0; i < TEST_SIZE; i = i + 1) begin
+		a_tmp = $random;
+		b_tmp = 0;
+		gold_result_l = {XLEN{1'b1}};
+		gold_result_h = a_tmp;
+		do_calc(a_tmp, b_tmp, M_OP_DIV);
+		if ({gold_result_h, gold_result_l} != {result_h, result_l}) begin
+			$display("Mismatch: %h (gold) != %h (gate)", {gold_result_h, gold_result_l}, {result_h, result_l});
+			$display("Operands: %h %h", a_tmp, b_tmp);
+			$finish;
+		end
+	end
+
+	$display("DIV signed overflow");
+
+	gold_result_h = {XLEN{1'b0}};
+	gold_result_l = {1'b1, {XLEN-1{1'b0}}};
+
+	do_calc({1'b1, {XLEN-1{1'b0}}}, 1, M_OP_DIV);
+	if ({gold_result_h, gold_result_l} != {result_h, result_l}) begin
+		$display("Mismatch: %h (gold) != %h (gate)", {gold_result_h, gold_result_l}, {result_h, result_l});
+		$display("Operands: %h %h", a_tmp, b_tmp);
+		$finish;
+	end
+
 	$display("Test PASSED.");
 
 	$finish;
