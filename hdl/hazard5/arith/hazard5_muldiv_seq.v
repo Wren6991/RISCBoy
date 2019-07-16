@@ -20,8 +20,9 @@
 // There are lots of opportunities for off-by-one errors here. See muldiv_model.py
 // for a simple reference model of the mul/div/mod iterations.
 //
-// When op_force is high, the vld/rdy handshake is ignored, and a new operation
-// starts immediately. Needed for processor flushing (e.g. mispredict, trap)
+// When op_kill is high, the current calculation halts immediately. op_vld can be
+// asserted on the same cycle, and the new calculation begins without delay, regardless
+// of op_rdy. This may be used by the processor on e.g. mispredict or trap.
 //
 // The actual multiply/divide hardware is unsigned. We handle signedness at
 // input/output.
@@ -36,7 +37,7 @@ module hazard5_muldiv_seq #(
 	input  wire [2:0]        op,
 	input  wire              op_vld,
 	output wire              op_rdy,
-	input  wire              op_force,
+	input  wire              op_kill,
 	input  wire [XLEN-1:0]   op_a,
 	input  wire [XLEN-1:0]   op_b,
 
@@ -143,11 +144,11 @@ always @ (posedge clk or negedge rst_n) begin
 		op_b_neg_r <= 1'b0;
 		op_b_r <= {XLEN{1'b0}};
 		accum <= {XLEN*2{1'b0}};
-	end else if (op_force || (op_vld && op_rdy)) begin
+	end else if (op_kill || (op_vld && op_rdy)) begin
 		// Initialise circuit with operands + state
-		ctr <= CTR_TOP;
-		sign_preadj_done <= 1'b0;
-		sign_postadj_done <= 1'b0;
+		ctr <= op_vld ? CTR_TOP : {W_CTR{1'b0}};
+		sign_preadj_done <= !op_vld;
+		sign_postadj_done <= !op_vld;
 		sign_postadj_carry <= 1'b0;
 		op_r <= op;
 		op_b_r <= op_b;

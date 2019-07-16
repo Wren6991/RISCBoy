@@ -29,7 +29,7 @@ reg               rst_n;
 
 reg  [2:0]        op;
 reg               op_vld;
-reg               op_force;
+reg               op_kill;
 reg  [XLEN-1:0]   op_a;
 reg  [XLEN-1:0]   op_b;
 
@@ -47,7 +47,7 @@ hazard5_muldiv_seq #(
 	.op         (op),
 	.op_vld     (op_vld),
 	.op_rdy     (op_rdy),
-	.op_force   (op_force),
+	.op_kill    (op_kill),
 	.op_a       (op_a),
 	.op_b       (op_b),
 	.result_h   (result_h),
@@ -103,7 +103,7 @@ initial begin: stimulus
 	rst_n = 1'b0;
 	op = 0;
 	op_vld = 0;
-	op_force = 0;
+	op_kill = 0;
 	op_a = 0;
 	op_b = 0;
 
