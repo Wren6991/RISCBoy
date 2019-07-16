@@ -427,7 +427,9 @@ hazard5_csr #(
 	.wtype (dx_csr_wtype),
 	.rdata (x_csr_rdata),
 	.ren   (x_csr_ren),
-	.error (x_csr_error)
+	.error (x_csr_error),
+
+	.instr_ret(1'b0)//TODO
 );
 
 // State machine and branch detection

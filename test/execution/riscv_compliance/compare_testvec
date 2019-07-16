@@ -29,7 +29,7 @@ for i, g in enumerate(gold):
 	else:
 		eq_str = "\033[1;31m!=\033[0;0m"
 		all_match = False
-	print("{:03x}: {:08x} (model) {} {:08x} (gold)".format(i * 4, model[i], eq_str, g))
+	print("{:03x}: {:08x} (gate) {} {:08x} (gold)".format(i * 4, model[i], eq_str, g))
 
 if all_match:
 	print("Test PASSED.")

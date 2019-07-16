@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="116" />
+   <WVObjectSize size="118" />
    <wvobject fp_name="divider115" type="divider">
       <obj_property name="label">SRAM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -464,6 +464,91 @@
       <obj_property name="ElementShortName">x_op_b[31:0]</obj_property>
       <obj_property name="ObjectShortName">x_op_b[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="group130" type="group">
+      <obj_property name="label">CSR Bus</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">addr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">addr[11:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/wdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/wen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">wen</obj_property>
+         <obj_property name="ObjectShortName">wen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/wtype" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wtype[1:0]</obj_property>
+         <obj_property name="ObjectShortName">wtype[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/ren" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ren</obj_property>
+         <obj_property name="ObjectShortName">ren</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/instr_ret" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">instr_ret</obj_property>
+         <obj_property name="ObjectShortName">instr_ret</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/rdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/error" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">error</obj_property>
+         <obj_property name="ObjectShortName">error</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group139" type="group">
+      <obj_property name="label">CSR Internals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/ctr_update" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ctr_update[31:0]</obj_property>
+         <obj_property name="ObjectShortName">ctr_update[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/mstatus_mpie" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">mstatus_mpie</obj_property>
+         <obj_property name="ObjectShortName">mstatus_mpie</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/mstatus_mie" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">mstatus_mie</obj_property>
+         <obj_property name="ObjectShortName">mstatus_mie</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/mscratch" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mscratch[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mscratch[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/mcycleh" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mcycleh[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mcycleh[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/mcycle" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mcycle[31:0]</obj_property>
+         <obj_property name="ObjectShortName">mcycle[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/minstreth" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">minstreth[31:0]</obj_property>
+         <obj_property name="ObjectShortName">minstreth[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/minstret" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">minstret[31:0]</obj_property>
+         <obj_property name="ObjectShortName">minstret[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/decode_match" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">decode_match</obj_property>
+         <obj_property name="ObjectShortName">decode_match</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="divider87" type="divider">
       <obj_property name="label">Memory DPhase</obj_property>

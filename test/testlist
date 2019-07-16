@@ -1,3 +1,4 @@
+# Component TBs
 ahb_sync_sram
 ahb_async_sram
 ahb_async_sram_halfwidth
@@ -5,6 +6,9 @@ ahbl_splitter
 ahbl_arbiter
 ahbl_crossbar
 sync_fifo
+hazard5_muldiv_seq
+
+# CPU litmus tests
 execution/fibonacci
 execution/branch
 execution/loadstore
@@ -26,13 +30,12 @@ execution/riscv_compliance TEST=I-BLT-01
 execution/riscv_compliance TEST=I-BLTU-01
 execution/riscv_compliance TEST=I-BNE-01
 
-# These are useless as we currently don't have a CSR
-#execution/riscv_compliance TEST=I-CSRRC-01
-#execution/riscv_compliance TEST=I-CSRRCI-01
-#execution/riscv_compliance TEST=I-CSRRS-01
-#execution/riscv_compliance TEST=I-CSRRSI-01
-#execution/riscv_compliance TEST=I-CSRRW-01
-#execution/riscv_compliance TEST=I-CSRRWI-01
+execution/riscv_compliance TEST=I-CSRRC-01
+execution/riscv_compliance TEST=I-CSRRCI-01
+execution/riscv_compliance TEST=I-CSRRS-01
+execution/riscv_compliance TEST=I-CSRRSI-01
+execution/riscv_compliance TEST=I-CSRRW-01
+execution/riscv_compliance TEST=I-CSRRWI-01
 
 execution/riscv_compliance TEST=I-DELAY_SLOTS-01
 
@@ -114,6 +117,7 @@ execution/riscv_compliance ARCH=rv32imc TEST=C-SW
 execution/riscv_compliance ARCH=rv32imc TEST=C-SWSP
 execution/riscv_compliance ARCH=rv32imc TEST=C-XOR
 
+# System-level software tests
 
 system TEST=helloworld
 system TEST=fib_recursive

@@ -256,12 +256,12 @@ always @ (*) begin
 	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = X0; end
 	RV_FENCE:   begin d_rd = X0; end  // NOP
 	RV_FENCE_I: begin d_rd = X0; end  // NOP // TODO: this should be jump to PC + 4. Evaluate the cost of doing this in decode (or find a way of doing it in X).
-	RV_CSRRW:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rd; d_csr_ren = 1'b1  ; d_csr_wtype = CSR_WTYPE_W; end else begin d_invalid_32bit = 1'b1; end
-	RV_CSRRS:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_S; end else begin d_invalid_32bit = 1'b1; end
-	RV_CSRRC:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_C; end else begin d_invalid_32bit = 1'b1; end
-	RV_CSRRWI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rd; d_csr_ren = 1'b1  ; d_csr_wtype = CSR_WTYPE_W; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
-	RV_CSRRSI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_S; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
-	RV_CSRRCI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1 ; d_csr_wen = |d_rs1; d_csr_wtype = CSR_WTYPE_C; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRW:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1  ; d_csr_ren = |d_rd; d_csr_wtype = CSR_WTYPE_W; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRS:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_S; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRC:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_C; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRWI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1  ; d_csr_ren = |d_rd; d_csr_wtype = CSR_WTYPE_W; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRSI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_S; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
+	RV_CSRRCI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_C; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
 	RV_SYSTEM:  begin
 		//synthesis translate_off
 		if (!d_stall) $display("Syscall @ PC %h: %h", pc, d_instr);
