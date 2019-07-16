@@ -174,6 +174,8 @@ initial begin: stimulus
 	for (i = 0; i < TEST_SIZE; i = i + 1) begin
 		a_tmp = $random;
 		b_tmp = $random;
+		while (!b_tmp)
+			b_tmp = $random;
 		gold_result_l = a_tmp / b_tmp;
 		gold_result_h = a_tmp % b_tmp;
 		do_calc(a_tmp, b_tmp, M_OP_DIVU);
@@ -189,6 +191,8 @@ initial begin: stimulus
 	for (i = 0; i < TEST_SIZE; i = i + 1) begin
 		a_tmp = $random;
 		b_tmp = $random;
+		while (!b_tmp)
+			b_tmp = $random;
 		gold_result_l = $signed(a_tmp) / $signed(b_tmp);
 		gold_result_h = $signed(a_tmp) % $signed(b_tmp);
 		do_calc(a_tmp, b_tmp, M_OP_DIV);

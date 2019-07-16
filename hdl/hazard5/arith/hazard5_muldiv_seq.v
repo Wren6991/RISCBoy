@@ -15,20 +15,14 @@
  *                                                                    *
  *********************************************************************/
 
-// Combined multiply/divide/modulo circuit
-// All operations performed at 1 bit per clock; aiming for minimal resource usage
-
+// Combined multiply/divide/modulo circuit.
+// All operations performed at 1 bit per clock; aiming for minimal resource usage.
+// There are lots of opportunities for off-by-one errors here. See muldiv_model.py
+// for a simple reference model of the mul/div/mod iterations.
+//
 // When op_force is high, the vld/rdy handshake is ignored, and a new operation
 // starts immediately. Needed for processor flushing (e.g. mispredict, trap)
-
-// Start of multiply: multiplicand (rs2) goes into op_b_r, multiplier goes into
-// LSBs of accum. We shift multiplier up at the same time as shifting MSB round,
-// but do not allow multiplier bits to leak through into MSBs.
-// Multiplier is gone when multiply finishes.
-
-// Start of divide: divisor goes into op_b_r, dividend goes into LSBs of accum.
-// Each cycle we subtract divisor from MSBs, and commit if no underflow.
-
+//
 // The actual multiply/divide hardware is just unsigned. We handle signedness
 // at input/output.
 
@@ -62,26 +56,10 @@ endgenerate
 // ----------------------------------------------------------------------------
 // Operation decode, operand sign adjustment
 
-
-wire op_a_signed =
-	op == M_OP_MULH ||
-	op == M_OP_MULHSU ||
-	op == M_OP_DIV ||
-	op == M_OP_MOD;
-
-wire op_b_signed =
-	op == M_OP_MULH ||
-	op == M_OP_DIV ||
-	op == M_OP_MOD;
-
-wire op_a_neg = op_a_signed && op_a[XLEN-1];
-wire op_b_neg = op_b_signed && op_b[XLEN-1];
-wire [XLEN-1:0] op_a_abs = op_a_neg ? -op_a : op_a;
-wire [XLEN-1:0] op_b_abs = op_b_neg ? -op_b : op_b;
-
-
-// ----------------------------------------------------------------------------
-// Arithmetic circuit
+// On the first cycle, op_a and op_b go straight through to the accumulator
+// and the divisor/multiplicand register. They are then adjusted in-place
+// on the next cycle. This allows the same circuits to be reused for sign
+// adjustment before output (and helps input timing).
 
 reg [W_M_OP-1:0] op_r;
 reg [2*XLEN-1:0] accum;
@@ -89,19 +67,44 @@ reg [XLEN-1:0]   op_b_r;
 reg              op_a_neg_r;
 reg              op_b_neg_r;
 
+wire op_a_signed =
+	op_r == M_OP_MULH ||
+	op_r == M_OP_MULHSU ||
+	op_r == M_OP_DIV ||
+	op_r == M_OP_MOD;
+
+wire op_b_signed =
+	op_r == M_OP_MULH ||
+	op_r == M_OP_DIV ||
+	op_r == M_OP_MOD;
+
+wire op_a_neg = op_a_signed && accum[XLEN-1];
+wire op_b_neg = op_b_signed && op_b_r[XLEN-1];
+
+// Controls for modifying sign of all/part of accumulator
+wire accum_neg_l;
+wire accum_inv_h;
+wire accum_incr_h;
+
+// ----------------------------------------------------------------------------
+// Arithmetic circuit
+
 // Combinatorials:
 reg [2*XLEN-1:0] accum_next;
 reg [2*XLEN-1:0] addend;
 reg [2*XLEN-1:0] shift_tmp;
 reg [2*XLEN-1:0] addsub_tmp;
+reg              neg_l_carry;
 
 wire is_div = op_r[2];
 
 always @ (*) begin: alu
 	integer i;
+	// Multiply/divide iteration layers
 	accum_next = accum;
 	addend = {2*XLEN{1'b0}};
 	addsub_tmp = {2*XLEN{1'b0}};
+	neg_l_carry = 1'b0;
 	for (i = 0; i < UNROLL; i = i + 1) begin
 		addend = {1'b0, op_b_r, {XLEN-1{1'b0}}};
 		addend = is_div ? -addend : addend;
@@ -112,58 +115,114 @@ always @ (*) begin: alu
 		if (is_div)
 			accum_next = {accum_next[2*XLEN-2:0], !addsub_tmp[2 * XLEN - 1]};
 	end
+	// Alternative path for negation of all/part of accumulator
+	if (accum_neg_l)
+		{neg_l_carry, accum_next[0 +: XLEN]} = ~accum[0 +: XLEN] + 1'b1;
+	if (accum_incr_h || accum_inv_h)
+		accum_next[XLEN +: XLEN] = (accum[XLEN +: XLEN] ^ {XLEN{accum_inv_h}})
+			+ accum_incr_h;
 end
 
 // ----------------------------------------------------------------------------
 // Main state machine
 
+reg sign_preadj_done;
 reg [W_CTR-1:0] ctr;
+reg sign_postadj_done;
+reg sign_postadj_carry;
+
+localparam CTR_TOP = XLEN[W_CTR-1:0];
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		ctr <= {W_CTR{1'b0}};
+		sign_preadj_done <= 1'b0;
+		sign_postadj_done <= 1'b0;
+		sign_postadj_carry <= 1'b0;
 		op_r <= {W_M_OP{1'b0}};
 		op_a_neg_r <= 1'b0;
 		op_b_neg_r <= 1'b0;
 		op_b_r <= {XLEN{1'b0}};
 		accum <= {XLEN*2{1'b0}};
 	end else if (op_force || (op_vld && op_rdy)) begin
-		ctr <= XLEN[W_CTR-1:0];
+		// Initialise circuit with operands + state
+		ctr <= CTR_TOP;
+		sign_preadj_done <= 1'b0;
+		sign_postadj_done <= 1'b0;
+		sign_postadj_carry <= 1'b0;
 		op_r <= op;
+		op_b_r <= op_b;
+		accum <= {{XLEN{1'b0}}, op_a};
+	end else if (!sign_preadj_done) begin
+		// Pre-adjust sign if necessary, else perform first iteration immediately
 		op_a_neg_r <= op_a_neg;
 		op_b_neg_r <= op_b_neg;
-		op_b_r <= op_b_abs;
-		accum <= {{XLEN{1'b0}}, op_a_abs};
+		sign_preadj_done <= 1'b1;
+		if (op_a_neg || op_b_neg) begin
+			if (op_a_neg)
+				accum[0 +: XLEN] <= accum_next[0 +: XLEN];
+			if (op_b_neg)
+				op_b_r <= -op_b_r;
+		end else begin
+			ctr <= ctr - UNROLL[W_CTR-1:0];
+			accum <= accum_next;
+		end
 	end else if (ctr) begin
 		ctr <= ctr - UNROLL[W_CTR-1:0];
 		accum <= accum_next;
+	end else if (!sign_postadj_done || sign_postadj_carry) begin
+		sign_postadj_done <= 1'b1;
+		if (accum_inv_h || accum_incr_h)
+			accum[XLEN +: XLEN] <= accum_next[XLEN +: XLEN];
+		if (accum_neg_l) begin
+			accum[0 +: XLEN] <= accum_next[0 +: XLEN];
+			if (!is_div) begin
+				sign_postadj_carry <= neg_l_carry;
+				sign_postadj_done <= !neg_l_carry;
+			end
+		end
 	end
 end
 
-assign op_rdy = ~|ctr;
-assign result_vld = ~|ctr;
+// ----------------------------------------------------------------------------
+// Sign adjustment control
+
+// Pre-adjustment: for any a, b we want |a|, |b|. Note that the magnitude of any
+// 32-bit signed integer is representable by a 32-bit unsigned integer.
+
+// Post-adjustment for division:
+// We seek q, r to satisfy a = b * q + r, where a and b are given,
+// and |r| < |b|. One way to do this is if
+// sgn(r) = sgn(a)
+// sgn(q) = sgn(a) ^ sgn(b)
+// This has additional nice properties like
+// -(a / b) = (-a) / b = a / (-b)
+
+// Post-adjustment for multiplication:
+// We have calculated the 2*XLEN result of |a| * |b|.
+// Negate the entire accumulator if sgn(a) ^ sgn(b).
+// This is done in two steps (so that it can share the negation hw for div/mod):
+// - Negate lower half of accumulator, and invert upper half
+// - Increment upper half if lower half carried
+
+wire do_postadj = ~|{ctr, sign_postadj_done};
+wire op_signs_differ = op_a_neg_r ^ op_b_neg_r;
+
+assign accum_neg_l =
+	!sign_preadj_done && op_a_neg ||
+	do_postadj && !sign_postadj_carry && op_signs_differ;
+
+assign {accum_incr_h, accum_inv_h} =
+	do_postadj &&  is_div && op_a_neg_r                             ? 2'b11 :
+	do_postadj && !is_div && op_signs_differ && !sign_postadj_carry ? 2'b01 :
+	do_postadj && !is_div && op_signs_differ &&  sign_postadj_carry ? 2'b10 :
+	                                                                  2'b00 ;
 
 // ----------------------------------------------------------------------------
-// Result sign adjustment
+// Outputs
 
-// For division:
-// We seek d, q to satisfy n = p * q + d, where n and p are given,
-// and |d| < p. One way to do this is if
-// sgn(d) = sgn(n)
-// sgn(q) = sgn(n) ^ sgn(p)
-// This has additional nice properties like
-// -(n / p) == (-n) / p == n / (-p)
-
-wire [XLEN-1:0] result_mod = op_a_neg_r ? -accum[XLEN +: XLEN] : accum[XLEN +: XLEN];
-wire [XLEN-1:0] result_div = op_a_neg_r ^ op_b_neg_r ? -accum[XLEN-1:0] : accum[XLEN-1:0];
-
-// For multiplication, we have calculated the 2*XLEN result of |a| * |b|.
-// Just negate if signs of a and b differ.
-// This does produce a rather long carry chain...
-
-wire [2*XLEN-1:0] result_mul_full = op_a_neg_r ^ op_b_neg_r ? -accum : accum;
-
-assign result_h = is_div ? result_mod : result_mul_full[XLEN +: XLEN];
-assign result_l = is_div ? result_div : result_mul_full[0    +: XLEN];
+assign {result_h, result_l} = accum;
+assign op_rdy = ~|{ctr, accum_neg_l, accum_incr_h, accum_inv_h};
+assign result_vld = op_rdy;
 
 endmodule
