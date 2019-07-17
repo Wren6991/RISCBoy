@@ -1,6 +1,3 @@
-#ifndef _TEST_MACROS_H_
-#define _TEST_MACROS_H_
-
 // RISC-V Compliance IO Test Header File
 
 /*
@@ -40,7 +37,7 @@
 #define TEST_CASE(destreg, correctval, swreg, offset, code... ) \
     code; \
     sw destreg, offset(swreg); \
-    RVTEST_IO_ASSERT_GPR_EQ(destreg, correctval) \
+    RVTEST_IO_ASSERT_GPR_EQ(x31, destreg, correctval) \
 
 // Base functions for single precision floating point operations
 #define TEST_CASE_FP(test_num, destreg, reg1, reg2, correctval, val1, val2, swreg, offset, code... ) \
@@ -77,7 +74,7 @@
     lw t1, 4(a0); \
     code; \
     sw destreg, offset(swreg); \
-    RVTEST_IO_ASSERT_GPR_EQ(destreg, correctval) \
+    RVTEST_IO_ASSERT_GPR_EQ(x31, destreg, correctval) \
     .pushsection .data; \
     .align 2; \
     test_ ## test_num ## _data: \
@@ -108,7 +105,7 @@
     flw reg, 0(a0); \
     code; \
     sw destreg, offset(swreg); \
-    RVTEST_IO_ASSERT_GPR_EQ(destreg, correctval) \
+    RVTEST_IO_ASSERT_GPR_EQ(x31, destreg, correctval) \
     .pushsection .data; \
     .align 1; \
     test_ ## test_num ## _data: \
@@ -180,7 +177,7 @@
     lw t1, 8(a0); \
     code; \
     sw destreg, offset(swreg); \
-    RVTEST_IO_ASSERT_GPR_EQ(destreg, correctval) \
+    RVTEST_IO_ASSERT_GPR_EQ(x31, destreg, correctval) \
     .pushsection .data; \
     .align 2; \
     test_ ## test_num ## _data: \
@@ -394,7 +391,7 @@
       li x10, 0x123ab; \
 1: \
       sw x10, offset(swreg); \
-      RVTEST_IO_ASSERT_GPR_EQ(x10, val); \
+      RVTEST_IO_ASSERT_GPR_EQ(x31, x10, val); \
 
 #define ABS(x) ((x >> 11) ^ x) - (x >> 11)
 
@@ -404,7 +401,7 @@
       li reg, 0x123ab; \
 1: \
       sw reg, offset(swreg); \
-      RVTEST_IO_ASSERT_GPR_EQ(reg, val); \
+      RVTEST_IO_ASSERT_GPR_EQ(x31, reg, val); \
 
 #define TEST_CL(inst, reg, imm, swreg, offset) \
       la reg, test_data; \
@@ -424,7 +421,7 @@
       inst reg1, imm(reg2); \
       lw reg1, imm(reg2); \
       sw reg1, offset(swreg); \
-      RVTEST_IO_ASSERT_GPR_EQ(reg1, val); \
+      RVTEST_IO_ASSERT_GPR_EQ(x31, reg1, val); \
 
 #define TEST_CSWSP(test_data, reg, val, imm, swreg, offset) \
       la x2, test_data; \
@@ -432,7 +429,7 @@
       c.swsp reg, imm(x2); \
       lw reg, imm(x2); \
       sw reg, offset(swreg); \
-      RVTEST_IO_ASSERT_GPR_EQ(reg, val); \
+      RVTEST_IO_ASSERT_GPR_EQ(x31, reg, val); \
 
 #define TEST_CBEQZ(reg, val, swreg, offset) \
       li reg, val; \
@@ -441,7 +438,7 @@
       li reg, 0x123ab; \
 3: \
       sw reg, offset(swreg); \
-      RVTEST_IO_ASSERT_GPR_EQ(reg, 0x0); \
+      RVTEST_IO_ASSERT_GPR_EQ(x31, reg, 0x0); \
 
 #define TEST_CBNEZ(reg, val, swreg, offset) \
       li reg, val; \
@@ -449,7 +446,7 @@
       li reg, 0x0; \
 4: \
       sw reg, offset(swreg); \
-      RVTEST_IO_ASSERT_GPR_EQ(reg, val); \
+      RVTEST_IO_ASSERT_GPR_EQ(x31, reg, val); \
 
 #define TEST_FMVXS(test_num, destreg, reg, correctval, val, swreg, offset) \
       TEST_CASE_FP_FMVXS(test_num, destreg, reg, correctval, val, swreg, offset, \
@@ -463,6 +460,3 @@
 
 #define SWSIG(a,b)
 
-
-
-#endif // _TEST_MACROS_H_
