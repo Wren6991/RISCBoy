@@ -264,17 +264,43 @@ Alignment is the constraint that the address of a memory access be equal to zero
 
 The frontend goes to some length (section \ref{section:frontend}) to maintain high throughput. RV-C instruction streams are {\it always} unaligned, and {\it every} instruction must be fetched before it is executed, so Amdahl says it's worth it. On the other hand load/stores are less than 100\% of all instructions, and the vast majority are unaligned; consequently, Hazard5 does not have hardware support for unaligned load/stores. These are trapped (TODO) and handled in software if and when they occur.
 
+\subsection{Control and Status Registers (CSRs)}
+
+Hazard5 possesses the standard {\tt Zicsr} extension, which provides atomic access to the CSRs. Only M-mode CSRs are implemented. Access to an unimplemented CSR (e.g. a U-mode or S-mode CSR) causes an illegal instruction exception. The implementation is minimally legal: WARL fields are widely exploited, to reduce logic and state overhead. Module parameters can reduce CSR support, or remove it entirely, as per relative importance of compliance versus area in your application. Note that some features, such as interrupts and exceptions, require CSR support.
+
+When the counter CSRs are present, {\tt mtime} and {\tt mcycle} are aliased to the same counter. 64-bit counters are prohibitively large in a compact 32-bit processor. The {\tt mcountinhibit} (WARL) register is tied to zero: {\tt mtime} must run freely, hence the {\tt mcycle} alias of this counter cannot be halted either. {\tt minstret} is fully implemented, but its {\tt mcountinhibit} bit is also tied low. The width of the counters can be reduced from 64 bits to save logic ({\it noncompliant}), although the full 64 CSR bits remain writeable, which leaves some opportunity for software emulation.
+
+TODO: full table of CSRs we implement, and to what extent they are implemented/WARL'd
+
 \subsection{Interrupts and Exceptions}
 
-This section is very much still TBD. (TODO)
+Hazard5 has simple exception and interrupt support, compliant with the RISC-V privileged ISA spec (M-mode only). Here we follow the terminology set out in the RISC-V user-level spec: an {\it exception} is a condition caused by executing an instruction, which requires control transfer; an {\it interrupt} request is some external, asynchronous event, which requires control transfer; a {\it trap} is the transfer of control to a handler, used to service either an interrupt or an exception. Hazard5 implements interrupts and exceptions as follows:
 
-Hazard5 will have non-nested priority vectored interrupts, with no register saving, apart from {\tt ra} ({\tt x2}; link/return address register) and the {\tt PC}. Interrupts and exceptions will be implemented with the early jump hardware, so behave as a {\tt D}-sourced jump.
+\begin{itemize}
+	\item Trap entry causes a jump to a location in the trap vector table (addressed by {\tt mtvec}), simultaneously stashing the PC in {\tt mepc}
+	\begin{itemize}
+		\item Other CSR state is also modified, e.g. {\tt mcause}, {\tt mstatus}
+		\item The physical mechanism for this jump is the same as a branch mispredict. This simplifies so-called invisible traps, which are fully synchronous with the instruction stream, and are required for some exceptions.
+	\end{itemize}
+	\item Trap exit, via the {\tt mret} instruction, causes a jump to {\tt mepc}
+	\begin{itemize}
+		\item {\tt mret} also modifies some diagnostic CSR state, e.g. {\tt mstatus}, as per the privileged ISA specification
+	\end{itemize}
+	\item Only vectored mode is available. I.e., the LSBs of {\tt mtvec} are tied to 0x1.
+	\item When written, {\tt mtvec} is rounded down to a 4kB boundary. This saves an adder when generating the trap vector address.
+	\item Besides PC, the hardware saves/restores no architectural state on entry/exit. Software is responsible for stacking/unstacking the GPRs.
+\end{itemize}
 
-Interrupts/exceptions are implemented as a jump into the vector table. The table is a block of aligned 32-bit instructions, which will most likely be JAL, meaning ISRs must be within $\pm$1 MiB of the vector table. As well as jumping into the table, the interrupt hardware stashes the {\tt PC} and {\tt ra} into shadow registers; the second requires a register file read, and the pipeline slot of the (victim) instruction in {\tt D} is used to perform this read. {\tt PC} is immediately clobbered by the jump into the table, and {\tt ra} is clobbered with the magic value 0xffffffff, which is otherwise an invalid return address as its LSB is set.
+A custom M-mode CSR {\tt mimsk0} is provided for masking interrupt requests (IRQs):
 
-Upon encountering a {\tt jalr} to 0xffffffff (most likely a {\tt ret}), the saved {\tt PC} and {\tt ra} are saved.
+\begin{itemize}
+	\item {\tt mimsk0} is located at address 0xbc0. Addresses 0xbc1...0xbc7 are reserved for more interrupt masks, for $>32$ interrupts.
+	\item One bit is provided per external IRQ. 1 = enabled, 0 = disabled
+	\item All bits are 0 at reset
+	\item Each IRQ has its own slot in the vector table
+\end{itemize}
 
-Consequently, ISRs may not generate exceptions, such as unaligned accesses. TODO: should have some kind of non-returning hardfault exception to deal with things like this.
+Trap handlers do not preempt one another. After a trap returns, the highest-priority active trap request is selected, and entered. Normal execution continues while there are no active trap requests. Exceptions take priority over IRQs, and lower-numbered IRQs are higher priority. An illegal instruction exception encountered while handling an illegal instruction exception causes a lockup of the core (details TBD). TODO: table of the exception/interrupt space
 
 \subsection{Plugin Interface}
 
