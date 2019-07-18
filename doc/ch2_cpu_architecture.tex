@@ -274,13 +274,13 @@ TODO: full table of CSRs we implement, and to what extent they are implemented/W
 
 \subsection{Interrupts and Exceptions}
 
-Hazard5 has simple exception and interrupt support, compliant with the RISC-V privileged ISA spec (M-mode only). Here we follow the terminology set out in the RISC-V user-level spec: an {\it exception} is a condition caused by executing an instruction, which requires control transfer; an {\it interrupt} request is some external, asynchronous event, which requires control transfer; a {\it trap} is the transfer of control to a handler, used to service either an interrupt or an exception. Hazard5 implements interrupts and exceptions as follows:
+Hazard5 has simple exception and interrupt support, compliant with the RISC-V privileged ISA spec (M-mode only). Here we follow the terminology set out in the RISC-V user-level spec: an {\it exception} is an anomalous condition caused by executing an instruction, which requires control transfer; an {\it interrupt} request is some external, asynchronous event, which requires control transfer; a {\it trap} is the transfer of control to a handler, used to service either an interrupt or an exception. Hazard5 implements interrupts and exceptions as follows:
 
 \begin{itemize}
 	\item Trap entry causes a jump to a location in the trap vector table (addressed by {\tt mtvec}), simultaneously stashing the PC in {\tt mepc}
 	\begin{itemize}
 		\item Other CSR state is also modified, e.g. {\tt mcause}, {\tt mstatus}
-		\item The physical mechanism for this jump is the same as a branch mispredict. This simplifies so-called invisible traps, which are fully synchronous with the instruction stream, and are required for some exceptions.
+		\item The physical mechanism for this jump is the same as a branch mispredict
 	\end{itemize}
 	\item Trap exit, via the {\tt mret} instruction, causes a jump to {\tt mepc}
 	\begin{itemize}
@@ -300,7 +300,10 @@ A custom M-mode CSR {\tt mimsk0} is provided for masking interrupt requests (IRQ
 	\item Each IRQ has its own slot in the vector table
 \end{itemize}
 
-Trap handlers do not preempt one another. After a trap returns, the highest-priority active trap request is selected, and entered. Normal execution continues while there are no active trap requests. Exceptions take priority over IRQs, and lower-numbered IRQs are higher priority. An illegal instruction exception encountered while handling an illegal instruction exception causes a lockup of the core (details TBD). TODO: table of the exception/interrupt space
+Trap handlers do not preempt one another. After a trap returns, the highest-priority active trap request is selected, and its handler entered. Normal execution continues while there are no active trap requests. Exceptions take priority over IRQs, and lower-numbered IRQs are higher priority. An illegal instruction exception encountered while handling an exception causes a lockup of the core (details TBD). TODO: table of the exception/interrupt space
+
+IRQ inputs are level-sensitive. It is recommended to clear an interrupt at its source upon entering its handler. If the interrupt reasserts before the handler {\tt mret}s, the handler still returns, and the interrupt competes with other trap requests for reentry. Note that, if many register stages are present on the IRQ signal, there is a potential race between clearing the IRQ and executing the {\tt mret}, causing spurious reentry; in practice, restoration of caller-saves should provide ample time for IRQ deassertion to be observed, before the {\tt mret} is reached.
+
 
 \subsection{Plugin Interface}
 
@@ -331,7 +334,7 @@ There is no hard limit to the number of plugins that can be added, but the addit
 
 \subsubsection{M-small Plugin}
 
-The M-small plugin implements the RISC-V M standard extension (multiply and divide). To save area, the plugin employs a combined multiply/divide unit which performs the required calculations at 1 bit per clock.
+The M-small plugin implements the RISC-V M standard extension (multiply, divide and modulo). To save area, the plugin employs a combined multiply/divide unit which performs all required calculations, at 1 bit per clock. If timing permits, the datapath can be unrolled to perform multiple iterations per clock. e.g. radix-4 divide/multiply.
 
 \subsubsection{M-fast Plugin}
 
