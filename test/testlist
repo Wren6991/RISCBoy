@@ -128,4 +128,5 @@ system TEST=uart_loopback
 system TEST=spi_smoke
 system TEST=memtest_basic
 system TEST=gpio
+system TEST=test_ecall
 #system TEST=printf_int
