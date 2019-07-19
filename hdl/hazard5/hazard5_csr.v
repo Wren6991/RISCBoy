@@ -16,8 +16,8 @@
  *****************************************************************************/
 
 // Control and Status Registers (CSRs)
-// Read port is combinatorial.
-// Write port is registered, writes are visible on next cycle.
+// Also includes CSR-related logic like interrupt enable/masking,
+// trap vector calculation.
 
 module hazard5_csr #(
 	parameter XLEN            = 32,// Must be 32
@@ -33,18 +33,59 @@ module hazard5_csr #(
 	input  wire            clk,
 	input  wire            rst_n,
 
+	// Read port is combinatorial.
+	// Write port is synchronous, and write effects will be observed on the next clock cycle.
+	// The *_soon strobes are versions which the core does not gate with its stall signal.
+	// These are needed because:
+	// - Core stall is a function of bus stall
+	// - Illegal CSR accesses produce trap entry
+	// - Trap entry (not necessarily caused by CSR access) gates outgoing bus accesses
+	// - Through-paths from e.g. hready to htrans are problematic for timing/implementation
 	input  wire [11:0]     addr,
 	input  wire [XLEN-1:0] wdata,
 	input  wire            wen,
+	input  wire            wen_soon, // wen will be asserted once some stall condition clears
 	input  wire [1:0]      wtype,
 	output reg  [XLEN-1:0] rdata,
 	input  wire            ren,
+	input  wire            ren_soon, // ren will be asserted once some stall condition clears
 
-	output reg             error,
+	// Trap signalling
+	// *We* tell the core that we are taking a trap, and where to, based on:
+	// - Synchronous exception inputs from the core
+	// - External IRQ signals
+	// - Masking etc based on the state of CSRs like mie
+	//
+	// We do this by producing a 1-clock pulse on trap_enter, and putting the absolute
+	// address of the trap target on trap_addr. mepc_in is simultaneously copied to mepc
+	// (it is assumed to be tied to the X program counter).
+	//
+	// The core tells *us* that we are leaving the trap, by putting a 1-clock pulse on
+	// trap_exit. The core will simultaneously produce a jump (specifically a mispredict)
+	// to mepc_out.
+	output wire [XLEN-1:0] trap_addr,
+	output wire            trap_enter,
+	input  wire            trap_exit,
+	output wire [XLEN-1:0] mepc_in,
+	output wire [XLEN-1:0] mepc_out,
 
-	// CSR-specific signalling
-	input wire             instr_ret
+	// Exceptions must *not* be a function of bus stall.
+	input wire  [15:0]     irq,
+	input wire             except_instr_misaligned,
+	input wire             except_instr_fault,
+	input wire             except_instr_invalid,
+	input wire             except_breakpoint,
+	input wire             except_load_misaligned,
+	input wire             except_load_fault,
+	input wire             except_store_misaligned,
+	input wire             except_store_fault,
+	input wire             except_ecall,
+
+	// Other CSR-specific signalling
+	input  wire            instr_ret
 );
+
+// TODO block CSR access when entering trap?
 
 `include "hazard5_ops.vh"
 
@@ -52,6 +93,7 @@ localparam X0 = {XLEN{1'b0}};
 
 // ----------------------------------------------------------------------------
 // List of M-mode CSRs (we implement a configurable subset of M-mode).
+// ----------------------------------------------------------------------------
 // The CSR block is the only piece of hardware which needs to know this mapping.
 
 // Machine Information Registers (RO)
@@ -192,8 +234,10 @@ localparam DECODE_HPM = 0;
 
 // ----------------------------------------------------------------------------
 // CSR state + update logic
+// ----------------------------------------------------------------------------
 // Names are (reg)_(field)
 
+// Generic update logic for write/set/clear of an entire CSR:
 function [XLEN-1:0] update;
 	input [XLEN-1:0] prev;
 begin
@@ -204,18 +248,32 @@ begin
 end
 endfunction
 
+// ----------------------------------------------------------------------------
+// Trap-handling
+
+// Two-level interrupt enable stack, shuffled on entry/exit:
 reg mstatus_mpie;
 reg mstatus_mie;
-
-// Interrupt enable shuffling
-// TODO
+// External logic needs to know whether interrupts are enabled
+assign int_en = mstatus_mie;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mstatus_mpie <= 1'b0;
 		mstatus_mie <= 1'b0;
 	end else if (CSR_M_TRAP) begin
-		// TODO
+		if (trap_enter) begin
+			mstatus_mpie <= mstatus_mie;
+			mstatus_mie <= 1'b0;
+		end else if (trap_exit) begin
+			mstatus_mpie <= 1'b1;
+			mstatus_mie <= mstatus_mpie;
+		end else if (wen && addr == MSTATUS) begin
+			{mstatus_mpie, mstatus_mie} <=
+				wtype == CSR_WTYPE_C ? {mstatus_mpie, mstatus_mie} & ~{wdata[7], wdata[4]} :
+				wtype == CSR_WTYPE_S ? {mstatus_mpie, mstatus_mie} |  {wdata[7], wdata[4]} :
+				                                                      {wdata[7], wdata[4]} ;
+		end
 	end
 end
 
@@ -230,6 +288,83 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
+// Trap vector base
+reg [XLEN-1:0] mtvec;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mtvec <= X0;
+	end else if (CSR_M_TRAP) begin
+		// Align down to 4k boundary, so we don't need an adder to compute trap vector
+		if (wen && addr == MTVEC)
+			mtvec <= update(mtvec) & {{XLEN-12{1'b1}}, {12{1'b0}}};
+	end
+end
+
+// Exception program counter
+reg [XLEN-1:0] mepc;
+assign mepc_out = mepc;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mepc <= X0;
+	end else if (CSR_M_TRAP) begin
+		if (trap_enter) begin
+			mepc <= mepc_in;
+		end else if (wen && addr == MEPC) begin
+			mepc <= update(mepc);
+		end
+	end
+end
+
+// Interrupt enable (reserved bits are tied to 0)
+reg [XLEN-1:0] mie;
+localparam MIE_CONST_MASK = 32'h0000f777;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mie <= X0;
+	end else if (CSR_M_TRAP) begin
+		mie <= update(mie) & ~MIE_CONST_MASK;
+	end
+end
+
+wire [15:0] mie_irq  = mie[31:6]; // Per-IRQ mask. Nonstandard, but legal.
+wire        mie_meie = mie[11];   // Global external IRQ enable. This is ANDed over our per-IRQ mask
+wire        mie_mtie = mie[7];    // Timer interrupt enable
+wire        mie_msie = mie[3];    // Software interrupt enable
+
+// Interrupt status ("pending") register, handled later
+wire [XLEN-1:0] mip;
+// None of the bits we implement are directly writeable.
+// MSIP is only writeable by a "platform-defined" mechanism, and we don't implement
+// one!
+
+// Trap cause registers. The non-constant bits can be written by software,
+// and update automatically on trap entry. (bits 30:0 are WLRL, so we tie most off)
+reg        mcause_irq;
+reg  [4:0] mcause_code;
+wire       mcause_irq_next;
+wire [4:0] mcause_code_next;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		mcause_irq <= 1'b0;
+		mcause_code <= 5'h0;
+	end else if (CSR_M_TRAP) begin
+		if (trap_enter) begin
+			mcause_irq <= mcause_irq_next;
+			mcause_code <= mcause_code_next;
+		end else if (wen && addr == MCAUSE) begin
+			{mcause_irq, mcause_code} <=
+				wtype == CSR_WTYPE_C ? {mcause_irq, mcause_code} & ~{wdata[31], wdata[4:0]} :
+				wtype == CSR_WTYPE_S ? {mcause_irq, mcause_code} |  {wdata[31], wdata[4:0]} :
+				                                                    {wdata[31], wdata[4:0]} ;
+		end
+	end
+end
+
+// ----------------------------------------------------------------------------
 // Counters
 // MCYCLE and MTIME are aliased (fine as long as MCOUNTINHIBIT[0] is tied low)
 reg [XLEN-1:0] mcycleh;
@@ -272,6 +407,7 @@ end
 
 // ----------------------------------------------------------------------------
 // Read port + detect addressing of unmapped CSRs
+// ----------------------------------------------------------------------------
 
 reg decode_match;
 
@@ -300,22 +436,22 @@ always @ (*) begin
 		};
 	end
 	MVENDORID: if (CSR_M_MANDATORY) begin
-		decode_match = !wen; // MRO
+		decode_match = !wen_soon; // MRO
 		// I don't have a JEDEC ID. It is legal to tie this to 0 if non-commercial.
 		rdata = {XLEN{1'b0}};
 	end
 	MARCHID: if (CSR_M_MANDATORY) begin
-		decode_match = !wen; // MRO
+		decode_match = !wen_soon; // MRO
 		// I don't have a RV foundation ID. It is legal to tie this to 0.
 		rdata = {XLEN{1'b0}};
 	end
 	MIMPID: if (CSR_M_MANDATORY) begin
-		decode_match = !wen; // MRO
+		decode_match = !wen_soon; // MRO
 		// TODO put git SHA or something here
 		rdata = {XLEN{1'b0}};
 	end
 	MHARTID: if (CSR_M_MANDATORY) begin
-		decode_match = !wen; // MRO
+		decode_match = !wen_soon; // MRO
 		// There is only one hart, and spec says this must be numbered 0.
 		rdata = {XLEN{1'b0}};
 	end
@@ -341,13 +477,7 @@ always @ (*) begin
 			3'd0     // No S, U
 		};
 	end
-	MTVEC: if (CSR_M_MANDATORY) begin
-		decode_match = 1'b1;
-		rdata = {
-			{XLEN-2{1'b0}}, // BASE is a WARL field, tie off for now
-			2'h1              // MODE = Vectored (Direct is useless)
-		};
-	end
+
 	// MEDELEG, MIDELEG should not exist for M-only implementations. Will raise
 	// illegal instruction exception if accessed.
 
@@ -357,6 +487,43 @@ always @ (*) begin
 	MSCRATCH: if (CSR_M_TRAP) begin
 		decode_match = 1'b1;
 		rdata = mscratch;
+	end
+
+	MEPC: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		rdata = mepc;
+	end
+
+	MCAUSE: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		rdata = {
+			mcause_irq,      // Sign bit is 1 for IRQ, 0 for exception
+			{25{1'b0}},      // Padding
+			mcause_code[4:0] // Enough for 16 external IRQs, which is all we have room for in mip/mie
+		};
+	end
+
+	MTVAL: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		// Hardwired to 0
+	end
+
+	MIE: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		rdata = mie;
+	end
+
+	MIP: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		rdata = mip;
+	end
+
+	MTVEC: if (CSR_M_TRAP) begin
+		decode_match = 1'b1;
+		rdata = {
+			mtvec[XLEN-1:2],  // BASE
+			2'h1              // MODE = Vectored (Direct is useless, and we don't have CLIC)
+		};
 	end
 
     // ------------------------------------------------------------------------
@@ -486,8 +653,92 @@ always @ (*) begin
 	endcase
 end
 
+wire csr_access_error = (wen_soon || ren_soon) && !decode_match;
 
-always @ (*)
-	error = (wen || ren) && !decode_match;
+// ----------------------------------------------------------------------------
+// Trap request generation
+// ----------------------------------------------------------------------------
+
+// Keep track of whether we are in a trap; we do not permit exception nesting.
+// TODO lockup condition?
+reg in_trap;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		in_trap <= 1'b0;
+	else
+		in_trap <= (in_trap || trap_enter) && !trap_exit;
+
+// Exception selection
+
+// Most-significant is lowest priority
+// FIXME: this is different from the priority order given in the spec, but will get us off the ground
+wire [15:0] exception_req = {
+	4'h0, // reserved by spec
+	except_ecall,
+	3'h0, // nonimplemented privileges
+	except_store_fault,
+	except_store_misaligned,
+	except_load_fault,
+	except_load_misaligned,
+	except_breakpoint,
+	except_instr_invalid,
+	except_instr_fault || csr_access_error,
+	except_instr_misaligned
+};
+
+wire exception_req_any = |exception_req && !in_trap;
+wire [3:0] exception_req_num;
+
+hazard5_priority_encode #(
+	.W_REQ(16)
+) except_priority (
+	.req (exception_req),
+	.gnt (exception_req_num)
+);
+
+// Interrupt masking and selection
+
+reg [15:0] irq_r;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		irq_r <= 16'h0;
+	else
+		irq_r <= irq;
+
+assign mip = {
+	irq_r,  // Our nonstandard bits for per-IRQ status
+	4'h0,   // Reserved
+	|irq_r, // Global pending bit for external IRQs
+	3'h0,   // Reserved
+	1'b0,   // Timer (FIXME)
+	3'h0,   // Reserved
+	1'b0,   // Software interrupt
+	3'h0    // Reserved
+};
+
+// We don't actually trap the aggregate IRQ, just provide it for software info
+wire [31:0] mip_no_global = mip & 32'hffff_f7ff;
+wire        irq_any = |(mip_no_global & {{16{mie_meie}}, {16{1'b1}}}) && mstatus_mie;
+wire [4:0]  irq_num;
+
+hazard5_priority_encode #(
+	.W_REQ(32)
+) irq_priority (
+	.req (mip_no_global),
+	.gnt (irq_num)
+);
+
+wire [11:0] mtvec_offs = (exception_req_any ?
+	{8'h0, exception_req_num} :
+	12'h10 + irq_num
+) << 2;
+
+assign trap_addr = mtvec | mtvec_offs;
+assign trap_enter = exception_req_any || irq_any;
+
+assign mcause_irq_next = !exception_req_any;
+assign mcause_code_next = exception_req_any ? exception_req_num : irq_num;
 
 endmodule

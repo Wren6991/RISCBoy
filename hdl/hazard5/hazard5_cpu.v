@@ -43,10 +43,28 @@ module hazard5_cpu #(
 	input  wire              ahblm_hready,
 	input  wire              ahblm_hresp,
 	output reg  [W_DATA-1:0] ahblm_hwdata,
-	input  wire [W_DATA-1:0] ahblm_hrdata
+	input  wire [W_DATA-1:0] ahblm_hrdata,
+
+	// External level-sensitive interrupt sources (tie 0 if unused)
+	input wire [15:0]        irq
 );
 
 `include "hazard5_ops.vh"
+
+`ifdef FORMAL
+// Only yosys-smtbmc seems to support immediate assertions
+`ifdef RISCV_FORMAL
+`define ASSERT(x)
+`else
+`define ASSERT(x) assert(x)
+`endif
+`else
+`define ASSERT(x)
+//synthesis translate_off
+`undef ASSERT
+`define ASSERT(x) if (!x) begin $display("Assertion failed!"); $finish(1); end
+//synthesis translate_on
+`endif
 
 localparam N_REGS = 32;
 // should be localparam but ISIM can't cope
@@ -313,6 +331,11 @@ wire  [W_DATA-1:0]   x_alu_result;
 wire  [W_DATA-1:0]   x_alu_add;
 wire                 x_alu_cmp;
 
+wire [W_DATA-1:0]    x_trap_addr;
+wire [W_DATA-1:0]    x_mepc;
+wire                 x_trap_enter;
+wire                 x_trap_exit = 1'b0; // TODO mret
+
 reg  [W_REGADDR-1:0] xm_rs1;
 reg  [W_REGADDR-1:0] xm_rs2;
 reg  [W_REGADDR-1:0] xm_rd;
@@ -321,12 +344,14 @@ reg  [W_ADDR-1:0]    xm_jump_target;
 reg  [W_DATA-1:0]    xm_store_data;
 reg                  xm_jump;
 reg  [W_MEMOP-1:0]   xm_memop;
-reg                  xm_except_invalid_instr;
-reg                  xm_except_unaligned;
 
 // For JALR, the LSB of the result must be cleared by hardware
 wire [W_ADDR-1:0] x_taken_jump_target = dx_jump_is_regoffs ? x_alu_add & ~32'h1 : dx_jump_target;
-wire [W_ADDR-1:0] x_jump_target = dx_imm[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr : x_taken_jump_target;
+wire [W_ADDR-1:0] x_jump_target =
+	x_trap_enter                                ? x_trap_addr        :
+	x_trap_exit                                 ? x_mepc             :
+	dx_imm[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr :
+	                                              x_taken_jump_target;
 
 reg x_stall_raw;
 
@@ -350,14 +375,18 @@ end
 // AHB transaction request
 
 wire x_memop_vld = !dx_memop[3];
+wire x_memop_write = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
 wire x_unaligned_addr =
 	ahb_hsize_d == HSIZE_WORD && |ahb_haddr_d[1:0] ||
 	ahb_hsize_d == HSIZE_HWORD && ahb_haddr_d[0];
 
+wire x_except_load_misaligned = x_memop_vld && x_unaligned_addr && !x_memop_write;
+wire x_except_store_misaligned = x_memop_vld && x_unaligned_addr && x_memop_write;
+
 always @ (*) begin
 	// Need to be careful not to use anything hready-sourced to gate htrans!
 	ahb_haddr_d = x_alu_add;
-	ahb_hwrite_d = dx_memop == MEMOP_SW || dx_memop == MEMOP_SH || dx_memop == MEMOP_SB;
+	ahb_hwrite_d = x_memop_write;
 	case (dx_memop)
 		MEMOP_LW:  ahb_hsize_d = HSIZE_WORD;
 		MEMOP_SW:  ahb_hsize_d = HSIZE_WORD;
@@ -366,7 +395,7 @@ always @ (*) begin
 		MEMOP_SH:  ahb_hsize_d = HSIZE_HWORD;
 		default:   ahb_hsize_d = HSIZE_BYTE;
 	endcase
-	ahb_req_d = x_memop_vld && !x_stall_raw && !flush_d_x && !x_unaligned_addr;
+	ahb_req_d = x_memop_vld && !x_stall_raw && !flush_d_x && !x_trap_enter;
 end
 
 // ALU operand muxes and bypass
@@ -409,7 +438,6 @@ wire [W_DATA-1:0] x_csr_wdata = dx_csr_w_imm ?
 	{{W_DATA-5{1'b0}}, dx_rs1} : x_rs1_bypass;
 
 wire [W_DATA-1:0] x_csr_rdata;
-wire              x_csr_error;
 
 hazard5_csr #(
 	.XLEN            (W_DATA),
@@ -419,18 +447,44 @@ hazard5_csr #(
 	.EXTENSION_C     (EXTENSION_C),
 	.EXTENSION_M     (0)
 ) inst_hazard5_csr (
-	.clk   (clk),
-	.rst_n (rst_n),
-	.addr  (dx_imm[11:0]),
-	.wdata (x_csr_wdata),
-	.wen   (x_csr_wen),
-	.wtype (dx_csr_wtype),
-	.rdata (x_csr_rdata),
-	.ren   (x_csr_ren),
-	.error (x_csr_error),
-
-	.instr_ret(1'b0)//TODO
+	.clk                     (clk),
+	.rst_n                   (rst_n),
+	// CSR access port
+	// *en_soon are early access strobes which are not a function of bus stall.
+	// Can generate access faults (hence traps), but do not actually perform access.
+	.addr                    (dx_imm[11:0]),
+	.wdata                   (x_csr_wdata),
+	.wen_soon                (dx_csr_wen),
+	.wen                     (dx_csr_wen && !x_stall),
+	.wtype                   (dx_csr_wtype),
+	.rdata                   (x_csr_rdata),
+	.ren_soon                (dx_csr_ren),
+	.ren                     (dx_csr_ren && !x_stall),
+	// Trap signalling
+	.trap_addr               (x_trap_addr),
+	.trap_enter              (x_trap_enter),
+	.trap_exit               (x_trap_exit),
+	.mepc_in                 (dx_pc),
+	.mepc_out                (x_mepc),
+	// IRQ and exception requests
+	.irq                     (irq),
+	.except_instr_misaligned (1'b0), // TODO
+	.except_instr_fault      (1'b0), // TODO
+	.except_instr_invalid    (dx_except_invalid_instr),
+	.except_breakpoint       (1'b0), // TODO
+	.except_load_misaligned  (x_except_load_misaligned),
+	.except_load_fault       (1'b0), // TODO
+	.except_store_misaligned (x_except_store_misaligned),
+	.except_store_fault      (1'b0), // TODO
+	.except_ecall            (1'b0), // TODO
+	// Other CSR-specific signalling
+	.instr_ret               (1'b0)  // TODO
 );
+
+// TODO: how to deal with exceptions that are asserted and go away while we are stalled?
+// Probably want a trap_enter_rdy input on CSRs, and CSR block has sticky versions
+// of exceptions which clear on trap_enter_rdy. However, many of the exceptions will
+// not fire when the core is stalled, as they are caused by instruction execution?
 
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
@@ -438,9 +492,8 @@ always @ (posedge clk or negedge rst_n) begin
 		xm_jump <= 1'b0;
 		xm_memop <= MEMOP_NONE;
 		{xm_rs1, xm_rs2, xm_rd} <= {3 * W_REGADDR{1'b0}};
-		xm_except_invalid_instr <= 1'b0;
-		xm_except_unaligned <= 1'b0;
 	end else begin
+		// TODO: this assertion may become untrue depending on how we handle exceptions/IRQs when stalled?
 		//`ASSERT(!(m_stall && flush_d_x));// bubble insertion logic below is broken otherwise
 		if (!m_stall) begin
 			{xm_rs1, xm_rs2, xm_rd} <= {dx_rs1, dx_rs2, dx_rd};
@@ -451,8 +504,6 @@ always @ (posedge clk or negedge rst_n) begin
 				xm_rd <= {W_REGADDR{1'b0}};
 				xm_jump <= 1'b0;
 				xm_memop <= MEMOP_NONE;
-				xm_except_invalid_instr <= 1'b0;
-				xm_except_unaligned <= 1'b0;
 			end else begin
 				case (dx_branchcond)
 					BCOND_ALWAYS: xm_jump <= 1'b1;
@@ -462,8 +513,8 @@ always @ (posedge clk or negedge rst_n) begin
 					BCOND_NZERO: xm_jump <= x_alu_cmp ^ dx_imm[31];
 					default xm_jump <= 1'b0;
 				endcase
-				xm_except_invalid_instr <= dx_except_invalid_instr || x_csr_error;
-				xm_except_unaligned <= x_memop_vld && x_unaligned_addr;
+				if (x_trap_enter || x_trap_exit)
+					xm_jump <= 1'b1;
 			end
 		end
 	end
@@ -542,14 +593,6 @@ always @ (posedge clk or negedge rst_n) begin
 	end else if (!m_stall) begin
 		//synthesis translate_off
 		// TODO: proper exception support
-		if (xm_except_invalid_instr) begin
-			$display("Invalid instruction!");
-			$finish;
-		end
-		if (xm_except_unaligned) begin
-			$display("Unaligned load/store!");
-			$finish;
-		end
 		if (m_except_bus_fault) begin
 			$display("Bus fault!");
 			$finish;
