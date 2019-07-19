@@ -48,6 +48,19 @@ localparam CSR_WTYPE_W    = 2'h0;
 localparam CSR_WTYPE_S    = 2'h1;
 localparam CSR_WTYPE_C    = 2'h2;
 
+// Exceptional condition signals which travel alongside (or instead of)
+// instructions in the pipeline. These are speculative and can be flushed
+// on e.g. branch mispredict
+
+localparam W_EXCEPT              = 3;
+localparam EXCEPT_NONE           = 3'h0;
+localparam EXCEPT_ECALL          = 3'h1;
+localparam EXCEPT_EBREAK         = 3'h2;
+localparam EXCEPT_MRET           = 3'h3; // separate, but handled similarly
+localparam EXCEPT_INSTR_ILLEGAL  = 3'h4;
+localparam EXCEPT_INSTR_MISALIGN = 3'h5;
+localparam EXCEPT_INSTR_FAULT    = 3'h6;
+
 // Operations for M extension
 
 localparam W_M_OP      = 3;

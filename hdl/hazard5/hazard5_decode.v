@@ -62,7 +62,7 @@ module hazard5_decode #(
 	output reg                  dx_result_is_linkaddr,
 	output reg  [W_ADDR-1:0]    dx_pc,
 	output reg  [W_ADDR-1:0]    dx_mispredict_addr,
-	output reg                  dx_except_invalid_instr
+	output reg  [2:0]           dx_except
 );
 
 
@@ -193,6 +193,7 @@ reg                  d_csr_ren;
 reg                  d_csr_wen;
 reg  [1:0]           d_csr_wtype;
 reg                  d_csr_w_imm;
+reg  [W_EXCEPT-1:0]  d_except;
 
 localparam X0 = {W_REGADDR{1'b0}};
 
@@ -215,6 +216,7 @@ always @ (*) begin
 	d_jump_is_regoffs = 1'b0;
 	d_result_is_linkaddr = 1'b0;
 	d_invalid_32bit = 1'b0;
+	d_except = EXCEPT_NONE;
 
 	casez (d_instr)
 	RV_BEQ:     begin d_rd = X0; d_aluop = ALUOP_SUB; d_branchcond = BCOND_ZERO;  end
@@ -262,10 +264,14 @@ always @ (*) begin
 	RV_CSRRWI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1  ; d_csr_ren = |d_rd; d_csr_wtype = CSR_WTYPE_W; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
 	RV_CSRRSI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_S; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
 	RV_CSRRCI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_C; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
+	RV_ECALL:   begin d_except = EXCEPT_ECALL;  end
+	RV_EBREAK:  begin d_except = EXCEPT_EBREAK; end
+	RV_MRET:    begin d_except = EXCEPT_MRET;   end
 	RV_SYSTEM:  begin
 		//synthesis translate_off
-		if (!d_stall) $display("Syscall @ PC %h: %h", pc, d_instr);
+		if (!d_stall && !clk) $display("Syscall @ PC %h: %h", pc, d_instr);
 		//synthesis translate_on
+		d_except = EXCEPT_INSTR_ILLEGAL;
 	 end
 	default:    begin d_invalid_32bit = 1'b1; end
 	endcase
@@ -286,16 +292,17 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_branchcond <= BCOND_NEVER;
 		dx_jump_is_regoffs <= 1'b0;
 		dx_result_is_linkaddr <= 1'b0;
-		dx_except_invalid_instr <= 1'b0;
+		dx_except <= EXCEPT_NONE;
 	end else if (!x_stall) begin
 		// These ones can have side effects
-		dx_rs1        <= d_invalid ? {W_REGADDR{1'b0}} : d_rs1;
-		dx_rs2        <= d_invalid ? {W_REGADDR{1'b0}} : d_rs2;
-		dx_rd         <= d_invalid ? {W_REGADDR{1'b0}} : d_rd;
-		dx_memop      <= d_invalid ? MEMOP_NONE        : d_memop;
-		dx_branchcond <= d_invalid ? BCOND_NEVER       : d_branchcond;
-		dx_csr_ren    <= d_invalid ? 1'b0              : d_csr_ren;
-		dx_csr_wen    <= d_invalid ? 1'b0              : d_csr_wen;
+		dx_rs1        <= d_invalid ? {W_REGADDR{1'b0}}    : d_rs1;
+		dx_rs2        <= d_invalid ? {W_REGADDR{1'b0}}    : d_rs2;
+		dx_rd         <= d_invalid ? {W_REGADDR{1'b0}}    : d_rd;
+		dx_memop      <= d_invalid ? MEMOP_NONE           : d_memop;
+		dx_branchcond <= d_invalid ? BCOND_NEVER          : d_branchcond;
+		dx_csr_ren    <= d_invalid ? 1'b0                 : d_csr_ren;
+		dx_csr_wen    <= d_invalid ? 1'b0                 : d_csr_wen;
+		dx_except     <= d_invalid ? EXCEPT_INSTR_ILLEGAL : d_except;
 
 		// These can't
 		dx_alusrc_a <= d_alusrc_a;
@@ -303,7 +310,6 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_aluop <= d_aluop;
 		dx_jump_is_regoffs <= d_jump_is_regoffs;
 		dx_result_is_linkaddr <= d_result_is_linkaddr;
-		dx_except_invalid_instr <= d_invalid;
 		dx_csr_wtype <= d_csr_wtype;
 		dx_csr_w_imm <= d_csr_w_imm;
 
@@ -312,7 +318,7 @@ always @ (posedge clk or negedge rst_n) begin
 			dx_branchcond <= BCOND_NEVER;
 			dx_memop <= MEMOP_NONE;
 			dx_rd <= 5'h0;
-			dx_except_invalid_instr <= 1'b0;
+			dx_except <= EXCEPT_NONE;
 			dx_csr_ren <= 1'b0;
 			dx_csr_wen <= 1'b0;
 			// Also need to clear rs1, rs2, due to a nasty sequence of events:

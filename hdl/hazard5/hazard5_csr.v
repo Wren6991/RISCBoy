@@ -56,15 +56,19 @@ module hazard5_csr #(
 	// - External IRQ signals
 	// - Masking etc based on the state of CSRs like mie
 	//
-	// We do this by producing a 1-clock pulse on trap_enter, and putting the absolute
-	// address of the trap target on trap_addr. mepc_in is simultaneously copied to mepc
-	// (it is assumed to be tied to the X program counter).
+	// We do this by raising trap_enter_vld, and keeping it raised until trap_enter_rdy
+	// goes high. trap_addr has the absolute value of trap target address.
+	// Once trap_enter_vld && _rdy, mepc_in is copied to mepc, and other trap state is set.
+	//
+	// Note that an exception input can go away, e.g. if the pipe gets flushed. In this
+	// case we lower trap_enter_vld.
 	//
 	// The core tells *us* that we are leaving the trap, by putting a 1-clock pulse on
 	// trap_exit. The core will simultaneously produce a jump (specifically a mispredict)
 	// to mepc_out.
 	output wire [XLEN-1:0] trap_addr,
-	output wire            trap_enter,
+	output wire            trap_enter_vld,
+	input  wire            trap_enter_rdy,
 	input  wire            trap_exit,
 	output wire [XLEN-1:0] mepc_in,
 	output wire [XLEN-1:0] mepc_out,
@@ -262,7 +266,7 @@ always @ (posedge clk or negedge rst_n) begin
 		mstatus_mpie <= 1'b0;
 		mstatus_mie <= 1'b0;
 	end else if (CSR_M_TRAP) begin
-		if (trap_enter) begin
+		if (trap_enter_vld && trap_enter_rdy) begin
 			mstatus_mpie <= mstatus_mie;
 			mstatus_mie <= 1'b0;
 		end else if (trap_exit) begin
@@ -304,15 +308,17 @@ end
 // Exception program counter
 reg [XLEN-1:0] mepc;
 assign mepc_out = mepc;
+// LSB is always 0
+localparam MEPC_MASK = {{XLEN-1{1'b1}}, 1'b0};
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mepc <= X0;
 	end else if (CSR_M_TRAP) begin
-		if (trap_enter) begin
-			mepc <= mepc_in;
+		if (trap_enter_vld && trap_enter_rdy) begin
+			mepc <= mepc_in & MEPC_MASK;
 		end else if (wen && addr == MEPC) begin
-			mepc <= update(mepc);
+			mepc <= update(mepc) & MEPC_MASK;
 		end
 	end
 end
@@ -352,7 +358,7 @@ always @ (posedge clk or negedge rst_n) begin
 		mcause_irq <= 1'b0;
 		mcause_code <= 5'h0;
 	end else if (CSR_M_TRAP) begin
-		if (trap_enter) begin
+		if (trap_enter_vld && trap_enter_rdy) begin
 			mcause_irq <= mcause_irq_next;
 			mcause_code <= mcause_code_next;
 		end else if (wen && addr == MCAUSE) begin
@@ -667,7 +673,7 @@ always @ (posedge clk or negedge rst_n)
 	if (!rst_n)
 		in_trap <= 1'b0;
 	else
-		in_trap <= (in_trap || trap_enter) && !trap_exit;
+		in_trap <= (in_trap || (trap_enter_vld && trap_enter_rdy)) && !trap_exit;
 
 // Exception selection
 
@@ -736,7 +742,7 @@ wire [11:0] mtvec_offs = (exception_req_any ?
 ) << 2;
 
 assign trap_addr = mtvec | mtvec_offs;
-assign trap_enter = exception_req_any || irq_any;
+assign trap_enter_vld = CSR_M_TRAP && (exception_req_any || irq_any);
 
 assign mcause_irq_next = !exception_req_any;
 assign mcause_code_next = exception_req_any ? exception_req_num : irq_num;

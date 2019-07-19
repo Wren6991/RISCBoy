@@ -253,7 +253,7 @@ wire                 dx_jump_is_regoffs;
 wire                 dx_result_is_linkaddr;
 wire [W_ADDR-1:0]    dx_pc;
 wire [W_ADDR-1:0]    dx_mispredict_addr;
-wire                 dx_except_invalid_instr;
+wire [W_EXCEPT-1:0]  dx_except;
 wire                 dx_csr_ren;
 wire                 dx_csr_wen;
 wire [1:0]           dx_csr_wtype;
@@ -267,45 +267,45 @@ hazard5_decode #(
 	.RESET_VECTOR (RESET_VECTOR),
 	.W_REGADDR    (W_REGADDR)
 ) inst_hazard5_decode (
-	.clk                     (clk),
-	.rst_n                   (rst_n),
+	.clk                   (clk),
+	.rst_n                 (rst_n),
 
-	.fd_cir                  (fd_cir),
-	.fd_cir_vld              (fd_cir_vld),
-	.df_cir_use              (df_cir_use),
-	.df_cir_lock             (df_cir_lock),
-	.d_jump_req              (d_jump_req),
-	.d_jump_target           (d_jump_target),
-	.d_pc                    (d_pc),
+	.fd_cir                (fd_cir),
+	.fd_cir_vld            (fd_cir_vld),
+	.df_cir_use            (df_cir_use),
+	.df_cir_lock           (df_cir_lock),
+	.d_jump_req            (d_jump_req),
+	.d_jump_target         (d_jump_target),
+	.d_pc                  (d_pc),
 
-	.d_stall                 (d_stall),
-	.x_stall                 (x_stall),
-	.flush_d_x               (flush_d_x),
-	.f_jump_rdy              (f_jump_rdy),
-	.f_jump_now              (f_jump_now),
-	.f_jump_target           (f_jump_target),
+	.d_stall               (d_stall),
+	.x_stall               (x_stall),
+	.flush_d_x             (flush_d_x),
+	.f_jump_rdy            (f_jump_rdy),
+	.f_jump_now            (f_jump_now),
+	.f_jump_target         (f_jump_target),
 
-	.d_rs1                   (d_rs1),
-	.d_rs2                   (d_rs2),
-	.dx_imm                  (dx_imm),
-	.dx_rs1                  (dx_rs1),
-	.dx_rs2                  (dx_rs2),
-	.dx_rd                   (dx_rd),
-	.dx_alusrc_a             (dx_alusrc_a),
-	.dx_alusrc_b             (dx_alusrc_b),
-	.dx_aluop                (dx_aluop),
-	.dx_memop                (dx_memop),
-	.dx_csr_ren              (dx_csr_ren),
-	.dx_csr_wen              (dx_csr_wen),
-	.dx_csr_wtype            (dx_csr_wtype),
-	.dx_csr_w_imm            (dx_csr_w_imm),
-	.dx_branchcond           (dx_branchcond),
-	.dx_jump_target          (dx_jump_target),
-	.dx_jump_is_regoffs      (dx_jump_is_regoffs),
-	.dx_result_is_linkaddr   (dx_result_is_linkaddr),
-	.dx_pc                   (dx_pc),
-	.dx_mispredict_addr      (dx_mispredict_addr),
-	.dx_except_invalid_instr (dx_except_invalid_instr)
+	.d_rs1                 (d_rs1),
+	.d_rs2                 (d_rs2),
+	.dx_imm                (dx_imm),
+	.dx_rs1                (dx_rs1),
+	.dx_rs2                (dx_rs2),
+	.dx_rd                 (dx_rd),
+	.dx_alusrc_a           (dx_alusrc_a),
+	.dx_alusrc_b           (dx_alusrc_b),
+	.dx_aluop              (dx_aluop),
+	.dx_memop              (dx_memop),
+	.dx_csr_ren            (dx_csr_ren),
+	.dx_csr_wen            (dx_csr_wen),
+	.dx_csr_wtype          (dx_csr_wtype),
+	.dx_csr_w_imm          (dx_csr_w_imm),
+	.dx_branchcond         (dx_branchcond),
+	.dx_jump_target        (dx_jump_target),
+	.dx_jump_is_regoffs    (dx_jump_is_regoffs),
+	.dx_result_is_linkaddr (dx_result_is_linkaddr),
+	.dx_pc                 (dx_pc),
+	.dx_mispredict_addr    (dx_mispredict_addr),
+	.dx_except             (dx_except)
 );
 
 // ============================================================================
@@ -334,7 +334,7 @@ wire                 x_alu_cmp;
 wire [W_DATA-1:0]    x_trap_addr;
 wire [W_DATA-1:0]    x_mepc;
 wire                 x_trap_enter;
-wire                 x_trap_exit = 1'b0; // TODO mret
+wire                 x_trap_exit;
 
 reg  [W_REGADDR-1:0] xm_rs1;
 reg  [W_REGADDR-1:0] xm_rs2;
@@ -430,9 +430,12 @@ always @ (*) begin
 		x_op_b = x_rs2_bypass;
 end
 
-// CSRs
-wire x_csr_wen = dx_csr_wen && !x_stall;
-wire x_csr_ren = dx_csr_ren && !x_stall;
+// CSRs and Trap Handling
+
+wire   x_except_ecall         = dx_except == EXCEPT_ECALL;
+wire   x_except_breakpoint    = dx_except == EXCEPT_EBREAK;
+wire   x_except_invalid_instr = dx_except == EXCEPT_INSTR_ILLEGAL;
+assign x_trap_exit            = dx_except == EXCEPT_MRET;
 
 wire [W_DATA-1:0] x_csr_wdata = dx_csr_w_imm ?
 	{{W_DATA-5{1'b0}}, dx_rs1} : x_rs1_bypass;
@@ -462,7 +465,8 @@ hazard5_csr #(
 	.ren                     (dx_csr_ren && !x_stall),
 	// Trap signalling
 	.trap_addr               (x_trap_addr),
-	.trap_enter              (x_trap_enter),
+	.trap_enter_vld          (x_trap_enter),
+	.trap_enter_rdy          (!(x_stall || flush_d_x)),
 	.trap_exit               (x_trap_exit),
 	.mepc_in                 (dx_pc),
 	.mepc_out                (x_mepc),
@@ -470,21 +474,16 @@ hazard5_csr #(
 	.irq                     (irq),
 	.except_instr_misaligned (1'b0), // TODO
 	.except_instr_fault      (1'b0), // TODO
-	.except_instr_invalid    (dx_except_invalid_instr),
-	.except_breakpoint       (1'b0), // TODO
+	.except_instr_invalid    (x_except_invalid_instr),
+	.except_breakpoint       (x_except_breakpoint),
 	.except_load_misaligned  (x_except_load_misaligned),
 	.except_load_fault       (1'b0), // TODO
 	.except_store_misaligned (x_except_store_misaligned),
 	.except_store_fault      (1'b0), // TODO
-	.except_ecall            (1'b0), // TODO
+	.except_ecall            (x_except_ecall),
 	// Other CSR-specific signalling
 	.instr_ret               (1'b0)  // TODO
 );
-
-// TODO: how to deal with exceptions that are asserted and go away while we are stalled?
-// Probably want a trap_enter_rdy input on CSRs, and CSR block has sticky versions
-// of exceptions which clear on trap_enter_rdy. However, many of the exceptions will
-// not fire when the core is stalled, as they are caused by instruction execution?
 
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin

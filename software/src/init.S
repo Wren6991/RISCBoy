@@ -77,6 +77,8 @@ j \name
 
 .reset_handler:
 	li sp, SRAM1_BASE + SRAM1_SIZE
+	la t0, .vector_table
+	csrw mtvec, t0
 	jal _start
 	j .halt
 

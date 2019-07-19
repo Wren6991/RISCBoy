@@ -64,7 +64,9 @@ hazard5_cpu #(
 	.ahblm_hprot     (cpu_hprot),
 	.ahblm_hmastlock (cpu_hmastlock),
 	.ahblm_hwdata    (cpu_hwdata),
-	.ahblm_hrdata    (cpu_hrdata)
+	.ahblm_hrdata    (cpu_hrdata),
+
+	.irq             (16'h0)
 );
 
 trafficgen #(

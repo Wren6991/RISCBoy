@@ -213,7 +213,8 @@ hazard5_cpu #(
 	.ahblm_hprot     (proc0_hprot),
 	.ahblm_hmastlock (proc0_hmastlock),
 	.ahblm_hwdata    (proc0_hwdata),
-	.ahblm_hrdata    (proc0_hrdata)
+	.ahblm_hrdata    (proc0_hrdata),
+	.irq             (16'h0)
 );
 
 `endif
