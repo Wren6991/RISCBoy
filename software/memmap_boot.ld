@@ -63,7 +63,7 @@ SECTIONS
   .iplt           : { *(.iplt) }
   .text           :
   {
-    *(.vectors)
+    KEEP (*(SORT_NONE(.vectors)))
     *(.text.unlikely .text.*_unlikely .text.unlikely.*)
     *(.text.exit .text.exit.*)
     *(.text.startup .text.startup.*)

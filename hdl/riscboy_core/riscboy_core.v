@@ -22,6 +22,7 @@
 
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
+	parameter CPU_RESET_VECTOR = 32'h200800c0,
 	parameter W_SRAM0_ADDR = 18,
 	parameter N_PADS = 23 // Let this default
 ) (
@@ -198,7 +199,7 @@ memdump #(
 `else
 
 hazard5_cpu #(
-	.RESET_VECTOR(32'h20080000)
+	.RESET_VECTOR    (CPU_RESET_VECTOR)
 ) inst_revive_cpu (
 	.clk             (clk),
 	.rst_n           (rst_n),
