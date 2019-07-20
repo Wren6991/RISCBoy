@@ -264,14 +264,14 @@ always @ (*) begin
 	RV_CSRRWI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1  ; d_csr_ren = |d_rd; d_csr_wtype = CSR_WTYPE_W; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
 	RV_CSRRSI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_S; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
 	RV_CSRRCI:  if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = |d_rs1; d_csr_ren = 1'b1 ; d_csr_wtype = CSR_WTYPE_C; d_csr_w_imm = 1'b1; end else begin d_invalid_32bit = 1'b1; end
-	RV_ECALL:   begin d_except = EXCEPT_ECALL;  end
-	RV_EBREAK:  begin d_except = EXCEPT_EBREAK; end
-	RV_MRET:    begin d_except = EXCEPT_MRET;   end
+	RV_ECALL:   begin d_except = EXCEPT_ECALL;  d_rs2 = X0; d_rs1 = X0; d_rd = X0; end
+	RV_EBREAK:  begin d_except = EXCEPT_EBREAK; d_rs2 = X0; d_rs1 = X0; d_rd = X0; end
+	RV_MRET:    begin d_except = EXCEPT_MRET;   d_rs2 = X0; d_rs1 = X0; d_rd = X0; end
 	RV_SYSTEM:  begin
 		//synthesis translate_off
 		if (!d_stall && !clk) $display("Syscall @ PC %h: %h", pc, d_instr);
 		//synthesis translate_on
-		d_except = EXCEPT_INSTR_ILLEGAL;
+		d_except = EXCEPT_INSTR_ILLEGAL; d_rs2 = X0; d_rs1 = X0; d_rd = X0;
 	 end
 	default:    begin d_invalid_32bit = 1'b1; end
 	endcase

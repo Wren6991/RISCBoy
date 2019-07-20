@@ -258,8 +258,6 @@ endfunction
 // Two-level interrupt enable stack, shuffled on entry/exit:
 reg mstatus_mpie;
 reg mstatus_mie;
-// External logic needs to know whether interrupts are enabled
-assign int_en = mstatus_mie;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -274,9 +272,9 @@ always @ (posedge clk or negedge rst_n) begin
 			mstatus_mie <= mstatus_mpie;
 		end else if (wen && addr == MSTATUS) begin
 			{mstatus_mpie, mstatus_mie} <=
-				wtype == CSR_WTYPE_C ? {mstatus_mpie, mstatus_mie} & ~{wdata[7], wdata[4]} :
-				wtype == CSR_WTYPE_S ? {mstatus_mpie, mstatus_mie} |  {wdata[7], wdata[4]} :
-				                                                      {wdata[7], wdata[4]} ;
+				wtype == CSR_WTYPE_C ? {mstatus_mpie, mstatus_mie} & ~{wdata[7], wdata[3]} :
+				wtype == CSR_WTYPE_S ? {mstatus_mpie, mstatus_mie} |  {wdata[7], wdata[3]} :
+				                                                      {wdata[7], wdata[3]} ;
 		end
 	end
 end
@@ -331,11 +329,12 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		mie <= X0;
 	end else if (CSR_M_TRAP) begin
-		mie <= update(mie) & ~MIE_CONST_MASK;
+		if (wen && addr == MIE)
+			mie <= update(mie) & ~MIE_CONST_MASK;
 	end
 end
 
-wire [15:0] mie_irq  = mie[31:6]; // Per-IRQ mask. Nonstandard, but legal.
+wire [15:0] mie_irq  = mie[31:16]; // Per-IRQ mask. Nonstandard, but legal.
 wire        mie_meie = mie[11];   // Global external IRQ enable. This is ANDed over our per-IRQ mask
 wire        mie_mtie = mie[7];    // Timer interrupt enable
 wire        mie_msie = mie[3];    // Software interrupt enable
