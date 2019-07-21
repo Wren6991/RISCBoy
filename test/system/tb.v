@@ -88,4 +88,54 @@ sram_async #(
 	.ben_n (sram_byte_n)
 );
 
+// ============================================================================
+// Bus Monitoring
+// ============================================================================
+
+localparam MONITOR_BUS = 0;
+
+localparam W_ADDR = 32;
+localparam W_DATA = 32;
+
+wire               proc0_hready    = dut.proc0_hready;
+wire               proc0_hresp     = dut.proc0_hresp;
+wire [W_ADDR-1:0]  proc0_haddr     = dut.proc0_haddr;
+wire               proc0_hwrite    = dut.proc0_hwrite;
+wire [1:0]         proc0_htrans    = dut.proc0_htrans;
+wire [2:0]         proc0_hsize     = dut.proc0_hsize;
+wire [2:0]         proc0_hburst    = dut.proc0_hburst;
+wire [3:0]         proc0_hprot     = dut.proc0_hprot;
+wire               proc0_hmastlock = dut.proc0_hmastlock;
+wire [W_DATA-1:0]  proc0_hwdata    = dut.proc0_hwdata;
+wire [W_DATA-1:0]  proc0_hrdata    = dut.proc0_hrdata;
+
+reg  [W_ADDR-1:0]  dph_addr;
+reg  [2:0]         dph_size;
+reg                dph_act_w;
+reg                dph_act_r;
+
+wire [7:0] size_str =
+	dph_size == 3'h0 ? "b" :
+	dph_size == 3'h1 ? "h" :
+	                   "w" ;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		dph_addr <= 0;
+		dph_act_w <= 0;
+		dph_act_r <= 0;
+		dph_size <= 0;
+		$timeformat(-9, 2, " ns", 20);
+	end else if (MONITOR_BUS && proc0_hready) begin
+		dph_addr <= proc0_haddr;
+		dph_size <= proc0_hsize;
+		dph_act_w <= proc0_htrans[1] && proc0_hwrite;
+		dph_act_r <= proc0_htrans[1] && !proc0_hwrite;
+		if (dph_act_w)
+			$display("%t PROC0: WRITE <%h>%s: %h", $time, dph_addr, size_str, proc0_hwdata);
+		if (dph_act_r)
+			$display("%t PROC0: READ  <%h>%s: %h", $time, dph_addr, size_str, proc0_hrdata);
+	end
+end
+
 endmodule
