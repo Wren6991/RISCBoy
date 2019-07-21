@@ -1,6 +1,6 @@
 #include "addressmap.h"
 
-//#define COLLAPSE_WEAK_HANDLERS
+#define COLLAPSE_WEAK_HANDLERS
 
 .section .vectors
 
@@ -102,6 +102,11 @@ j \name
 #endif
 .endm
 
+.global .halt
+.type .halt,%function
+#ifdef COLLAPSE_WEAK_HANDLERS
+.halt:
+#endif
 weak_handler handle_instr_misalign
 weak_handler handle_instr_fault
 weak_handler handle_instr_illegal
@@ -130,5 +135,7 @@ weak_handler isr_irq13
 weak_handler isr_irq14
 weak_handler isr_irq15
 
+#ifndef COLLAPSE_WEAK_HANDLERS
 .halt:
+#endif
 	j .halt
