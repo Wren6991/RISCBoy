@@ -126,6 +126,7 @@ wire [W_DATA-1:0]  uart_pwdata;
 wire               uart_pready;
 wire [W_DATA-1:0]  uart_prdata;
 wire               uart_pslverr;
+wire               uart_irq;
 
 wire               uart_tx;
 wire               uart_rx;
@@ -214,7 +215,10 @@ hazard5_cpu #(
 	.ahblm_hmastlock (proc0_hmastlock),
 	.ahblm_hwdata    (proc0_hwdata),
 	.ahblm_hrdata    (proc0_hrdata),
-	.irq             (16'h0)
+	.irq             ({
+		15'h0,
+		uart_irq
+	})
 );
 
 `endif
@@ -424,7 +428,7 @@ uart_mini #(
 `else
 	.tx           (uart_tx),
 `endif
-	.irq          (),
+	.irq          (uart_irq),
 	.dreq         ()
 );
 
