@@ -129,4 +129,7 @@ system TEST=spi_smoke
 system TEST=memtest_basic
 system TEST=gpio
 system TEST=test_ecall
+system TEST=uart_loopback_irq
+
+# Need more RAM for printf...
 #system TEST=printf_int
