@@ -31,7 +31,8 @@ module tbman_regs (
 	output reg [31:0] exit_o,
 	output reg exit_wen,
 	input wire  defines_sim_i,
-	input wire  defines_fpga_i
+	input wire  defines_fpga_i,
+	output reg [15:0] irq_force_o
 );
 
 // APB adapter
@@ -39,7 +40,7 @@ wire [31:0] wdata = apbs_pwdata;
 reg [31:0] rdata;
 wire wen = apbs_psel && apbs_penable && apbs_pwrite;
 wire ren = apbs_psel && apbs_penable && !apbs_pwrite;
-wire [15:0] addr = apbs_paddr & 16'hf;
+wire [15:0] addr = apbs_paddr & 16'h1f;
 assign apbs_prdata = rdata;
 assign apbs_pready = 1'b1;
 assign apbs_pslverr = 1'b0;
@@ -48,6 +49,7 @@ localparam ADDR_PRINT = 0;
 localparam ADDR_PUTINT = 4;
 localparam ADDR_EXIT = 8;
 localparam ADDR_DEFINES = 12;
+localparam ADDR_IRQ_FORCE = 16;
 
 wire __print_wen = wen && addr == ADDR_PRINT;
 wire __print_ren = ren && addr == ADDR_PRINT;
@@ -57,6 +59,8 @@ wire __exit_wen = wen && addr == ADDR_EXIT;
 wire __exit_ren = ren && addr == ADDR_EXIT;
 wire __defines_wen = wen && addr == ADDR_DEFINES;
 wire __defines_ren = ren && addr == ADDR_DEFINES;
+wire __irq_force_wen = wen && addr == ADDR_IRQ_FORCE;
+wire __irq_force_ren = ren && addr == ADDR_IRQ_FORCE;
 
 wire [7:0] print_wdata = wdata[7:0];
 wire [7:0] print_rdata;
@@ -81,12 +85,18 @@ wire [31:0] __defines_rdata = {30'h0, defines_fpga_rdata, defines_sim_rdata};
 assign defines_sim_rdata = defines_sim_i;
 assign defines_fpga_rdata = defines_fpga_i;
 
+wire [15:0] irq_force_wdata = wdata[15:0];
+wire [15:0] irq_force_rdata;
+wire [31:0] __irq_force_rdata = {16'h0, irq_force_rdata};
+assign irq_force_rdata = irq_force_o;
+
 always @ (*) begin
 	case (addr)
 		ADDR_PRINT: rdata = __print_rdata;
 		ADDR_PUTINT: rdata = __putint_rdata;
 		ADDR_EXIT: rdata = __exit_rdata;
 		ADDR_DEFINES: rdata = __defines_rdata;
+		ADDR_IRQ_FORCE: rdata = __irq_force_rdata;
 		default: rdata = 32'h0;
 	endcase
 	print_wen = __print_wen;
@@ -99,7 +109,10 @@ end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
+		irq_force_o <= 16'h0;
 	end else begin
+		if (__irq_force_wen)
+			irq_force_o <= irq_force_wdata;
 	end
 end
 

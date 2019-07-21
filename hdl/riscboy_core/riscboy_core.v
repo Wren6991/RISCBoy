@@ -118,6 +118,8 @@ wire               tbman_pready;
 wire [W_DATA-1:0]  tbman_prdata;
 wire               tbman_pslverr;
 
+wire [15:0]        tbman_irq_force;
+
 wire [W_PADDR-1:0] uart_paddr;
 wire               uart_psel;
 wire               uart_penable;
@@ -218,7 +220,7 @@ hazard5_cpu #(
 	.irq             ({
 		15'h0,
 		uart_irq
-	})
+	} | tbman_irq_force)
 );
 
 `endif
@@ -391,7 +393,9 @@ tbman inst_tbman (
 	.apbs_pwdata      (tbman_pwdata),
 	.apbs_prdata      (tbman_prdata),
 	.apbs_pready      (tbman_pready),
-	.apbs_pslverr     (tbman_pslverr)
+	.apbs_pslverr     (tbman_pslverr),
+
+	.irq_force        (tbman_irq_force) // FIXME testing only, need proper platform IRQ controller
 );
 
 pwm_tiny inst_pwm_tiny (

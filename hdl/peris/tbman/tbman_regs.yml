@@ -20,3 +20,6 @@ regs:
     bits:
       - {b: 0, name: sim, access: rov}
       - {b: 1, name: fpga, access: rov}
+  - name: irq_force
+    info: "Force IRQ to be high, at system level"
+    bits: [{b: [15, 0], access: rw}]

@@ -1,8 +1,8 @@
 #define CLK_SYS_MHZ 50
+
 #include "irq.h"
 #include "tbman.h"
 #include "uart.h"
-
 #include <stdbool.h>
 
 const char *test_str = "Hello, interrupt! 0123456789.";

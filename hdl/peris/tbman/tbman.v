@@ -23,7 +23,10 @@ module tbman (
 	input wire [31:0] apbs_pwdata,
 	output wire [31:0] apbs_prdata,
 	output wire apbs_pready,
-	output wire apbs_pslverr
+	output wire apbs_pslverr,
+
+	// FIXME a proper system-level IRQ controller
+	output wire [15:0] irq_force
 );
 
 wire [7:0]  print_o;
@@ -54,7 +57,8 @@ tbman_regs inst_tbman_regs
 	.exit_o         (exit_o),
 	.exit_wen       (exit_wen),
 	.defines_sim_i  (defines_sim),
-	.defines_fpga_i (defines_fpga)
+	.defines_fpga_i (defines_fpga),
+	.irq_force_o    (irq_force)
 );
 
 

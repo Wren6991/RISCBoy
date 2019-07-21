@@ -16,6 +16,7 @@
 #define TBMAN_PUTINT_OFFS 4
 #define TBMAN_EXIT_OFFS 8
 #define TBMAN_DEFINES_OFFS 12
+#define TBMAN_IRQ_FORCE_OFFS 16
 
 /*******************************************************************************
 *                                    PRINT                                     *
@@ -64,5 +65,16 @@
 #define TBMAN_DEFINES_FPGA_LSB  1
 #define TBMAN_DEFINES_FPGA_BITS 1
 #define TBMAN_DEFINES_FPGA_MASK 0x2
+
+/*******************************************************************************
+*                                  IRQ_FORCE                                   *
+*******************************************************************************/
+
+// Force IRQ to be high, at system level
+
+// Field IRQ_FORCE
+#define TBMAN_IRQ_FORCE_LSB  0
+#define TBMAN_IRQ_FORCE_BITS 16
+#define TBMAN_IRQ_FORCE_MASK 0xffff
 
 #endif // _TBMAN_REGS_H_

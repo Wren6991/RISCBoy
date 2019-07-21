@@ -431,10 +431,6 @@
             <obj_property name="ElementShortName">trap_exit</obj_property>
             <obj_property name="ObjectShortName">trap_exit</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_revive_cpu/inst_hazard5_csr/irq[0]" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">[0]</obj_property>
-            <obj_property name="ObjectShortName">irq[0]</obj_property>
-         </wvobject>
          <wvobject fp_name="/tb/dut/inst_revive_cpu/inst_hazard5_csr/irq" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">irq[15:0]</obj_property>
             <obj_property name="ObjectShortName">irq[15:0]</obj_property>
