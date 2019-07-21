@@ -339,8 +339,10 @@ always @ (posedge clk) begin
 	if (!x_stall) begin
 		dx_imm <= d_imm;
 		dx_jump_target <= d_jump_target;
-		dx_pc <= pc;
 		dx_mispredict_addr <= pc_next;
+		// The target of a late jump must be propagated *immediately* to X PC, as mepc may
+		// sample X PC at any time due to IRQ, and must not capture misprediction.
+		dx_pc <= flush_d_x && f_jump_now ? f_jump_target : pc;
 	end
 end
 
