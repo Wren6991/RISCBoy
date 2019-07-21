@@ -466,7 +466,7 @@ hazard5_csr #(
 	// Trap signalling
 	.trap_addr               (x_trap_addr),
 	.trap_enter_vld          (x_trap_enter),
-	.trap_enter_rdy          (!(x_stall || flush_d_x)),
+	.trap_enter_rdy          (!(x_stall || m_jump_req)),
 	.trap_exit               (x_trap_exit),
 	.mepc_in                 (dx_pc),
 	.mepc_out                (x_mepc),
