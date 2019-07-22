@@ -131,6 +131,7 @@ system TEST=gpio
 system TEST=test_ecall
 system TEST=uart_loopback_irq
 system TEST=irq_priority
+system TEST=irq_early_clear
 
 # Need more RAM for printf...
 #system TEST=printf_int
