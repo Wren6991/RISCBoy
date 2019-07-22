@@ -6,7 +6,9 @@
 #define IRQ_UART 0
 #define IRQ_SPI  1
 
-#define _ISR(irq) void __attribute__((interrupt, section(".vectors"))) isr_irq##irq
+#define HANDLER void __attribute__((interrupt, section(".vectors"))) 
+
+#define _ISR(irq) HANDLER isr_irq##irq
 #define ISR(irq) _ISR(irq)
 #define ISR_UART ISR(IRQ_UART)
 #define ISR_SPI  ISR(IRQ_SPI)

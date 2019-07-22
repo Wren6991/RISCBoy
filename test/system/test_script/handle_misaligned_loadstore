@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import sys
+
+failed = False
+
+tbman_lines = []
+expected = [
+	"Misaligned word load:",
+	"Handling misaligned load",
+	"00202503",
+	"Misaligned halfword load:",
+	"Handling misaligned load",
+	"00101503",
+	"Misaligned word store:",
+	"Handling misaligned store",
+	"00a02123",
+	"Misaligned halfword store:",
+	"Handling misaligned store",
+	"00a010a3",
+	"CPU requested termination, exit code          0"
+]
+
+for line in open(sys.argv[1]).readlines():
+	if line.startswith("TBMAN:"):
+		tbman_lines.append(line.strip()[7:])
+
+failed = False
+try:
+	for l in expected:
+		failed = failed or l != tbman_lines.pop(0)
+except:
+	failed = True
+
+if not failed:
+	print("Test PASSED.")
