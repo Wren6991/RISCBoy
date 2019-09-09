@@ -12,6 +12,7 @@ OBJDUMP=$(CROSS_PREFIX)objdump
 MARCH?=rv32ic
 LDSCRIPT?=memmap.ld
 override CCFLAGS+=-c -march=$(MARCH) $(addprefix -I ,$(INCDIRS))
+override CCFLAGS+=-Wall
 override LDFLAGS+=-T $(LDSCRIPT)
 
 # Override to -D to get all sections

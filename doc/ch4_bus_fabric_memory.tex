@@ -240,13 +240,13 @@ It's probably worth staring at for a short while. Key observations for figure \r
 
 \subsubsection{Main Memory}
 
-{\it Warning: hardware for this section is not yet in place; need PCBs to test thoroughly. This is just a sketch of ideas.}
-
 Main memory consists of a 16-bit-wide, 512 kiB asynchronous SRAM. The rough timing of read and write cycles is shown below (just signal alignment, no timing parameters):
 
 (TODO)
 
-The part used has a 10 ns access time, and RISCBoy is targeting around a 36 MHz system clock period (\textasciitilde 28 ns), so with some care we should be able to perform two reads in the same clock cycle, using a DDR output on the least-significant address bit, and an optional negedge capture fed into the lower half of the AHB-lite data bus. This means we can service one 32-bit AHB-lite read each cycle, which is ideal for a 32-bit processor with up to 32-bit instructions!
+Currently the controller requires a single cycle for each 16-bit access, and services 32-bit accesses from the busfabric as two back-to-back external access cycles; a single wait state is inserted via {\tt hready}. At RISCBoy's target clock frequency of 36 MHz, this cuts the available bandwidth down to 72 MiB/s.
+
+The part used has a 10 ns access time, and RISCBoy is targeting around a 36 MHz system clock period (\textasciitilde 28 ns), so with some care we may be able to perform two reads in the same clock cycle, using a DDR output on the least-significant address bit, and an optional negedge capture fed into the lower half of the AHB-lite data bus. This means we can service one 32-bit AHB-lite read each cycle, which is ideal for a 32-bit processor with up to 32-bit instructions!
 
 Writes are more problematic: due to the timing of the {\tt WE} pin, we need a full cycle for each 16-bit write cycle, so 32-bit writes will stall for one cycle. Write-intensive memory regions such as the processor stack should be located in IRAM if possible, to avoid this performance penalty.
 
