@@ -23,6 +23,16 @@ module pwm_tiny (
 localparam W_DIV = 8;
 localparam W_CTR = 8;
 
+wire rst_n_sync;
+
+reset_sync #(
+	.N_CYCLES (2)
+) inst_reset_sync (
+	.clk       (clk),
+	.rst_n_in  (rst_n),
+	.rst_n_out (rst_n_sync)
+);
+
 wire [W_DIV-1:0] div;
 wire [W_CTR-1:0] pwm_val;
 wire en;
@@ -35,8 +45,8 @@ reg              pwm_out;
 
 assign padout = pwm_out ^ inv;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		ctr_div <= 1'b1 | {W_DIV{1'b0}};
 		ctr_pwm <= {W_CTR{1'b0}};
 		pwm_val_dbuf <= {W_CTR{1'b0}};
@@ -63,7 +73,7 @@ end
 
 pwm_tiny_regs inst_pwm_regs (
 	.clk          (clk),
-	.rst_n        (rst_n),
+	.rst_n        (rst_n_sync),
 	.apbs_psel    (apbs_psel),
 	.apbs_penable (apbs_penable),
 	.apbs_pwrite  (apbs_pwrite),

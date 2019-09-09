@@ -38,6 +38,15 @@ parameter W_OVER = $clog2(OVERSAMPLE);
 localparam W_DIV_INT = 10;
 localparam W_DIV_FRAC = 8;
 
+wire rst_n_sync;
+
+reset_sync #(
+	.N_CYCLES (2)
+) inst_reset_sync (
+	.clk       (clk),
+	.rst_n_in  (rst_n),
+	.rst_n_out (rst_n_sync)
+);
 
 wire [7:0]          txfifo_wdata;
 wire                txfifo_wen;
@@ -80,8 +89,8 @@ wire tx_busy = tx_state != TX_IDLE || !txfifo_empty;
 assign txfifo_ren = clk_en && !txfifo_empty && !tx_over_ctr &&
 	(tx_state == TX_IDLE || tx_state == TX_STOP);
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		tx <= 1'b1;
 		tx_over_ctr <= {W_OVER{1'b0}};
 		tx_state <= TX_IDLE;
@@ -150,8 +159,8 @@ wire din_comb = csr_loopback ? tx : rx;
 reg [1:0] din_prev;
 reg din;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		din_prev <= 2'b11;
 		din <= 1'b1;
 	end else begin
@@ -168,8 +177,8 @@ localparam RX_START = 1;  // followed by 0.5 bit period delay
 // 2...9 are data states
 localparam RX_STOP = 10;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		rx_over_ctr <= {W_OVER{1'b0}};
 		rx_state <= RX_IDLE;
 		rx_shifter <= 8'h0;
@@ -226,7 +235,7 @@ clkdiv_frac #(
 	.W_DIV_FRAC(W_DIV_FRAC)
 ) inst_clkdiv_frac (
 	.clk      (clk),
-	.rst_n    (rst_n),
+	.rst_n    (rst_n_sync),
 	.en       (csr_en),
 	.div_int  (div_int),
 	.div_frac (div_frac),
@@ -238,7 +247,7 @@ sync_fifo #(
 	.WIDTH(8)
 ) txfifo (
 	.clk    (clk),
-	.rst_n  (rst_n),
+	.rst_n  (rst_n_sync),
 	.w_data (txfifo_wdata),
 	.w_en   (txfifo_wen),
 	.r_data (txfifo_rdata),
@@ -253,7 +262,7 @@ sync_fifo #(
 	.WIDTH(8)
 ) rxfifo (
 	.clk    (clk),
-	.rst_n  (rst_n),
+	.rst_n  (rst_n_sync),
 	.w_data (rx_shifter),
 	.w_en   (rxfifo_wen),
 	.r_data (rxfifo_rdata),
@@ -265,7 +274,7 @@ sync_fifo #(
 
 uart_regs regs (
 	.clk             (clk),
-	.rst_n           (rst_n),
+	.rst_n           (rst_n_sync),
 
 	.apbs_psel       (apbs_psel),
 	.apbs_penable    (apbs_penable),

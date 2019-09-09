@@ -23,6 +23,16 @@ parameter W_FLEVEL = $clog2(FIFO_DEPTH + 1);
 localparam W_DIV_INT = 6;
 localparam W_DATA = 8;
 
+wire rst_n_sync;
+
+reset_sync #(
+	.N_CYCLES (2)
+) inst_reset_sync (
+	.clk       (clk),
+	.rst_n_in  (rst_n),
+	.rst_n_out (rst_n_sync)
+);
+
 // -----------------------------------------------------------------------------
 // Interconnects
 // -----------------------------------------------------------------------------
@@ -73,8 +83,8 @@ wire shift_in = csr_loopback ? sdo : sdi;
 
 reg [W_STATE-1:0] state;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		cs_r <= 1'b1;
 		sclk_r <= 1'b0;
 		sdo <= 1'b0;
@@ -154,8 +164,8 @@ always @ (*)
 
 reg [W_DIV_INT-1:0] clkdiv_ctr;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		clk_en <= 1'b0;
 		clkdiv_ctr <= {{W_DIV_INT-1{1'b0}}, 1'b1};
 	end else begin
@@ -174,7 +184,7 @@ sync_fifo #(
 	.WIDTH(8)
 ) txfifo (
 	.clk    (clk),
-	.rst_n  (rst_n),
+	.rst_n  (rst_n_sync),
 	.w_data (txfifo_wdata),
 	.w_en   (txfifo_wen),
 	.r_data (txfifo_rdata),
@@ -189,7 +199,7 @@ sync_fifo #(
 	.WIDTH(8)
 ) rxfifo (
 	.clk    (clk),
-	.rst_n  (rst_n),
+	.rst_n  (rst_n_sync),
 	.w_data (rx_shift),
 	.w_en   (rxfifo_wen),
 	.r_data (rxfifo_rdata),
@@ -202,7 +212,7 @@ sync_fifo #(
 spi_regs regs
 (
 	.clk             (clk),
-	.rst_n           (rst_n),
+	.rst_n           (rst_n_sync),
 
 	.apbs_psel       (apbs_psel),
 	.apbs_penable    (apbs_penable),

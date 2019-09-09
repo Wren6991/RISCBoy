@@ -34,6 +34,16 @@ module gpio #(
 
 `include "gpio_pinmap.vh"
 
+wire rst_n_sync;
+
+reset_sync #(
+	.N_CYCLES (2)
+) inst_reset_sync (
+	.clk       (clk),
+	.rst_n_in  (rst_n),
+	.rst_n_out (rst_n_sync)
+);
+
 localparam W_FSEL = 1;
 localparam N_FSELS = 1 << W_FSEL;
 
@@ -65,8 +75,8 @@ end
 
 reg [N_PADS-1:0] padin_reg;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
 		padin_reg <= {N_PADS{1'b0}};
 	end else begin
 		padin_reg <= padin;
@@ -82,19 +92,19 @@ assign spi_sdi = padin[PIN_FLASH_MISO];  // SPI certainly will though
 
 gpio_regs inst_gpio_regs
 (
-	.clk          (clk),
-	.rst_n        (rst_n),
-	.apbs_psel    (apbs_psel),
-	.apbs_penable (apbs_penable),
-	.apbs_pwrite  (apbs_pwrite),
-	.apbs_paddr   (apbs_paddr),
-	.apbs_pwdata  (apbs_pwdata),
-	.apbs_prdata  (apbs_prdata),
-	.apbs_pready  (apbs_pready),
-	.apbs_pslverr (apbs_pslverr),
-	.out_o        (proc_out),
-	.dir_o        (proc_oe),
-	.in_i         (padin_reg),
+	.clk           (clk),
+	.rst_n         (rst_n_sync),
+	.apbs_psel     (apbs_psel),
+	.apbs_penable  (apbs_penable),
+	.apbs_pwrite   (apbs_pwrite),
+	.apbs_paddr    (apbs_paddr),
+	.apbs_pwdata   (apbs_pwdata),
+	.apbs_prdata   (apbs_prdata),
+	.apbs_pready   (apbs_pready),
+	.apbs_pslverr  (apbs_pslverr),
+	.out_o         (proc_out),
+	.dir_o         (proc_oe),
+	.in_i          (padin_reg),
 	.fsel0_p0_o    (fsel[0 ]),
 	.fsel0_p1_o    (fsel[1 ]),
 	.fsel0_p2_o    (fsel[2 ]),
