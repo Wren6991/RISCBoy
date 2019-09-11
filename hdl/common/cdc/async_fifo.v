@@ -81,10 +81,10 @@ wire pop_actual = rpop && !rempty;
 //synthesis translate_off
 always @ (posedge wclk)
 	if (wpush && wfull)
-		$display("WARNING %m: push on full");
+		$display($time, ": WARNING %m: push on full");
 always @ (posedge rclk)
 	if (rpop && rempty)
-		$display("WARNING %m: pop on empty");
+		$display($time, ": WARNING %m: pop on empty");
 //synthesis translate_on
 
 // ----------------------------------------------------------------------------

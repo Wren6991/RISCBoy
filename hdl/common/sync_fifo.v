@@ -74,6 +74,16 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
+//synthesis translate_off
+always @ (posedge clk)
+	if (w_en && full)
+		$display($time, ": WARNING %m: push on full");
+always @ (posedge clk)
+	if (r_en && empty)
+		$display($time, ": WARNING %m: pop on empty");
+//synthesis translate_on
+
+
 `ifdef FORMAL
 initial assume(!rst_n);
 always @ (posedge clk) begin

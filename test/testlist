@@ -6,6 +6,7 @@ ahbl_splitter
 ahbl_arbiter
 ahbl_crossbar
 sync_fifo
+async_fifo
 hazard5_muldiv_seq
 
 # CPU litmus tests
