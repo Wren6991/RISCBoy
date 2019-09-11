@@ -30,8 +30,8 @@
 // Simulation and Synthesis Techniques for Asynchronous FIFO Design (SNUG 2002)
 
 module async_fifo #(
-	parameter W_DATA = 1,
-	parameter W_ADDR = 1,
+	parameter W_DATA = 16,
+	parameter W_ADDR = 3,
 	parameter SYNC_STAGES = 2
 ) (
 	input  wire              wrst_n,
@@ -44,11 +44,11 @@ module async_fifo #(
 
 	input  wire              rrst_n,
 	input  wire              rclk,
-	input  wire [W_DATA-1:0] rdata,
+	output  reg [W_DATA-1:0] rdata,
 	input  wire              rpop,
 	output wire              rfull,
 	output wire              rempty,
-	output wire [W_ADDR:0]   rlevel,
+	output wire [W_ADDR:0]   rlevel
 );
 
 // ----------------------------------------------------------------------------
@@ -68,11 +68,11 @@ wire [W_ADDR:0] rptr_w;
 // rptr_w and wptr_r are expensive (Gray-decoded), so avoid them for full/empty calculations
 // For full, due to symmetries in Gray code, we check that 2 MSBs differ and all others are equal
 assign wempty = wptr_gry_w == rptr_gry_w;
-assign wfull  = wptr_gry_w == (rptr_gry_w ^ {2'b11, {W_ADDR-1{1'b0}});
+assign wfull  = wptr_gry_w == (rptr_gry_w ^ {2'b11, {W_ADDR-1{1'b0}}});
 assign wlevel = wptr_w - rptr_w;
 
 assign rempty = rptr_gry_r == wptr_gry_r;
-assign rfull  = rptr_gry_r == (wptr_gry_r ^ {2'b11, {W_ADDR-1{1'b0}});
+assign rfull  = rptr_gry_r == (wptr_gry_r ^ {2'b11, {W_ADDR-1{1'b0}}});
 assign rlevel = wptr_r - rptr_r;
 
 wire push_actual = wpush && !wfull;
@@ -83,7 +83,7 @@ always @ (posedge wclk)
 	if (wpush && wfull)
 		$display("WARNING %m: push on full");
 always @ (posedge rclk)
-	if (rpush && rempty)
+	if (rpop && rempty)
 		$display("WARNING %m: pop on empty");
 //synthesis translate_on
 
@@ -114,7 +114,7 @@ gray_counter #(
 
 sync_1bit #(
 	.N_STAGES (SYNC_STAGES)
-) [W_ADDR:0] sync_wptr (
+) sync_wptr [W_ADDR:0] (
 	.clk   (rclk),
 	.rst_n (rrst_n),
 	.i     (wptr_gry_w),
@@ -123,7 +123,7 @@ sync_1bit #(
 
 sync_1bit #(
 	.N_STAGES (SYNC_STAGES)
-) [W_ADDR:0] sync_rptr (
+) sync_rptr [W_ADDR:0] (
 	.clk   (wclk),
 	.rst_n (wrst_n),
 	.i     (rptr_gry_r),
@@ -136,7 +136,6 @@ gray_decode #(
 	.i (wptr_gry_r),
 	.o (wptr_r)
 );
-
 
 gray_decode #(
 	.N (W_ADDR + 1)
@@ -151,10 +150,16 @@ gray_decode #(
 localparam MEM_DEPTH = 1 << W_ADDR;
 reg [W_DATA-1:0] mem [0:MEM_DEPTH-1];
 
+wire [W_ADDR-1:0] memptr_w = wptr_w[W_ADDR-1:0];
+wire [W_ADDR-1:0] memptr_r = rptr_r[W_ADDR-1:0];
+
 always @ (posedge wclk)
 	if (push_actual)
-		mem[wptr[W_ADDR-1:0]] <= wdata;
+		mem[memptr_w] <= wdata;
 
-assign rdata = mem[rptr[W_ADDR-1:0]];
+// TODO this won't be inferred as BRAMs on iCE40
+// However even making this read port synchronous does not seem to trigger BRAM
+// inference, so needs closer investigation. Flops ok for now
+always @ (*) rdata = mem[memptr_r];
 
 endmodule

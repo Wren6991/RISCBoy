@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="3" />
+   <wvobject fp_name="group37" type="group">
+      <obj_property name="label">Write Ports</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/inst_async_fifo/wrst_n" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">wrst_n</obj_property>
+         <obj_property name="ObjectShortName">wrst_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">wclk</obj_property>
+         <obj_property name="ObjectShortName">wclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wdata[15:0]</obj_property>
+         <obj_property name="ObjectShortName">wdata[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wpush" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">wpush</obj_property>
+         <obj_property name="ObjectShortName">wpush</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wfull" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">wfull</obj_property>
+         <obj_property name="ObjectShortName">wfull</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wempty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">wempty</obj_property>
+         <obj_property name="ObjectShortName">wempty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wlevel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wlevel[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wlevel[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group38" type="group">
+      <obj_property name="label">Read Ports</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/inst_async_fifo/rrst_n" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rrst_n</obj_property>
+         <obj_property name="ObjectShortName">rrst_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rclk</obj_property>
+         <obj_property name="ObjectShortName">rclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rpop" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rpop</obj_property>
+         <obj_property name="ObjectShortName">rpop</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rfull" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rfull</obj_property>
+         <obj_property name="ObjectShortName">rfull</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rempty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rempty</obj_property>
+         <obj_property name="ObjectShortName">rempty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rlevel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rlevel[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rlevel[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rdata[15:0]</obj_property>
+         <obj_property name="ObjectShortName">rdata[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group39" type="group">
+      <obj_property name="label">Internals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/inst_async_fifo/wptr_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wptr_w[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wptr_w[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wptr_gry_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wptr_gry_w[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wptr_gry_w[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wptr_gry_r" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wptr_gry_r[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wptr_gry_r[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/wptr_r" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">wptr_r[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wptr_r[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rptr_r" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rptr_r[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rptr_r[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rptr_gry_r" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rptr_gry_r[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rptr_gry_r[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rptr_gry_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rptr_gry_w[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rptr_gry_w[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/rptr_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rptr_w[3:0]</obj_property>
+         <obj_property name="ObjectShortName">rptr_w[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/push_actual" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">push_actual</obj_property>
+         <obj_property name="ObjectShortName">push_actual</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/pop_actual" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">pop_actual</obj_property>
+         <obj_property name="ObjectShortName">pop_actual</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/memptr_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memptr_w[2:0]</obj_property>
+         <obj_property name="ObjectShortName">memptr_w[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/memptr_r" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memptr_r[2:0]</obj_property>
+         <obj_property name="ObjectShortName">memptr_r[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_async_fifo/mem" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mem[0:7,15:0]</obj_property>
+         <obj_property name="ObjectShortName">mem[0:7,15:0]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

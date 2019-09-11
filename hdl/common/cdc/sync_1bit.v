@@ -35,7 +35,7 @@ always @ (posedge clk or negedge rst_n)
 	if (!rst_n)
 		sync_flops <= {N_STAGES{1'b0}};
 	else
-		sync_flops <= {sync_flops[N_STAGES-1:1], i};
+		sync_flops <= {sync_flops[N_STAGES-2:0], i};
 
 assign o = sync_flops[N_STAGES-1];
 

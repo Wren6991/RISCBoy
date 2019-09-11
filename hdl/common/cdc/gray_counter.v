@@ -41,7 +41,10 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		ctr_bin <= {W_CTR{1'b0}};
 		ctr_gry <= {W_CTR{1'b0}};
-	end else begin
+	end else if (clr) begin
+		ctr_bin <= {W_CTR{1'b0}};
+		ctr_gry <= {W_CTR{1'b0}};
+	end else if (en) begin
 		ctr_bin <= ctr_bin_next;
 		ctr_gry <= ctr_bin_next ^ (ctr_bin_next >> 1);
 	end
