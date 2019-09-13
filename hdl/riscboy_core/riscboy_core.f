@@ -1,5 +1,6 @@
 list $HDL/busfabric/busfabric.f
 list $HDL/hazard5/hazard5.f
+list $HDL/graphics/riscboy_ppu.f
 list $HDL/mem/ahb_sync_sram.f
 list $HDL/mem/ahb_async_sram_halfwidth.f
 list $HDL/peris/tbman/tbman.f

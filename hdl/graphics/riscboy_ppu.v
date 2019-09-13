@@ -53,7 +53,7 @@ wire [W_PXFIFO_LEVEL-1:0]  pxfifo_wlevel;
 wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt;
 wire                       lcdctrl_busy;
 
-riscboy_ppu_regs regs (
+ppu_regs regs (
 	.clk                    (clk_ppu),
 	.rst_n                  (rst_n_ppu),
 
@@ -70,7 +70,7 @@ riscboy_ppu_regs regs (
 	.lcd_pxfifo_wen         (pxfifo_direct_wen),
 	.lcd_csr_pxfifo_empty_i (pxfifo_wempty),
 	.lcd_csr_pxfifo_full_i  (pxfifo_wfull),
-	.lcd_csr_pxfifo_level_i (pxfifo_wlevel),
+	.lcd_csr_pxfifo_level_i (pxfifo_wlevel & 6'h0),
 	.lcd_csr_lcd_cs_o       (lcd_cs),
 	.lcd_csr_lcd_dc_o       (lcd_dc),
 	.lcd_csr_lcd_shiftcnt_o (lcdctrl_shamt),
@@ -83,7 +83,7 @@ riscboy_ppu_regs regs (
 wire                       lcdctrl_busy_clklcd;
 wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt_clklcd;
 
-wire [W_PXDATA-1:0] lcd_rdata;
+wire [W_PXDATA-1:0] pxfifo_rdata;
 wire pxfifo_rempty;
 wire pxfifo_rdy;
 wire pxfifo_pop = pxfifo_rdy && !pxfifo_rempty;
@@ -92,7 +92,7 @@ sync_1bit sync_lcd_busy (
 	.clk   (clk_ppu),
 	.rst_n (rst_n_ppu),
 	.i     (lcdctrl_busy_clklcd),
-	.o     (lcdctrL_busy)
+	.o     (lcdctrl_busy)
 );
 
 // It should be ok to use simple 2FF sync here because software maintains
@@ -121,10 +121,10 @@ async_fifo #(
 	.rclk   (clk_lcd),
 	.rrst_n (rst_n_lcd),
 
-	.rdata  (),
+	.rdata  (pxfifo_rdata),
 	.rpop   (pxfifo_pop),
 	.rfull  (/* unused */),
-	.rempty (rempty),
+	.rempty (pxfifo_rempty),
 	.rlevel (/* unused */)
 );
 
@@ -142,3 +142,5 @@ riscboy_ppu_dispctrl #(
 	.lcd_sck           (lcd_sck),
 	.lcd_mosi          (lcd_mosi)
 );
+
+endmodule

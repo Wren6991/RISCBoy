@@ -4,16 +4,16 @@
 *          Edit the source file (or regblock utility) and regenerate.          *
 *******************************************************************************/
 
-#ifndef _RISCBOY_PPU_REGS_H_
-#define _RISCBOY_PPU_REGS_H_
+#ifndef _PPU_REGS_H_
+#define _PPU_REGS_H_
 
-// Block name           : riscboy_ppu
+// Block name           : ppu
 // Bus type             : apb
 // Bus data width       : 32
 // Bus address width    : 16
 
-#define RISCBOY_PPU_LCD_PXFIFO_OFFS 0
-#define RISCBOY_PPU_LCD_CSR_OFFS 4
+#define PPU_LCD_PXFIFO_OFFS 0
+#define PPU_LCD_CSR_OFFS 4
 
 /*******************************************************************************
 *                                  LCD_PXFIFO                                  *
@@ -22,9 +22,9 @@
 // Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
 
 // Field LCD_PXFIFO
-#define RISCBOY_PPU_LCD_PXFIFO_LSB  0
-#define RISCBOY_PPU_LCD_PXFIFO_BITS 16
-#define RISCBOY_PPU_LCD_PXFIFO_MASK 0xffff
+#define PPU_LCD_PXFIFO_LSB  0
+#define PPU_LCD_PXFIFO_BITS 16
+#define PPU_LCD_PXFIFO_MASK 0xffff
 
 /*******************************************************************************
 *                                   LCD_CSR                                    *
@@ -33,32 +33,32 @@
 // Control and status register for the LCD interface
 
 // Field LCD_CSR_PXFIFO_EMPTY
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_EMPTY_LSB  0
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_EMPTY_BITS 1
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_EMPTY_MASK 0x1
+#define PPU_LCD_CSR_PXFIFO_EMPTY_LSB  0
+#define PPU_LCD_CSR_PXFIFO_EMPTY_BITS 1
+#define PPU_LCD_CSR_PXFIFO_EMPTY_MASK 0x1
 // Field LCD_CSR_PXFIFO_FULL
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_FULL_LSB  1
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_FULL_BITS 1
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_FULL_MASK 0x2
+#define PPU_LCD_CSR_PXFIFO_FULL_LSB  1
+#define PPU_LCD_CSR_PXFIFO_FULL_BITS 1
+#define PPU_LCD_CSR_PXFIFO_FULL_MASK 0x2
 // Field LCD_CSR_PXFIFO_LEVEL
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_LEVEL_LSB  2
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_LEVEL_BITS 6
-#define RISCBOY_PPU_LCD_CSR_PXFIFO_LEVEL_MASK 0xfc
+#define PPU_LCD_CSR_PXFIFO_LEVEL_LSB  2
+#define PPU_LCD_CSR_PXFIFO_LEVEL_BITS 6
+#define PPU_LCD_CSR_PXFIFO_LEVEL_MASK 0xfc
 // Field LCD_CSR_LCD_CS
-#define RISCBOY_PPU_LCD_CSR_LCD_CS_LSB  8
-#define RISCBOY_PPU_LCD_CSR_LCD_CS_BITS 1
-#define RISCBOY_PPU_LCD_CSR_LCD_CS_MASK 0x100
+#define PPU_LCD_CSR_LCD_CS_LSB  8
+#define PPU_LCD_CSR_LCD_CS_BITS 1
+#define PPU_LCD_CSR_LCD_CS_MASK 0x100
 // Field LCD_CSR_LCD_DC
-#define RISCBOY_PPU_LCD_CSR_LCD_DC_LSB  9
-#define RISCBOY_PPU_LCD_CSR_LCD_DC_BITS 1
-#define RISCBOY_PPU_LCD_CSR_LCD_DC_MASK 0x200
+#define PPU_LCD_CSR_LCD_DC_LSB  9
+#define PPU_LCD_CSR_LCD_DC_BITS 1
+#define PPU_LCD_CSR_LCD_DC_MASK 0x200
 // Field LCD_CSR_TX_BUSY
-#define RISCBOY_PPU_LCD_CSR_TX_BUSY_LSB  10
-#define RISCBOY_PPU_LCD_CSR_TX_BUSY_BITS 1
-#define RISCBOY_PPU_LCD_CSR_TX_BUSY_MASK 0x400
+#define PPU_LCD_CSR_TX_BUSY_LSB  10
+#define PPU_LCD_CSR_TX_BUSY_BITS 1
+#define PPU_LCD_CSR_TX_BUSY_MASK 0x400
 // Field LCD_CSR_LCD_SHIFTCNT
-#define RISCBOY_PPU_LCD_CSR_LCD_SHIFTCNT_LSB  16
-#define RISCBOY_PPU_LCD_CSR_LCD_SHIFTCNT_BITS 5
-#define RISCBOY_PPU_LCD_CSR_LCD_SHIFTCNT_MASK 0x1f0000
+#define PPU_LCD_CSR_LCD_SHIFTCNT_LSB  16
+#define PPU_LCD_CSR_LCD_SHIFTCNT_BITS 5
+#define PPU_LCD_CSR_LCD_SHIFTCNT_MASK 0x1f0000
 
-#endif // _RISCBOY_PPU_REGS_H_
+#endif // _PPU_REGS_H_

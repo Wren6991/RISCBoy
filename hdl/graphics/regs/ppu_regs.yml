@@ -1,4 +1,4 @@
-name: riscboy_ppu
+name: ppu
 bus: apb
 addr: 16
 data: 32

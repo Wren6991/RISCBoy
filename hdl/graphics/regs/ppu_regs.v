@@ -4,12 +4,12 @@
 *          Edit the source file (or regblock utility) and regenerate.          *
 *******************************************************************************/
 
-// Block name           : riscboy_ppu
+// Block name           : ppu
 // Bus type             : apb
 // Bus data width       : 32
 // Bus address width    : 16
 
-module riscboy_ppu_regs (
+module ppu_regs (
 	input wire clk,
 	input wire rst_n,
 	

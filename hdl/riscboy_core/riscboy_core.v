@@ -26,7 +26,8 @@ module riscboy_core #(
 	parameter W_SRAM0_ADDR = 18,
 	parameter N_PADS = 23 // Let this default
 ) (
-	input wire                     clk,
+	input wire                     clk_sys,
+	input wire                     clk_lcd,
 	input wire                     rst_n,
 
 	output wire [N_PADS-1:0]       padout,
@@ -38,7 +39,12 @@ module riscboy_core #(
 	output wire                    sram_ce_n,
 	output wire                    sram_we_n,
 	output wire                    sram_oe_n,
-	output wire [1:0]              sram_byte_n
+	output wire [1:0]              sram_byte_n,
+
+	output wire                    lcd_cs,
+	output wire                    lcd_dc,
+	output wire                    lcd_sck,
+	output wire                    lcd_mosi
 );
 
 localparam W_ADDR = 32;
@@ -167,6 +173,16 @@ wire               gpio_pready;
 wire [W_DATA-1:0]  gpio_prdata;
 wire               gpio_pslverr;
 
+wire [W_PADDR-1:0] ppu_apbs_paddr;
+wire               ppu_apbs_psel;
+wire               ppu_apbs_penable;
+wire               ppu_apbs_pwrite;
+wire [W_DATA-1:0]  ppu_apbs_pwdata;
+wire               ppu_apbs_pready;
+wire [W_DATA-1:0]  ppu_apbs_prdata;
+wire               ppu_apbs_pslverr;
+
+
 // =============================================================================
 //  Masters
 // =============================================================================
@@ -181,7 +197,7 @@ memdump #(
 	.ADDR_START (32'h20080000),
 	.ADDR_STOP (32'h20080000 + 8192)
 ) inst_revive_cpu (
-	.clk             (clk),
+	.clk             (clk_sys),
 	.rst_n           (rst_n),
 	.ahblm_hready    (proc0_hready),
 	.ahblm_hresp     (proc0_hresp),
@@ -204,7 +220,7 @@ memdump #(
 hazard5_cpu #(
 	.RESET_VECTOR    (CPU_RESET_VECTOR)
 ) inst_revive_cpu (
-	.clk             (clk),
+	.clk             (clk_sys),
 	.rst_n           (rst_n),
 	.ahblm_hready    (proc0_hready),
 	.ahblm_hresp     (proc0_hresp),
@@ -225,6 +241,29 @@ hazard5_cpu #(
 
 `endif
 
+// Not a master yet, but will be soon :)
+riscboy_ppu #(
+	.PXFIFO_DEPTH (8)
+) inst_riscboy_ppu (
+	.clk_ppu      (clk_sys),
+	.clk_lcd      (clk_lcd),
+	.rst_n        (rst_n),
+
+	.apbs_psel    (ppu_apbs_psel),
+	.apbs_penable (ppu_apbs_penable),
+	.apbs_pwrite  (ppu_apbs_pwrite),
+	.apbs_paddr   (ppu_apbs_paddr),
+	.apbs_pwdata  (ppu_apbs_pwdata),
+	.apbs_prdata  (ppu_apbs_prdata),
+	.apbs_pready  (ppu_apbs_pready),
+	.apbs_pslverr (ppu_apbs_pslverr),
+
+	.lcd_cs       (lcd_cs),
+	.lcd_dc       (lcd_dc),
+	.lcd_sck      (lcd_sck),
+	.lcd_mosi     (lcd_mosi)
+);
+
 // =============================================================================
 //  Busfabric
 // =============================================================================
@@ -237,7 +276,7 @@ ahbl_crossbar #(
 	.ADDR_MAP (96'h40000000_20080000_20000000),
 	.ADDR_MASK(96'he0000000_e0080000_e0080000)
 ) inst_ahbl_crossbar (
-	.clk             (clk),
+	.clk             (clk_sys),
 	.rst_n           (rst_n),
 	.src_hready_resp (proc0_hready),
 	.src_hresp       (proc0_hresp),
@@ -270,7 +309,7 @@ ahbl_to_apb #(
 	.W_PADDR(W_PADDR),
 	.W_DATA(W_DATA)
 ) inst_ahbl_to_apb (
-	.clk               (clk),
+	.clk               (clk_sys),
 	.rst_n             (rst_n),
 	.ahbls_hready      (bridge_hready),
 	.ahbls_hready_resp (bridge_hready_resp),
@@ -298,9 +337,9 @@ ahbl_to_apb #(
 apb_splitter #(
 	.W_ADDR(W_PADDR),
 	.W_DATA(W_DATA),
-	.N_SLAVES(5),
-	.ADDR_MAP (80'hf000_3000_2000_1000_0000),
-	.ADDR_MASK(80'hf000_f000_f000_f000_f000)
+	.N_SLAVES(6),
+	.ADDR_MAP (96'hf000_4000_3000_2000_1000_0000),
+	.ADDR_MASK(96'hf000_f000_f000_f000_f000_f000)
 ) inst_apb_splitter (
 	.apbs_paddr   (bridge_paddr),
 	.apbs_psel    (bridge_psel),
@@ -310,14 +349,14 @@ apb_splitter #(
 	.apbs_pready  (bridge_pready),
 	.apbs_prdata  (bridge_prdata),
 	.apbs_pslverr (bridge_pslverr),
-	.apbm_paddr   ({tbman_paddr   , spi_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
-	.apbm_psel    ({tbman_psel    , spi_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
-	.apbm_penable ({tbman_penable , spi_penable , pwm_penable , uart_penable , gpio_penable}),
-	.apbm_pwrite  ({tbman_pwrite  , spi_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
-	.apbm_pwdata  ({tbman_pwdata  , spi_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
-	.apbm_pready  ({tbman_pready  , spi_pready  , pwm_pready  , uart_pready  , gpio_pready }),
-	.apbm_prdata  ({tbman_prdata  , spi_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
-	.apbm_pslverr ({tbman_pslverr , spi_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
+	.apbm_paddr   ({tbman_paddr   , ppu_apbs_paddr    , spi_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
+	.apbm_psel    ({tbman_psel    , ppu_apbs_psel     , spi_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
+	.apbm_penable ({tbman_penable , ppu_apbs_penable  , spi_penable , pwm_penable , uart_penable , gpio_penable}),
+	.apbm_pwrite  ({tbman_pwrite  , ppu_apbs_pwrite   , spi_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
+	.apbm_pwdata  ({tbman_pwdata  , ppu_apbs_pwdata   , spi_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
+	.apbm_pready  ({tbman_pready  , ppu_apbs_pready   , spi_pready  , pwm_pready  , uart_pready  , gpio_pready }),
+	.apbm_prdata  ({tbman_prdata  , ppu_apbs_prdata   , spi_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
+	.apbm_pslverr ({tbman_pslverr , ppu_apbs_pslverr  , spi_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
 );
 
 
@@ -334,7 +373,7 @@ ahb_async_sram_halfwidth #(
 	.W_ADDR(W_ADDR),
 	.DEPTH(1 << W_SRAM0_ADDR)
 ) sram0_ctrl (
-	.clk               (clk),
+	.clk               (clk_sys),
 	.rst_n             (rst_n),
 	.ahbls_hready_resp (sram0_hready_resp),
 	.ahbls_hready      (sram0_hready),
@@ -367,7 +406,7 @@ ahb_sync_sram #(
 	.DEPTH(1 << 11), // 2^11 words = 8 kiB
 	.PRELOAD_FILE (BOOTRAM_PRELOAD)
 ) sram1 (
-	.clk               (clk),
+	.clk               (clk_sys),
 	.rst_n             (rst_n),
 	.ahbls_hready_resp (sram1_hready_resp),
 	.ahbls_hready      (sram1_hready),
@@ -384,7 +423,7 @@ ahb_sync_sram #(
 );
 
 tbman inst_tbman (
-	.clk              (clk),
+	.clk              (clk_sys),
 	.rst_n            (rst_n),
 	.apbs_psel        (tbman_psel),
 	.apbs_penable     (tbman_penable),
@@ -399,7 +438,7 @@ tbman inst_tbman (
 );
 
 pwm_tiny inst_pwm_tiny (
-	.clk          (clk),
+	.clk          (clk_sys),
 	.rst_n        (rst_n),
 	.apbs_psel    (pwm_psel),
 	.apbs_penable (pwm_penable),
@@ -416,7 +455,7 @@ uart_mini #(
 	.FIFO_DEPTH(2),
 	.OVERSAMPLE(8)
 ) inst_uart_mini (
-	.clk          (clk),
+	.clk          (clk_sys),
 	.rst_n        (rst_n),
 	.apbs_psel    (uart_psel),
 	.apbs_penable (uart_penable),
@@ -439,7 +478,7 @@ uart_mini #(
 spi_mini #(
 	.FIFO_DEPTH(2)
 ) inst_spi_mini (
-	.clk          (clk),
+	.clk          (clk_sys),
 	.rst_n        (rst_n),
 	.apbs_psel    (spi_psel),
 	.apbs_penable (spi_penable),
@@ -458,7 +497,7 @@ spi_mini #(
 gpio #(
 	.N_PADS (N_PADS)
 ) inst_gpio (
-	.clk          (clk),
+	.clk          (clk_sys),
 	.rst_n        (rst_n),
 	.apbs_psel    (gpio_psel),
 	.apbs_penable (gpio_penable),

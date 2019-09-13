@@ -2,12 +2,14 @@ module tb;
 
 `include "gpio_pinmap.vh"
 
-localparam CLK_PERIOD = 20;
+localparam CLK_PERIOD_SYS = 20;
+localparam CLK_PERIOD_LCD = 500;
 
 localparam W_SRAM0_ADDR = 18;
 localparam SRAM0_DEPTH = 1 << W_SRAM0_ADDR;
 
-reg clk;
+reg clk_sys;
+reg clk_lcd;
 reg rst_n;
 
 localparam N_PADS = 23;
@@ -33,7 +35,8 @@ assign (pull0, pull1) pads = {N_PADS{1'b1}}; // stop getting Xs in processor whe
 riscboy_core #(
 	.BOOTRAM_PRELOAD("../ram_init32.hex")
 ) dut (
-	.clk         (clk),
+	.clk_sys     (clk_sys),
+	.clk_lcd     (clk_lcd),
 	.rst_n       (rst_n),
 	
 	.padout      (padout),
@@ -52,13 +55,15 @@ riscboy_core #(
 // Stimulus and peripherals
 // ============================================================================
 
-always #(CLK_PERIOD * 0.5) clk = !clk;
+always #(CLK_PERIOD_SYS * 0.5) clk_sys = !clk_sys;
+always #(CLK_PERIOD_LCD * 0.5) clk_lcd = !clk_lcd;
 
 initial begin
-	clk = 1'b0;
+	clk_sys = 1'b0;
+	clk_lcd = 1'b0;
 	rst_n = 1'b0;
 
-	#(10 * CLK_PERIOD);
+	#(10 * CLK_PERIOD_SYS);
 	rst_n = 1'b1;
 end
 
@@ -119,7 +124,7 @@ wire [7:0] size_str =
 	dph_size == 3'h1 ? "h" :
 	                   "w" ;
 
-always @ (posedge clk or negedge rst_n) begin
+always @ (posedge clk_sys or negedge rst_n) begin
 	if (!rst_n) begin
 		dph_addr <= 0;
 		dph_act_w <= 0;
