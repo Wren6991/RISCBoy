@@ -20,8 +20,6 @@ int main()
 	pwm_invert(true);
 	lcd_init(st7789_init_seq);
 
-	uint8_t pix[2];
-
 	for (int i = 0; i < 256; ++i)
 	{
 		uint8_t r = 255 - i;
@@ -36,20 +34,16 @@ int main()
 	{
 		for (int x = 0; x < WIDTH; ++x)
 		{
-			uint32_t colour = palette[(x + y) >> 1];
-			pix[0] = colour >> 8;
-			pix[1] = colour & 0xff;
-			lcd_write(pix, 2);
+			uint16_t colour = palette[(x + y) >> 1];
+			lcd_put_hword(colour);
 		}
 	}
 	st7789_start_pixels();
-	pix[0] = 0xff;
-	pix[1] = 0xff;
 	for (int y = 0; y < HEIGHT; ++y)
 	{
 		for (int x = 0; x < WIDTH; ++x)
 		{
-			lcd_write(pix, 2);
+			lcd_put_hword(0xffffu);
 		}
 	}
 
@@ -73,9 +67,7 @@ int main()
 					break;
 			}
 			uint16_t colour = palette[i];
-			pix[0] = colour >> 8;
-			pix[1] = colour & 0xff;
-			lcd_write(pix, 2);
+			lcd_put_hword(colour);
 		}
 	}
 }

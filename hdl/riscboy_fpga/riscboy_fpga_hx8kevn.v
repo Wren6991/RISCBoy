@@ -19,6 +19,11 @@ module riscboy_fpga (
 	inout wire                     flash_sclk,
 	inout wire                     flash_cs,
 
+	output wire                    lcd_cs,
+	output wire                    lcd_dc,
+	output wire                    lcd_sclk,
+	output wire                    lcd_mosi,
+
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
 	inout  wire [15:0]             sram_dq,
 	// output wire                    sram_ce_n,  Tied to ground externally. See PCF file
@@ -32,6 +37,7 @@ module riscboy_fpga (
 // Clock + Reset resources
 
 wire clk_sys;
+wire clk_lcd = clk_osc;
 wire rst_n;
 wire pll_lock;
 
@@ -62,7 +68,8 @@ wire [N_PADS-1:0] padin;
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex")
 ) core (
-	.clk         (clk_sys),
+	.clk_sys     (clk_sys),
+	.clk_lcd     (clk_lcd),
 	.rst_n       (rst_n),
 
 	.sram_addr   (sram_addr),
@@ -72,9 +79,14 @@ riscboy_core #(
 	.sram_oe_n   (sram_oe_n),
 	.sram_byte_n (sram_byte_n),
 
+	.lcd_cs      (lcd_cs),
+	.lcd_dc      (lcd_dc),
+	.lcd_sck     (lcd_sclk),
+	.lcd_mosi    (lcd_mosi),
+
 	.padout      (padout),
 	.padoe       (padoe),
-	.padin       (padin)
+	.padin       (padin),
 );
 
 // GPIO

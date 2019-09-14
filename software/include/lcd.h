@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 #include "delay.h"
-#include "gpio.h"
+#include "ppu.h"
 
 // Each record consists of:
 // - A payload size (including the command byte)
@@ -34,71 +34,39 @@ static const uint8_t st7789_init_seq[] = {
 	0                                     // Terminate list
 };
 
-static inline void _lcd_put(uint8_t x)
-{
-	uint32_t pinval = *GPIO_OUT;
-	const uint32_t sdo_mask = 1ul << PIN_LCD_SDO;
-	const uint32_t scl_mask = 1ul << PIN_LCD_SCL;
-	for (int i = 0; i < 8; ++i)
-	{
-		pinval = pinval & ~(sdo_mask | scl_mask) | ((x >> 7) << PIN_LCD_SDO);
-		*GPIO_OUT = pinval;
-		pinval |= scl_mask;
-		x <<= 1;
-		*GPIO_OUT = pinval;
-	}
-	*GPIO_OUT = pinval & ~scl_mask;
-}
 
-static inline void lcd_write(const uint8_t *data, size_t count)
-{
-	gpio_out_pin(PIN_LCD_CS, 0);
-	for (size_t i = 0; i < count; ++i)
-		_lcd_put(data[i]);
-	gpio_out_pin(PIN_LCD_CS, 1);
-}
+// static inline void lcd_write(const uint8_t *data, size_t count)
+// {
+// 	gpio_out_pin(PIN_LCD_CS, 0);
+// 	for (size_t i = 0; i < count; ++i)
+// 		_lcd_put(data[i]);
+// 	gpio_out_pin(PIN_LCD_CS, 1);
+// }
 
 static inline void lcd_write_cmd(const uint8_t *cmd, size_t count)
 {
-	gpio_out_pin(PIN_LCD_DC, 0);
-	gpio_out_pin(PIN_LCD_CS, 0);
-	_lcd_put(*cmd++);
+	lcd_wait_idle();
+	lcd_set_shift_width(8);
+	lcd_force_dc_cs(0, 0);
+	lcd_put_byte(*cmd++);
 	if (count >= 2)
 	{
-		gpio_out_pin(PIN_LCD_DC, 1);
+		lcd_force_dc_cs(1, 0);
 		for (int i = 0; i < count - 1; ++i)
-			_lcd_put(*cmd++);
+			lcd_put_byte(*cmd++);
 	}
-	gpio_out_pin(PIN_LCD_CS, 1);
+	lcd_wait_idle();
+	lcd_force_dc_cs(1, 1);
+	lcd_set_shift_width(16);
 }
 
 static inline void lcd_init(const uint8_t *init_seq)
 {
-	*GPIO_OUT = *GPIO_OUT
-		& ~(
-		(1ul << PIN_LCD_SCL) |
-		(1ul << PIN_LCD_SDO) |
-		(1ul << PIN_LCD_DC) |
-		(1ul << PIN_LCD_RST))
-		| (1ul << PIN_LCD_CS);
-	*GPIO_DIR |= 
-		(1ul << PIN_LCD_SCL) |
-		(1ul << PIN_LCD_SDO) |
-		(1ul << PIN_LCD_CS) |
-		(1ul << PIN_LCD_DC) |
-		(1ul << PIN_LCD_RST);
 
-	*GPIO_FSEL0 &= ~(
-		GPIO_FSEL_MASK_PIN(PIN_LCD_SCL) |
-		GPIO_FSEL_MASK_PIN(PIN_LCD_SDO) |
-		GPIO_FSEL_MASK_PIN(PIN_LCD_CS) |
-		GPIO_FSEL_MASK_PIN(PIN_LCD_DC) |
-		GPIO_FSEL_MASK_PIN(PIN_LCD_RST)
-	);
-
-	delay_ms(5);
-	gpio_out_pin(PIN_LCD_RST, 1);
-	delay_ms(150);
+	// PIN_LCD_RST low
+	// delay_ms(5);
+	// gpio_out_pin(PIN_LCD_RST, 1);
+	// delay_ms(150);
 
 	const uint8_t *cmd = init_seq;
 
@@ -114,7 +82,7 @@ static inline void st7789_start_pixels()
 {
 	uint8_t cmd = 0x2c;
 	lcd_write_cmd(&cmd, 1);
-	gpio_out_pin(PIN_LCD_DC, 1);
+	lcd_force_dc_cs(1, 0);
 }
 
 #endif

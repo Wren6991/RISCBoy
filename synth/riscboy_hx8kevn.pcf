@@ -25,6 +25,12 @@ set_io flash_cs R12
 # 12 MHz oscillator
 set_io clk_osc J3
 
+# Connect LCD signals to some random IOs
+set_io lcd_cs   B7
+set_io lcd_dc   C7
+set_io lcd_sclk B8
+set_io lcd_mosi A7
+
 ###############################################################################
 # Breakout board
 ###############################################################################

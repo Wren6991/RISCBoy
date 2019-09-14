@@ -12,7 +12,7 @@ OBJDUMP=$(CROSS_PREFIX)objdump
 MARCH?=rv32ic
 LDSCRIPT?=memmap.ld
 override CCFLAGS+=-c -march=$(MARCH) $(addprefix -I ,$(INCDIRS))
-override CCFLAGS+=-Wall
+override CCFLAGS+=-Wall -Wextra -Wno-parentheses
 override LDFLAGS+=-T $(LDSCRIPT)
 
 # Override to -D to get all sections
@@ -52,4 +52,4 @@ $(APPNAME).dis: $(APPNAME).elf
 compile:: $(APPNAME)32.hex $(APPNAME).dis
 
 clean::
-	rm -f $(APPNAME).elf $(APPNAME)32.hex $(APPNAME)8.hex $(APPNAME).dis $(OBJS)
+	rm -f $(APPNAME).elf $(APPNAME)32.hex $(APPNAME)8.hex $(APPNAME).dis $(APPNAME).bin $(OBJS)

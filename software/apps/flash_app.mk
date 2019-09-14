@@ -8,3 +8,6 @@ MARCH=rv32ic
 all:
 	make -C $(BUILD_DIR) APPNAME=$(APPNAME) SRCS="$(SRCS)" INCDIRS="$(INCDIRS)" LDSCRIPT=$(LDSCRIPT) $(APPNAME).bin
 	$(SCRIPTS)/mkflashexec $(BUILD_DIR)/$(APPNAME).bin $(APPNAME)_flash.bin
+
+clean:
+	make -C $(BUILD_DIR) APPNAME=$(APPNAME) SRCS="$(SRCS)" clean

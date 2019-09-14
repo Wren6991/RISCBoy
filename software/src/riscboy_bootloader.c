@@ -176,7 +176,8 @@ void run_2nd_stage()
 	*SPI_CSR &= ~(SPI_CSR_CSAUTO_MASK | SPI_CSR_CS_MASK);
 
 	uint8_t *mem = (uint8_t *)SRAM0_BASE;
-	void (*stage2)(void) = (void(*)(void))SRAM0_BASE;
+	// Jump to reset handler, which is after vector table (TODO handle variable table sizes)
+	void (*stage2)(void) = (void(*)(void))(SRAM0_BASE + 0xc0);
 
 	spi_write_read(cmdbuf, cmdbuf, 4);
 	spi_write_read(mem, mem, size);
