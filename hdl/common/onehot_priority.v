@@ -18,23 +18,31 @@
 // Input a bitmap. The output will have at most 1 bit set, which will
 // be the least-significant set bit of the input.
 // e.g. 'b011100 -> 'b000100
+// If HIGHEST_WINS is 1, it will instead be the most-significant bit of the output.
 
 module onehot_priority #(
-	parameter W_INPUT = 8
+	parameter W_INPUT = 8,
+	parameter HIGHEST_WINS = 0
 ) (
 	input wire [W_INPUT-1:0] in,
 	output reg [W_INPUT-1:0] out
 );
 
 integer i;
-
-reg accum;
+reg deny;
 
 always @ (*) begin
-	accum = 0;
-	for (i = 0; i < W_INPUT; i = i + 1) begin
-		out[i] = in[i] && !accum;
-		accum = accum || in[i];
+	deny = 1'b0;
+	if (HIGHEST_WINS) begin
+		for (i = W_INPUT - 1; i >= 0; i = i - 1) begin
+			out[i] = in[i] && !deny;
+			deny = deny || in[i];
+		end
+	end else begin
+		for (i = 0; i < W_INPUT; i = i + 1) begin
+			out[i] = in[i] && !deny;
+			deny = deny || in[i];
+		end
 	end
 end
 
