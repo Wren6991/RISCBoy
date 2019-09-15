@@ -1,29 +1,70 @@
-module riscboy_ppu #(
-	parameter PXFIFO_DEPTH = 8
+/**********************************************************************
+ * DO WHAT THE FUCK YOU WANT TO AND DON'T BLAME US PUBLIC LICENSE     *
+ *                    Version 3, April 2008                           *
+ *                                                                    *
+ * Copyright (C) 2019 Luke Wren                                       *
+ *                                                                    *
+ * Everyone is permitted to copy and distribute verbatim or modified  *
+ * copies of this license document and accompanying software, and     *
+ * changing either is allowed.                                        *
+ *                                                                    *
+ *   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION  *
+ *                                                                    *
+ * 0. You just DO WHAT THE FUCK YOU WANT TO.                          *
+ * 1. We're NOT RESPONSIBLE WHEN IT DOESN'T FUCKING WORK.             *
+ *                                                                    *
+ *********************************************************************/
+
+ module riscboy_ppu #(
+	parameter PXFIFO_DEPTH = 8,
+	parameter W_DATA = 32,
+	parameter W_ADDR = 32
 ) (
-	input  wire        clk_ppu,
-	input  wire        clk_lcd,
-	input  wire        rst_n,
+	input  wire              clk_ppu,
+	input  wire              clk_lcd,
+	input  wire              rst_n,
 
-	input  wire        apbs_psel,
-	input  wire        apbs_penable,
-	input  wire        apbs_pwrite,
-	input  wire [15:0] apbs_paddr,
-	input  wire [31:0] apbs_pwdata,
-	output wire [31:0] apbs_prdata,
-	output wire        apbs_pready,
-	output wire        apbs_pslverr,
+	// AHB-lite master port
+	output wire [W_ADDR-1:0] ahblm_haddr,
+	output wire              ahblm_hwrite,
+	output wire [1:0]        ahblm_htrans,
+	output wire [2:0]        ahblm_hsize,
+	output wire [2:0]        ahblm_hburst,
+	output wire [3:0]        ahblm_hprot,
+	output wire              ahblm_hmastlock,
+	input  wire              ahblm_hready,
+	input  wire              ahblm_hresp,
+	output wire [W_DATA-1:0] ahblm_hwdata,
+	input  wire [W_DATA-1:0] ahblm_hrdata,
 
-	output wire lcd_cs,
-	output wire lcd_dc,
-	output wire lcd_sck,
-	output wire lcd_mosi
+	// APB slave port
+	input  wire              apbs_psel,
+	input  wire              apbs_penable,
+	input  wire              apbs_pwrite,
+	input  wire [15:0]       apbs_paddr,
+	input  wire [W_DATA-1:0] apbs_pwdata,
+	output wire [W_DATA-1:0] apbs_prdata,
+	output wire              apbs_pready,
+	output wire              apbs_pslverr,
+
+	output wire              lcd_cs,
+	output wire              lcd_dc,
+	output wire              lcd_sck,
+	output wire              lcd_mosi
 );
 
 localparam W_PXDATA = 16;
+localparam W_COORD = 12;
 // Should be locals but ISIM bug etc etc
 parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
 parameter W_LCDCTRL_SHAMT = $clog2(W_PXDATA + 1);
+
+// Tie off AHB signals we don't care about
+assign ahblm_hburst = 3'b000;   // HBURST_SINGLE
+assign ahblm_hprot = 4'b0011;   // Lie and say everything is non-cacheable non-bufferable privileged data access
+assign ahblm_hmastlock = 1'b0;  // Not supported by processor (or by slaves!)
+assign ahblm_hwrite = 1'b0;
+assign ahblm_hwdata = {W_DATA{1'b0}};
 
 // ----------------------------------------------------------------------------
 // Reset synchronisers and regblock
@@ -76,6 +117,28 @@ ppu_regs regs (
 	.lcd_csr_lcd_shiftcnt_o (lcdctrl_shamt),
 	.lcd_csr_tx_busy_i      (lcdctrl_busy)
 );
+
+// ----------------------------------------------------------------------------
+// Backgrounds
+
+// ----------------------------------------------------------------------------
+// Blender and raster counter
+
+riscboy_ppu_raster_counter #(
+	.W_COORD(W_COORD)
+) inst_riscboy_ppu_raster_counter (
+	.clk    (clk),
+	.rst_n  (rst_n),
+	.e      (e),
+	.clr    (clr),
+	.w      (w),
+	.h      (h),
+	.x      (x),
+	.y      (y),
+	.halted (halted),
+	.resume (resume)
+);
+
 
 // ----------------------------------------------------------------------------
 // LCD shifter and clock crossing

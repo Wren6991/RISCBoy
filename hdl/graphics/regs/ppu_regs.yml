@@ -3,10 +3,31 @@ bus: apb
 addr: 16
 data: 32
 regs:
+  - name: dispsize
+    info: Configure display dimensions. Width is W + 1, height is H + 1
+    bits:
+      - {b: [11, 0],  name: w, access: rw}
+      - {b: [27, 16], name: h, access: rw}
+
+  - name: bg0_csr
+    info: Control and status register for BG0.
+      bits: 
+        - {b: 0, name: en, access: rw}
+        - {b: [3, 1], name: mode, access: rw}
+  - name: bg0_tsbase
+    info: Base address for BG0 tileset. Tileset must be naturally aligned. Also used as framebuffer pointer for bitmap mode.
+    bits:
+      - {b: [31, 0], access: rw}
+  - name: bg0_tmbase
+    info: Base address for BG0 tilemap. Tilemap must be naturally aligned.
+    bits:
+      - {b: [31, 0], access: rw}
+
   - name: lcd_pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
     bits:
       - {b: [15, 0], access: wf}
+
   - name: lcd_csr
     info: Control and status register for the LCD interface
     bits:
@@ -17,3 +38,12 @@ regs:
       - {b: 9,        name: lcd_dc,       access: rw}
       - {b: 10,       name: tx_busy,      access: rov}
       - {b: [20, 16], name: lcd_shiftcnt, access: rw}
+
+  - name: ints
+    info: Status of interrupt sources. Each source is write-1-clear.
+    bits:
+      - {b: 0, name: vsync, access: rwf}
+  - name: inte
+    info: Interrupt enable mask
+    bits:
+      - {b: 0, name: vsync, access: rw}
