@@ -125,19 +125,47 @@ Backgrounds are composed of tiles. Tiles are composed of pixels.
 \includegraphics[width=0.7\textwidth]{diagrams/ppu_bg_coords.pdf}
 \end{figure}
 
-Each tile is a square image, the width and height of which (measured in pixels) is configured per-background, and is always a power of two. Tiles are stored in memory in a packed format: each tile is a sequence of pixels starting at the top left, proceeding left-to-right, then top-to-bottom. A region of memory packed with a series of tile images will be referred to as a tileset. All images in a tileset are the same dimensions, and have the same pixel format.
+Each tile is a square image, the width and height of which (measured in pixels) is configured per-background, and is always a power of two. Tiles are stored as part of a larger image, known as the tileset. Tiles are numbered in a row-major order, starting at the top left of the tileset. An example tileset is shown in figure \ref{diagram:ppu_tileset}: this is a tileset of 8 tiles, each $4\times 4$ pixels in size.
 
-The background itself is defined by:
+\begin{figure}[H]
+\centering
+\caption{Example PPU tileset}
+\label{diagram:ppu_tileset}
+\includegraphics[width=0.7\textwidth]{diagrams/ppu_tileset.pdf}
+\end{figure}
+
+Each pixel row of the tileset is stored as a packed array of pixels in memory, and the next row follows. Note that all tiles must be the same size, and have the same pixel format.
+
+The complete background image is assembled from these tiles. The arrangement is specified the tilemap: a grid of numbers, each naming a tile from the tileset. For each pixel on the screen, the tilemap tells the PPU which tile should be at that location, and the corresponding tile image in the tileset tells the PPU the colour of each pixel in that screen tile. This is shown in figure \ref{diagram:ppu_tilemap}.
+
+\begin{figure}[H]
+\centering
+\caption{Example PPU tilemap}
+\label{diagram:ppu_tilemap}
+\includegraphics[width=0.7\textwidth]{diagrams/ppu_tilemap.pdf}
+\end{figure}
+
+The screen origin is offset into the background by configuring the horizontal and vertical scroll. This allows the game view to move smoothly over a fixed background. If the screen area overhangs the background, coordinates are wrapped.
+
+In total, a background is defined by:
 
 \begin{itemize}
-	\item A width and height, in tiles.
-	\item A pointer to a tileset. The pointer is aligned to a one-tile boundary. The tileset contains up to 256 tiles.
-	\item A pointer to a tilemap. The tilemap is $width \times height$ bytes in size, and byte-aligned.
+	\item Width and height, measured in pixels
+	\item Horizontal and vertical scroll, measured in pixels
+	\item Tileset:
+	\begin{itemize}
+		\item Tile pixel format
+		\item Tile size in pixels (power of two)
+		\item Tileset width in pixels (power of two)
+		\item Pointer to the tileset image (aligned to row size in bytes)
+	\end{itemize}
+	\item Tilemap:
+	\begin{itemize}
+		\item Pointer to the tilemap buffer
+	\end{itemize}
 \end{itemize}
 
-For each pixel on the screen, the tilemap tells the PPU which tile should be at that location, and the corresponding tile image in the tileset tells the PPU the colour of each pixel in that screen tile.
-
-The screen origin is offset into the background by configuring the horizontal and vertical scroll. This allows the game view to move smoothly over a fixed background. If the screen area overhangs the background, coordinates are wrapped. Unfortunately, the physical dimensions of the screen cannot be modified at run time.
+This tilemapping process allows detailed images to be displayed with a minimal memory footprint, compared with a framebuffer, which must store the colour of every single pixel on the screen. Backgrounds can also be configured to not perform tilemapping, and simply scan out the entire tileset image to the screen (this is the same as assuming the tilemap is $[0, 1, 2, 3, 4....]$), so the tileset can be used as a framebuffer. Software can then render graphics directly to this framebuffer, and the PPU will simply display it as a background layer.
 
 \subsection{Sprites}
 
