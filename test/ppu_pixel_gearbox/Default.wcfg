@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="17" />
+   <wvobject fp_name="divider14" type="divider">
+      <obj_property name="label">Gearbox</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/din" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">din[31:0]</obj_property>
+      <obj_property name="ObjectShortName">din[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/din_vld" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">din_vld</obj_property>
+      <obj_property name="ObjectShortName">din_vld</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/shamt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shamt[2:0]</obj_property>
+      <obj_property name="ObjectShortName">shamt[2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/dout" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dout[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dout[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_ppu_pixel_gearbox/sreg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">sreg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sreg[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider8" type="divider">
+      <obj_property name="label">Stimulus</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/shift_ctr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shift_ctr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">shift_ctr[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/shift_ctr_next" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shift_ctr_next[4:0]</obj_property>
+      <obj_property name="ObjectShortName">shift_ctr_next[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/shift_expect" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shift_expect[31:0]</obj_property>
+      <obj_property name="ObjectShortName">shift_expect[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/shamt_encode" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">shamt_encode[2:0]</obj_property>
+      <obj_property name="ObjectShortName">shamt_encode[2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/i" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider15" type="divider">
+      <obj_property name="label">Encoder</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/encoder_u/in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">in[4:0]</obj_property>
+      <obj_property name="ObjectShortName">in[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/encoder_u/out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">out[2:0]</obj_property>
+      <obj_property name="ObjectShortName">out[2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+</wave_config>
