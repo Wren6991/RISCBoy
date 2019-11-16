@@ -30,6 +30,9 @@
 	output reg  [W_COORD-1:0] x,
 	output reg  [W_COORD-1:0] y,
 
+	output reg                start_row,
+	output reg                start_frame,
+
 	output reg                halted,
 	input  wire               resume
 );
@@ -49,7 +52,7 @@ always @ (posedge clk or negedge rst_n) begin
 		if (x == w) begin
 			x <= {W_COORD{1'b0}};
 			if (y == h) begin
-				y <= {W_COORD{1'b0}}
+				y <= {W_COORD{1'b0}};
 				halted <= 1'b1;
 			end else begin
 				y <= y + 1'b1;
@@ -59,6 +62,19 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 	end else if (resume) begin
 		halted <= 1'b0;
+	end
+end
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		start_row <= 1'b0;
+		start_frame <= 1'b0;
+	end else if (clr) begin
+		start_row <= 1'b0;
+		start_frame <= 1'b0;
+	end else if (!(halted || halt)) begin
+		start_frame <= x == w && y == h;
+		start_row <= x == w;				
 	end
 end
 
