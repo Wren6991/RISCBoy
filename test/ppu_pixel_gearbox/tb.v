@@ -18,7 +18,7 @@ reg  [2:0]           shamt;
 
 wire [W_PIX_MAX-1:0] dout;
 
-ppu_pixel_gearbox #(
+riscboy_ppu_pixel_gearbox #(
 	.W_DATA(W_DATA),
 	.W_PIX_MIN(W_PIX_MIN),
 	.W_PIX_MAX(W_PIX_MAX)

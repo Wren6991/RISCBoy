@@ -1,6 +1,21 @@
+/**********************************************************************
+ * DO WHAT THE FUCK YOU WANT TO AND DON'T BLAME US PUBLIC LICENSE     *
+ *                    Version 3, April 2008                           *
+ *                                                                    *
+ * Copyright (C) 2019 Luke Wren                                       *
+ *                                                                    *
+ * Everyone is permitted to copy and distribute verbatim or modified  *
+ * copies of this license document and accompanying software, and     *
+ * changing either is allowed.                                        *
+ *                                                                    *
+ *   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION  *
+ *                                                                    *
+ * 0. You just DO WHAT THE FUCK YOU WANT TO.                          *
+ * 1. We're NOT RESPONSIBLE WHEN IT DOESN'T FUCKING WORK.             *
+ *                                                                    *
+ *********************************************************************/
 
-
-module ppu_background #(
+module riscboy_ppu_background #(
 	parameter W_COORD = 12,
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
@@ -88,7 +103,7 @@ wire [4:0] tile_size_pixels = 5'h8 << log_tile_size;
 // Pixel shifting and output logic
 
 reg  [W_SHIFTCTR-1:0] shift_ctr;
-wire [W_SHIFTCTR-1:0] shift_ctr_next 
+wire [W_SHIFTCTR-1:0] shift_ctr_next
 wire                  shift_ctr_carryout;
 wire [W_SHIFTCTR-1:0] shift_increment;
 assign {shift_ctr_carryout, shift_ctr_next} = shift_ctr + shift_increment;
@@ -194,8 +209,8 @@ end
 // ----------------------------------------------------------------------------
 // Address generation
 
-wire [W_ADDR-1:0] tile_addr = 
-	cfg_tilemap_base | 
+wire [W_ADDR-1:0] tile_addr =
+	cfg_tilemap_base |
 	(cfg_tile_size ? u >> 4 : u >> 3) |
 	({{W_ADDR-W_COORD{1'b0}}, v} << (log_tilemap_width - (cfg_tile_size ? 4 : 3)));
 

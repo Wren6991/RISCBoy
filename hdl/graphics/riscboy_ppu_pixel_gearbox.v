@@ -1,3 +1,19 @@
+/**********************************************************************
+ * DO WHAT THE FUCK YOU WANT TO AND DON'T BLAME US PUBLIC LICENSE     *
+ *                    Version 3, April 2008                           *
+ *                                                                    *
+ * Copyright (C) 2019 Luke Wren                                       *
+ *                                                                    *
+ * Everyone is permitted to copy and distribute verbatim or modified  *
+ * copies of this license document and accompanying software, and     *
+ * changing either is allowed.                                        *
+ *                                                                    *
+ *   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION  *
+ *                                                                    *
+ * 0. You just DO WHAT THE FUCK YOU WANT TO.                          *
+ * 1. We're NOT RESPONSIBLE WHEN IT DOESN'T FUCKING WORK.             *
+ *                                                                    *
+ *********************************************************************/
 // Explanation:
 // The PPU has a high ratio between databus width and smallest pixel (32 : 1)
 // It also needs to support a range of pow-2 sized pixels (16 -> 1)
@@ -24,7 +40,7 @@
 // 
 
 
-module ppu_pixel_gearbox #(
+module riscboy_ppu_pixel_gearbox #(
 	parameter W_DATA = 32,
 	parameter W_PIX_MIN = 1,
 	parameter W_PIX_MAX = 16,
