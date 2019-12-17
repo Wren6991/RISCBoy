@@ -65,7 +65,7 @@ riscboy_ppu_background #(
 	.cfg_log_h             (cfg_log_h),
 	.cfg_tileset_base      (cfg_tileset_base),
 	.cfg_tilemap_base      (cfg_tilemap_base),
-	.cfg_log_tileset_width (cfg_log_tileset_width),
+	// .cfg_log_tileset_width (cfg_log_tileset_width),
 	.cfg_tile_size         (cfg_tile_size),
 	.cfg_pixel_mode        (cfg_pixel_mode),
 	.cfg_transparency      (cfg_transparency),
@@ -91,20 +91,20 @@ always @ (posedge clk) begin
 			2'h0: bus_data <= {4{mem[bus_addr]}};
 			2'h1: begin
 				if (bus_addr[0]) begin
-					$display("Unaligned transfer");
+					$display("%t Error: Unaligned transfer", $time);
 					$finish;
 				end
 				bus_data <= {2{mem[bus_addr + 1], mem[bus_addr]}};
 			end
 			2'h2: begin
 				if (bus_addr[1:0]) begin
-					$display("Unaligned transfer");
+					$display("%t Error: Unaligned transfer", $time);
 					$finish;
 				end
 				bus_data <= {mem[bus_addr + 3], mem[bus_addr + 2], mem[bus_addr + 1], mem[bus_addr]};
 			end
 			default: begin
-				$display("Invalid bus size");
+				$display("%t Error: Invalid bus size", $time);
 				$finish;
 			end
 		endcase
@@ -162,12 +162,12 @@ initial begin: stimulus
 		$finish;
 	end
 
-	// Smoke test!
+	$display("Smoke test!");
 
 	en <= 1;
 	cfg_log_tileset_width <= 6;
-	cfg_log_w <= 6;
-	cfg_log_h <= 6;
+	cfg_log_w <= 5;
+	cfg_log_h <= 5;
 	cfg_scroll_x <= 0;
 	cfg_scroll_y <= 0;
 
@@ -194,6 +194,48 @@ initial begin: stimulus
 			flush <= 1;
 			@ (posedge clk);
 			flush <= 0;
+		end
+	end
+
+	$display("Random scanline coords");
+
+	for (i = 0; i < 1000; i = i + 1) begin: random_coord
+		integer coord;
+		coord = $random & 32'hfff;
+		beam_x <= coord & 32'h3f;
+		beam_y <= coord >> 6;
+		flush <= 1'b1;
+		@ (posedge clk);
+		flush <= 1'b0;
+		@ (posedge clk);
+		while (!out_vld)
+			@ (posedge clk);
+		if (out_pixdata != coord) begin
+			$display("Output data mismatch");
+			$finish;
+		end
+	end
+
+	$display("Random coords, random scroll");
+
+	for (i = 0; i < 1000; i = i + 1) begin: random_coord_scroll
+		integer coord, scroll, expect;
+		coord = $random & 32'hfff;
+		scroll = $random & 32'hfff;
+		beam_x <= coord & 32'h3f;
+		beam_y <= coord >> 6;
+		cfg_scroll_x <= scroll & 32'h3f;
+		cfg_scroll_y <= scroll >> 6;
+		flush <= 1'b1;
+		@ (posedge clk);
+		flush <= 1'b0;
+		@ (posedge clk);
+		while (!out_vld)
+			@ (posedge clk);
+		expect = ((beam_x + cfg_scroll_x) & 32'h3f) | (((beam_y + cfg_scroll_y) & 32'h3f) << 6);
+		if (out_pixdata != expect) begin
+			$display("Output data mismatch");
+			$finish;
 		end
 	end
 

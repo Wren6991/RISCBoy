@@ -16,7 +16,7 @@
  *********************************************************************/
 
 module riscboy_ppu_background #(
-	parameter W_COORD = 12,
+	parameter W_COORD = 9,
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
@@ -53,7 +53,7 @@ module riscboy_ppu_background #(
 	input  wire [W_LOG_COORD-1:0] cfg_log_h,
 	input  wire [W_ADDR-1:0]      cfg_tileset_base,
 	input  wire [W_ADDR-1:0]      cfg_tilemap_base,
-	input  wire [W_LOG_COORD-1:0] cfg_log_tileset_width,
+	// input  wire [W_LOG_COORD-1:0] cfg_log_tileset_width,
 	input  wire                   cfg_tile_size,
 	input  wire [2:0]             cfg_pixel_mode,
 	input  wire                   cfg_transparency,
@@ -66,6 +66,9 @@ module riscboy_ppu_background #(
 );
 
 `include "riscboy_ppu_const.vh"
+
+wire [W_LOG_COORD-1:0] cfg_log_tileset_width = 4'h6;
+
 
 // ----------------------------------------------------------------------------
 // Coordinate handling
@@ -160,7 +163,7 @@ always @ (posedge clk or negedge rst_n) begin
 		shift_empty <= 1'b1;
 	end else if (flush) begin
 		shift_ctr <= {W_SHIFTCTR{1'b0}};
-		shift_seeking <= |{u[W_SHIFTCTR-1:0] << pixel_log_size};
+		shift_seeking <= |{u_flushval[W_SHIFTCTR-1:0] << pixel_log_size};
 		shift_empty <= 1'b1;
 	end else if (!shift_empty) begin
 		shift_empty <= shift_en && shift_ctr_carryout;
@@ -232,7 +235,7 @@ wire [W_ADDR-1:0] tileset_pixoffs_u = (cfg_tile_size ? {tile, u[3:0]} : {tile, u
 wire [W_ADDR-1:0] tileset_pixoffs_v = cfg_tile_size ? {tile >> log_tileset_width_tiles, v[3:0]} : {tile >> log_tileset_width_tiles, v[2:0]};
 wire [W_ADDR-1:0] idx_of_pixel_in_tileset = tileset_pixoffs_u | (tileset_pixoffs_v << cfg_log_tileset_width);
 
-wire [W_ADDR-1:0] pixel_addr = cfg_tileset_base | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3);
+wire [W_ADDR-1:0] pixel_addr = (cfg_tileset_base | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
 
 // Tile accesses take priority. Assumption is (FIXME: assert this!) that the
 // pixel shifter runs out of data more often than the tile register, and the
