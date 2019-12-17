@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="15" />
+   <wvobject fp_name="/tb/dut/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/flush" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">flush</obj_property>
+      <obj_property name="ObjectShortName">flush</obj_property>
+   </wvobject>
+   <wvobject fp_name="group90" type="group">
+      <obj_property name="label">Timing</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/beam_x" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">beam_x[11:0]</obj_property>
+         <obj_property name="ObjectShortName">beam_x[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/beam_y" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">beam_y[11:0]</obj_property>
+         <obj_property name="ObjectShortName">beam_y[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/u" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">u[11:0]</obj_property>
+         <obj_property name="ObjectShortName">u[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/v" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">v[11:0]</obj_property>
+         <obj_property name="ObjectShortName">v[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/u_flushval" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">u_flushval[11:0]</obj_property>
+         <obj_property name="ObjectShortName">u_flushval[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/v_flushval" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">v_flushval[11:0]</obj_property>
+         <obj_property name="ObjectShortName">v_flushval[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group89" type="group">
+      <obj_property name="label">Bus Interface</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/bus_addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">bus_addr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/bus_size" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_size[1:0]</obj_property>
+         <obj_property name="ObjectShortName">bus_size[1:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/bus_dphase_dirty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_dphase_dirty</obj_property>
+         <obj_property name="ObjectShortName">bus_dphase_dirty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/bus_vld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_vld</obj_property>
+         <obj_property name="ObjectShortName">bus_vld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/bus_rdy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_rdy</obj_property>
+         <obj_property name="ObjectShortName">bus_rdy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/bus_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">bus_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">bus_data[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group93" type="group">
+      <obj_property name="label">Configuration</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/cfg_scroll_x" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_scroll_x[11:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_scroll_x[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_scroll_y" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_scroll_y[11:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_scroll_y[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_log_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_log_w[3:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_log_w[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_log_h" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_log_h[3:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_log_h[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_tileset_base" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_tileset_base[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_tileset_base[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_tilemap_base" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_tilemap_base[31:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_tilemap_base[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_tile_size" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_tile_size</obj_property>
+         <obj_property name="ObjectShortName">cfg_tile_size</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_pixel_mode" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_pixel_mode[2:0]</obj_property>
+         <obj_property name="ObjectShortName">cfg_pixel_mode[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/cfg_transparency" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cfg_transparency</obj_property>
+         <obj_property name="ObjectShortName">cfg_transparency</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group94" type="group">
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/out_vld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">out_vld</obj_property>
+         <obj_property name="ObjectShortName">out_vld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/out_rdy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">out_rdy</obj_property>
+         <obj_property name="ObjectShortName">out_rdy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/out_alpha" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">out_alpha</obj_property>
+         <obj_property name="ObjectShortName">out_alpha</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/out_pixdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">out_pixdata[14:0]</obj_property>
+         <obj_property name="ObjectShortName">out_pixdata[14:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/out_paletted" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">out_paletted</obj_property>
+         <obj_property name="ObjectShortName">out_paletted</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group103" type="group">
+      <obj_property name="label">Shift Control</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/shift_seeking" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_seeking</obj_property>
+         <obj_property name="ObjectShortName">shift_seeking</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_seek_target" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_seek_target[4:0]</obj_property>
+         <obj_property name="ObjectShortName">shift_seek_target[4:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_increment" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_increment[4:0]</obj_property>
+         <obj_property name="ObjectShortName">shift_increment[4:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_en</obj_property>
+         <obj_property name="ObjectShortName">shift_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shamt" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shamt[2:0]</obj_property>
+         <obj_property name="ObjectShortName">shamt[2:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_empty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_empty</obj_property>
+         <obj_property name="ObjectShortName">shift_empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_ctr_next" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_ctr_next[4:0]</obj_property>
+         <obj_property name="ObjectShortName">shift_ctr_next[4:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_ctr_carryout" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_ctr_carryout</obj_property>
+         <obj_property name="ObjectShortName">shift_ctr_carryout</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/shift_ctr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shift_ctr[4:0]</obj_property>
+         <obj_property name="ObjectShortName">shift_ctr[4:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group77" type="group">
+      <obj_property name="label">Shifter</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/gearbox_u/din" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">din[31:0]</obj_property>
+         <obj_property name="ObjectShortName">din[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/gearbox_u/din_vld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">din_vld</obj_property>
+         <obj_property name="ObjectShortName">din_vld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/gearbox_u/shamt" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shamt[2:0]</obj_property>
+         <obj_property name="ObjectShortName">shamt[2:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/gearbox_u/dout" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dout[14:0]</obj_property>
+         <obj_property name="ObjectShortName">dout[14:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/gearbox_u/sreg" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sreg[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sreg[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group83" type="group">
+      <obj_property name="label">Address Generation</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/pixel_addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">pixel_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">pixel_addr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/idx_of_pixel_in_tileset" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
+         <obj_property name="ObjectShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/tileset_pixoffs_v" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tileset_pixoffs_v[31:0]</obj_property>
+         <obj_property name="ObjectShortName">tileset_pixoffs_v[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/tileset_pixoffs_u" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tileset_pixoffs_u[31:0]</obj_property>
+         <obj_property name="ObjectShortName">tileset_pixoffs_u[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/log_tileset_width_tiles" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">log_tileset_width_tiles[3:0]</obj_property>
+         <obj_property name="ObjectShortName">log_tileset_width_tiles[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/tile_empty" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tile_empty</obj_property>
+      <obj_property name="ObjectShortName">tile_empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/tile" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">tile[7:0]</obj_property>
+      <obj_property name="ObjectShortName">tile[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/tile_pixctr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">tile_pixctr[3:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_pixctr[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="group88" type="group">
+      <obj_property name="label">Constants</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/W_COORD" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_COORD[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_COORD[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_OUTDATA" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_OUTDATA[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_OUTDATA[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_ADDR" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_ADDR[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_ADDR[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_DATA" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_DATA[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_DATA[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_SHIFTCTR" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_SHIFTCTR[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_SHIFTCTR[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_SHAMT" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_SHAMT[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_SHAMT[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_LOG_COORD" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_LOG_COORD[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_LOG_COORD[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/BUS_SIZE_MAX" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">BUS_SIZE_MAX[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BUS_SIZE_MAX[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/PIXMODE_ARGB1555" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PIXMODE_ARGB1555[2:0]</obj_property>
+         <obj_property name="ObjectShortName">PIXMODE_ARGB1555[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/PIXMODE_ARGB1232" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PIXMODE_ARGB1232[2:0]</obj_property>
+         <obj_property name="ObjectShortName">PIXMODE_ARGB1232[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/PIXMODE_PAL8" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PIXMODE_PAL8[2:0]</obj_property>
+         <obj_property name="ObjectShortName">PIXMODE_PAL8[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/PIXMODE_PAL4" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PIXMODE_PAL4[2:0]</obj_property>
+         <obj_property name="ObjectShortName">PIXMODE_PAL4[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/PIXMODE_PAL2" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PIXMODE_PAL2[2:0]</obj_property>
+         <obj_property name="ObjectShortName">PIXMODE_PAL2[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/PIXMODE_PAL1" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">PIXMODE_PAL1[2:0]</obj_property>
+         <obj_property name="ObjectShortName">PIXMODE_PAL1[2:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_TILENUM" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_TILENUM[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_TILENUM[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/W_TILE_MAX" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">W_TILE_MAX[31:0]</obj_property>
+         <obj_property name="ObjectShortName">W_TILE_MAX[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/LOG_W_TILE_MAX" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">LOG_W_TILE_MAX[31:0]</obj_property>
+         <obj_property name="ObjectShortName">LOG_W_TILE_MAX[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
