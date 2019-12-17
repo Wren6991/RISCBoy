@@ -10,3 +10,6 @@ def main():
 		if test == "":
 			continue
 		subprocess.call(["make", "-C", *shlex.split(test), "clean"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+if __name__ == "__main__":
+	main()
