@@ -181,7 +181,7 @@ initial begin: stimulus
 
 	@ (posedge clk);
 
-	for (i = 0; i < 64; i = i + 1) begin // FIXME just a single scanline for now (need flush!)
+	for (i = 0; i < 64 * 64; i = i + 1) begin // FIXME just a single scanline for now (need flush!)
 		while (!out_vld)
 			@ (posedge clk);
 		if (out_pixdata != i) begin
@@ -189,6 +189,12 @@ initial begin: stimulus
 			$finish;
 		end
 		@ (posedge clk);
+		if (i % 64 == 63) begin
+			beam_y <= beam_y + 1;
+			flush <= 1;
+			@ (posedge clk);
+			flush <= 0;
+		end
 	end
 
 	$display("Test PASSED.");

@@ -9,6 +9,8 @@ sync_fifo
 async_fifo
 hazard5_muldiv_seq
 ppu_pixel_gearbox
+ppu_background
+
 
 # CPU litmus tests
 execution/fibonacci

@@ -211,10 +211,13 @@ end
 // ----------------------------------------------------------------------------
 // Address generation
 
+// Safe to ignore cases where tileset is less than one tile wide...
+wire [W_LOG_COORD-1:0] log_tileset_width_tiles = cfg_log_tileset_width - tile_log_size;
+
 wire [W_ADDR-1:0] tile_addr =
 	cfg_tilemap_base |
-	(cfg_tile_size ? u >> 4 : u >> 3) |
-	({{W_ADDR-W_COORD{1'b0}}, v} << (cfg_log_w - tile_log_size));
+	(cfg_tile_size ? u >> 4 : u >> 3) & ~({W_ADDR{1'b1}} << log_tileset_width_tiles) |
+	({{W_ADDR-W_COORD{1'b0}}, v >> tile_log_size} << log_tileset_width_tiles);
 
 
 // We want to find the offset into the tileset buffer, in pixels. Can then
@@ -225,11 +228,8 @@ wire [W_ADDR-1:0] tile_addr =
 // Pixel offset into tileset = horizontal offset + vertical offset * TILESET_WIDTH_IN_PIXELS
 // and   WIDTH_OF_TILE = HEIGHT_OF_TILE
 
-// Safe to ignore cases where tileset is less than one tile wide...
-wire [W_LOG_COORD-1:0] log_tileset_width_tiles = cfg_log_tileset_width - tile_log_size;
-
 wire [W_ADDR-1:0] tileset_pixoffs_u = (cfg_tile_size ? {tile, u[3:0]} : {tile, u[2:0]}) & ~({W_ADDR{1'b1}} << cfg_log_tileset_width);
-wire [W_ADDR-1:0] tileset_pixoffs_v = cfg_tile_size ? {tile >> log_tileset_width_tiles, v[3:0]} : {tile >> cfg_log_tileset_width, v[2:0]};
+wire [W_ADDR-1:0] tileset_pixoffs_v = cfg_tile_size ? {tile >> log_tileset_width_tiles, v[3:0]} : {tile >> log_tileset_width_tiles, v[2:0]};
 wire [W_ADDR-1:0] idx_of_pixel_in_tileset = tileset_pixoffs_u | (tileset_pixoffs_v << cfg_log_tileset_width);
 
 wire [W_ADDR-1:0] pixel_addr = cfg_tileset_base | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3);
