@@ -108,7 +108,7 @@ for (i = 0; i < N_MASTERS; i = i + 1) begin: split_instantiate
 		assign xbar_htrans[i][j]                  = split_htrans[2 * j +: 2];
 		assign xbar_hsize[i][j]                   = split_hsize[3 * j +: 3];
 		assign xbar_hburst[i][j]                  = split_hburst[3 * j +: 3];
-		assign xbar_hprot[i][j]                   = split_hprot[4 * j +: 3];
+		assign xbar_hprot[i][j]                   = split_hprot[4 * j +: 4];
 		assign xbar_hmastlock[i][j]               = split_hmastlock[j];
 		assign xbar_hwdata[i][j]                  = split_hwdata[W_DATA * j +: W_DATA];
 
@@ -180,7 +180,7 @@ for (j = 0; j < N_SLAVES; j = j + 1) begin: arb_instantiate
 		assign arb_htrans[2 * i +: 2]           = xbar_htrans[i][j];
 		assign arb_hsize[3 * i +: 3]            = xbar_hsize[i][j];
 		assign arb_hburst[3 * i +: 3]           = xbar_hburst[i][j];
-		assign arb_hprot[4 * i +: 3]            = xbar_hprot[i][j];
+		assign arb_hprot[4 * i +: 4]            = xbar_hprot[i][j];
 		assign arb_hmastlock[i]                 = xbar_hmastlock[i][j];
 		assign arb_hwdata[W_DATA * i +: W_DATA] = xbar_hwdata[i][j];
 		assign xbar_hready_resp[i][j]           = arb_hready_resp[i];
