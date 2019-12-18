@@ -42,7 +42,7 @@ module riscboy_ppu_blender #(
 	parameter N_LAYERS   = 1,
 	// Do not modify the below. It will not result in working hardware.
 	parameter W_PIXDATA  = 15,
-	parameter W_MODE     = 2,
+	parameter W_MODE     = 3,
 	parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1
 ) (
 

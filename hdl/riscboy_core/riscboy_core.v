@@ -301,17 +301,17 @@ ahbl_crossbar #(
 ) inst_ahbl_crossbar (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
-	.src_hready_resp ({ppu_hready    , proc0_hready    }), // Lower master wins (proc has priority)
-	.src_hresp       ({ppu_hresp     , proc0_hresp     }),
-	.src_haddr       ({ppu_haddr     , proc0_haddr     }),
-	.src_hwrite      ({ppu_hwrite    , proc0_hwrite    }),
-	.src_htrans      ({ppu_htrans    , proc0_htrans    }),
-	.src_hsize       ({ppu_hsize     , proc0_hsize     }),
-	.src_hburst      ({ppu_hburst    , proc0_hburst    }),
-	.src_hprot       ({ppu_hprot     , proc0_hprot     }),
-	.src_hmastlock   ({ppu_hmastlock , proc0_hmastlock }),
-	.src_hwdata      ({ppu_hwdata    , proc0_hwdata    }),
-	.src_hrdata      ({ppu_hrdata    , proc0_hrdata    }),
+	.src_hready_resp ({proc0_hready    , ppu_hready   }), // Lower master wins (ppu has priority)
+	.src_hresp       ({proc0_hresp     , ppu_hresp    }),
+	.src_haddr       ({proc0_haddr     , ppu_haddr    }),
+	.src_hwrite      ({proc0_hwrite    , ppu_hwrite   }),
+	.src_htrans      ({proc0_htrans    , ppu_htrans   }),
+	.src_hsize       ({proc0_hsize     , ppu_hsize    }),
+	.src_hburst      ({proc0_hburst    , ppu_hburst   }),
+	.src_hprot       ({proc0_hprot     , ppu_hprot    }),
+	.src_hmastlock   ({proc0_hmastlock , ppu_hmastlock}),
+	.src_hwdata      ({proc0_hwdata    , ppu_hwdata   }),
+	.src_hrdata      ({proc0_hrdata    , ppu_hrdata   }),
 
 	.dst_hready      ({bridge_hready      , sram1_hready      , sram0_hready     }),
 	.dst_hready_resp ({bridge_hready_resp , sram1_hready_resp , sram0_hready_resp}),

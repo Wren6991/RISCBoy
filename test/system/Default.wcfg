@@ -9,13 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="25" />
-   <wave_markers>
-      <marker time="16730000000" label="" />
-      <marker time="272779567000" label="" />
-      <marker time="277175767000" label="" />
-      <marker time="190780800000" label="" />
-   </wave_markers>
+   <WVObjectSize size="19" />
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -1019,23 +1013,23 @@
          <obj_property name="label">Raster Counter</obj_property>
          <obj_property name="DisplayName">label</obj_property>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_w" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">raster_w[11:0]</obj_property>
-            <obj_property name="ObjectShortName">raster_w[11:0]</obj_property>
+            <obj_property name="ElementShortName">raster_w[9:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_w[9:0]</obj_property>
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_h" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">raster_h[11:0]</obj_property>
-            <obj_property name="ObjectShortName">raster_h[11:0]</obj_property>
+            <obj_property name="ElementShortName">raster_h[9:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_h[9:0]</obj_property>
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_x" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">raster_x[11:0]</obj_property>
-            <obj_property name="ObjectShortName">raster_x[11:0]</obj_property>
+            <obj_property name="ElementShortName">raster_x[9:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_x[9:0]</obj_property>
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_y" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">raster_y[11:0]</obj_property>
-            <obj_property name="ObjectShortName">raster_y[11:0]</obj_property>
+            <obj_property name="ElementShortName">raster_y[9:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_y[9:0]</obj_property>
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/hsync" type="logic" db_ref_id="1">
@@ -1050,6 +1044,95 @@
       <wvobject fp_name="group341" type="group">
          <obj_property name="label">Master Port</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="group441" type="group">
+            <obj_property name="label">Bus control block</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/clk" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">clk</obj_property>
+               <obj_property name="ObjectShortName">clk</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/rst_n" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">rst_n</obj_property>
+               <obj_property name="ObjectShortName">rst_n</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_vld[0]" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">[0]</obj_property>
+               <obj_property name="ObjectShortName">req_vld[0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_rdy[0]" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">[0]</obj_property>
+               <obj_property name="ObjectShortName">req_rdy[0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_addr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_addr[31:0]</obj_property>
+               <obj_property name="ObjectShortName">req_addr[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_size" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_size[1:0]</obj_property>
+               <obj_property name="ObjectShortName">req_size[1:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_data" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_data[31:0]</obj_property>
+               <obj_property name="ObjectShortName">req_data[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_aph_comb[0]" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">[0]</obj_property>
+               <obj_property name="ObjectShortName">grant_aph_comb[0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_aph_comb" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">grant_aph_comb[0:0]</obj_property>
+               <obj_property name="ObjectShortName">grant_aph_comb[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_aph[0]" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">[0]</obj_property>
+               <obj_property name="ObjectShortName">grant_aph[0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_filtered[0]" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">[0]</obj_property>
+               <obj_property name="ObjectShortName">req_filtered[0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_addr_muxed" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_addr_muxed[31:0]</obj_property>
+               <obj_property name="ObjectShortName">req_addr_muxed[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_size_muxed" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_size_muxed[1:0]</obj_property>
+               <obj_property name="ObjectShortName">req_size_muxed[1:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/use_buf_transattr" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">use_buf_transattr</obj_property>
+               <obj_property name="ObjectShortName">use_buf_transattr</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/hrdata_steered" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">hrdata_steered[31:0]</obj_property>
+               <obj_property name="ObjectShortName">hrdata_steered[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_aph_reg" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">grant_aph_reg[0:0]</obj_property>
+               <obj_property name="ObjectShortName">grant_aph_reg[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_dph" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">grant_dph[0:0]</obj_property>
+               <obj_property name="ObjectShortName">grant_dph[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/aph_buf_addr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">aph_buf_addr[31:0]</obj_property>
+               <obj_property name="ObjectShortName">aph_buf_addr[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/aph_buf_size" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">aph_buf_size[1:0]</obj_property>
+               <obj_property name="ObjectShortName">aph_buf_size[1:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/dph_buf_addr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">dph_buf_addr[1:0]</obj_property>
+               <obj_property name="ObjectShortName">dph_buf_addr[1:0]</obj_property>
+            </wvobject>
+         </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ahblm_haddr" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">ahblm_haddr[31:0]</obj_property>
             <obj_property name="ObjectShortName">ahblm_haddr[31:0]</obj_property>
@@ -1113,60 +1196,333 @@
             <obj_property name="ObjectShortName">apbs_pslverr</obj_property>
          </wvobject>
       </wvobject>
-      <wvobject fp_name="group364" type="group">
-         <obj_property name="label">Blender</obj_property>
+      <wvobject fp_name="group370" type="group">
+         <obj_property name="label">BG0</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_vld" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">req_vld[0:0]</obj_property>
-            <obj_property name="ObjectShortName">req_vld[0:0]</obj_property>
+         <wvobject fp_name="group364" type="group">
+            <obj_property name="label">Blender</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_vld" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_vld[0:0]</obj_property>
+               <obj_property name="ObjectShortName">req_vld[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_rdy" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_rdy[0:0]</obj_property>
+               <obj_property name="ObjectShortName">req_rdy[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_alpha" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_alpha[0:0]</obj_property>
+               <obj_property name="ObjectShortName">req_alpha[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_pixdata" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_pixdata[14:0]</obj_property>
+               <obj_property name="ObjectShortName">req_pixdata[14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_mode" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_mode[2:0]</obj_property>
+               <obj_property name="ObjectShortName">req_mode[2:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_layer" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">req_layer[0:0]</obj_property>
+               <obj_property name="ObjectShortName">req_layer[0:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/default_bg_colour" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">default_bg_colour[14:0]</obj_property>
+               <obj_property name="ObjectShortName">default_bg_colour[14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_vld" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_vld</obj_property>
+               <obj_property name="ObjectShortName">out_vld</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_rdy" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_rdy</obj_property>
+               <obj_property name="ObjectShortName">out_rdy</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_pixdata" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">out_pixdata[14:0]</obj_property>
+               <obj_property name="ObjectShortName">out_pixdata[14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_paletted" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_paletted</obj_property>
+               <obj_property name="ObjectShortName">out_paletted</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/reqdata" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">reqdata[35:0]</obj_property>
+               <obj_property name="ObjectShortName">reqdata[35:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_rdy" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">req_rdy[0:0]</obj_property>
-            <obj_property name="ObjectShortName">req_rdy[0:0]</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/en" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">en</obj_property>
+            <obj_property name="ObjectShortName">en</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_alpha" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">req_alpha[0:0]</obj_property>
-            <obj_property name="ObjectShortName">req_alpha[0:0]</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/flush" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">flush</obj_property>
+            <obj_property name="ObjectShortName">flush</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_pixdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">req_pixdata[14:0]</obj_property>
-            <obj_property name="ObjectShortName">req_pixdata[14:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="group371" type="group">
+            <obj_property name="label">Timing</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/beam_x" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">beam_x[9:0]</obj_property>
+               <obj_property name="ObjectShortName">beam_x[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/beam_y" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">beam_y[9:0]</obj_property>
+               <obj_property name="ObjectShortName">beam_y[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/w_mask" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">w_mask[9:0]</obj_property>
+               <obj_property name="ObjectShortName">w_mask[9:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/h_mask" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">h_mask[9:0]</obj_property>
+               <obj_property name="ObjectShortName">h_mask[9:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/u_flushval" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">u_flushval[9:0]</obj_property>
+               <obj_property name="ObjectShortName">u_flushval[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/v_flushval" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">v_flushval[9:0]</obj_property>
+               <obj_property name="ObjectShortName">v_flushval[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/u" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">u[9:0]</obj_property>
+               <obj_property name="ObjectShortName">u[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/v" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">v[9:0]</obj_property>
+               <obj_property name="ObjectShortName">v[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_mode" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">req_mode[1:0]</obj_property>
-            <obj_property name="ObjectShortName">req_mode[1:0]</obj_property>
+         <wvobject fp_name="group372" type="group">
+            <obj_property name="label">Bus</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/bus_vld" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">bus_vld</obj_property>
+               <obj_property name="ObjectShortName">bus_vld</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/bus_rdy" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">bus_rdy</obj_property>
+               <obj_property name="ObjectShortName">bus_rdy</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/bus_dphase_dirty" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">bus_dphase_dirty</obj_property>
+               <obj_property name="ObjectShortName">bus_dphase_dirty</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/bus_addr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">bus_addr[31:0]</obj_property>
+               <obj_property name="ObjectShortName">bus_addr[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/bus_size" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">bus_size[1:0]</obj_property>
+               <obj_property name="ObjectShortName">bus_size[1:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/bus_data" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">bus_data[31:0]</obj_property>
+               <obj_property name="ObjectShortName">bus_data[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_layer" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">req_layer[0:0]</obj_property>
-            <obj_property name="ObjectShortName">req_layer[0:0]</obj_property>
+         <wvobject fp_name="group373" type="group">
+            <obj_property name="label">Config</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/pixel_log_size" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">pixel_log_size[2:0]</obj_property>
+               <obj_property name="ObjectShortName">pixel_log_size[2:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/pixel_size_bits" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">pixel_size_bits[4:0]</obj_property>
+               <obj_property name="ObjectShortName">pixel_size_bits[4:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tile_log_size" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">tile_log_size[2:0]</obj_property>
+               <obj_property name="ObjectShortName">tile_log_size[2:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/out_paletted" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_paletted</obj_property>
+               <obj_property name="ObjectShortName">out_paletted</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_scroll_x" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_scroll_x[9:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_scroll_x[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_scroll_y" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_scroll_y[9:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_scroll_y[9:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_log_w" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_log_w[3:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_log_w[3:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_log_h" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_log_h[3:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_log_h[3:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_tileset_base" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_tileset_base[31:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_tileset_base[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_tilemap_base" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_tilemap_base[31:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_tilemap_base[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_tile_size" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_tile_size</obj_property>
+               <obj_property name="ObjectShortName">cfg_tile_size</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_pixel_mode" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_pixel_mode[2:0]</obj_property>
+               <obj_property name="ObjectShortName">cfg_pixel_mode[2:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/cfg_transparency" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">cfg_transparency</obj_property>
+               <obj_property name="ObjectShortName">cfg_transparency</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/log_tileset_width_tiles" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">log_tileset_width_tiles[3:0]</obj_property>
+               <obj_property name="ObjectShortName">log_tileset_width_tiles[3:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/default_bg_colour" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">default_bg_colour[14:0]</obj_property>
-            <obj_property name="ObjectShortName">default_bg_colour[14:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="group374" type="group">
+            <obj_property name="label">Output</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/out_vld" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_vld</obj_property>
+               <obj_property name="ObjectShortName">out_vld</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/out_rdy" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_rdy</obj_property>
+               <obj_property name="ObjectShortName">out_rdy</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/out_alpha" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">out_alpha</obj_property>
+               <obj_property name="ObjectShortName">out_alpha</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/out_pixdata" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">out_pixdata[14:0]</obj_property>
+               <obj_property name="ObjectShortName">out_pixdata[14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_vld" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">out_vld</obj_property>
-            <obj_property name="ObjectShortName">out_vld</obj_property>
+         <wvobject fp_name="group375" type="group">
+            <obj_property name="label">Shift and Tile</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_ctr_next" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_ctr_next[4:0]</obj_property>
+               <obj_property name="ObjectShortName">shift_ctr_next[4:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_en" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_en</obj_property>
+               <obj_property name="ObjectShortName">shift_en</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_seek_target" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_seek_target[4:0]</obj_property>
+               <obj_property name="ObjectShortName">shift_seek_target[4:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shamt" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">shamt[2:0]</obj_property>
+               <obj_property name="ObjectShortName">shamt[2:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_ctr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_ctr[4:0]</obj_property>
+               <obj_property name="ObjectShortName">shift_ctr[4:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_empty" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_empty</obj_property>
+               <obj_property name="ObjectShortName">shift_empty</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_seeking" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_seeking</obj_property>
+               <obj_property name="ObjectShortName">shift_seeking</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tile_empty" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">tile_empty</obj_property>
+               <obj_property name="ObjectShortName">tile_empty</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tile" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">tile[7:0]</obj_property>
+               <obj_property name="ObjectShortName">tile[7:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tile_pixctr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">tile_pixctr[3:0]</obj_property>
+               <obj_property name="ObjectShortName">tile_pixctr[3:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/seek_end" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">seek_end</obj_property>
+               <obj_property name="ObjectShortName">seek_end</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/seek_shamt" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">seek_shamt[4:0]</obj_property>
+               <obj_property name="ObjectShortName">seek_shamt[4:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tile_load_rdy" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">tile_load_rdy</obj_property>
+               <obj_property name="ObjectShortName">tile_load_rdy</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/pixel_load_rdy" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">pixel_load_rdy</obj_property>
+               <obj_property name="ObjectShortName">pixel_load_rdy</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_ctr_carryout" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_ctr_carryout</obj_property>
+               <obj_property name="ObjectShortName">shift_ctr_carryout</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/shift_increment" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_increment[4:0]</obj_property>
+               <obj_property name="ObjectShortName">shift_increment[4:0]</obj_property>
+            </wvobject>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_rdy" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">out_rdy</obj_property>
-            <obj_property name="ObjectShortName">out_rdy</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_pixdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">out_pixdata[14:0]</obj_property>
-            <obj_property name="ObjectShortName">out_pixdata[14:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_paletted" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">out_paletted</obj_property>
-            <obj_property name="ObjectShortName">out_paletted</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/reqdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">reqdata[33:0]</obj_property>
-            <obj_property name="ObjectShortName">reqdata[33:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="group376" type="group">
+            <obj_property name="label">Address Gen</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tile_addr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">tile_addr[31:0]</obj_property>
+               <obj_property name="ObjectShortName">tile_addr[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tileset_pixoffs_u" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">tileset_pixoffs_u[31:0]</obj_property>
+               <obj_property name="ObjectShortName">tileset_pixoffs_u[31:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tileset_pixoffs_v" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">tileset_pixoffs_v[31:0]</obj_property>
+               <obj_property name="ObjectShortName">tileset_pixoffs_v[31:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/idx_of_pixel_in_tileset" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
+               <obj_property name="ObjectShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/pixel_addr" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">pixel_addr[31:0]</obj_property>
+               <obj_property name="ObjectShortName">pixel_addr[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
          </wvobject>
       </wvobject>
       <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_cs" type="logic" db_ref_id="1">
@@ -1188,14 +1544,23 @@
       <wvobject fp_name="group342" type="group">
          <obj_property name="label">Pixel FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_direct_wdata[15:0]</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_direct_wdata[15:0]</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wen" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_wen</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_wen</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_wdata[15:0]</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_wdata[15:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wen" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">pxfifo_direct_wen</obj_property>
             <obj_property name="ObjectShortName">pxfifo_direct_wen</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_direct_wdata[15:0]</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_direct_wdata[15:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wfull" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">pxfifo_wfull</obj_property>
@@ -1251,42 +1616,46 @@
          </wvobject>
       </wvobject>
    </wvobject>
-   <wvobject fp_name="/tb/uart_rx/rx" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">rx</obj_property>
-      <obj_property name="ObjectShortName">rx</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/print_buf" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">print_buf[2047:0]</obj_property>
-      <obj_property name="ObjectShortName">print_buf[2047:0]</obj_property>
-      <obj_property name="Radix">ASCIIRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/byte_buf" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">byte_buf[7:0]</obj_property>
-      <obj_property name="ObjectShortName">byte_buf[7:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/print_ptr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">print_ptr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">print_ptr[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/i" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">i[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/BAUD_RATE" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">BAUD_RATE</obj_property>
-      <obj_property name="ObjectShortName">BAUD_RATE</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/BUF_SIZE" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">BUF_SIZE[31:0]</obj_property>
-      <obj_property name="ObjectShortName">BUF_SIZE[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uart_rx/BIT_PERIOD" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">BIT_PERIOD</obj_property>
-      <obj_property name="ObjectShortName">BIT_PERIOD</obj_property>
+   <wvobject fp_name="group472" type="group">
+      <obj_property name="label">TB UART</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/uart_rx/rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rx</obj_property>
+         <obj_property name="ObjectShortName">rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/print_buf" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">print_buf[2047:0]</obj_property>
+         <obj_property name="ObjectShortName">print_buf[2047:0]</obj_property>
+         <obj_property name="Radix">ASCIIRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/byte_buf" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">byte_buf[7:0]</obj_property>
+         <obj_property name="ObjectShortName">byte_buf[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/print_ptr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">print_ptr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">print_ptr[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/i" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">i[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/BAUD_RATE" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">BAUD_RATE</obj_property>
+         <obj_property name="ObjectShortName">BAUD_RATE</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/BUF_SIZE" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">BUF_SIZE[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BUF_SIZE[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/uart_rx/BIT_PERIOD" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">BIT_PERIOD</obj_property>
+         <obj_property name="ObjectShortName">BIT_PERIOD</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="group173" type="group">
       <obj_property name="label">Main Memory</obj_property>
@@ -1325,6 +1694,201 @@
          <obj_property name="ElementShortName">ahbls_hrdata[31:0]</obj_property>
          <obj_property name="ObjectShortName">ahbls_hrdata[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group464" type="group">
+      <obj_property name="label">SRAM0 Arbiter</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hready" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hready[1:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hready[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hready_resp" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hready_resp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hready_resp[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hresp" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hresp[1:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hresp[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_haddr[63:0]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[63:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hwrite" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hwrite[1:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hwrite[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_htrans[3:0]</obj_property>
+         <obj_property name="ObjectShortName">src_htrans[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hsize[5:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hsize[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hburst" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hburst[5:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hburst[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hprot" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hprot[7:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hprot[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hmastlock" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hmastlock[1:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hmastlock[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hwdata[63:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hwdata[63:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hrdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">src_hrdata[63:0]</obj_property>
+         <obj_property name="ObjectShortName">src_hrdata[63:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hready</obj_property>
+         <obj_property name="ObjectShortName">dst_hready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hready_resp" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hready_resp</obj_property>
+         <obj_property name="ObjectShortName">dst_hready_resp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hresp" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hresp</obj_property>
+         <obj_property name="ObjectShortName">dst_hresp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_haddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_haddr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hwrite</obj_property>
+         <obj_property name="ObjectShortName">dst_hwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_htrans[1:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_htrans[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_hsize[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hburst" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hburst[2:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_hburst[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hprot" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hprot[3:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_hprot[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hmastlock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hmastlock</obj_property>
+         <obj_property name="ObjectShortName">dst_hmastlock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_hwdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hrdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dst_hrdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">dst_hrdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_gnt_a" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mast_gnt_a[1:0]</obj_property>
+         <obj_property name="ObjectShortName">mast_gnt_a[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_aphase_ends" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mast_aphase_ends[1:0]</obj_property>
+         <obj_property name="ObjectShortName">mast_aphase_ends[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_wen" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_wen[1:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_wen[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_in_dphase" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mast_in_dphase[1:0]</obj_property>
+         <obj_property name="ObjectShortName">mast_in_dphase[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_valid" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_valid[1:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_valid[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_haddr[0:1,31:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_haddr[0:1,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hwrite" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_hwrite[0:1]</obj_property>
+         <obj_property name="ObjectShortName">buf_hwrite[0:1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_htrans[0:1,1:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_htrans[0:1,1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_hsize[0:1,2:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_hsize[0:1,2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hburst" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_hburst[0:1,2:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_hburst[0:1,2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hprot" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_hprot[0:1,3:0]</obj_property>
+         <obj_property name="ObjectShortName">buf_hprot[0:1,3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hmastlock" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">buf_hmastlock[0:1]</obj_property>
+         <obj_property name="ObjectShortName">buf_hmastlock[0:1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_haddr[63:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_haddr[63:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hwrite" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_hwrite[1:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_hwrite[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_htrans[3:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_htrans[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_hsize[5:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_hsize[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hburst" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_hburst[5:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_hburst[5:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hprot" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_hprot[7:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_hprot[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hmastlock" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">actual_hmastlock[1:0]</obj_property>
+         <obj_property name="ObjectShortName">actual_hmastlock[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_req_a" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mast_req_a[1:0]</obj_property>
+         <obj_property name="ObjectShortName">mast_req_a[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_gnt_d" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">mast_gnt_d[1:0]</obj_property>
+         <obj_property name="ObjectShortName">mast_gnt_d[1:0]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

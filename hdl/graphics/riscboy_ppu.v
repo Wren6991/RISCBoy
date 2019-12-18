@@ -57,7 +57,7 @@
 
 localparam W_PIXDATA = 15;
 localparam W_LCD_PIXDATA = 16;
-localparam W_COORD = 12;
+localparam W_COORD = 10;
 parameter N_LAYERS = 2;
 // Should be locals but ISIM bug etc etc:
 parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
@@ -263,7 +263,7 @@ riscboy_ppu_background #(
 	.en               (bg0_csr_en),
 	.flush            (hsync || bg0_csr_flush),
 	.beam_x           (raster_x),
-	.beam_y           (raster_x),
+	.beam_y           (raster_y),
 
 	.bus_vld          (bg_bus_vld[0]),
 	.bus_addr         (bg_bus_addr[0]),

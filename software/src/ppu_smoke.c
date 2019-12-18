@@ -6,8 +6,12 @@
 #include "gpio.h"
 #include "pwm.h"
 
+uint16_t __attribute__ ((aligned (32768))) tileset[16384];
+uint8_t __attribute__ ((aligned (256))) tilemap[256];
+
 void render_frame()
 {
+	lcd_wait_idle();
 	lcd_force_dc_cs(1, 1);
 	st7789_start_pixels();
 
@@ -16,27 +20,17 @@ void render_frame()
 		;
 }
 
-#define COLOUR_RED 0x1fu
-#define COLOUR_GREEN 0x3e0u
-#define COLOUR_BLUE 0x7c00u
-
-uint16_t __attribute__ ((aligned (8192))) tileset[4096];
-uint8_t __attribute__ ((aligned (256))) tilemap[256];
-
 int main()
 {
-	if (tbman_running_in_sim())
+	if (!tbman_running_in_sim())
 		lcd_init(st7789_init_seq);
 
-	*PPU_DISPSIZE = (240 << PPU_DISPSIZE_W_LSB) | (240 << PPU_DISPSIZE_H_LSB);
-	*PPU_DEFAULT_BG_COLOUR = COLOUR_RED | COLOUR_BLUE;
-
-	// 240x240 of magenta:
-	render_frame();
+	*PPU_DISPSIZE = (239 << PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
+	*PPU_DEFAULT_BG_COLOUR = 0x7c01fu; // magenta
 
 	for (int i = 0; i < 256; ++i)
 		tilemap[i] = i;
-	for (int i = 0; i < 4096; ++i)
+	for (int i = 0; i < 16384; ++i)
 		tileset[i] = i;
 
 	*PPU_BG0_TMBASE = (uint32_t)tilemap;
@@ -45,6 +39,7 @@ int main()
 		(1u << PPU_BG0_CSR_EN_LSB) |
 		(7u << PPU_BG0_CSR_PFWIDTH_LSB) | // 256 px wide
 		(7u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
+		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
 		(1u << PPU_BG0_CSR_FLUSH_LSB);
 
 	unsigned int scroll_x;

@@ -47,11 +47,12 @@ reg  [N_REQ-1:0] grant_aph_reg;
 wire [N_REQ-1:0] grant_aph = |grant_aph_reg ? grant_aph_reg : grant_aph_comb;
 
 reg [N_REQ-1:0] grant_dph;
+wire [N_REQ-1:0] req_filtered = req_vld & ~(grant_aph_reg | grant_dph);
 
 onehot_priority #(
 	.W_INPUT (N_REQ)
 ) req_priority_u (
-	.in  (req_vld),
+	.in  (req_filtered),
 	.out (grant_aph_comb)
 );
 
@@ -107,7 +108,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		aph_buf_addr <= {W_ADDR{1'b0}};
 		aph_buf_size <= 2'h0;
-	end else if (|req_vld && !use_buf_transattr && !ahblm_hready) begin
+	end else if (|req_filtered && !use_buf_transattr && !ahblm_hready) begin
 		aph_buf_addr <= req_addr_muxed;
 		aph_buf_size <= req_size_muxed;
 	end
