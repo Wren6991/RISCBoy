@@ -2,26 +2,53 @@ name: ppu
 bus: apb
 addr: 16
 data: 32
+
 regs:
+  - name: csr
+    info: PPU control and status register
+    bits:
+      - {b: 0, name: run, access: sc, info: "Write 1 to start the PPU running. Self-clearing strobe"}
+      - {b: 1, name: halt, access: sc, info: "Write 1 to manually halt the PPU. Self-clearing strobe"}
+      - {b: 2, name: running, access: rov, info: "Reads as 1 if PPU is running, otherwise 0"}
+      - {b: 3, name: halt_hsync, access: rw, info: "If 1, the PPU will halt automatically after completing a scanline"}
+      - {b: 4, name: halt_vsync, access: rw, info: "If 1, the PPU will halt automatically after completing a frame"}
   - name: dispsize
-    info: Configure display dimensions. Width is W + 1, height is H + 1
+    info: Configure display dimensions. Actual width is W + 1, height is H + 1
     bits:
       - {b: [11, 0],  name: w, access: rw}
       - {b: [27, 16], name: h, access: rw}
-
+  - name: default_bg_colour
+    info: Colour displayed when all blended pixels are transparent, or all sprites/backgrounds are disabled.
+    bits:
+      - {b: [14, 0], access: rw}
+  - name: beam
+    info: Scan coordinates of the next pixel to be blended (read-only)
+    bits:
+      - {b: [11, 0],  name: x, access: rov}
+      - {b: [27, 16], name: y, access: rov}
   - name: bg0_csr
     info: Control and status register for BG0.
-      bits: 
-        - {b: 0, name: en, access: rw}
-        - {b: [3, 1], name: mode, access: rw}
-  - name: bg0_tsbase
-    info: Base address for BG0 tileset. Tileset must be naturally aligned. Also used as framebuffer pointer for bitmap mode.
+    bits: 
+      - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender"}
+      - {b: [3, 1], name: pixmode, access: rw}
+      - {b: 4, name: transparency, access: rw}
+      - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles."}
+      - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels."}
+      - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels."}
+      - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)"}
+  - name: bg0_scroll
+    info: Scroll the screen within the playfield
     bits:
-      - {b: [31, 0], access: rw}
+      - {b: [25, 16], name: y, access: rw}
+      - {b: [9, 0], name: x, access: rw}
+  - name: bg0_tsbase
+    info: Base address for BG0 tileset. Tileset must be naturally aligned.
+    bits:
+      - {b: [31, 8], access: rw}
   - name: bg0_tmbase
     info: Base address for BG0 tilemap. Tilemap must be naturally aligned.
     bits:
-      - {b: [31, 0], access: rw}
+      - {b: [31, 8], access: rw}
 
   - name: lcd_pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
@@ -43,7 +70,9 @@ regs:
     info: Status of interrupt sources. Each source is write-1-clear.
     bits:
       - {b: 0, name: vsync, access: rwf}
+      - {b: 1, name: hsync, access: rwf}
   - name: inte
     info: Interrupt enable mask
     bits:
       - {b: 0, name: vsync, access: rw}
+      - {b: 1, name: hsync, access: rw}

@@ -1,3 +1,4 @@
+localparam W_PIXMODE = 3;
 localparam PIXMODE_ARGB1555 = 3'h0;
 localparam PIXMODE_ARGB1232 = 3'h2;
 localparam PIXMODE_PAL8     = 3'h4;

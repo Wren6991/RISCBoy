@@ -20,6 +20,7 @@ module riscboy_ppu_background #(
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
+	parameter LOG_TILESET_WIDTH = 8,
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),
 	parameter W_SHAMT = $clog2(W_SHIFTCTR + 1),
@@ -35,11 +36,6 @@ module riscboy_ppu_background #(
 	input  wire [W_COORD-1:0]     beam_x,
 	input  wire [W_COORD-1:0]     beam_y,
 
-	// Once vld asserted, can not be deasserted until rdy is seen.
-	// If addr+size is held constant, rdy indicates data is present on data bus.
-	// If addr+size are not held constant (e.g. due to flush) the data response
-	// is undefined, and should be discarded. However vld must still be held
-	// high until rdy is seen.
 	output wire                   bus_vld,
 	output wire [W_ADDR-1:0]      bus_addr,
 	output wire [1:0]             bus_size,
@@ -53,7 +49,6 @@ module riscboy_ppu_background #(
 	input  wire [W_LOG_COORD-1:0] cfg_log_h,
 	input  wire [W_ADDR-1:0]      cfg_tileset_base,
 	input  wire [W_ADDR-1:0]      cfg_tilemap_base,
-	// input  wire [W_LOG_COORD-1:0] cfg_log_tileset_width,
 	input  wire                   cfg_tile_size,
 	input  wire [2:0]             cfg_pixel_mode,
 	input  wire                   cfg_transparency,
@@ -61,14 +56,10 @@ module riscboy_ppu_background #(
 	output wire                   out_vld,
 	input  wire                   out_rdy,
 	output wire                   out_alpha,
-	output wire [W_OUTDATA-1:0]   out_pixdata,
-	output wire                   out_paletted
+	output wire [W_OUTDATA-1:0]   out_pixdata
 );
 
 `include "riscboy_ppu_const.vh"
-
-wire [W_LOG_COORD-1:0] cfg_log_tileset_width = 4'h6;
-
 
 // ----------------------------------------------------------------------------
 // Coordinate handling
@@ -146,7 +137,7 @@ onehot_encoder #(
 riscboy_ppu_pixel_gearbox #(
 	.W_DATA(W_DATA),
 	.W_PIX_MIN(1),
-	.W_PIX_MAX(W_OUTDATA)
+	.W_PIX_MAX(W_OUTDATA + 1)
 ) gearbox_u (
 	.clk     (clk),
 	.rst_n   (rst_n),
@@ -176,9 +167,10 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-assign out_vld = en && !(shift_empty || shift_seeking);
-assign out_paletted = MODE_IS_PALETTED(cfg_pixel_mode);
-assign out_alpha = 1'b1; // FIXME !!!
+// When not enabled, continuously output transparency so that we don't hold up the blender
+assign out_vld = !en || !(shift_empty || shift_seeking || flush);
+wire out_paletted = MODE_IS_PALETTED(cfg_pixel_mode);
+assign out_alpha = en; // FIXME
 
 // ----------------------------------------------------------------------------
 // Tile bookkeeping
@@ -215,7 +207,7 @@ end
 // Address generation
 
 // Safe to ignore cases where tileset is less than one tile wide...
-wire [W_LOG_COORD-1:0] log_tileset_width_tiles = cfg_log_tileset_width - tile_log_size;
+wire [W_LOG_COORD-1:0] log_tileset_width_tiles = LOG_TILESET_WIDTH - tile_log_size;
 
 wire [W_ADDR-1:0] tile_addr =
 	cfg_tilemap_base |
@@ -231,9 +223,9 @@ wire [W_ADDR-1:0] tile_addr =
 // Pixel offset into tileset = horizontal offset + vertical offset * TILESET_WIDTH_IN_PIXELS
 // and   WIDTH_OF_TILE = HEIGHT_OF_TILE
 
-wire [W_ADDR-1:0] tileset_pixoffs_u = (cfg_tile_size ? {tile, u[3:0]} : {tile, u[2:0]}) & ~({W_ADDR{1'b1}} << cfg_log_tileset_width);
+wire [W_ADDR-1:0] tileset_pixoffs_u = (cfg_tile_size ? {tile, u[3:0]} : {tile, u[2:0]}) & ~({W_ADDR{1'b1}} << LOG_TILESET_WIDTH);
 wire [W_ADDR-1:0] tileset_pixoffs_v = cfg_tile_size ? {tile >> log_tileset_width_tiles, v[3:0]} : {tile >> log_tileset_width_tiles, v[2:0]};
-wire [W_ADDR-1:0] idx_of_pixel_in_tileset = tileset_pixoffs_u | (tileset_pixoffs_v << cfg_log_tileset_width);
+wire [W_ADDR-1:0] idx_of_pixel_in_tileset = tileset_pixoffs_u | (tileset_pixoffs_v << LOG_TILESET_WIDTH);
 
 wire [W_ADDR-1:0] pixel_addr = (cfg_tileset_base | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
 

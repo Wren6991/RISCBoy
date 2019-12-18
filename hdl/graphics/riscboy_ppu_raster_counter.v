@@ -21,9 +21,8 @@
 	input  wire               clk,
 	input  wire               rst_n,
 
-	input  wire               e,
+	input  wire               en,
 	input  wire               clr,
-	input  wire               halt,
 
 	input  wire [W_COORD-1:0] w,
 	input  wire [W_COORD-1:0] h,
@@ -31,37 +30,26 @@
 	output reg  [W_COORD-1:0] y,
 
 	output reg                start_row,
-	output reg                start_frame,
-
-	output reg                halted,
-	input  wire               resume
+	output reg                start_frame
 );
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		x <= {W_COORD{1'b0}};
 		y <= {W_COORD{1'b0}};
-		halted <= 1'b0;
 	end else if (clr) begin
 		x <= {W_COORD{1'b0}};
 		y <= {W_COORD{1'b0}};
-		halted <= 1'b0;
-	end else if (halt) begin
-		halted <= 1'b1;		
-	end else if (e && !halted) begin
+	end else if (en) begin
 		if (x == w) begin
 			x <= {W_COORD{1'b0}};
-			if (y == h) begin
+			if (y == h)
 				y <= {W_COORD{1'b0}};
-				halted <= 1'b1;
-			end else begin
+			else
 				y <= y + 1'b1;
-			end
 		end else begin
 			x <= x + 1'b1;
 		end
-	end else if (resume) begin
-		halted <= 1'b0;
 	end
 end
 
@@ -69,10 +57,10 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		start_row <= 1'b0;
 		start_frame <= 1'b0;
-	end else if (clr) begin
+	end else if (clr || !en) begin
 		start_row <= 1'b0;
 		start_frame <= 1'b0;
-	end else if (!(halted || halt)) begin
+	end else begin
 		start_frame <= x == w && y == h;
 		start_row <= x == w;				
 	end

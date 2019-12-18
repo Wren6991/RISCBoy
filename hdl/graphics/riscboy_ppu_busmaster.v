@@ -18,16 +18,16 @@ module riscboy_ppu_busmaster #(
 	input wire [N_REQ*W_DATA-1:0] req_data,
 
 	// AHB-lite Master port
-	output reg  [W_ADDR-1:0]      ahblm_haddr,
-	output reg                    ahblm_hwrite,
-	output reg  [1:0]             ahblm_htrans,
-	output reg  [2:0]             ahblm_hsize,
+	output wire [W_ADDR-1:0]      ahblm_haddr,
+	output wire                   ahblm_hwrite,
+	output wire [1:0]             ahblm_htrans,
+	output wire [2:0]             ahblm_hsize,
 	output wire [2:0]             ahblm_hburst,
 	output wire [3:0]             ahblm_hprot,
 	output wire                   ahblm_hmastlock,
 	input  wire                   ahblm_hready,
 	input  wire                   ahblm_hresp,
-	output reg  [W_DATA-1:0]      ahblm_hwdata,
+	output wire [W_DATA-1:0]      ahblm_hwdata,
 	input  wire [W_DATA-1:0]      ahblm_hrdata
 );
 
@@ -116,7 +116,6 @@ end
 assign ahblm_haddr = use_buf_transattr ? aph_buf_addr : req_addr_muxed;
 assign ahblm_hsize = {1'b0, use_buf_transattr ? aph_buf_size : req_size_muxed};
 assign ahblm_htrans = {|grant_aph, 1'b0};
-
 
 // ----------------------------------------------------------------------------
 // Data phase response steering

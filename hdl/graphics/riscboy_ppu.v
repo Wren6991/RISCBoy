@@ -53,18 +53,17 @@
 	output wire              lcd_mosi
 );
 
-localparam W_PXDATA = 16;
-localparam W_COORD = 12;
-// Should be locals but ISIM bug etc etc
-parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
-parameter W_LCDCTRL_SHAMT = $clog2(W_PXDATA + 1);
+`include "riscboy_ppu_const.vh"
 
-// Tie off AHB signals we don't care about
-assign ahblm_hburst = 3'b000;   // HBURST_SINGLE
-assign ahblm_hprot = 4'b0011;   // Lie and say everything is non-cacheable non-bufferable privileged data access
-assign ahblm_hmastlock = 1'b0;  // Not supported by processor (or by slaves!)
-assign ahblm_hwrite = 1'b0;
-assign ahblm_hwdata = {W_DATA{1'b0}};
+localparam W_PIXDATA = 15;
+localparam W_LCD_PIXDATA = 16;
+localparam W_COORD = 12;
+parameter N_LAYERS = 2;
+// Should be locals but ISIM bug etc etc:
+parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
+parameter W_LCDCTRL_SHAMT = $clog2(W_LCD_PIXDATA + 1);
+parameter W_LOG_COORD = $clog2(W_COORD);
+parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1;
 
 // ----------------------------------------------------------------------------
 // Reset synchronisers and regblock
@@ -84,7 +83,32 @@ reset_sync sync_rst_lcd (
 	.rst_n_out (rst_n_lcd)
 );
 
-wire [W_PXDATA-1:0]        pxfifo_direct_wdata;
+wire                       csr_run;
+wire                       csr_halt;
+wire                       csr_running;
+wire                       csr_halt_hsync;
+wire                       csr_halt_vsync;
+
+wire [W_PIXDATA-1:0]       default_bg_colour;
+
+wire [W_COORD-1:0]         raster_w;
+wire [W_COORD-1:0]         raster_h;
+wire [W_COORD-1:0]         raster_x;
+wire [W_COORD-1:0]         raster_y;
+
+wire                       bg0_csr_en;
+wire [W_PIXMODE-1:0]       bg0_csr_pixmode;
+wire                       bg0_csr_transparency;
+wire                       bg0_csr_tilesize;
+wire [W_LOG_COORD-1:0]     bg0_csr_pfwidth;
+wire [W_LOG_COORD-1:0]     bg0_csr_pfheight;
+wire                       bg0_csr_flush;
+wire [W_COORD-1:0]         bg0_scroll_y;
+wire [W_COORD-1:0]         bg0_scroll_x;
+wire [23:0]                bg0_tsbase;
+wire [23:0]                bg0_tmbase;
+
+wire [W_LCD_PIXDATA-1:0]   pxfifo_direct_wdata;
 wire                       pxfifo_direct_wen;
 
 wire                       pxfifo_wfull;
@@ -107,6 +131,31 @@ ppu_regs regs (
 	.apbs_pready            (apbs_pready),
 	.apbs_pslverr           (apbs_pslverr),
 
+	.csr_run_o              (csr_run),
+	.csr_halt_o             (csr_halt),
+	.csr_running_i          (csr_running),
+	.csr_halt_hsync_o       (csr_halt_hsync),
+	.csr_halt_vsync_o       (csr_halt_vsync),
+
+	.default_bg_colour_o    (default_bg_colour),
+
+	.dispsize_w_o           (raster_w),
+	.dispsize_h_o           (raster_h),
+	.beam_x_i               (raster_x),
+	.beam_y_i               (raster_y),
+
+	.bg0_csr_en_o           (bg0_csr_en),
+	.bg0_csr_pixmode_o      (bg0_csr_pixmode),
+	.bg0_csr_transparency_o (bg0_csr_transparency),
+	.bg0_csr_tilesize_o     (bg0_csr_tilesize),
+	.bg0_csr_pfwidth_o      (bg0_csr_pfwidth),
+	.bg0_csr_pfheight_o     (bg0_csr_pfheight),
+	.bg0_csr_flush_o        (bg0_csr_flush),
+	.bg0_scroll_y_o         (bg0_scroll_y),
+	.bg0_scroll_x_o         (bg0_scroll_x),
+	.bg0_tsbase_o           (bg0_tsbase),
+	.bg0_tmbase_o           (bg0_tmbase),
+
 	.lcd_pxfifo_o           (pxfifo_direct_wdata),
 	.lcd_pxfifo_wen         (pxfifo_direct_wen),
 	.lcd_csr_pxfifo_empty_i (pxfifo_wempty),
@@ -119,26 +168,118 @@ ppu_regs regs (
 );
 
 // ----------------------------------------------------------------------------
-// Backgrounds
-
-// ----------------------------------------------------------------------------
 // Blender and raster counter
 
+wire hsync;
+wire vsync;
+
+// hsync and vsync are registered signals from raster counter which we must respond to precisely.
+// csr run/halt are decoded from the bus (-> long paths), but we can respond a little more loosely.
+reg ppu_running_reg;
+wire ppu_running = ppu_running_reg && !(csr_halt_vsync && vsync || csr_halt_hsync && hsync);
+
+always @ (posedge clk_ppu or negedge rst_n_ppu) begin
+	if (!rst_n) begin
+		ppu_running_reg <= 1'b0;
+	end else begin
+		ppu_running_reg <= (ppu_running || csr_run) && !csr_halt;
+	end
+end
+
 riscboy_ppu_raster_counter #(
-	.W_COORD(W_COORD)
-) inst_riscboy_ppu_raster_counter (
-	.clk    (clk),
-	.rst_n  (rst_n),
-	.e      (e),
-	.clr    (clr),
-	.w      (w),
-	.h      (h),
-	.x      (x),
-	.y      (y),
-	.halted (halted),
-	.resume (resume)
+	.W_COORD (W_COORD)
+) raster_counter_u (
+	.clk         (clk_ppu),
+	.rst_n       (rst_n_ppu),
+	.en          (ppu_running),
+	.clr         (1'b0), // FIXME
+	.w           (raster_w),
+	.h           (raster_h),
+	.x           (raster_x),
+	.y           (raster_y),
+	.start_row   (hsync),
+	.start_frame (vsync)
 );
 
+localparam N_BACKGROUND = 1;
+
+wire                  bg_blend_vld     [0:N_BACKGROUND-1];
+wire                  bg_blend_rdy     [0:N_BACKGROUND-1];
+wire                  bg_blend_alpha   [0:N_BACKGROUND-1];
+wire [W_PIXDATA-1:0]  bg_blend_pixdata [0:N_BACKGROUND-1];
+wire [W_PIXMODE-1:0]  bg_blend_mode    [0:N_BACKGROUND-1]; // TODO: timing of pixel mode vs flush?
+wire [W_LAYERSEL-1:0] bg_blend_layer   [0:N_BACKGROUND-1];
+
+assign bg_blend_layer[0] = 0; // FIXME
+
+wire                  blend_out_vld;
+wire                  blend_out_rdy = ppu_running && !pxfifo_wfull;
+wire [W_PIXDATA-1:0]  blend_out_pixdata;
+wire                  blend_out_paletted;
+
+riscboy_ppu_blender #(
+	.N_REQ(1),
+	.N_LAYERS(N_LAYERS)
+) inst_riscboy_ppu_blender (
+	.req_vld           (bg_blend_vld[0]), // FIXME support more than just a single background :)
+	.req_rdy           (bg_blend_rdy[0]),
+	.req_alpha         (bg_blend_alpha[0]),
+	.req_pixdata       (bg_blend_pixdata[0]),
+	.req_mode          (bg_blend_mode[0]),
+	.req_layer         (bg_blend_layer[0]),
+	.default_bg_colour (default_bg_colour),
+
+	.out_vld           (blend_out_vld),
+	.out_rdy           (blend_out_rdy),
+	.out_pixdata       (blend_out_pixdata),
+	.out_paletted      (blend_out_paletted)
+);
+
+// ----------------------------------------------------------------------------
+// Backgrounds
+
+
+wire              bg_bus_vld  [0:N_BACKGROUND-1];
+wire [W_ADDR-1:0] bg_bus_addr [0:N_BACKGROUND-1];
+wire [1:0]        bg_bus_size [0:N_BACKGROUND-1];
+wire [W_DATA-1:0] bg_bus_data [0:N_BACKGROUND-1];
+wire              bg_bus_rdy  [0:N_BACKGROUND-1];
+
+
+riscboy_ppu_background #(
+	.W_COORD           (W_COORD),
+	.W_OUTDATA         (W_PIXDATA),
+	.W_ADDR            (W_ADDR),
+	.W_DATA            (W_DATA)
+) bg0 (
+	.clk              (clk_ppu),
+	.rst_n            (rst_n_ppu),
+	.en               (bg0_csr_en),
+	.flush            (hsync || bg0_csr_flush),
+	.beam_x           (raster_x),
+	.beam_y           (raster_x),
+
+	.bus_vld          (bg_bus_vld[0]),
+	.bus_addr         (bg_bus_addr[0]),
+	.bus_size         (bg_bus_size[0]),
+	.bus_rdy          (bg_bus_rdy[0]),
+	.bus_data         (bg_bus_data[0]),
+
+	.cfg_scroll_x     (bg0_scroll_x),
+	.cfg_scroll_y     (bg0_scroll_y),
+	.cfg_log_w        (bg0_csr_pfwidth),
+	.cfg_log_h        (bg0_csr_pfheight),
+	.cfg_tileset_base ({bg0_tsbase, 8'h0}),
+	.cfg_tilemap_base ({bg0_tmbase, 8'h0}),
+	.cfg_tile_size    (bg0_csr_tilesize),
+	.cfg_pixel_mode   (bg0_csr_pixmode),
+	.cfg_transparency (bg0_csr_transparency),
+
+	.out_vld          (bg_blend_vld[0]),
+	.out_rdy          (bg_blend_rdy[0]),
+	.out_alpha        (bg_blend_alpha[0]),
+	.out_pixdata      (bg_blend_pixdata[0])
+);
 
 // ----------------------------------------------------------------------------
 // LCD shifter and clock crossing
@@ -146,10 +287,13 @@ riscboy_ppu_raster_counter #(
 wire                       lcdctrl_busy_clklcd;
 wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt_clklcd;
 
-wire [W_PXDATA-1:0] pxfifo_rdata;
-wire pxfifo_rempty;
-wire pxfifo_rdy;
-wire pxfifo_pop = pxfifo_rdy && !pxfifo_rempty;
+wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = blend_out_vld ? {blend_out_pixdata[14:5], 1'b0, blend_out_pixdata[4:0]} : pxfifo_direct_wdata;
+wire                       pxfifo_wen = pxfifo_direct_wen || (blend_out_vld && blend_out_rdy);
+
+wire [W_LCD_PIXDATA-1:0]   pxfifo_rdata;
+wire                       pxfifo_rempty;
+wire                       pxfifo_rdy;
+wire                       pxfifo_pop = pxfifo_rdy && !pxfifo_rempty;
 
 sync_1bit sync_lcd_busy (
 	.clk   (clk_ppu),
@@ -169,14 +313,14 @@ sync_1bit sync_lcd_shamt [W_LCDCTRL_SHAMT-1:0] (
 );
 
 async_fifo #(
-	.W_DATA(W_PXDATA),
+	.W_DATA(W_LCD_PIXDATA),
 	.W_ADDR(W_PXFIFO_LEVEL - 1)
 ) inst_async_fifo (
 	.wclk   (clk_ppu),
 	.wrst_n (rst_n_ppu),
 
-	.wdata  (pxfifo_direct_wdata),
-	.wpush  (pxfifo_direct_wen),
+	.wdata  (pxfifo_wdata),
+	.wpush  (pxfifo_wen),
 	.wfull  (pxfifo_wfull),
 	.wempty (pxfifo_wempty),
 	.wlevel (pxfifo_wlevel),
@@ -192,7 +336,7 @@ async_fifo #(
 );
 
 riscboy_ppu_dispctrl #(
-	.W_DATA (W_PXDATA)
+	.W_DATA (W_LCD_PIXDATA)
 ) inst_riscboy_ppu_dispctrl (
 	.clk               (clk_lcd),
 	.rst_n             (rst_n_lcd),
@@ -204,6 +348,36 @@ riscboy_ppu_dispctrl #(
 	// Outputs to LCD
 	.lcd_sck           (lcd_sck),
 	.lcd_mosi          (lcd_mosi)
+);
+
+// ----------------------------------------------------------------------------
+// AHB-lite busmaster
+
+riscboy_ppu_busmaster #(
+	.N_REQ(N_BACKGROUND),
+	.W_ADDR(W_ADDR),
+	.W_DATA(W_DATA)
+) inst_riscboy_ppu_busmaster (
+	.clk             (clk_ppu),
+	.rst_n           (rst_n_ppu),
+
+	.req_vld         (bg_bus_vld[0]), // TODO
+	.req_addr        (bg_bus_addr[0]),
+	.req_size        (bg_bus_size[0]),
+	.req_rdy         (bg_bus_rdy[0]),
+	.req_data        (bg_bus_data[0]),
+
+	.ahblm_haddr     (ahblm_haddr),
+	.ahblm_hwrite    (ahblm_hwrite),
+	.ahblm_htrans    (ahblm_htrans),
+	.ahblm_hsize     (ahblm_hsize),
+	.ahblm_hburst    (ahblm_hburst),
+	.ahblm_hprot     (ahblm_hprot),
+	.ahblm_hmastlock (ahblm_hmastlock),
+	.ahblm_hready    (ahblm_hready),
+	.ahblm_hresp     (ahblm_hresp),
+	.ahblm_hwdata    (ahblm_hwdata),
+	.ahblm_hrdata    (ahblm_hrdata)
 );
 
 endmodule

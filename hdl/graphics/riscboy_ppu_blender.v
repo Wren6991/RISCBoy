@@ -86,7 +86,7 @@ always @ (*) begin: collate_reqs
 		};
 	end
 	reqdata[N_REQ * W_REQDATA +: W_REQDATA] = {{W_MODE{1'b0}}, default_bg_colour};
-}
+end
 
 // Find the highest-priority pixel source on the highest layer. Default BG
 // colour is implicitly on layer 0.
