@@ -364,7 +364,7 @@ class VerilogWriter(RegBlockVisitor):
 			v.logic_clk.append("{0} <= ({0} && !(__{1}_wen && {0}_wdata)) || {0}_i;".format(fname, rname))
 		if f.access in ["sc"]:
 			v.logic_comb.append("{0}_o = {0}_wdata & {{{1}{{__{2}_wen}}}};".format(fname, f.width, rname))
-		if f.access in ["ro", "wf"]:
+		if f.access in ["ro", "wf", "sc"]:
 			v.decls.append("assign {}_rdata = {}'h{:x};".format(fname, f.width, f.resetval))
 
 

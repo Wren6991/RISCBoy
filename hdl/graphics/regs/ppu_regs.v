@@ -125,6 +125,8 @@ wire  csr_halt_hsync_rdata;
 wire  csr_halt_vsync_wdata = wdata[4];
 wire  csr_halt_vsync_rdata;
 wire [31:0] __csr_rdata = {27'h0, csr_halt_vsync_rdata, csr_halt_hsync_rdata, csr_running_rdata, csr_halt_rdata, csr_run_rdata};
+assign csr_run_rdata = 1'h0;
+assign csr_halt_rdata = 1'h0;
 assign csr_running_rdata = csr_running_i;
 assign csr_halt_hsync_rdata = csr_halt_hsync_o;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
@@ -171,6 +173,7 @@ assign bg0_csr_transparency_rdata = bg0_csr_transparency_o;
 assign bg0_csr_tilesize_rdata = bg0_csr_tilesize_o;
 assign bg0_csr_pfwidth_rdata = bg0_csr_pfwidth_o;
 assign bg0_csr_pfheight_rdata = bg0_csr_pfheight_o;
+assign bg0_csr_flush_rdata = 1'h0;
 
 wire [9:0] bg0_scroll_y_wdata = wdata[25:16];
 wire [9:0] bg0_scroll_y_rdata;
