@@ -7,6 +7,7 @@ parameter W_COORD = 12;
 parameter W_OUTDATA = 15;
 parameter W_ADDR = 32;
 parameter W_DATA = 32;
+parameter LOG_TILESET_WIDTH = 6;
 parameter W_SHIFTCTR = $clog2(W_DATA);
 parameter W_SHAMT = $clog2(W_SHIFTCTR + 1);
 parameter W_LOG_COORD = $clog2(W_COORD);
@@ -27,7 +28,6 @@ reg  [W_LOG_COORD-1:0]   cfg_log_w;
 reg  [W_LOG_COORD-1:0]   cfg_log_h;
 reg  [W_ADDR-1:0]        cfg_tileset_base;
 reg  [W_ADDR-1:0]        cfg_tilemap_base;
-reg  [W_LOG_COORD-1:0]   cfg_log_tileset_width;
 reg                      cfg_tile_size;
 reg  [2:0]               cfg_pixel_mode;
 reg                      cfg_transparency;
@@ -40,13 +40,13 @@ wire [1:0]               bus_size;
 wire                     out_vld;
 wire                     out_alpha;
 wire [W_OUTDATA-1:0]     out_pixdata;
-wire                     out_paletted;
 
 riscboy_ppu_background #(
-	.W_COORD(W_COORD),
-	.W_OUTDATA(W_OUTDATA),
-	.W_ADDR(W_ADDR),
-	.W_DATA(W_DATA)
+	.W_COORD           (W_COORD),
+	.W_OUTDATA         (W_OUTDATA),
+	.W_ADDR            (W_ADDR),
+	.W_DATA            (W_DATA),
+	.LOG_TILESET_WIDTH (LOG_TILESET_WIDTH)
 ) dut (
 	.clk                   (clk),
 	.rst_n                 (rst_n),
@@ -65,15 +65,13 @@ riscboy_ppu_background #(
 	.cfg_log_h             (cfg_log_h),
 	.cfg_tileset_base      (cfg_tileset_base),
 	.cfg_tilemap_base      (cfg_tilemap_base),
-	// .cfg_log_tileset_width (cfg_log_tileset_width),
 	.cfg_tile_size         (cfg_tile_size),
 	.cfg_pixel_mode        (cfg_pixel_mode),
 	.cfg_transparency      (cfg_transparency),
 	.out_vld               (out_vld),
 	.out_rdy               (out_rdy),
 	.out_alpha             (out_alpha),
-	.out_pixdata           (out_pixdata),
-	.out_paletted          (out_paletted)
+	.out_pixdata           (out_pixdata)
 );
 
 localparam MEM_SIZE_BYTES = 1 << 16;
@@ -136,7 +134,6 @@ initial begin: stimulus
 	cfg_log_h = 6;
 	cfg_tileset_base = TILESET_OFFS;
 	cfg_tilemap_base = TILEMAP_OFFS;
-	cfg_log_tileset_width = 0;
 	cfg_tile_size = 0;
 	cfg_pixel_mode = 0;
 	cfg_transparency = 0;
@@ -153,19 +150,18 @@ initial begin: stimulus
 	flush <= 1'b1;
 	@ (posedge clk);
 	flush <= 1'b0;
-	out_rdy <= 1'b1;
 
 	@ (posedge clk);
 
-	if (bus_vld || out_vld) begin
-		$display("Should be no bus requests or output pixels while disabled");
+	if (bus_vld || !out_vld || out_alpha) begin
+		$display("When disabled, should be no bus requests, and transparent output");
 		$finish;
 	end
 
 	$display("Smoke test!");
 
+	out_rdy <= 1'b1;
 	en <= 1;
-	cfg_log_tileset_width <= 6;
 	cfg_log_w <= 5;
 	cfg_log_h <= 5;
 	cfg_scroll_x <= 0;

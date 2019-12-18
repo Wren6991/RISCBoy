@@ -3,7 +3,7 @@ module tb;
 `include "gpio_pinmap.vh"
 
 localparam CLK_PERIOD_SYS = 20;
-localparam CLK_PERIOD_LCD = 500;
+localparam CLK_PERIOD_LCD = 30;
 
 localparam W_SRAM0_ADDR = 18;
 localparam SRAM0_DEPTH = 1 << W_SRAM0_ADDR;
@@ -33,7 +33,9 @@ assign (pull0, pull1) pads = {N_PADS{1'b1}}; // stop getting Xs in processor whe
 // ============================================================================
 
 riscboy_core #(
-	.BOOTRAM_PRELOAD("../ram_init32.hex")
+	// Skip bootloader: instead initialise main memory directly and jump straight there.
+	.BOOTRAM_PRELOAD(""),
+	.CPU_RESET_VECTOR(32'h200000c0)
 ) dut (
 	.clk_sys     (clk_sys),
 	.clk_lcd     (clk_lcd),
@@ -83,7 +85,8 @@ behav_uart_rx #(
 
 sram_async #(
 	.W_DATA(16),
-	.DEPTH(SRAM0_DEPTH)
+	.DEPTH(SRAM0_DEPTH),
+	.PRELOAD_FILE ("../ram_init16.hex")
 ) inst_sram_async (
 	.addr  (sram_addr),
 	.dq    (sram_dq),

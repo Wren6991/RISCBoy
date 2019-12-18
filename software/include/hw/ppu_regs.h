@@ -12,8 +12,168 @@
 // Bus data width       : 32
 // Bus address width    : 16
 
-#define PPU_LCD_PXFIFO_OFFS 0
-#define PPU_LCD_CSR_OFFS 4
+#define PPU_CSR_OFFS 0
+#define PPU_DISPSIZE_OFFS 4
+#define PPU_DEFAULT_BG_COLOUR_OFFS 8
+#define PPU_BEAM_OFFS 12
+#define PPU_BG0_CSR_OFFS 16
+#define PPU_BG0_SCROLL_OFFS 20
+#define PPU_BG0_TSBASE_OFFS 24
+#define PPU_BG0_TMBASE_OFFS 28
+#define PPU_LCD_PXFIFO_OFFS 32
+#define PPU_LCD_CSR_OFFS 36
+#define PPU_INTS_OFFS 40
+#define PPU_INTE_OFFS 44
+
+/*******************************************************************************
+*                                     CSR                                      *
+*******************************************************************************/
+
+// PPU control and status register
+
+// Field CSR_RUN
+// Write 1 to start the PPU running. Self-clearing strobe
+#define PPU_CSR_RUN_LSB  0
+#define PPU_CSR_RUN_BITS 1
+#define PPU_CSR_RUN_MASK 0x1
+// Field CSR_HALT
+// Write 1 to manually halt the PPU. Self-clearing strobe
+#define PPU_CSR_HALT_LSB  1
+#define PPU_CSR_HALT_BITS 1
+#define PPU_CSR_HALT_MASK 0x2
+// Field CSR_RUNNING
+// Reads as 1 if PPU is running, otherwise 0
+#define PPU_CSR_RUNNING_LSB  2
+#define PPU_CSR_RUNNING_BITS 1
+#define PPU_CSR_RUNNING_MASK 0x4
+// Field CSR_HALT_HSYNC
+// If 1, the PPU will halt automatically after completing a scanline
+#define PPU_CSR_HALT_HSYNC_LSB  3
+#define PPU_CSR_HALT_HSYNC_BITS 1
+#define PPU_CSR_HALT_HSYNC_MASK 0x8
+// Field CSR_HALT_VSYNC
+// If 1, the PPU will halt automatically after completing a frame
+#define PPU_CSR_HALT_VSYNC_LSB  4
+#define PPU_CSR_HALT_VSYNC_BITS 1
+#define PPU_CSR_HALT_VSYNC_MASK 0x10
+
+/*******************************************************************************
+*                                   DISPSIZE                                   *
+*******************************************************************************/
+
+// Configure display dimensions. Actual width is W + 1, height is H + 1
+
+// Field DISPSIZE_W
+#define PPU_DISPSIZE_W_LSB  0
+#define PPU_DISPSIZE_W_BITS 12
+#define PPU_DISPSIZE_W_MASK 0xfff
+// Field DISPSIZE_H
+#define PPU_DISPSIZE_H_LSB  16
+#define PPU_DISPSIZE_H_BITS 12
+#define PPU_DISPSIZE_H_MASK 0xfff0000
+
+/*******************************************************************************
+*                              DEFAULT_BG_COLOUR                               *
+*******************************************************************************/
+
+// Colour displayed when all blended pixels are transparent, or all sprites/backgrounds are disabled.
+
+// Field DEFAULT_BG_COLOUR
+#define PPU_DEFAULT_BG_COLOUR_LSB  0
+#define PPU_DEFAULT_BG_COLOUR_BITS 15
+#define PPU_DEFAULT_BG_COLOUR_MASK 0x7fff
+
+/*******************************************************************************
+*                                     BEAM                                     *
+*******************************************************************************/
+
+// Scan coordinates of the next pixel to be blended (read-only)
+
+// Field BEAM_X
+#define PPU_BEAM_X_LSB  0
+#define PPU_BEAM_X_BITS 12
+#define PPU_BEAM_X_MASK 0xfff
+// Field BEAM_Y
+#define PPU_BEAM_Y_LSB  16
+#define PPU_BEAM_Y_BITS 12
+#define PPU_BEAM_Y_MASK 0xfff0000
+
+/*******************************************************************************
+*                                   BG0_CSR                                    *
+*******************************************************************************/
+
+// Control and status register for BG0.
+
+// Field BG0_CSR_EN
+// If not enabled, will continuously output transparent pixels to blender
+#define PPU_BG0_CSR_EN_LSB  0
+#define PPU_BG0_CSR_EN_BITS 1
+#define PPU_BG0_CSR_EN_MASK 0x1
+// Field BG0_CSR_PIXMODE
+#define PPU_BG0_CSR_PIXMODE_LSB  1
+#define PPU_BG0_CSR_PIXMODE_BITS 3
+#define PPU_BG0_CSR_PIXMODE_MASK 0xe
+// Field BG0_CSR_TRANSPARENCY
+#define PPU_BG0_CSR_TRANSPARENCY_LSB  4
+#define PPU_BG0_CSR_TRANSPARENCY_BITS 1
+#define PPU_BG0_CSR_TRANSPARENCY_MASK 0x10
+// Field BG0_CSR_TILESIZE
+// 0 -> 8 px tiles. 1 -> 16 px tiles.
+#define PPU_BG0_CSR_TILESIZE_LSB  5
+#define PPU_BG0_CSR_TILESIZE_BITS 1
+#define PPU_BG0_CSR_TILESIZE_MASK 0x20
+// Field BG0_CSR_PFWIDTH
+// Playfield width is 2 ** (PFWIDTH + 1) pixels.
+#define PPU_BG0_CSR_PFWIDTH_LSB  6
+#define PPU_BG0_CSR_PFWIDTH_BITS 4
+#define PPU_BG0_CSR_PFWIDTH_MASK 0x3c0
+// Field BG0_CSR_PFHEIGHT
+// Playfield height is 2 ** (PFHEIGHT + 1) pixels.
+#define PPU_BG0_CSR_PFHEIGHT_LSB  10
+#define PPU_BG0_CSR_PFHEIGHT_BITS 4
+#define PPU_BG0_CSR_PFHEIGHT_MASK 0x3c00
+// Field BG0_CSR_FLUSH
+// flush background hardware and re-register all config state (temporary, will be automated)
+#define PPU_BG0_CSR_FLUSH_LSB  31
+#define PPU_BG0_CSR_FLUSH_BITS 1
+#define PPU_BG0_CSR_FLUSH_MASK 0x80000000
+
+/*******************************************************************************
+*                                  BG0_SCROLL                                  *
+*******************************************************************************/
+
+// Scroll the screen within the playfield
+
+// Field BG0_SCROLL_Y
+#define PPU_BG0_SCROLL_Y_LSB  16
+#define PPU_BG0_SCROLL_Y_BITS 10
+#define PPU_BG0_SCROLL_Y_MASK 0x3ff0000
+// Field BG0_SCROLL_X
+#define PPU_BG0_SCROLL_X_LSB  0
+#define PPU_BG0_SCROLL_X_BITS 10
+#define PPU_BG0_SCROLL_X_MASK 0x3ff
+
+/*******************************************************************************
+*                                  BG0_TSBASE                                  *
+*******************************************************************************/
+
+// Base address for BG0 tileset. Tileset must be naturally aligned.
+
+// Field BG0_TSBASE
+#define PPU_BG0_TSBASE_LSB  8
+#define PPU_BG0_TSBASE_BITS 24
+#define PPU_BG0_TSBASE_MASK 0xffffff00
+
+/*******************************************************************************
+*                                  BG0_TMBASE                                  *
+*******************************************************************************/
+
+// Base address for BG0 tilemap. Tilemap must be naturally aligned.
+
+// Field BG0_TMBASE
+#define PPU_BG0_TMBASE_LSB  8
+#define PPU_BG0_TMBASE_BITS 24
+#define PPU_BG0_TMBASE_MASK 0xffffff00
 
 /*******************************************************************************
 *                                  LCD_PXFIFO                                  *
@@ -60,5 +220,35 @@
 #define PPU_LCD_CSR_LCD_SHIFTCNT_LSB  16
 #define PPU_LCD_CSR_LCD_SHIFTCNT_BITS 5
 #define PPU_LCD_CSR_LCD_SHIFTCNT_MASK 0x1f0000
+
+/*******************************************************************************
+*                                     INTS                                     *
+*******************************************************************************/
+
+// Status of interrupt sources. Each source is write-1-clear.
+
+// Field INTS_VSYNC
+#define PPU_INTS_VSYNC_LSB  0
+#define PPU_INTS_VSYNC_BITS 1
+#define PPU_INTS_VSYNC_MASK 0x1
+// Field INTS_HSYNC
+#define PPU_INTS_HSYNC_LSB  1
+#define PPU_INTS_HSYNC_BITS 1
+#define PPU_INTS_HSYNC_MASK 0x2
+
+/*******************************************************************************
+*                                     INTE                                     *
+*******************************************************************************/
+
+// Interrupt enable mask
+
+// Field INTE_VSYNC
+#define PPU_INTE_VSYNC_LSB  0
+#define PPU_INTE_VSYNC_BITS 1
+#define PPU_INTE_VSYNC_MASK 0x1
+// Field INTE_HSYNC
+#define PPU_INTE_HSYNC_LSB  1
+#define PPU_INTE_HSYNC_BITS 1
+#define PPU_INTE_HSYNC_MASK 0x2
 
 #endif // _PPU_REGS_H_

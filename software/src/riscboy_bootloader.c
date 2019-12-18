@@ -148,7 +148,7 @@ void run_2nd_stage()
 	cmdbuf[3] = 0xff & (STAGE2_OFFS >> 0);
 	spi_write_read(cmdbuf, cmdbuf, 16);
 	bool mismatch = false;
-	const char *expect = stage2_magic, *actual = &cmdbuf[4];
+	const char *expect = stage2_magic, *actual = (char *)&cmdbuf[4];
 	while (*expect)
 	{
 		if (*expect++ != *actual++)

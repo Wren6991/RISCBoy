@@ -47,6 +47,7 @@
 module sram_async #(
 	parameter W_DATA = 16,            // Must be power of 2, >= 8
 	parameter DEPTH = 1 << 18,        // == 0.5 MiB for 16 bit interface
+	parameter PRELOAD_FILE = "",
 	parameter W_ADDR = $clog2(DEPTH), // Let this default
 	parameter W_BYTES = W_DATA / 8    // Let this default
 ) (
@@ -62,13 +63,23 @@ module sram_async #(
 reg [W_DATA-1:0] dq_r;
 assign dq = dq_r;
 
-reg [7:0] byte_mem [0:DEPTH-1] [0:W_BYTES-1];
+reg [W_DATA-1:0] mem [0:DEPTH-1];
+
+initial begin: preload
+	`ifdef SIM
+		integer n;
+		for (n = 0; n < DEPTH; n = n + 1)
+			mem[n] = {W_DATA{1'b0}};
+	`endif
+	if (PRELOAD_FILE != "")
+		$readmemh(PRELOAD_FILE, mem);
+end
 
 always @ (*) begin: readport
 	integer i;
 	for (i = 0; i < W_BYTES; i = i + 1) begin
 		dq_r[i * 8 +: 8] = !ce_n && !oe_n && we_n && !ben_n[i] ?
-			byte_mem[addr][i] : 8'hz;
+			mem[addr][i * 8 +: 8] : 8'hz;
 	end 	
 end
 
@@ -76,7 +87,7 @@ always @ (negedge we_n) begin: writeport
 	integer i;
 	for (i = 0; i < W_BYTES; i = i + 1) begin
 		if (!ce_n && !ben_n[i])
-			byte_mem[addr][i] <= dq[i * 8 +: 8];
+			mem[addr][i * 8 +: 8] <= dq[i * 8 +: 8];
 	end
 end
 

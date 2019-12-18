@@ -1011,40 +1011,163 @@
          <obj_property name="ElementShortName">rst_n</obj_property>
          <obj_property name="ObjectShortName">rst_n</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_psel" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_psel</obj_property>
-         <obj_property name="ObjectShortName">apbs_psel</obj_property>
+      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ppu_running" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ppu_running</obj_property>
+         <obj_property name="ObjectShortName">ppu_running</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_penable" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_penable</obj_property>
-         <obj_property name="ObjectShortName">apbs_penable</obj_property>
+      <wvobject fp_name="group350" type="group">
+         <obj_property name="label">Raster Counter</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_w" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">raster_w[11:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_w[11:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_h" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">raster_h[11:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_h[11:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_x" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">raster_x[11:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_x[11:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/raster_y" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">raster_y[11:0]</obj_property>
+            <obj_property name="ObjectShortName">raster_y[11:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/hsync" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">hsync</obj_property>
+            <obj_property name="ObjectShortName">hsync</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/vsync" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">vsync</obj_property>
+            <obj_property name="ObjectShortName">vsync</obj_property>
+         </wvobject>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pwrite" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_pwrite</obj_property>
-         <obj_property name="ObjectShortName">apbs_pwrite</obj_property>
+      <wvobject fp_name="group341" type="group">
+         <obj_property name="label">Master Port</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ahblm_haddr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">ahblm_haddr[31:0]</obj_property>
+            <obj_property name="ObjectShortName">ahblm_haddr[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ahblm_htrans" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">ahblm_htrans[1:0]</obj_property>
+            <obj_property name="ObjectShortName">ahblm_htrans[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ahblm_hsize" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">ahblm_hsize[2:0]</obj_property>
+            <obj_property name="ObjectShortName">ahblm_hsize[2:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ahblm_hready" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">ahblm_hready</obj_property>
+            <obj_property name="ObjectShortName">ahblm_hready</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/ahblm_hrdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">ahblm_hrdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">ahblm_hrdata[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_paddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_paddr[15:0]</obj_property>
-         <obj_property name="ObjectShortName">apbs_paddr[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="group335" type="group">
+         <obj_property name="label">Slave Port</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_psel" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_psel</obj_property>
+            <obj_property name="ObjectShortName">apbs_psel</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_penable" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_penable</obj_property>
+            <obj_property name="ObjectShortName">apbs_penable</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pwrite" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_pwrite</obj_property>
+            <obj_property name="ObjectShortName">apbs_pwrite</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_paddr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_paddr[15:0]</obj_property>
+            <obj_property name="ObjectShortName">apbs_paddr[15:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pwdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_pwdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">apbs_pwdata[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_prdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_prdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">apbs_prdata[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pready" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_pready</obj_property>
+            <obj_property name="ObjectShortName">apbs_pready</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pslverr" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">apbs_pslverr</obj_property>
+            <obj_property name="ObjectShortName">apbs_pslverr</obj_property>
+         </wvobject>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pwdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_pwdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">apbs_pwdata[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_prdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_prdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">apbs_prdata[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pready" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_pready</obj_property>
-         <obj_property name="ObjectShortName">apbs_pready</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/apbs_pslverr" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">apbs_pslverr</obj_property>
-         <obj_property name="ObjectShortName">apbs_pslverr</obj_property>
+      <wvobject fp_name="group364" type="group">
+         <obj_property name="label">Blender</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_vld" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">req_vld[0:0]</obj_property>
+            <obj_property name="ObjectShortName">req_vld[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_rdy" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">req_rdy[0:0]</obj_property>
+            <obj_property name="ObjectShortName">req_rdy[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_alpha" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">req_alpha[0:0]</obj_property>
+            <obj_property name="ObjectShortName">req_alpha[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_pixdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">req_pixdata[14:0]</obj_property>
+            <obj_property name="ObjectShortName">req_pixdata[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_mode" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">req_mode[1:0]</obj_property>
+            <obj_property name="ObjectShortName">req_mode[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_layer" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">req_layer[0:0]</obj_property>
+            <obj_property name="ObjectShortName">req_layer[0:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/default_bg_colour" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">default_bg_colour[14:0]</obj_property>
+            <obj_property name="ObjectShortName">default_bg_colour[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">out_vld</obj_property>
+            <obj_property name="ObjectShortName">out_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_rdy" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">out_rdy</obj_property>
+            <obj_property name="ObjectShortName">out_rdy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_pixdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">out_pixdata[14:0]</obj_property>
+            <obj_property name="ObjectShortName">out_pixdata[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/out_paletted" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">out_paletted</obj_property>
+            <obj_property name="ObjectShortName">out_paletted</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/reqdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">reqdata[33:0]</obj_property>
+            <obj_property name="ObjectShortName">reqdata[33:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_cs" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">lcd_cs</obj_property>
@@ -1062,70 +1185,70 @@
          <obj_property name="ElementShortName">lcd_mosi</obj_property>
          <obj_property name="ObjectShortName">lcd_mosi</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/rst_n_ppu" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst_n_ppu</obj_property>
-         <obj_property name="ObjectShortName">rst_n_ppu</obj_property>
+      <wvobject fp_name="group342" type="group">
+         <obj_property name="label">Pixel FIFO</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_direct_wdata[15:0]</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_direct_wdata[15:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wen" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_direct_wen</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_direct_wen</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wfull" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_wfull</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_wfull</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wempty" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_wempty</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_wempty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wlevel" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_wlevel[3:0]</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_wlevel[3:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_rdata[15:0]</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_rdata[15:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rempty" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_rempty</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_rempty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rdy" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_rdy</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_rdy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_pop" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pxfifo_pop</obj_property>
+            <obj_property name="ObjectShortName">pxfifo_pop</obj_property>
+         </wvobject>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/rst_n_lcd" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst_n_lcd</obj_property>
-         <obj_property name="ObjectShortName">rst_n_lcd</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_direct_wdata[15:0]</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_direct_wdata[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wen" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_direct_wen</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_direct_wen</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wfull" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_wfull</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_wfull</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wempty" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_wempty</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_wempty</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wlevel" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_wlevel[3:0]</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_wlevel[3:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">lcdctrl_shamt[4:0]</obj_property>
-         <obj_property name="ObjectShortName">lcdctrl_shamt[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">lcdctrl_busy</obj_property>
-         <obj_property name="ObjectShortName">lcdctrl_busy</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy_clklcd" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">lcdctrl_busy_clklcd</obj_property>
-         <obj_property name="ObjectShortName">lcdctrl_busy_clklcd</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt_clklcd" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">lcdctrl_shamt_clklcd[4:0]</obj_property>
-         <obj_property name="ObjectShortName">lcdctrl_shamt_clklcd[4:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_rdata[15:0]</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_rdata[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rempty" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_rempty</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_rempty</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rdy" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_rdy</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_rdy</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_pop" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">pxfifo_pop</obj_property>
-         <obj_property name="ObjectShortName">pxfifo_pop</obj_property>
+      <wvobject fp_name="group343" type="group">
+         <obj_property name="label">LCD Shifter</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">lcdctrl_shamt[4:0]</obj_property>
+            <obj_property name="ObjectShortName">lcdctrl_shamt[4:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">lcdctrl_busy</obj_property>
+            <obj_property name="ObjectShortName">lcdctrl_busy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy_clklcd" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">lcdctrl_busy_clklcd</obj_property>
+            <obj_property name="ObjectShortName">lcdctrl_busy_clklcd</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt_clklcd" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">lcdctrl_shamt_clklcd[4:0]</obj_property>
+            <obj_property name="ObjectShortName">lcdctrl_shamt_clklcd[4:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
       </wvobject>
    </wvobject>
    <wvobject fp_name="/tb/uart_rx/rx" type="logic" db_ref_id="1">

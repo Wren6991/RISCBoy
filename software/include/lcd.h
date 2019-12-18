@@ -52,7 +52,7 @@ static inline void lcd_write_cmd(const uint8_t *cmd, size_t count)
 	if (count >= 2)
 	{
 		lcd_force_dc_cs(1, 0);
-		for (int i = 0; i < count - 1; ++i)
+		for (size_t i = 0; i < count - 1; ++i)
 			lcd_put_byte(*cmd++);
 	}
 	lcd_wait_idle();
