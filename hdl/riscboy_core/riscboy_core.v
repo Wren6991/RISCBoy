@@ -67,6 +67,18 @@ wire               proc0_hmastlock;
 wire [W_DATA-1:0]  proc0_hwdata;
 wire [W_DATA-1:0]  proc0_hrdata;
 
+wire               ppu_hready;
+wire               ppu_hresp;
+wire [W_ADDR-1:0]  ppu_haddr;
+wire               ppu_hwrite;
+wire [1:0]         ppu_htrans;
+wire [2:0]         ppu_hsize;
+wire [2:0]         ppu_hburst;
+wire [3:0]         ppu_hprot;
+wire               ppu_hmastlock;
+wire [W_DATA-1:0]  ppu_hwdata;
+wire [W_DATA-1:0]  ppu_hrdata;
+
 wire               bridge_hready;
 wire               bridge_hready_resp;
 wire               bridge_hresp;
@@ -241,27 +253,38 @@ hazard5_cpu #(
 
 `endif
 
-// Not a master yet, but will be soon :)
 riscboy_ppu #(
 	.PXFIFO_DEPTH (8)
 ) inst_riscboy_ppu (
-	.clk_ppu      (clk_sys),
-	.clk_lcd      (clk_lcd),
-	.rst_n        (rst_n),
+	.clk_ppu         (clk_sys),
+	.clk_lcd         (clk_lcd),
+	.rst_n           (rst_n),
 
-	.apbs_psel    (ppu_apbs_psel),
-	.apbs_penable (ppu_apbs_penable),
-	.apbs_pwrite  (ppu_apbs_pwrite),
-	.apbs_paddr   (ppu_apbs_paddr),
-	.apbs_pwdata  (ppu_apbs_pwdata),
-	.apbs_prdata  (ppu_apbs_prdata),
-	.apbs_pready  (ppu_apbs_pready),
-	.apbs_pslverr (ppu_apbs_pslverr),
+	.ahblm_hready    (ppu_hready),
+	.ahblm_hresp     (ppu_hresp),
+	.ahblm_haddr     (ppu_haddr),
+	.ahblm_hwrite    (ppu_hwrite),
+	.ahblm_htrans    (ppu_htrans),
+	.ahblm_hsize     (ppu_hsize),
+	.ahblm_hburst    (ppu_hburst),
+	.ahblm_hprot     (ppu_hprot),
+	.ahblm_hmastlock (ppu_hmastlock),
+	.ahblm_hwdata    (ppu_hwdata),
+	.ahblm_hrdata    (ppu_hrdata),
 
-	.lcd_cs       (lcd_cs),
-	.lcd_dc       (lcd_dc),
-	.lcd_sck      (lcd_sck),
-	.lcd_mosi     (lcd_mosi)
+	.apbs_psel       (ppu_apbs_psel),
+	.apbs_penable    (ppu_apbs_penable),
+	.apbs_pwrite     (ppu_apbs_pwrite),
+	.apbs_paddr      (ppu_apbs_paddr),
+	.apbs_pwdata     (ppu_apbs_pwdata),
+	.apbs_prdata     (ppu_apbs_prdata),
+	.apbs_pready     (ppu_apbs_pready),
+	.apbs_pslverr    (ppu_apbs_pslverr),
+
+	.lcd_cs          (lcd_cs),
+	.lcd_dc          (lcd_dc),
+	.lcd_sck         (lcd_sck),
+	.lcd_mosi        (lcd_mosi)
 );
 
 // =============================================================================
@@ -269,7 +292,7 @@ riscboy_ppu #(
 // =============================================================================
 
 ahbl_crossbar #(
-	.N_MASTERS(1),
+	.N_MASTERS(2),
 	.N_SLAVES(3),
 	.W_ADDR(W_ADDR),
 	.W_DATA(W_DATA),
@@ -278,17 +301,17 @@ ahbl_crossbar #(
 ) inst_ahbl_crossbar (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
-	.src_hready_resp (proc0_hready),
-	.src_hresp       (proc0_hresp),
-	.src_haddr       (proc0_haddr),
-	.src_hwrite      (proc0_hwrite),
-	.src_htrans      (proc0_htrans),
-	.src_hsize       (proc0_hsize),
-	.src_hburst      (proc0_hburst),
-	.src_hprot       (proc0_hprot),
-	.src_hmastlock   (proc0_hmastlock),
-	.src_hwdata      (proc0_hwdata),
-	.src_hrdata      (proc0_hrdata),
+	.src_hready_resp ({ppu_hready    , proc0_hready    }), // Lower master wins (proc has priority)
+	.src_hresp       ({ppu_hresp     , proc0_hresp     }),
+	.src_haddr       ({ppu_haddr     , proc0_haddr     }),
+	.src_hwrite      ({ppu_hwrite    , proc0_hwrite    }),
+	.src_htrans      ({ppu_htrans    , proc0_htrans    }),
+	.src_hsize       ({ppu_hsize     , proc0_hsize     }),
+	.src_hburst      ({ppu_hburst    , proc0_hburst    }),
+	.src_hprot       ({ppu_hprot     , proc0_hprot     }),
+	.src_hmastlock   ({ppu_hmastlock , proc0_hmastlock }),
+	.src_hwdata      ({ppu_hwdata    , proc0_hwdata    }),
+	.src_hrdata      ({ppu_hrdata    , proc0_hrdata    }),
 
 	.dst_hready      ({bridge_hready      , sram1_hready      , sram0_hready     }),
 	.dst_hready_resp ({bridge_hready_resp , sram1_hready_resp , sram0_hready_resp}),
