@@ -177,21 +177,24 @@ wire vsync;
 // csr run/halt are decoded from the bus (-> long paths), but we can respond a little more loosely.
 reg ppu_running_reg;
 wire ppu_running = ppu_running_reg && !(csr_halt_vsync && vsync || csr_halt_hsync && hsync);
+assign csr_running = ppu_running;
 
 always @ (posedge clk_ppu or negedge rst_n_ppu) begin
-	if (!rst_n) begin
+	if (!rst_n_ppu) begin
 		ppu_running_reg <= 1'b0;
 	end else begin
 		ppu_running_reg <= (ppu_running || csr_run) && !csr_halt;
 	end
 end
 
+wire raster_count_advance;
+
 riscboy_ppu_raster_counter #(
 	.W_COORD (W_COORD)
 ) raster_counter_u (
 	.clk         (clk_ppu),
 	.rst_n       (rst_n_ppu),
-	.en          (ppu_running),
+	.en          (raster_count_advance),
 	.clr         (1'b0), // FIXME
 	.w           (raster_w),
 	.h           (raster_h),
@@ -211,6 +214,7 @@ wire [W_PIXMODE-1:0]  bg_blend_mode    [0:N_BACKGROUND-1]; // TODO: timing of pi
 wire [W_LAYERSEL-1:0] bg_blend_layer   [0:N_BACKGROUND-1];
 
 assign bg_blend_layer[0] = 0; // FIXME
+assign bg_blend_mode[0] = bg0_csr_pixmode;
 
 wire                  blend_out_vld;
 wire                  blend_out_rdy = ppu_running && !pxfifo_wfull;
@@ -234,6 +238,8 @@ riscboy_ppu_blender #(
 	.out_pixdata       (blend_out_pixdata),
 	.out_paletted      (blend_out_paletted)
 );
+
+assign raster_count_advance = blend_out_vld && blend_out_rdy;
 
 // ----------------------------------------------------------------------------
 // Backgrounds
@@ -287,7 +293,8 @@ riscboy_ppu_background #(
 wire                       lcdctrl_busy_clklcd;
 wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt_clklcd;
 
-wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = blend_out_vld ? {blend_out_pixdata[14:5], 1'b0, blend_out_pixdata[4:0]} : pxfifo_direct_wdata;
+wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = blend_out_vld && blend_out_rdy ?
+	{blend_out_pixdata[14:5], 1'b0, blend_out_pixdata[4:0]} : pxfifo_direct_wdata;
 wire                       pxfifo_wen = pxfifo_direct_wen || (blend_out_vld && blend_out_rdy);
 
 wire [W_LCD_PIXDATA-1:0]   pxfifo_rdata;

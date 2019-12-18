@@ -71,7 +71,8 @@ assign req_rdy = {N_REQ{out_rdy && &req_vld}};
 // Request Arbitration
 
 // Start by collating all the external request vectors, and an additional dummy
-// request for the background colour.
+// request for the background colour. Dummy request is tagged on the end, where
+// it will always lose tiebreak.
 
 localparam W_REQDATA = W_PIXDATA + W_MODE;
 
@@ -99,7 +100,7 @@ onehot_priority_dynamic #(
 	.HIGHEST_WINS (1)
 ) pixel_arbiter (
 	.priority ({{W_LAYERSEL{1'b0}}, req_layer}),
-	.req      (req_alpha),
+	.req      ({1'b1, req_alpha}),
 	.gnt      (src_gnt)
 );
 
