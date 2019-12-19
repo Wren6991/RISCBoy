@@ -15,6 +15,8 @@
 // A payload size of 0 terminates the list.
 
 static const uint8_t ili9341_init_seq[] = {
+	2,  0,  0x36, 0xe8,             // For some reason the display likes to see a MADCTL *before* sw reset after a power cycle. I have no idea why
+
 	1,  30, 0x01,                   // Software reset, 150 ms delay
 	2,  24, 0xc1, 0x11,             // PWCTRL2, step up control (BT) = 1, -> VGL = -VCI * 3,  120 ms delay
 	3,  0,  0xc5, 0x34, 0x3d,       // VMCTRL1, VCOMH = 4.0 V, VCOML = -0.975 V
