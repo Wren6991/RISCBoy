@@ -35,14 +35,17 @@ endgenerate
 generate
 if (COUNT != 0) begin: has_counter
 	(* keep = 1'b1 *) reg [W_CTR-1:0] ctr = COUNT;
+	(* keep = 1'b1 *) reg ctr_zero = 1'b0;
 	always @ (posedge clk or negedge stage1_out) begin
 		if (!stage1_out) begin
 			ctr <= COUNT;
+			ctr_zero <= 1'b0;
 		end else begin
 			ctr <= ctr - |ctr;
+			ctr_zero <= ~|ctr;
 		end
 	end
-	assign rst_n = ~|ctr;
+	assign rst_n = ctr_zero;
 end else begin: no_counter
 	assign rst_n = stage1_out;
 end
