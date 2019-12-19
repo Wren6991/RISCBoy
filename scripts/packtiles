@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+from PIL import Image
+import argparse
+import sys
+
+def bytes_from_bitstream_le(bitstream):
+	accum = 0
+	accum_size = 0
+	while True:
+		while accum_size < 8:
+			nbits, newdata = next(bitstream)
+			accum = accum | (newdata << accum_size)
+			accum_size += nbits
+		while accum_size >= 8:
+			yield accum & 0xff
+			accum = accum >> 8
+			accum_size -= 8
+
+def format_pixel(format, pixel):
+	assert(format == "argb1555")
+	return (16, ((pixel[2] & 0xf8) >> 3) | \
+		((pixel[1] & 0xf8) << 2) | \
+		((pixel[0] & 0xf8) << 7) | \
+		(((pixel[3] & 0x80) << 8) if len(pixel) > 3 else 0x8000))
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("input", help="Input file name")
+	parser.add_argument("output", help="Output file name")
+	parser.add_argument("--tilesize", "-t", help="Tile size (pixels), default 8", default="8", choices=["8", "16"])
+	parser.add_argument("--format", "-f", help="Output pixel format, default argb1555", default="argb1555", choices=["argb1555"])
+	args = parser.parse_args()
+	img = Image.open(args.input)
+	ofile = open(args.output, "wb")
+	tilesize = int(args.tilesize)
+
+	for y in range(0, img.height - (tilesize - 1), tilesize):
+		for x in range(0, img.width - (tilesize - 1), tilesize):
+			tile = img.crop((x, y, x + tilesize, y + tilesize))
+			ofile.write(bytes(bytes_from_bitstream_le(
+				format_pixel(args.format, tile.getpixel((i, j))) for j in range(tilesize) for i in range(tilesize)
+			)))
