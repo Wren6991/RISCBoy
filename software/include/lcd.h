@@ -16,12 +16,10 @@
 
 static const uint8_t ili9341_init_seq[] = {
 	1,  30, 0x01,                   // Software reset, 150 ms delay
-	2,  0,  0xc0, 0x23,             // PWCTRL1, VRH = 4.6V
-	2,  0,  0xc1, 0x10,             // PWCTRL2, minimum step-up factor (BT)
-	3,  0,  0xc5, 0x3e, 0x28,       // VMCTR1, VCOMH = 4.25 V, VCOML = -1.5 V
-	2,  0,  0xc7, 0x86,             // VMCTR2, enable previous VCOM settings, with an offset of -58 points?
+	2,  24, 0xc1, 0x11,             // PWCTRL2, step up control (BT) = 1, -> VGL = -VCI * 3,  120 ms delay
+	3,  0,  0xc5, 0x34, 0x3d,       // VMCTRL1, VCOMH = 4.0 V, VCOML = -0.975 V
+	2,  0,  0xc7, 0xc0,             // VMCTRL2, override NVM-stored VCOM offset, and set our own offset of 0 points
 	2,  0,  0x36, 0xe8,             // MADCTL, set MX+MY+MV (swap X/Y and flip both axes), set colour order to BGR
-	3,  0,  0x37, 0x00, 0x00,       // VSCRSADD, set vscroll to 0
 	2,  0,  0x3a, 0x55,             // COLMOD, 16 bpp pixel format for both RGB and MCU interfaces
 	3,  0,  0xb1, 0x00, 0x18,       // FRMCTR1 frame rate control for normal display mode, no oscillator prescale, 79 Hz refresh
 	4,  0,  0xb6, 0x08, 0x82, 0x27, // DFUNCTR: interval scan in non-display area (PTG). Crystal type normally white (REV). Set non-display scan interval (from PTG) to every 5th frame (ISC). Number of lines = 320 (NL). Do not configure external fosc divider (PCDIV).
