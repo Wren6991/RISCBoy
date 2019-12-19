@@ -20,7 +20,7 @@ static const uint8_t ili9341_init_seq[] = {
 	2,  0,  0xc1, 0x10,             // PWCTRL2, minimum step-up factor (BT)
 	3,  0,  0xc5, 0x3e, 0x28,       // VMCTR1, VCOMH = 4.25 V, VCOML = -1.5 V
 	2,  0,  0xc7, 0x86,             // VMCTR2, enable previous VCOM settings, with an offset of -58 points?
-	2,  0,  0x36, 0x48,             // MADCTL, set MX direction bit, set colour order to BGR
+	2,  0,  0x36, 0xe8,             // MADCTL, set MX+MY+MV (swap X/Y and flip both axes), set colour order to BGR
 	3,  0,  0x37, 0x00, 0x00,       // VSCRSADD, set vscroll to 0
 	2,  0,  0x3a, 0x55,             // COLMOD, 16 bpp pixel format for both RGB and MCU interfaces
 	3,  0,  0xb1, 0x00, 0x18,       // FRMCTR1 frame rate control for normal display mode, no oscillator prescale, 79 Hz refresh
