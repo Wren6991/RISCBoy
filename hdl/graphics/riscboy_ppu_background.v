@@ -20,7 +20,6 @@ module riscboy_ppu_background #(
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
-	parameter LOG_TILESET_WIDTH = 8,
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),
 	parameter W_SHAMT = $clog2(W_SHIFTCTR + 1),
@@ -207,25 +206,16 @@ end
 // Address generation
 
 // Safe to ignore cases where tileset is less than one tile wide...
-wire [W_LOG_COORD-1:0] log_tileset_width_tiles = LOG_TILESET_WIDTH - tile_log_size;
-
-wire [W_ADDR-1:0] tile_addr =
-	cfg_tilemap_base |
-	(cfg_tile_size ? u >> 4 : u >> 3) & ~({W_ADDR{1'b1}} << log_tileset_width_tiles) |
-	({{W_ADDR-W_COORD{1'b0}}, v >> tile_log_size} << log_tileset_width_tiles);
+wire [W_LOG_COORD-1:0] log_playfield_width_tiles = cfg_log_w + 1'b1 - tile_log_size;
 
 
-// We want to find the offset into the tileset buffer, in pixels. Can then
-// easily find the offset in bytes.
+wire [W_ADDR-1:0] idx_of_tile_in_tilemap = (u >> tile_log_size) | ({{W_ADDR-W_COORD{1'b0}}, v >> tile_log_size} << log_playfield_width_tiles);
 
-// Horizontal offset (px) = (tile % TILESET_WIDTH_IN_TILES) * WIDTH_OF_TILE + u % WIDTH_OF_TILE
-// Vertical offset (px) = (tile / TILESET_WIDTH_IN_TILES) * HEIGHT_OF_TILE + v % HEIGHT_OF_TILE
-// Pixel offset into tileset = horizontal offset + vertical offset * TILESET_WIDTH_IN_PIXELS
-// and   WIDTH_OF_TILE = HEIGHT_OF_TILE
+wire [W_ADDR-1:0] tile_addr = cfg_tilemap_base | idx_of_tile_in_tilemap;
 
-wire [W_ADDR-1:0] tileset_pixoffs_u = (cfg_tile_size ? {tile, u[3:0]} : {tile, u[2:0]}) & ~({W_ADDR{1'b1}} << LOG_TILESET_WIDTH);
-wire [W_ADDR-1:0] tileset_pixoffs_v = cfg_tile_size ? {tile >> log_tileset_width_tiles, v[3:0]} : {tile >> log_tileset_width_tiles, v[2:0]};
-wire [W_ADDR-1:0] idx_of_pixel_in_tileset = tileset_pixoffs_u | (tileset_pixoffs_v << LOG_TILESET_WIDTH);
+wire [W_ADDR-1:0] idx_of_pixel_in_tileset = cfg_tile_size ?
+	{{W_ADDR-W_TILENUM-8{1'b0}}, tile, v[3:0], u[3:0]} :
+	{{W_ADDR-W_TILENUM-6{1'b0}}, tile, v[2:0], u[2:0]};
 
 wire [W_ADDR-1:0] pixel_addr = (cfg_tileset_base | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
 

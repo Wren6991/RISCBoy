@@ -226,8 +226,8 @@
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/gearbox_u/dout" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dout[14:0]</obj_property>
-         <obj_property name="ObjectShortName">dout[14:0]</obj_property>
+         <obj_property name="ElementShortName">dout[15:0]</obj_property>
+         <obj_property name="ObjectShortName">dout[15:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/gearbox_u/sreg" type="array" db_ref_id="1">
@@ -239,6 +239,16 @@
    <wvobject fp_name="group83" type="group">
       <obj_property name="label">Address Generation</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/idx_of_tile_in_tilemap" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">idx_of_tile_in_tilemap[31:0]</obj_property>
+         <obj_property name="ObjectShortName">idx_of_tile_in_tilemap[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/tile_addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tile_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">tile_addr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb/dut/pixel_addr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">pixel_addr[31:0]</obj_property>
          <obj_property name="ObjectShortName">pixel_addr[31:0]</obj_property>
@@ -247,21 +257,6 @@
       <wvobject fp_name="/tb/dut/idx_of_pixel_in_tileset" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
          <obj_property name="ObjectShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/tileset_pixoffs_v" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">tileset_pixoffs_v[31:0]</obj_property>
-         <obj_property name="ObjectShortName">tileset_pixoffs_v[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/tileset_pixoffs_u" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">tileset_pixoffs_u[31:0]</obj_property>
-         <obj_property name="ObjectShortName">tileset_pixoffs_u[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/log_tileset_width_tiles" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">log_tileset_width_tiles[3:0]</obj_property>
-         <obj_property name="ObjectShortName">log_tileset_width_tiles[3:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
    </wvobject>

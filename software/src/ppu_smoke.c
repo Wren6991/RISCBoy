@@ -34,11 +34,20 @@ int main()
 
 	for (int i = 0; i < 256; ++i)
 		tilemap[i] = i;
-	for (unsigned int i = 0; i < 65536; ++i)
-		tileset[i] =
-			(i & COLOUR_BLUE) |
-			((i >> 3) & COLOUR_GREEN) |
-			((i >> 1) & COLOUR_RED);
+	for (unsigned int tile = 0; tile < 16 * 16; ++tile)
+	{
+		for (unsigned int x = 0; x < 16; ++x)
+		{
+			for (unsigned int y = 0; y < 16; ++y)
+			{
+				unsigned int i = x + (tile % 16) * 16 + 256 * (y + (tile / 16) * 16);
+				tileset[tile * 256 + y * 16 + x] =
+					(i & COLOUR_BLUE) |
+					((i >> 3) & COLOUR_GREEN) |
+					((i >> 1) & COLOUR_RED);
+			}
+		}
+	}
 
 	*PPU_BG0_TMBASE = (uint32_t)tilemap;
 	*PPU_BG0_TSBASE = (uint32_t)tileset;

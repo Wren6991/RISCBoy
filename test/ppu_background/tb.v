@@ -7,7 +7,6 @@ parameter W_COORD = 12;
 parameter W_OUTDATA = 15;
 parameter W_ADDR = 32;
 parameter W_DATA = 32;
-parameter LOG_TILESET_WIDTH = 6;
 parameter W_SHIFTCTR = $clog2(W_DATA);
 parameter W_SHAMT = $clog2(W_SHIFTCTR + 1);
 parameter W_LOG_COORD = $clog2(W_COORD);
@@ -45,8 +44,7 @@ riscboy_ppu_background #(
 	.W_COORD           (W_COORD),
 	.W_OUTDATA         (W_OUTDATA),
 	.W_ADDR            (W_ADDR),
-	.W_DATA            (W_DATA),
-	.LOG_TILESET_WIDTH (LOG_TILESET_WIDTH)
+	.W_DATA            (W_DATA)
 ) dut (
 	.clk                   (clk),
 	.rst_n                 (rst_n),
@@ -119,7 +117,7 @@ localparam TILESET_OFFS = 16'h4000;
 localparam TILEMAP_OFFS = 16'h8000;
 
 initial begin: stimulus
-	integer i;
+	integer i, tile, x, y;
 	clk = 0;
 	rst_n = 0;
 	en = 0;
@@ -170,9 +168,14 @@ initial begin: stimulus
 	for (i = 0; i < 256; i = i + 1)
 		mem[TILEMAP_OFFS + i] <= i;
 
-	for (i = 0; i < 64 * 64; i = i + 1) begin
-		mem[TILESET_OFFS + 2 * i] <= i & 8'hff;
-		mem[TILESET_OFFS + 2 * i + 1] <= i >> 8;
+	for (tile = 0; tile < 8 * 8; tile = tile + 1) begin
+		for (x = 0; x < 8; x = x + 1) begin
+			for (y = 0; y < 8; y = y + 1) begin
+				i = 64 * (y + (tile / 8) * 8) + x + (tile % 8) * 8;
+				mem[TILESET_OFFS + 2 * (x + 8 * (y + 8 * tile))] <= i & 8'hff;
+				mem[TILESET_OFFS + 2 * (x + 8 * (y + 8 * tile)) + 1] <= i >> 8;
+			end
+		end
 	end
 
 	@ (posedge clk);

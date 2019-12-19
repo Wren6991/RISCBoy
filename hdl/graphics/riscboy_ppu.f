@@ -12,3 +12,6 @@ file $HDL/common/onehot_mux.v
 file $HDL/common/onehot_priority.v
 file $HDL/common/onehot_encoder.v
 file $HDL/common/onehot_priority_dynamic.v
+file $HDL/common/reset_sync.v
+file $HDL/common/dffe_out.v
+file $HDL/common/ddr_out.v
