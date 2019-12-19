@@ -27,10 +27,10 @@ void render_frame()
 int main()
 {
 	if (!tbman_running_in_sim())
-		lcd_init(st7789_init_seq);
+		lcd_init(ili9341_init_seq);
 
-	*PPU_DISPSIZE = (239 << PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
-	*PPU_DEFAULT_BG_COLOUR = 0x7c01fu; // magenta
+	*PPU_DISPSIZE = (239 << PPU_DISPSIZE_W_LSB) | (319 << PPU_DISPSIZE_H_LSB);
+	*PPU_DEFAULT_BG_COLOUR = COLOUR_RED | COLOUR_BLUE; // magenta
 
 	for (int i = 0; i < 256; ++i)
 		tilemap[i] = i;
