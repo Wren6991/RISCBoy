@@ -216,8 +216,9 @@ static inline void flash_wait_done()
 uint16_t checksum(uint8_t *data, size_t len)
 {
 	uint16_t sum = 0xffff;
-	for (int i = 0; i < len; ++i)
+	for (size_t i = 0; i < len; ++i)
 		sum = (sum + (sum << 3) + 1) ^ (data[i] + (data[i] << 5) + (data[i] << 9));
+	return sum;
 }
 
 static inline void set_cmd_addr(uint32_t addr)
@@ -452,7 +453,7 @@ int test_mem()
 		uart_puts("OK.\n");
 
 	uart_puts("Zero words...\n");
-	for (int i = 0; i < size / 4; ++i)
+	for (size_t i = 0; i < size / 4; ++i)
 		mem32[i] = 0;
 
 	fail_count = 0;
