@@ -4,17 +4,19 @@ RISCBoy
 RISCBoy is an open-source portable games console, designed from scratch. This includes:
 
 - A RISC-V compatible CPU
-- A simple graphics pipeline (on the level of a Gameboy Advance) and display controller
+- A raster graphics pipeline and display controller
 - Other chip infrastructure: busfabric, memory controllers, UART, GPIO etc.
 - A PCB layout in KiCad
 
 ![](doc/diagrams/system_arch.png)
 
-The design is written in synthesisable Verilog 2005, and is intended to fit onto an iCE40-HX8k FPGA. This is the largest FPGA targeted by the open-source iCEStorm FPGA toolchain, but still fairly austere (7680 LUT4s and flipflops), so compromise is needed to squeeze our logic in.
+It is a Gameboy Advance from a parallel universe where RISC-V existed in 2001. A love letter to the handheld consoles from my childhood, and a 3AM drunk text to the technology that powered them.
 
-More detailed information can be found in the [documentation](doc/riscboy_doc.pdf). Please note that, whilst development is in an early stage, this document describes the project in past or present tense, so that I don't have to rewrite it later.
+The design is written in synthesisable Verilog 2005, and is intended to fit onto an iCE40-HX8k FPGA. This is a LUT4-based FPGA with 7680 logic elements, so fitting a 32 bit games console requires a crowbar and some vaseline, or perhaps just careful design. The HX8k was once the largest FPGA targeted by the open-source [Icestorm](http://www.clifford.at/icestorm/) FPGA toolchain, but that toolchain has since [moved on](https://github.com/SymbiFlow/prjtrellis) to [greater things](https://github.com/SymbiFlow/prjxray).
 
-Currently the processor supports the RV32IC instruction set, and passes the RISC-V compliance suite for these instructions. Support for the M extension (multiply/divide) is on the way.
+More detailed information can be found in the [documentation](doc/riscboy_doc.pdf).
+
+Currently the processor supports the RV32IC instruction set, and passes the RISC-V compliance suite for these instructions, as well as the [riscv-formal](https://github.com/SymbioticEDA/riscv-formal) verification suite, and some of my own formal property checks for instruction frontend consistency and basic bus compliance. It also supports M-mode CSRs, exceptions, and a simple compliant extension for vectored external interrupts. Support for the M extension (multiply/divide) will arrive at some point.
 
 Building RV32IC Toolchain
 -------------------------
@@ -61,16 +63,9 @@ The image shows the Rev A PCB. It is compatible with iTead's 4-layer 5x5 cm prot
 
 ![](board/board_render01.jpg)
 
-To meet these specifications, the BGA pads under the FPGA must be tiny, to leave room for interstitial vias between pads:
-
- - Pitch: 0.8 mm
- - Diagonal pitch: 0.8 * √2 = 1.131 mm
- - Via occupation: minimum drill (0.3) + 2 * minimum OAR (0.15) + 2 * minimum clearance (0.15) = 0.9 mm
- - Pad size: 0.23 mm
-
-The first batch of Rev A boards were manufactured with a HASL finish. The BGA requires soldering by hand with a heat gun and a lot of flux; toaster ovens aren't going to cut it.
-
 The schematic can be viewed [here (pdf)](board/fpgaboy.pdf)
+
+Rev B will look quite different; I am waiting for the gateware and bootloader to mature before proceeding. My current dev hardware looks a lot like my [Snowflake FPGA board](https://github.com/Wren6991/Snowflake-FPGA).
 
 Synthesis
 ---------
