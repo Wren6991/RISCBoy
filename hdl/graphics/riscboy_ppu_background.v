@@ -151,7 +151,7 @@ always @ (posedge clk or negedge rst_n) begin
 		shift_ctr <= {W_SHIFTCTR{1'b0}};
 		shift_seeking <= 1'b0;
 		shift_empty <= 1'b1;
-	end else if (flush) begin
+	end else if (flush || tile_empty) begin
 		shift_ctr <= {W_SHIFTCTR{1'b0}};
 		shift_seeking <= |{u_flushval[W_SHIFTCTR-1:0] << pixel_log_size};
 		shift_empty <= 1'b1;
@@ -167,7 +167,7 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 // When not enabled, continuously output transparency so that we don't hold up the blender
-assign out_vld = !en || !(shift_empty || shift_seeking || flush);
+assign out_vld = !en || !(shift_empty || shift_seeking || flush || tile_empty);
 wire out_paletted = MODE_IS_PALETTED(cfg_pixel_mode);
 assign out_alpha = en; // FIXME
 
