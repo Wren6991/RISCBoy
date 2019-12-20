@@ -37,7 +37,7 @@ module riscboy_fpga (
 // Clock + Reset resources
 
 wire clk_sys;
-wire clk_lcd = clk_osc;
+wire clk_lcd = clk_sys;
 wire rst_n;
 wire pll_lock;
 
