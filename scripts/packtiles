@@ -2,7 +2,6 @@
 
 from PIL import Image
 import argparse
-import sys
 
 def bytes_from_bitstream_le(bitstream):
 	accum = 0

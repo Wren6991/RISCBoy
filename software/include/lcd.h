@@ -71,14 +71,7 @@ static inline void lcd_write_cmd(const uint8_t *cmd, size_t count)
 
 static inline void lcd_init(const uint8_t *init_seq)
 {
-
-	// PIN_LCD_RST low
-	// delay_ms(5);
-	// gpio_out_pin(PIN_LCD_RST, 1);
-	// delay_ms(150);
-
 	const uint8_t *cmd = init_seq;
-
 	while (*cmd)
 	{
 		lcd_write_cmd(cmd + 2, *cmd);
