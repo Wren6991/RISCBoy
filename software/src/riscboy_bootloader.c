@@ -7,7 +7,7 @@
 
 #define UART_BAUD (500 * 1000)
 #define SPI_CLK_MHZ 6
-#define HOST_TIMEOUT_MS 1000
+#define HOST_TIMEOUT_MS 100
 
 #define STAGE2_OFFS 0x22000
 
@@ -387,12 +387,18 @@ int test_mem()
 	const size_t size = SRAM0_SIZE;
 
 	int fail_count = 0;
+	uint32_t rand_state_saved;
 
 	uart_puts("\nTesting 0x");
 	uart_putint((uint32_t)&mem8[0]);
 	uart_puts(" to 0x");
 	uart_putint((uint32_t)&mem8[size]);
-	uart_puts("\nZero bytes...\n");
+	uart_puts("");
+
+	// Byte memtest takes a second or two on every boot. It is worth running
+	// to verify timing/connection of byte strobes, but needn't run every time.
+#ifdef MEMTEST_BYTES
+	uart_puts("Zero bytes...\n");
 
 	for (size_t i = 0; i < size; ++i)
 		mem8[i] = 0;
@@ -418,7 +424,7 @@ int test_mem()
 		uart_puts("OK.\n");
 
 	uart_puts("Random bytes...\n");
-	uint32_t rand_state_saved = rand_state;
+	rand_state_saved = rand_state;
 	for (size_t i = 0; i < size; ++i)
 		mem8[i] = randu() >> 20;
 
@@ -451,6 +457,7 @@ int test_mem()
 		return -1;
 	else
 		uart_puts("OK.\n");
+#endif
 
 	uart_puts("Zero words...\n");
 	for (size_t i = 0; i < size / 4; ++i)
