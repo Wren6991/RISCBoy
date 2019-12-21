@@ -128,6 +128,11 @@ def erase_flash(port, addr, size):
 		check_ack(port)
 	progress("Erase: ", 1)
 
+def run_2nd_stage(port):
+	set_addr(port, 0x123456)
+	port.write(CMD.BOOT_2ND)
+	check_ack(port)
+
 def any_int(x):
 	return int(x, 0)
 
@@ -140,6 +145,8 @@ if __name__ == "__main__":
 		help="Write to flash (default is read)")
 	parser.add_argument("--verify", "-v", action="store_true",
 		help="Verify contents after programming (use with --write)")
+	parser.add_argument("--run", "-r", action="store_true",
+		help="Run code from flash after programming")
 	parser.add_argument("--start", "-s", type=any_int, help="Base address to start read/write")
 	parser.add_argument("--len", "-l", type=any_int, help="Number of bytes to read, or override file length for write.")
 	args = parser.parse_args()
@@ -155,6 +162,8 @@ if __name__ == "__main__":
 		args.baud = 500000
 	if args.verify and not args.write:
 		sys.exit("Verify is only valid for a write operation")
+	if args.run and not args.write:
+		sys.exit("Run is only valid for a write operation")
 	if args.write and (args.start % PAGESIZE != 0):
 		sys.exit("Writes must be aligned on a {}-byte boundary.".format(PAGESIZE))
 	if args.write:
@@ -207,12 +216,15 @@ if __name__ == "__main__":
 		start = time.time()
 		write_flash(port, args.start, data)
 		print(" Took {:.1f} s\n".format(time.time() - start))
-		if (args.verify):
+		if args.verify:
 			start = time.time()
 			readback = read_flash(port, args.start, args.len)
 			print(" Took {:.1f} s".format(time.time() - start))
 			if readback != data:
 				sys.exit("Verification failed.") # TODO: better info
+		if args.run:
+			print("Launching flash second stage")
+			run_2nd_stage(port)
 		print("Done")
 	else:
 		start = time.time()
