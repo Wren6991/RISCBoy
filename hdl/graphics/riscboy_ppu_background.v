@@ -51,7 +51,7 @@ module riscboy_ppu_background #(
 	input  wire                   cfg_tile_size,
 	input  wire [2:0]             cfg_pixel_mode,
 	input  wire                   cfg_transparency,
-
+	input  wire [3:0]             cfg_palette_offset,
 	output wire                   out_vld,
 	input  wire                   out_rdy,
 	output wire                   out_alpha,
@@ -93,6 +93,9 @@ wire [2:0] tile_log_size = cfg_tile_size ? 3'h4 : 3'h3;
 // ----------------------------------------------------------------------------
 // Pixel shifting and output logic
 
+localparam W_PIX_MAX = W_OUTDATA + 1;
+
+wire [W_PIX_MAX-1:0]  shift_out;
 reg  [W_SHIFTCTR-1:0] shift_ctr;
 wire [W_SHIFTCTR-1:0] shift_ctr_next;
 wire                  shift_ctr_carryout;
@@ -103,6 +106,7 @@ wire pixel_load_rdy;
 
 // Seek: rapid log-time shift through the bus data when getting back into
 // steady state after flush.
+reg                   tile_empty;
 reg                   shift_empty;
 reg                   shift_seeking;
 wire [W_SHIFTCTR-1:0] shift_seek_target = u[W_SHIFTCTR-1:0] << pixel_log_size;
@@ -136,14 +140,14 @@ onehot_encoder #(
 riscboy_ppu_pixel_gearbox #(
 	.W_DATA(W_DATA),
 	.W_PIX_MIN(1),
-	.W_PIX_MAX(W_OUTDATA + 1)
+	.W_PIX_MAX(W_PIX_MAX)
 ) gearbox_u (
 	.clk     (clk),
 	.rst_n   (rst_n),
 	.din     (bus_data),
 	.din_vld (pixel_load_rdy),
 	.shamt   ((shamt + {{W_SHAMT-1{1'b0}}, 1'b1}) & {W_SHAMT{shift_en}}),
-	.dout    (out_pixdata)
+	.dout    (shift_out)
 );
 
 always @ (posedge clk or negedge rst_n) begin
@@ -166,15 +170,35 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
+wire [7:0] palette_mask =
+	cfg_pixel_mode == PIXMODE_PAL1 ? 8'h1 :
+	cfg_pixel_mode == PIXMODE_PAL2 ? 8'h3 :
+	cfg_pixel_mode == PIXMODE_PAL4 ? 8'hf : 8'hff;
+
+wire [W_PIX_MAX-1:0] pixdata_masked = {
+	shift_out[W_PIX_MAX-1:8],
+	shift_out[7:0] & palette_mask
+};
+
+wire [W_PIX_MAX-1:0] pixdata_masked_offset = {
+	pixdata_masked[W_PIX_MAX-1:8],
+	pixdata_masked[7:0] | {cfg_palette_offset, 4'h0}
+};
+
+wire pixel_alpha =
+	cfg_pixel_mode == PIXMODE_ARGB1555 ? shift_out[15] :
+	cfg_pixel_mode == PIXMODE_ARGB1232 ? shift_out[7]  :
+	                                    |pixdata_masked[7:0];
+
 // When not enabled, continuously output transparency so that we don't hold up the blender
 assign out_vld = !en || !(shift_empty || shift_seeking || flush || tile_empty);
+assign out_alpha = en && (!cfg_transparency || pixel_alpha);
+assign out_pixdata = pixdata_masked_offset[0 +: W_OUTDATA];
 wire out_paletted = MODE_IS_PALETTED(cfg_pixel_mode);
-assign out_alpha = en; // FIXME
 
 // ----------------------------------------------------------------------------
 // Tile bookkeeping
 
-reg tile_empty;
 reg [W_TILENUM-1:0] tile;
 reg [LOG_W_TILE_MAX-1:0] tile_pixctr;
 

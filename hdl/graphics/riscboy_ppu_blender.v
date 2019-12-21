@@ -26,10 +26,10 @@
 // - An "alpha" bit. 0 means transparent, i.e. the requester waives its right
 //   to be blended into this output pixel. 1 means opaque.
 // - 15 colour bits. May contain up to RGB555 data, or a palette index.
-// - 2 mode bits. The modes are:
-//     - 0: RGB555
-//     - 1: RGB232
-//     - 2: Paletted
+// - 3 mode bits. The modes are:
+//     - RGB555
+//     - RGB232
+//     - Paletted 8, 4, 2, 1 bpp
 // - A layer select, from 0...N_LAYERS-1. Higher layers are given higher priority
 //   over lower layers for final output blending. On a tie, the lowest-numbered
 //   request wins.
@@ -60,6 +60,8 @@ module riscboy_ppu_blender #(
 	output wire [W_PIXDATA-1:0]        out_pixdata,
 	output wire                        out_paletted
 );
+
+`include "riscboy_ppu_const.vh"
 
 // ----------------------------------------------------------------------------
 // Handshaking
@@ -131,10 +133,10 @@ wire [W_MODE-1:0]    mode_blended;
 wire [W_PIXDATA-1:0] pixdata_blended;
 assign {mode_blended, pixdata_blended} = reqdata_blended;
 	
-assign out_pixdata = mode_blended == 2'h1 ? 
+assign out_pixdata = mode_blended == PIXMODE_ARGB1232 ? 
 	{pixdata_blended[7:6], 3'h0, pixdata_blended[5:3], 2'h0, pixdata_blended[1:0], 3'h0} :
 	pixdata_blended;
 
-assign out_paletted = mode_blended[1];
+assign out_paletted = MODE_IS_PALETTED(mode_blended);
 
 endmodule

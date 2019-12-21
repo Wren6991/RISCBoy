@@ -122,7 +122,7 @@ ppu_regs regs (
 	.clk                    (clk_ppu),
 	.rst_n                  (rst_n_ppu),
 
-	.apbs_psel              (apbs_psel),
+	.apbs_psel              (apbs_psel && !apbs_paddr[8]), // FIXME terrible hack to map PRAM write port
 	.apbs_penable           (apbs_penable),
 	.apbs_pwrite            (apbs_pwrite),
 	.apbs_paddr             (apbs_paddr),
@@ -217,7 +217,7 @@ assign bg_blend_layer[0] = 0; // FIXME
 assign bg_blend_mode[0] = bg0_csr_pixmode;
 
 wire                  blend_out_vld;
-wire                  blend_out_rdy = ppu_running && !pxfifo_wfull;
+wire                  blend_out_rdy;
 wire [W_PIXDATA-1:0]  blend_out_pixdata;
 wire                  blend_out_paletted;
 
@@ -242,8 +242,41 @@ riscboy_ppu_blender #(
 assign raster_count_advance = blend_out_vld && blend_out_rdy;
 
 // ----------------------------------------------------------------------------
-// Backgrounds
+// Post-blend palette lookup
 
+// FIXME terrible write port mapping
+
+wire                  pmap_in_rdy;
+wire                  pmap_out_vld;
+wire                  pmap_out_rdy = !pxfifo_wfull;
+wire [W_PIXDATA-1:0]  pmap_out_pixdata;
+
+assign blend_out_rdy = pmap_in_rdy && ppu_running;
+wire pmap_in_vld = blend_out_vld && ppu_running;
+
+riscboy_ppu_palette_mapper #(
+	.W_PIXDATA     (W_PIXDATA),
+	.W_PALETTE_IDX (8)
+) palette_mapper_u (
+	.clk         (clk_ppu),
+	.rst_n       (rst_n_ppu),
+
+	.in_vld      (pmap_in_vld),
+	.in_rdy      (pmap_in_rdy),
+	.in_data     (blend_out_pixdata),
+	.in_paletted (blend_out_paletted),
+
+	.pram_waddr  (apbs_paddr[7:0]),
+	.pram_wdata  (apbs_pwdata[15:0]),
+	.pram_wen    (apbs_psel && apbs_penable && apbs_pwrite && apbs_paddr[8]),
+
+	.out_vld     (pmap_out_vld),
+	.out_rdy     (pmap_out_rdy),
+	.out_data    (pmap_out_pixdata)
+);
+
+// ----------------------------------------------------------------------------
+// Backgrounds
 
 wire              bg_bus_vld  [0:N_BACKGROUND-1];
 wire [W_ADDR-1:0] bg_bus_addr [0:N_BACKGROUND-1];
@@ -293,9 +326,9 @@ riscboy_ppu_background #(
 wire                       lcdctrl_busy_clklcd;
 wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt_clklcd;
 
-wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = blend_out_vld && blend_out_rdy ?
-	{blend_out_pixdata[14:5], 1'b0, blend_out_pixdata[4:0]} : pxfifo_direct_wdata;
-wire                       pxfifo_wen = pxfifo_direct_wen || (blend_out_vld && blend_out_rdy);
+wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = pxfifo_direct_wen ? pxfifo_direct_wdata :
+	{pmap_out_pixdata[14:5], 1'b0, pmap_out_pixdata[4:0]};
+wire                       pxfifo_wen = pxfifo_direct_wen || (pmap_out_vld && pmap_out_rdy);
 
 wire [W_LCD_PIXDATA-1:0]   pxfifo_rdata;
 wire                       pxfifo_rempty;
@@ -368,7 +401,7 @@ riscboy_ppu_busmaster #(
 	.clk             (clk_ppu),
 	.rst_n           (rst_n_ppu),
 
-	.req_vld         (bg_bus_vld[0]), // TODO
+	.req_vld         (bg_bus_vld[0]), // TODO stack up requests once we have multiple requesters
 	.req_addr        (bg_bus_addr[0]),
 	.req_size        (bg_bus_size[0]),
 	.req_rdy         (bg_bus_rdy[0]),
