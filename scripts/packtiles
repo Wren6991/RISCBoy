@@ -17,15 +17,20 @@ def bytes_from_bitstream_le(bitstream):
 			accum_size -= 8
 
 def format_pixel(format, src_has_transparency, pixel):
-	assert(format in ["argb1555", "p8", "p4", "p2", "p1"])
+	assert(format in ["argb1555", "argb1232", "p8", "p4", "p2", "p1"])
 	if format == "argb1555":
 		return (16, ((pixel[2] & 0xf8) >> 3) | \
 			((pixel[1] & 0xf8) << 2) | \
 			((pixel[0] & 0xf8) << 7) | \
 			(((pixel[3] & 0x80) << 8) if len(pixel) > 3 and src_has_transparency else 0x8000))
+	elif format == "argb1232":
+		return (8, ((pixel[2] & 0xc0) >> 6) |\
+			((pixel[1] & 0xe0) >> 3) | \
+			((pixel[0] & 0xc0) >> 1) | \
+			(pixel[3] & 0x80 if len(pixel) > 3 and src_has_transparency else 0x80))
 	elif format in ["p8", "p4", "p2", "p1"]:
 		size = int(format[1:])
-		return (size, pixel & ((1 << size) - 1))
+		return (size, (pixel + src_has_transparency) & ((1 << size) - 1))
 	else:
 		raise Exception()
 
@@ -36,7 +41,7 @@ if __name__ == "__main__":
 	parser.add_argument("--tilesize", "-t", help="Tile size (pixels), default 8",
 		default="8", choices=["8", "16"])
 	parser.add_argument("--format", "-f", help="Output pixel format, default argb1555",
-		default="argb1555", choices=["argb1555", "p8", "p4", "p2", "p1"])
+		default="argb1555", choices=["argb1555", "argb1232", "p8", "p4", "p2", "p1"])
 	args = parser.parse_args()
 	img = Image.open(args.input)
 	ofile = open(args.output, "wb")
