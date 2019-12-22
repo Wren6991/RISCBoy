@@ -4,8 +4,9 @@
 #include "lcd.h"
 #include "gpio.h"
 
-#include "resource/zelda_tileset_mini_argb1555.h"
-#include "resource/map_test_zelda_mini.h"
+#include "zelda_tileset_mini_pal8.h"
+#include "zelda_tileset_mini_pal8_palette.h"
+#include "map_test_zelda_mini.h"
 
 void render_frame()
 {
@@ -24,14 +25,18 @@ int main()
 
 	*PPU_DISPSIZE = (319 >> PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
 
-	*PPU_BG0_TSBASE = (uint32_t)zelda_tileset_mini_argb1555;
+	*PPU_BG0_TSBASE = (uint32_t)zelda_tileset_mini_pal8;
 	*PPU_BG0_TMBASE = (uint32_t)map_test_zelda_mini;
 	*PPU_BG0_CSR =
 		(1u << PPU_BG0_CSR_EN_LSB) |
 		(9u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
 		(8u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 512 px high
 		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
+		(PPU_PIXMODE_PAL8 << PPU_BG0_CSR_PIXMODE_LSB) |
 		(1u << PPU_BG0_CSR_FLUSH_LSB);
+
+	for (int i = 0; i < ZELDA_MINI_PALETTE_SIZE; ++i)
+		PPU_PALETTE_RAM[i] = ((const uint16_t *)zelda_tileset_mini_pal8_palette)[i];
 
 	unsigned int scroll_x = 0, scroll_y = 0, idle_count = 0;
 	while (true)

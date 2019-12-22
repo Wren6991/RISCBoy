@@ -393,7 +393,7 @@ int test_mem()
 	uart_putint((uint32_t)&mem8[0]);
 	uart_puts(" to 0x");
 	uart_putint((uint32_t)&mem8[size]);
-	uart_puts("");
+	uart_puts("\n");
 
 	// Byte memtest takes a second or two on every boot. It is worth running
 	// to verify timing/connection of byte strobes, but needn't run every time.

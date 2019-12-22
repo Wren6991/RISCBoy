@@ -1399,11 +1399,6 @@
                <obj_property name="ElementShortName">cfg_transparency</obj_property>
                <obj_property name="ObjectShortName">cfg_transparency</obj_property>
             </wvobject>
-            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/log_tileset_width_tiles" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">log_tileset_width_tiles[3:0]</obj_property>
-               <obj_property name="ObjectShortName">log_tileset_width_tiles[3:0]</obj_property>
-               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-            </wvobject>
          </wvobject>
          <wvobject fp_name="group374" type="group">
             <obj_property name="label">Output</obj_property>
@@ -1503,16 +1498,6 @@
                <obj_property name="ObjectShortName">tile_addr[31:0]</obj_property>
                <obj_property name="Radix">HEXRADIX</obj_property>
             </wvobject>
-            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tileset_pixoffs_u" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">tileset_pixoffs_u[31:0]</obj_property>
-               <obj_property name="ObjectShortName">tileset_pixoffs_u[31:0]</obj_property>
-               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-            </wvobject>
-            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/tileset_pixoffs_v" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">tileset_pixoffs_v[31:0]</obj_property>
-               <obj_property name="ObjectShortName">tileset_pixoffs_v[31:0]</obj_property>
-               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-            </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/bg0/idx_of_pixel_in_tileset" type="array" db_ref_id="1">
                <obj_property name="ElementShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
                <obj_property name="ObjectShortName">idx_of_pixel_in_tileset[31:0]</obj_property>
@@ -1540,6 +1525,1357 @@
       <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_mosi" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">lcd_mosi</obj_property>
          <obj_property name="ObjectShortName">lcd_mosi</obj_property>
+      </wvobject>
+      <wvobject fp_name="group449" type="group">
+         <obj_property name="label">Palette Mapper</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/in_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">in_vld</obj_property>
+            <obj_property name="ObjectShortName">in_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/in_rdy" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">in_rdy</obj_property>
+            <obj_property name="ObjectShortName">in_rdy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/in_data" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">in_data[14:0]</obj_property>
+            <obj_property name="ObjectShortName">in_data[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/in_paletted" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">in_paletted</obj_property>
+            <obj_property name="ObjectShortName">in_paletted</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_waddr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pram_waddr[7:0]</obj_property>
+            <obj_property name="ObjectShortName">pram_waddr[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_wdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pram_wdata[14:0]</obj_property>
+            <obj_property name="ObjectShortName">pram_wdata[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_wen" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pram_wen</obj_property>
+            <obj_property name="ObjectShortName">pram_wen</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/out_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">out_vld</obj_property>
+            <obj_property name="ObjectShortName">out_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/out_rdy" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">out_rdy</obj_property>
+            <obj_property name="ObjectShortName">out_rdy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/out_data" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">out_data[14:0]</obj_property>
+            <obj_property name="ObjectShortName">out_data[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_rdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pram_rdata[14:0]</obj_property>
+            <obj_property name="ObjectShortName">pram_rdata[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/sidestep_data" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">sidestep_data[14:0]</obj_property>
+            <obj_property name="ObjectShortName">sidestep_data[14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/sidestep_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">sidestep_vld</obj_property>
+            <obj_property name="ObjectShortName">sidestep_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_out_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pram_out_vld</obj_property>
+            <obj_property name="ObjectShortName">pram_out_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">mem[0:255,14:0]</obj_property>
+            <obj_property name="ObjectShortName">mem[0:255,14:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[0]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[0,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[0,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[1]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[1,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[1,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[2]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[2,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[2,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[3]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[3,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[3,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[4]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[4,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[4,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[5]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[5,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[5,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[6]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[6,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[6,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[7]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[7,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[7,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[8]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[8,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[8,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[9]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[9,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[9,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[10]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[10,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[10,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[11]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[11,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[11,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[12]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[12,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[12,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[13]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[13,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[13,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[14]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[14,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[14,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[15]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[15,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[15,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[16]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[16,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[16,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[17]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[17,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[17,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[18]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[18,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[18,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[19]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[19,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[19,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[20]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[20,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[20,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[21]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[21,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[21,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[22]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[22,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[22,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[23]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[23,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[23,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[24]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[24,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[24,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[25]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[25,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[25,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[26]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[26,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[26,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[27]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[27,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[27,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[28]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[28,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[28,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[29]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[29,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[29,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[30]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[30,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[30,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[31]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[31,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[31,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[32]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[32,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[32,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[33]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[33,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[33,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[34]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[34,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[34,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[35]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[35,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[35,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[36]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[36,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[36,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[37]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[37,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[37,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[38]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[38,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[38,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[39]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[39,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[39,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[40]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[40,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[40,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[41]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[41,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[41,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[42]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[42,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[42,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[43]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[43,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[43,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[44]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[44,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[44,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[45]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[45,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[45,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[46]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[46,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[46,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[47]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[47,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[47,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[48]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[48,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[48,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[49]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[49,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[49,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[50]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[50,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[50,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[51]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[51,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[51,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[52]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[52,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[52,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[53]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[53,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[53,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[54]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[54,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[54,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[55]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[55,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[55,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[56]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[56,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[56,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[57]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[57,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[57,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[58]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[58,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[58,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[59]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[59,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[59,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[60]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[60,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[60,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[61]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[61,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[61,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[62]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[62,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[62,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[63]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[63,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[63,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[64]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[64,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[64,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[65]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[65,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[65,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[66]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[66,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[66,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[67]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[67,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[67,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[68]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[68,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[68,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[69]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[69,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[69,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[70]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[70,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[70,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[71]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[71,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[71,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[72]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[72,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[72,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[73]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[73,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[73,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[74]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[74,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[74,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[75]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[75,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[75,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[76]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[76,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[76,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[77]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[77,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[77,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[78]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[78,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[78,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[79]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[79,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[79,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[80]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[80,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[80,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[81]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[81,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[81,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[82]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[82,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[82,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[83]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[83,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[83,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[84]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[84,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[84,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[85]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[85,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[85,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[86]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[86,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[86,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[87]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[87,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[87,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[88]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[88,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[88,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[89]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[89,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[89,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[90]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[90,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[90,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[91]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[91,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[91,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[92]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[92,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[92,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[93]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[93,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[93,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[94]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[94,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[94,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[95]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[95,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[95,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[96]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[96,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[96,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[97]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[97,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[97,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[98]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[98,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[98,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[99]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[99,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[99,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[100]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[100,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[100,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[101]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[101,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[101,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[102]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[102,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[102,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[103]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[103,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[103,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[104]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[104,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[104,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[105]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[105,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[105,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[106]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[106,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[106,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[107]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[107,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[107,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[108]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[108,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[108,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[109]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[109,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[109,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[110]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[110,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[110,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[111]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[111,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[111,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[112]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[112,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[112,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[113]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[113,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[113,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[114]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[114,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[114,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[115]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[115,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[115,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[116]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[116,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[116,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[117]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[117,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[117,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[118]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[118,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[118,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[119]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[119,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[119,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[120]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[120,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[120,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[121]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[121,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[121,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[122]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[122,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[122,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[123]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[123,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[123,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[124]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[124,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[124,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[125]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[125,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[125,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[126]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[126,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[126,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[127]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[127,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[127,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[128]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[128,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[128,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[129]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[129,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[129,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[130]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[130,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[130,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[131]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[131,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[131,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[132]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[132,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[132,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[133]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[133,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[133,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[134]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[134,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[134,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[135]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[135,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[135,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[136]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[136,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[136,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[137]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[137,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[137,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[138]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[138,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[138,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[139]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[139,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[139,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[140]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[140,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[140,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[141]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[141,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[141,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[142]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[142,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[142,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[143]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[143,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[143,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[144]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[144,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[144,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[145]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[145,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[145,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[146]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[146,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[146,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[147]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[147,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[147,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[148]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[148,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[148,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[149]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[149,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[149,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[150]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[150,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[150,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[151]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[151,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[151,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[152]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[152,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[152,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[153]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[153,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[153,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[154]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[154,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[154,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[155]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[155,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[155,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[156]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[156,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[156,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[157]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[157,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[157,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[158]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[158,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[158,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[159]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[159,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[159,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[160]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[160,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[160,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[161]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[161,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[161,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[162]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[162,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[162,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[163]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[163,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[163,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[164]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[164,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[164,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[165]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[165,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[165,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[166]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[166,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[166,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[167]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[167,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[167,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[168]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[168,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[168,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[169]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[169,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[169,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[170]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[170,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[170,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[171]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[171,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[171,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[172]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[172,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[172,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[173]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[173,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[173,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[174]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[174,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[174,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[175]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[175,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[175,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[176]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[176,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[176,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[177]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[177,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[177,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[178]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[178,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[178,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[179]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[179,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[179,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[180]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[180,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[180,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[181]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[181,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[181,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[182]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[182,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[182,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[183]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[183,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[183,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[184]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[184,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[184,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[185]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[185,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[185,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[186]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[186,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[186,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[187]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[187,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[187,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[188]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[188,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[188,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[189]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[189,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[189,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[190]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[190,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[190,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[191]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[191,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[191,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[192]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[192,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[192,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[193]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[193,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[193,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[194]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[194,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[194,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[195]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[195,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[195,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[196]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[196,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[196,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[197]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[197,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[197,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[198]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[198,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[198,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[199]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[199,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[199,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[200]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[200,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[200,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[201]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[201,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[201,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[202]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[202,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[202,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[203]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[203,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[203,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[204]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[204,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[204,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[205]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[205,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[205,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[206]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[206,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[206,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[207]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[207,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[207,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[208]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[208,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[208,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[209]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[209,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[209,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[210]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[210,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[210,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[211]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[211,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[211,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[212]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[212,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[212,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[213]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[213,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[213,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[214]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[214,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[214,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[215]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[215,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[215,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[216]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[216,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[216,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[217]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[217,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[217,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[218]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[218,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[218,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[219]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[219,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[219,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[220]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[220,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[220,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[221]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[221,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[221,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[222]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[222,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[222,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[223]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[223,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[223,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[224]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[224,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[224,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[225]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[225,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[225,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[226]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[226,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[226,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[227]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[227,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[227,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[228]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[228,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[228,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[229]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[229,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[229,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[230]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[230,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[230,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[231]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[231,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[231,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[232]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[232,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[232,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[233]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[233,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[233,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[234]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[234,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[234,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[235]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[235,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[235,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[236]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[236,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[236,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[237]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[237,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[237,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[238]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[238,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[238,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[239]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[239,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[239,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[240]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[240,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[240,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[241]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[241,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[241,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[242]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[242,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[242,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[243]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[243,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[243,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[244]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[244,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[244,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[245]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[245,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[245,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[246]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[246,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[246,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[247]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[247,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[247,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[248]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[248,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[248,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[249]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[249,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[249,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[250]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[250,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[250,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[251]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[251,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[251,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[252]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[252,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[252,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[253]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[253,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[253,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[254]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[254,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[254,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/palette_mapper_u/pram_u/mem[255]" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">[255,14:0]</obj_property>
+               <obj_property name="ObjectShortName">mem[255,14:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="group342" type="group">
          <obj_property name="label">Pixel FIFO</obj_property>
