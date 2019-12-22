@@ -1,7 +1,7 @@
 Graphics Assets
 ===============
 
-I did not make any of these -- this is the hard work of real artists, who have published their art on line for free use. Authors and licences are listed below.
+I did not make any of these -- this is the hard work of real artists, who have published their art online for free use. Authors and licences are listed below.
 
 
 zelda_like
