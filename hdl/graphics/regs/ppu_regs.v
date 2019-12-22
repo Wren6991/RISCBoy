@@ -40,6 +40,7 @@ module ppu_regs (
 	output reg  bg0_csr_tilesize_o,
 	output reg [3:0] bg0_csr_pfwidth_o,
 	output reg [3:0] bg0_csr_pfheight_o,
+	output reg [3:0] bg0_csr_paloffs_o,
 	output reg  bg0_csr_flush_o,
 	output reg [9:0] bg0_scroll_y_o,
 	output reg [9:0] bg0_scroll_x_o,
@@ -164,15 +165,18 @@ wire [3:0] bg0_csr_pfwidth_wdata = wdata[9:6];
 wire [3:0] bg0_csr_pfwidth_rdata;
 wire [3:0] bg0_csr_pfheight_wdata = wdata[13:10];
 wire [3:0] bg0_csr_pfheight_rdata;
+wire [3:0] bg0_csr_paloffs_wdata = wdata[19:16];
+wire [3:0] bg0_csr_paloffs_rdata;
 wire  bg0_csr_flush_wdata = wdata[31];
 wire  bg0_csr_flush_rdata;
-wire [31:0] __bg0_csr_rdata = {bg0_csr_flush_rdata, 17'h0, bg0_csr_pfheight_rdata, bg0_csr_pfwidth_rdata, bg0_csr_tilesize_rdata, bg0_csr_transparency_rdata, bg0_csr_pixmode_rdata, bg0_csr_en_rdata};
+wire [31:0] __bg0_csr_rdata = {bg0_csr_flush_rdata, 11'h0, bg0_csr_paloffs_rdata, 2'h0, bg0_csr_pfheight_rdata, bg0_csr_pfwidth_rdata, bg0_csr_tilesize_rdata, bg0_csr_transparency_rdata, bg0_csr_pixmode_rdata, bg0_csr_en_rdata};
 assign bg0_csr_en_rdata = bg0_csr_en_o;
 assign bg0_csr_pixmode_rdata = bg0_csr_pixmode_o;
 assign bg0_csr_transparency_rdata = bg0_csr_transparency_o;
 assign bg0_csr_tilesize_rdata = bg0_csr_tilesize_o;
 assign bg0_csr_pfwidth_rdata = bg0_csr_pfwidth_o;
 assign bg0_csr_pfheight_rdata = bg0_csr_pfheight_o;
+assign bg0_csr_paloffs_rdata = bg0_csr_paloffs_o;
 assign bg0_csr_flush_rdata = 1'h0;
 
 wire [9:0] bg0_scroll_y_wdata = wdata[25:16];
@@ -279,6 +283,7 @@ always @ (posedge clk or negedge rst_n) begin
 		bg0_csr_tilesize_o <= 1'h0;
 		bg0_csr_pfwidth_o <= 4'h0;
 		bg0_csr_pfheight_o <= 4'h0;
+		bg0_csr_paloffs_o <= 4'h0;
 		bg0_scroll_y_o <= 10'h0;
 		bg0_scroll_x_o <= 10'h0;
 		bg0_tsbase_o <= 24'h0;
@@ -311,6 +316,8 @@ always @ (posedge clk or negedge rst_n) begin
 			bg0_csr_pfwidth_o <= bg0_csr_pfwidth_wdata;
 		if (__bg0_csr_wen)
 			bg0_csr_pfheight_o <= bg0_csr_pfheight_wdata;
+		if (__bg0_csr_wen)
+			bg0_csr_paloffs_o <= bg0_csr_paloffs_wdata;
 		if (__bg0_scroll_wen)
 			bg0_scroll_y_o <= bg0_scroll_y_wdata;
 		if (__bg0_scroll_wen)

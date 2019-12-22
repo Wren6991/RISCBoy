@@ -35,6 +35,7 @@ regs:
       - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles."}
       - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels."}
       - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels."}
+      - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes."}
       - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)"}
   - name: bg0_scroll
     info: Scroll the screen within the playfield

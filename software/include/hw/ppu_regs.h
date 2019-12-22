@@ -132,6 +132,11 @@
 #define PPU_BG0_CSR_PFHEIGHT_LSB  10
 #define PPU_BG0_CSR_PFHEIGHT_BITS 4
 #define PPU_BG0_CSR_PFHEIGHT_MASK 0x3c00
+// Field BG0_CSR_PALOFFS
+// Offset ORed into upper 4 bits of palette index in paletted pixel modes.
+#define PPU_BG0_CSR_PALOFFS_LSB  16
+#define PPU_BG0_CSR_PALOFFS_BITS 4
+#define PPU_BG0_CSR_PALOFFS_MASK 0xf0000
 // Field BG0_CSR_FLUSH
 // flush background hardware and re-register all config state (temporary, will be automated)
 #define PPU_BG0_CSR_FLUSH_LSB  31

@@ -102,6 +102,7 @@ wire                       bg0_csr_transparency;
 wire                       bg0_csr_tilesize;
 wire [W_LOG_COORD-1:0]     bg0_csr_pfwidth;
 wire [W_LOG_COORD-1:0]     bg0_csr_pfheight;
+wire [3:0]                 bg0_csr_paloffs;
 wire                       bg0_csr_flush;
 wire [W_COORD-1:0]         bg0_scroll_y;
 wire [W_COORD-1:0]         bg0_scroll_x;
@@ -122,7 +123,7 @@ ppu_regs regs (
 	.clk                    (clk_ppu),
 	.rst_n                  (rst_n_ppu),
 
-	.apbs_psel              (apbs_psel && !apbs_paddr[8]), // FIXME terrible hack to map PRAM write port
+	.apbs_psel              (apbs_psel && !apbs_paddr[11]), // FIXME terrible hack to map PRAM write port
 	.apbs_penable           (apbs_penable),
 	.apbs_pwrite            (apbs_pwrite),
 	.apbs_paddr             (apbs_paddr),
@@ -150,6 +151,7 @@ ppu_regs regs (
 	.bg0_csr_tilesize_o     (bg0_csr_tilesize),
 	.bg0_csr_pfwidth_o      (bg0_csr_pfwidth),
 	.bg0_csr_pfheight_o     (bg0_csr_pfheight),
+	.bg0_csr_paloffs_o      (bg0_csr_paloffs),
 	.bg0_csr_flush_o        (bg0_csr_flush),
 	.bg0_scroll_y_o         (bg0_scroll_y),
 	.bg0_scroll_x_o         (bg0_scroll_x),
@@ -266,9 +268,9 @@ riscboy_ppu_palette_mapper #(
 	.in_data     (blend_out_pixdata),
 	.in_paletted (blend_out_paletted),
 
-	.pram_waddr  (apbs_paddr[7:0]),
+	.pram_waddr  (apbs_paddr[8:1]),
 	.pram_wdata  (apbs_pwdata[15:0]),
-	.pram_wen    (apbs_psel && apbs_penable && apbs_pwrite && apbs_paddr[8]),
+	.pram_wen    (apbs_psel && apbs_penable && apbs_pwrite && apbs_paddr[11]),
 
 	.out_vld     (pmap_out_vld),
 	.out_rdy     (pmap_out_rdy),
@@ -291,33 +293,34 @@ riscboy_ppu_background #(
 	.W_ADDR            (W_ADDR),
 	.W_DATA            (W_DATA)
 ) bg0 (
-	.clk              (clk_ppu),
-	.rst_n            (rst_n_ppu),
-	.en               (bg0_csr_en),
-	.flush            (hsync || bg0_csr_flush),
-	.beam_x           (raster_x),
-	.beam_y           (raster_y),
+	.clk                (clk_ppu),
+	.rst_n              (rst_n_ppu),
+	.en                 (bg0_csr_en),
+	.flush              (hsync || bg0_csr_flush),
+	.beam_x             (raster_x),
+	.beam_y             (raster_y),
 
-	.bus_vld          (bg_bus_vld[0]),
-	.bus_addr         (bg_bus_addr[0]),
-	.bus_size         (bg_bus_size[0]),
-	.bus_rdy          (bg_bus_rdy[0]),
-	.bus_data         (bg_bus_data[0]),
+	.bus_vld            (bg_bus_vld[0]),
+	.bus_addr           (bg_bus_addr[0]),
+	.bus_size           (bg_bus_size[0]),
+	.bus_rdy            (bg_bus_rdy[0]),
+	.bus_data           (bg_bus_data[0]),
 
-	.cfg_scroll_x     (bg0_scroll_x),
-	.cfg_scroll_y     (bg0_scroll_y),
-	.cfg_log_w        (bg0_csr_pfwidth),
-	.cfg_log_h        (bg0_csr_pfheight),
-	.cfg_tileset_base ({bg0_tsbase, 8'h0}),
-	.cfg_tilemap_base ({bg0_tmbase, 8'h0}),
-	.cfg_tile_size    (bg0_csr_tilesize),
-	.cfg_pixel_mode   (bg0_csr_pixmode),
-	.cfg_transparency (bg0_csr_transparency),
+	.cfg_scroll_x       (bg0_scroll_x),
+	.cfg_scroll_y       (bg0_scroll_y),
+	.cfg_log_w          (bg0_csr_pfwidth),
+	.cfg_log_h          (bg0_csr_pfheight),
+	.cfg_tileset_base   ({bg0_tsbase, 8'h0}),
+	.cfg_tilemap_base   ({bg0_tmbase, 8'h0}),
+	.cfg_tile_size      (bg0_csr_tilesize),
+	.cfg_pixel_mode     (bg0_csr_pixmode),
+	.cfg_transparency   (bg0_csr_transparency),
+	.cfg_palette_offset (bg0_csr_paloffs),
 
-	.out_vld          (bg_blend_vld[0]),
-	.out_rdy          (bg_blend_rdy[0]),
-	.out_alpha        (bg_blend_alpha[0]),
-	.out_pixdata      (bg_blend_pixdata[0])
+	.out_vld            (bg_blend_vld[0]),
+	.out_rdy            (bg_blend_rdy[0]),
+	.out_alpha          (bg_blend_alpha[0]),
+	.out_pixdata        (bg_blend_pixdata[0])
 );
 
 // ----------------------------------------------------------------------------
@@ -400,6 +403,8 @@ riscboy_ppu_busmaster #(
 ) inst_riscboy_ppu_busmaster (
 	.clk             (clk_ppu),
 	.rst_n           (rst_n_ppu),
+
+	.ppu_running     (ppu_running),
 
 	.req_vld         (bg_bus_vld[0]), // TODO stack up requests once we have multiple requesters
 	.req_addr        (bg_bus_addr[0]),

@@ -6,6 +6,8 @@ module riscboy_ppu_busmaster #(
 	input wire                    clk,
 	input wire                    rst_n,
 
+	input wire                    ppu_running,
+
 	// Once vld asserted, can not be deasserted until rdy is seen.
 	// If addr+size is held constant, rdy indicates data is present on data bus.
 	// If addr+size are not held constant (e.g. due to flush) the data response
@@ -47,7 +49,7 @@ reg  [N_REQ-1:0] grant_aph_reg;
 wire [N_REQ-1:0] grant_aph = |grant_aph_reg ? grant_aph_reg : grant_aph_comb;
 
 reg [N_REQ-1:0] grant_dph;
-wire [N_REQ-1:0] req_filtered = req_vld & ~(grant_aph_reg | grant_dph);
+wire [N_REQ-1:0] req_filtered = req_vld & ~(grant_aph_reg | grant_dph) & {N_REQ{ppu_running}};
 
 onehot_priority #(
 	.W_INPUT (N_REQ)
