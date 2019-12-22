@@ -134,7 +134,7 @@ wire [W_PIXDATA-1:0] pixdata_blended;
 assign {mode_blended, pixdata_blended} = reqdata_blended;
 	
 assign out_pixdata = mode_blended == PIXMODE_ARGB1232 ? 
-	{pixdata_blended[7:6], 3'h0, pixdata_blended[5:3], 2'h0, pixdata_blended[1:0], 3'h0} :
+	{pixdata_blended[6:5], 3'h0, pixdata_blended[4:2], 2'h0, pixdata_blended[1:0], 3'h0} :
 	pixdata_blended;
 
 assign out_paletted = MODE_IS_PALETTED(mode_blended);
