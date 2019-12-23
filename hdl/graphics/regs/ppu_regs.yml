@@ -26,31 +26,32 @@ regs:
     bits:
       - {b: [11, 0],  name: x, access: rov}
       - {b: [27, 16], name: y, access: rov}
-  - name: bg0_csr
-    info: Control and status register for BG0.
-    bits: 
-      - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender"}
-      - {b: [3, 1], name: pixmode, access: rw}
-      - {b: 4, name: transparency, access: rw}
-      - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles."}
-      - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels."}
-      - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels."}
-      - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes."}
-      - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)"}
-  - name: bg0_scroll
-    info: Scroll the screen within the playfield
-    bits:
-      - {b: [25, 16], name: y, access: rw}
-      - {b: [9, 0], name: x, access: rw}
-  - name: bg0_tsbase
-    info: Base address for BG0 tileset. Tileset must be naturally aligned.
-    bits:
-      - {b: [31, 8], access: rw}
-  - name: bg0_tmbase
-    info: Base address for BG0 tilemap. Tilemap must be naturally aligned.
-    bits:
-      - {b: [31, 8], access: rw}
-
+  - generate: |
+      for bg in range(2):
+        _('- name: bg{}_csr'.format(bg))
+        _('  info: Control and status register for BG{}.'.format(bg))
+        _('  bits: ')
+        _('    - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender"}')
+        _('    - {b: [3, 1], name: pixmode, access: rw}')
+        _('    - {b: 4, name: transparency, access: rw}')
+        _('    - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles."}')
+        _('    - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels."}')
+        _('    - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels."}')
+        _('    - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes."}')
+        _('    - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)"}')
+        _('- name: bg{}_scroll'.format(bg))
+        _('  info: Scroll the screen within the playfield')
+        _('  bits:')
+        _('    - {b: [25, 16], name: y, access: rw}')
+        _('    - {b: [9, 0], name: x, access: rw}')
+        _('- name: bg{}_tsbase'.format(bg))
+        _('  info: Base address for BG{} tileset. Tileset must be naturally aligned.'.format(bg))
+        _('  bits:')
+        _('    - {b: [31, 8], access: rw}')
+        _('- name: bg{}_tmbase'.format(bg))
+        _('  info: Base address for BG{} tilemap. Tilemap must be naturally aligned.'.format(bg))
+        _('  bits:')
+        _('    - {b: [31, 8], access: rw}')
   - name: lcd_pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
     bits:

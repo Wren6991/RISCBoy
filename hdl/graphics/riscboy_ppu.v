@@ -96,18 +96,19 @@ wire [W_COORD-1:0]         raster_h;
 wire [W_COORD-1:0]         raster_x;
 wire [W_COORD-1:0]         raster_y;
 
-wire                       bg0_csr_en;
-wire [W_PIXMODE-1:0]       bg0_csr_pixmode;
-wire                       bg0_csr_transparency;
-wire                       bg0_csr_tilesize;
-wire [W_LOG_COORD-1:0]     bg0_csr_pfwidth;
-wire [W_LOG_COORD-1:0]     bg0_csr_pfheight;
-wire [3:0]                 bg0_csr_paloffs;
-wire                       bg0_csr_flush;
-wire [W_COORD-1:0]         bg0_scroll_y;
-wire [W_COORD-1:0]         bg0_scroll_x;
-wire [23:0]                bg0_tsbase;
-wire [23:0]                bg0_tmbase;
+localparam N_BACKGROUND = 2;
+wire                       bg_csr_en           [0:N_BACKGROUND-1];
+wire [W_PIXMODE-1:0]       bg_csr_pixmode      [0:N_BACKGROUND-1];
+wire                       bg_csr_transparency [0:N_BACKGROUND-1];
+wire                       bg_csr_tilesize     [0:N_BACKGROUND-1];
+wire [W_LOG_COORD-1:0]     bg_csr_pfwidth      [0:N_BACKGROUND-1];
+wire [W_LOG_COORD-1:0]     bg_csr_pfheight     [0:N_BACKGROUND-1];
+wire [3:0]                 bg_csr_paloffs      [0:N_BACKGROUND-1];
+wire                       bg_csr_flush        [0:N_BACKGROUND-1];
+wire [W_COORD-1:0]         bg_scroll_y         [0:N_BACKGROUND-1];
+wire [W_COORD-1:0]         bg_scroll_x         [0:N_BACKGROUND-1];
+wire [23:0]                bg_tsbase           [0:N_BACKGROUND-1];
+wire [23:0]                bg_tmbase           [0:N_BACKGROUND-1];
 
 wire [W_LCD_PIXDATA-1:0]   pxfifo_direct_wdata;
 wire                       pxfifo_direct_wen;
@@ -145,18 +146,31 @@ ppu_regs regs (
 	.beam_x_i               (raster_x),
 	.beam_y_i               (raster_y),
 
-	.bg0_csr_en_o           (bg0_csr_en),
-	.bg0_csr_pixmode_o      (bg0_csr_pixmode),
-	.bg0_csr_transparency_o (bg0_csr_transparency),
-	.bg0_csr_tilesize_o     (bg0_csr_tilesize),
-	.bg0_csr_pfwidth_o      (bg0_csr_pfwidth),
-	.bg0_csr_pfheight_o     (bg0_csr_pfheight),
-	.bg0_csr_paloffs_o      (bg0_csr_paloffs),
-	.bg0_csr_flush_o        (bg0_csr_flush),
-	.bg0_scroll_y_o         (bg0_scroll_y),
-	.bg0_scroll_x_o         (bg0_scroll_x),
-	.bg0_tsbase_o           (bg0_tsbase),
-	.bg0_tmbase_o           (bg0_tmbase),
+	.bg0_csr_en_o           (bg_csr_en[0]),
+	.bg0_csr_pixmode_o      (bg_csr_pixmode[0]),
+	.bg0_csr_transparency_o (bg_csr_transparency[0]),
+	.bg0_csr_tilesize_o     (bg_csr_tilesize[0]),
+	.bg0_csr_pfwidth_o      (bg_csr_pfwidth[0]),
+	.bg0_csr_pfheight_o     (bg_csr_pfheight[0]),
+	.bg0_csr_paloffs_o      (bg_csr_paloffs[0]),
+	.bg0_csr_flush_o        (bg_csr_flush[0]),
+	.bg0_scroll_y_o         (bg_scroll_y[0]),
+	.bg0_scroll_x_o         (bg_scroll_x[0]),
+	.bg0_tsbase_o           (bg_tsbase[0]),
+	.bg0_tmbase_o           (bg_tmbase[0]),
+
+	.bg1_csr_en_o           (bg_csr_en[1]),
+	.bg1_csr_pixmode_o      (bg_csr_pixmode[1]),
+	.bg1_csr_transparency_o (bg_csr_transparency[1]),
+	.bg1_csr_tilesize_o     (bg_csr_tilesize[1]),
+	.bg1_csr_pfwidth_o      (bg_csr_pfwidth[1]),
+	.bg1_csr_pfheight_o     (bg_csr_pfheight[1]),
+	.bg1_csr_paloffs_o      (bg_csr_paloffs[1]),
+	.bg1_csr_flush_o        (bg_csr_flush[1]),
+	.bg1_scroll_y_o         (bg_scroll_y[1]),
+	.bg1_scroll_x_o         (bg_scroll_x[1]),
+	.bg1_tsbase_o           (bg_tsbase[1]),
+	.bg1_tmbase_o           (bg_tmbase[1]),
 
 	.lcd_pxfifo_o           (pxfifo_direct_wdata),
 	.lcd_pxfifo_wen         (pxfifo_direct_wen),
@@ -206,8 +220,6 @@ riscboy_ppu_raster_counter #(
 	.start_frame (vsync)
 );
 
-localparam N_BACKGROUND = 1;
-
 wire                  bg_blend_vld     [0:N_BACKGROUND-1];
 wire                  bg_blend_rdy     [0:N_BACKGROUND-1];
 wire                  bg_blend_alpha   [0:N_BACKGROUND-1];
@@ -216,7 +228,9 @@ wire [W_PIXMODE-1:0]  bg_blend_mode    [0:N_BACKGROUND-1]; // TODO: timing of pi
 wire [W_LAYERSEL-1:0] bg_blend_layer   [0:N_BACKGROUND-1];
 
 assign bg_blend_layer[0] = 0; // FIXME
-assign bg_blend_mode[0] = bg0_csr_pixmode;
+assign bg_blend_mode[0] = bg_csr_pixmode[0];
+assign bg_blend_layer[1] = 0; // FIXME
+assign bg_blend_mode[1] = bg_csr_pixmode[1];
 
 wire                  blend_out_vld;
 wire                  blend_out_rdy;
@@ -224,15 +238,15 @@ wire [W_PIXDATA-1:0]  blend_out_pixdata;
 wire                  blend_out_paletted;
 
 riscboy_ppu_blender #(
-	.N_REQ(1),
+	.N_REQ(N_BACKGROUND),
 	.N_LAYERS(N_LAYERS)
 ) inst_riscboy_ppu_blender (
-	.req_vld           (bg_blend_vld[0]), // FIXME support more than just a single background :)
-	.req_rdy           (bg_blend_rdy[0]),
-	.req_alpha         (bg_blend_alpha[0]),
-	.req_pixdata       (bg_blend_pixdata[0]),
-	.req_mode          (bg_blend_mode[0]),
-	.req_layer         (bg_blend_layer[0]),
+	.req_vld           ({bg_blend_vld    [1], bg_blend_vld    [0]}),
+	.req_rdy           ({bg_blend_rdy    [1], bg_blend_rdy    [0]}),
+	.req_alpha         ({bg_blend_alpha  [1], bg_blend_alpha  [0]}),
+	.req_pixdata       ({bg_blend_pixdata[1], bg_blend_pixdata[0]}),
+	.req_mode          ({bg_blend_mode   [1], bg_blend_mode   [0]}),
+	.req_layer         ({bg_blend_layer  [1], bg_blend_layer  [0]}),
 	.default_bg_colour (default_bg_colour),
 
 	.out_vld           (blend_out_vld),
@@ -286,6 +300,8 @@ wire [1:0]        bg_bus_size [0:N_BACKGROUND-1];
 wire [W_DATA-1:0] bg_bus_data [0:N_BACKGROUND-1];
 wire              bg_bus_rdy  [0:N_BACKGROUND-1];
 
+// FIXME this should be a generate or a module array, but first we need to
+// solve having parameterised numbers of ports on a regblock
 
 riscboy_ppu_background #(
 	.W_COORD           (W_COORD),
@@ -295,8 +311,8 @@ riscboy_ppu_background #(
 ) bg0 (
 	.clk                (clk_ppu),
 	.rst_n              (rst_n_ppu),
-	.en                 (bg0_csr_en),
-	.flush              (hsync || bg0_csr_flush),
+	.en                 (bg_csr_en[0]),
+	.flush              (hsync || bg_csr_flush[0]),
 	.beam_x             (raster_x),
 	.beam_y             (raster_y),
 
@@ -306,21 +322,57 @@ riscboy_ppu_background #(
 	.bus_rdy            (bg_bus_rdy[0]),
 	.bus_data           (bg_bus_data[0]),
 
-	.cfg_scroll_x       (bg0_scroll_x),
-	.cfg_scroll_y       (bg0_scroll_y),
-	.cfg_log_w          (bg0_csr_pfwidth),
-	.cfg_log_h          (bg0_csr_pfheight),
-	.cfg_tileset_base   ({bg0_tsbase, 8'h0}),
-	.cfg_tilemap_base   ({bg0_tmbase, 8'h0}),
-	.cfg_tile_size      (bg0_csr_tilesize),
-	.cfg_pixel_mode     (bg0_csr_pixmode),
-	.cfg_transparency   (bg0_csr_transparency),
-	.cfg_palette_offset (bg0_csr_paloffs),
+	.cfg_scroll_x       (bg_scroll_x[0]),
+	.cfg_scroll_y       (bg_scroll_y[0]),
+	.cfg_log_w          (bg_csr_pfwidth[0]),
+	.cfg_log_h          (bg_csr_pfheight[0]),
+	.cfg_tileset_base   ({bg_tsbase[0], 8'h0}),
+	.cfg_tilemap_base   ({bg_tmbase[0], 8'h0}),
+	.cfg_tile_size      (bg_csr_tilesize[0]),
+	.cfg_pixel_mode     (bg_csr_pixmode[0]),
+	.cfg_transparency   (bg_csr_transparency[0]),
+	.cfg_palette_offset (bg_csr_paloffs[0]),
 
 	.out_vld            (bg_blend_vld[0]),
 	.out_rdy            (bg_blend_rdy[0]),
 	.out_alpha          (bg_blend_alpha[0]),
 	.out_pixdata        (bg_blend_pixdata[0])
+);
+
+riscboy_ppu_background #(
+	.W_COORD           (W_COORD),
+	.W_OUTDATA         (W_PIXDATA),
+	.W_ADDR            (W_ADDR),
+	.W_DATA            (W_DATA)
+) bg1 (
+	.clk                (clk_ppu),
+	.rst_n              (rst_n_ppu),
+	.en                 (bg_csr_en[1]),
+	.flush              (hsync || bg_csr_flush[1]),
+	.beam_x             (raster_x),
+	.beam_y             (raster_y),
+
+	.bus_vld            (bg_bus_vld[1]),
+	.bus_addr           (bg_bus_addr[1]),
+	.bus_size           (bg_bus_size[1]),
+	.bus_rdy            (bg_bus_rdy[1]),
+	.bus_data           (bg_bus_data[1]),
+
+	.cfg_scroll_x       (bg_scroll_x[1]),
+	.cfg_scroll_y       (bg_scroll_y[1]),
+	.cfg_log_w          (bg_csr_pfwidth[1]),
+	.cfg_log_h          (bg_csr_pfheight[1]),
+	.cfg_tileset_base   ({bg_tsbase[1], 8'h0}),
+	.cfg_tilemap_base   ({bg_tmbase[1], 8'h0}),
+	.cfg_tile_size      (bg_csr_tilesize[1]),
+	.cfg_pixel_mode     (bg_csr_pixmode[1]),
+	.cfg_transparency   (bg_csr_transparency[1]),
+	.cfg_palette_offset (bg_csr_paloffs[1]),
+
+	.out_vld            (bg_blend_vld[1]),
+	.out_rdy            (bg_blend_rdy[1]),
+	.out_alpha          (bg_blend_alpha[1]),
+	.out_pixdata        (bg_blend_pixdata[1])
 );
 
 // ----------------------------------------------------------------------------
@@ -406,11 +458,11 @@ riscboy_ppu_busmaster #(
 
 	.ppu_running     (ppu_running),
 
-	.req_vld         (bg_bus_vld[0]), // TODO stack up requests once we have multiple requesters
-	.req_addr        (bg_bus_addr[0]),
-	.req_size        (bg_bus_size[0]),
-	.req_rdy         (bg_bus_rdy[0]),
-	.req_data        (bg_bus_data[0]),
+	.req_vld         ({bg_bus_vld [1], bg_bus_vld [0]}), // TODO stack up requests properly once we have more requesters
+	.req_addr        ({bg_bus_addr[1], bg_bus_addr[0]}),
+	.req_size        ({bg_bus_size[1], bg_bus_size[0]}),
+	.req_rdy         ({bg_bus_rdy [1], bg_bus_rdy [0]}),
+	.req_data        ({bg_bus_data[1], bg_bus_data[0]}),
 
 	.ahblm_haddr     (ahblm_haddr),
 	.ahblm_hwrite    (ahblm_hwrite),

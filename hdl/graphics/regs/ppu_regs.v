@@ -46,6 +46,18 @@ module ppu_regs (
 	output reg [9:0] bg0_scroll_x_o,
 	output reg [23:0] bg0_tsbase_o,
 	output reg [23:0] bg0_tmbase_o,
+	output reg  bg1_csr_en_o,
+	output reg [2:0] bg1_csr_pixmode_o,
+	output reg  bg1_csr_transparency_o,
+	output reg  bg1_csr_tilesize_o,
+	output reg [3:0] bg1_csr_pfwidth_o,
+	output reg [3:0] bg1_csr_pfheight_o,
+	output reg [3:0] bg1_csr_paloffs_o,
+	output reg  bg1_csr_flush_o,
+	output reg [9:0] bg1_scroll_y_o,
+	output reg [9:0] bg1_scroll_x_o,
+	output reg [23:0] bg1_tsbase_o,
+	output reg [23:0] bg1_tmbase_o,
 	output reg [15:0] lcd_pxfifo_o,
 	output reg lcd_pxfifo_wen,
 	input wire  lcd_csr_pxfifo_empty_i,
@@ -85,10 +97,14 @@ localparam ADDR_BG0_CSR = 16;
 localparam ADDR_BG0_SCROLL = 20;
 localparam ADDR_BG0_TSBASE = 24;
 localparam ADDR_BG0_TMBASE = 28;
-localparam ADDR_LCD_PXFIFO = 32;
-localparam ADDR_LCD_CSR = 36;
-localparam ADDR_INTS = 40;
-localparam ADDR_INTE = 44;
+localparam ADDR_BG1_CSR = 32;
+localparam ADDR_BG1_SCROLL = 36;
+localparam ADDR_BG1_TSBASE = 40;
+localparam ADDR_BG1_TMBASE = 44;
+localparam ADDR_LCD_PXFIFO = 48;
+localparam ADDR_LCD_CSR = 52;
+localparam ADDR_INTS = 56;
+localparam ADDR_INTE = 60;
 
 wire __csr_wen = wen && addr == ADDR_CSR;
 wire __csr_ren = ren && addr == ADDR_CSR;
@@ -106,6 +122,14 @@ wire __bg0_tsbase_wen = wen && addr == ADDR_BG0_TSBASE;
 wire __bg0_tsbase_ren = ren && addr == ADDR_BG0_TSBASE;
 wire __bg0_tmbase_wen = wen && addr == ADDR_BG0_TMBASE;
 wire __bg0_tmbase_ren = ren && addr == ADDR_BG0_TMBASE;
+wire __bg1_csr_wen = wen && addr == ADDR_BG1_CSR;
+wire __bg1_csr_ren = ren && addr == ADDR_BG1_CSR;
+wire __bg1_scroll_wen = wen && addr == ADDR_BG1_SCROLL;
+wire __bg1_scroll_ren = ren && addr == ADDR_BG1_SCROLL;
+wire __bg1_tsbase_wen = wen && addr == ADDR_BG1_TSBASE;
+wire __bg1_tsbase_ren = ren && addr == ADDR_BG1_TSBASE;
+wire __bg1_tmbase_wen = wen && addr == ADDR_BG1_TMBASE;
+wire __bg1_tmbase_ren = ren && addr == ADDR_BG1_TMBASE;
 wire __lcd_pxfifo_wen = wen && addr == ADDR_LCD_PXFIFO;
 wire __lcd_pxfifo_ren = ren && addr == ADDR_LCD_PXFIFO;
 wire __lcd_csr_wen = wen && addr == ADDR_LCD_CSR;
@@ -197,6 +221,50 @@ wire [23:0] bg0_tmbase_rdata;
 wire [31:0] __bg0_tmbase_rdata = {bg0_tmbase_rdata, 8'h0};
 assign bg0_tmbase_rdata = bg0_tmbase_o;
 
+wire  bg1_csr_en_wdata = wdata[0];
+wire  bg1_csr_en_rdata;
+wire [2:0] bg1_csr_pixmode_wdata = wdata[3:1];
+wire [2:0] bg1_csr_pixmode_rdata;
+wire  bg1_csr_transparency_wdata = wdata[4];
+wire  bg1_csr_transparency_rdata;
+wire  bg1_csr_tilesize_wdata = wdata[5];
+wire  bg1_csr_tilesize_rdata;
+wire [3:0] bg1_csr_pfwidth_wdata = wdata[9:6];
+wire [3:0] bg1_csr_pfwidth_rdata;
+wire [3:0] bg1_csr_pfheight_wdata = wdata[13:10];
+wire [3:0] bg1_csr_pfheight_rdata;
+wire [3:0] bg1_csr_paloffs_wdata = wdata[19:16];
+wire [3:0] bg1_csr_paloffs_rdata;
+wire  bg1_csr_flush_wdata = wdata[31];
+wire  bg1_csr_flush_rdata;
+wire [31:0] __bg1_csr_rdata = {bg1_csr_flush_rdata, 11'h0, bg1_csr_paloffs_rdata, 2'h0, bg1_csr_pfheight_rdata, bg1_csr_pfwidth_rdata, bg1_csr_tilesize_rdata, bg1_csr_transparency_rdata, bg1_csr_pixmode_rdata, bg1_csr_en_rdata};
+assign bg1_csr_en_rdata = bg1_csr_en_o;
+assign bg1_csr_pixmode_rdata = bg1_csr_pixmode_o;
+assign bg1_csr_transparency_rdata = bg1_csr_transparency_o;
+assign bg1_csr_tilesize_rdata = bg1_csr_tilesize_o;
+assign bg1_csr_pfwidth_rdata = bg1_csr_pfwidth_o;
+assign bg1_csr_pfheight_rdata = bg1_csr_pfheight_o;
+assign bg1_csr_paloffs_rdata = bg1_csr_paloffs_o;
+assign bg1_csr_flush_rdata = 1'h0;
+
+wire [9:0] bg1_scroll_y_wdata = wdata[25:16];
+wire [9:0] bg1_scroll_y_rdata;
+wire [9:0] bg1_scroll_x_wdata = wdata[9:0];
+wire [9:0] bg1_scroll_x_rdata;
+wire [31:0] __bg1_scroll_rdata = {6'h0, bg1_scroll_y_rdata, 6'h0, bg1_scroll_x_rdata};
+assign bg1_scroll_y_rdata = bg1_scroll_y_o;
+assign bg1_scroll_x_rdata = bg1_scroll_x_o;
+
+wire [23:0] bg1_tsbase_wdata = wdata[31:8];
+wire [23:0] bg1_tsbase_rdata;
+wire [31:0] __bg1_tsbase_rdata = {bg1_tsbase_rdata, 8'h0};
+assign bg1_tsbase_rdata = bg1_tsbase_o;
+
+wire [23:0] bg1_tmbase_wdata = wdata[31:8];
+wire [23:0] bg1_tmbase_rdata;
+wire [31:0] __bg1_tmbase_rdata = {bg1_tmbase_rdata, 8'h0};
+assign bg1_tmbase_rdata = bg1_tmbase_o;
+
 wire [15:0] lcd_pxfifo_wdata = wdata[15:0];
 wire [15:0] lcd_pxfifo_rdata;
 wire [31:0] __lcd_pxfifo_rdata = {16'h0, lcd_pxfifo_rdata};
@@ -251,6 +319,10 @@ always @ (*) begin
 		ADDR_BG0_SCROLL: rdata = __bg0_scroll_rdata;
 		ADDR_BG0_TSBASE: rdata = __bg0_tsbase_rdata;
 		ADDR_BG0_TMBASE: rdata = __bg0_tmbase_rdata;
+		ADDR_BG1_CSR: rdata = __bg1_csr_rdata;
+		ADDR_BG1_SCROLL: rdata = __bg1_scroll_rdata;
+		ADDR_BG1_TSBASE: rdata = __bg1_tsbase_rdata;
+		ADDR_BG1_TMBASE: rdata = __bg1_tmbase_rdata;
 		ADDR_LCD_PXFIFO: rdata = __lcd_pxfifo_rdata;
 		ADDR_LCD_CSR: rdata = __lcd_csr_rdata;
 		ADDR_INTS: rdata = __ints_rdata;
@@ -260,6 +332,7 @@ always @ (*) begin
 	csr_run_o = csr_run_wdata & {1{__csr_wen}};
 	csr_halt_o = csr_halt_wdata & {1{__csr_wen}};
 	bg0_csr_flush_o = bg0_csr_flush_wdata & {1{__bg0_csr_wen}};
+	bg1_csr_flush_o = bg1_csr_flush_wdata & {1{__bg1_csr_wen}};
 	lcd_pxfifo_wen = __lcd_pxfifo_wen;
 	lcd_pxfifo_o = lcd_pxfifo_wdata;
 	ints_vsync_wen = __ints_wen;
@@ -288,6 +361,17 @@ always @ (posedge clk or negedge rst_n) begin
 		bg0_scroll_x_o <= 10'h0;
 		bg0_tsbase_o <= 24'h0;
 		bg0_tmbase_o <= 24'h0;
+		bg1_csr_en_o <= 1'h0;
+		bg1_csr_pixmode_o <= 3'h0;
+		bg1_csr_transparency_o <= 1'h0;
+		bg1_csr_tilesize_o <= 1'h0;
+		bg1_csr_pfwidth_o <= 4'h0;
+		bg1_csr_pfheight_o <= 4'h0;
+		bg1_csr_paloffs_o <= 4'h0;
+		bg1_scroll_y_o <= 10'h0;
+		bg1_scroll_x_o <= 10'h0;
+		bg1_tsbase_o <= 24'h0;
+		bg1_tmbase_o <= 24'h0;
 		lcd_csr_lcd_cs_o <= 1'h1;
 		lcd_csr_lcd_dc_o <= 1'h0;
 		lcd_csr_lcd_shiftcnt_o <= 5'h0;
@@ -326,6 +410,28 @@ always @ (posedge clk or negedge rst_n) begin
 			bg0_tsbase_o <= bg0_tsbase_wdata;
 		if (__bg0_tmbase_wen)
 			bg0_tmbase_o <= bg0_tmbase_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_en_o <= bg1_csr_en_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_pixmode_o <= bg1_csr_pixmode_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_transparency_o <= bg1_csr_transparency_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_tilesize_o <= bg1_csr_tilesize_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_pfwidth_o <= bg1_csr_pfwidth_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_pfheight_o <= bg1_csr_pfheight_wdata;
+		if (__bg1_csr_wen)
+			bg1_csr_paloffs_o <= bg1_csr_paloffs_wdata;
+		if (__bg1_scroll_wen)
+			bg1_scroll_y_o <= bg1_scroll_y_wdata;
+		if (__bg1_scroll_wen)
+			bg1_scroll_x_o <= bg1_scroll_x_wdata;
+		if (__bg1_tsbase_wen)
+			bg1_tsbase_o <= bg1_tsbase_wdata;
+		if (__bg1_tmbase_wen)
+			bg1_tmbase_o <= bg1_tmbase_wdata;
 		if (__lcd_csr_wen)
 			lcd_csr_lcd_cs_o <= lcd_csr_lcd_cs_wdata;
 		if (__lcd_csr_wen)

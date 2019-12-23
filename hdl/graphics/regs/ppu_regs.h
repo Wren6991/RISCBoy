@@ -20,10 +20,14 @@
 #define PPU_BG0_SCROLL_OFFS 20
 #define PPU_BG0_TSBASE_OFFS 24
 #define PPU_BG0_TMBASE_OFFS 28
-#define PPU_LCD_PXFIFO_OFFS 32
-#define PPU_LCD_CSR_OFFS 36
-#define PPU_INTS_OFFS 40
-#define PPU_INTE_OFFS 44
+#define PPU_BG1_CSR_OFFS 32
+#define PPU_BG1_SCROLL_OFFS 36
+#define PPU_BG1_TSBASE_OFFS 40
+#define PPU_BG1_TMBASE_OFFS 44
+#define PPU_LCD_PXFIFO_OFFS 48
+#define PPU_LCD_CSR_OFFS 52
+#define PPU_INTS_OFFS 56
+#define PPU_INTE_OFFS 60
 
 /*******************************************************************************
 *                                     CSR                                      *
@@ -179,6 +183,88 @@
 #define PPU_BG0_TMBASE_LSB  8
 #define PPU_BG0_TMBASE_BITS 24
 #define PPU_BG0_TMBASE_MASK 0xffffff00
+
+/*******************************************************************************
+*                                   BG1_CSR                                    *
+*******************************************************************************/
+
+// Control and status register for BG1.
+
+// Field BG1_CSR_EN
+// If not enabled, will continuously output transparent pixels to blender
+#define PPU_BG1_CSR_EN_LSB  0
+#define PPU_BG1_CSR_EN_BITS 1
+#define PPU_BG1_CSR_EN_MASK 0x1
+// Field BG1_CSR_PIXMODE
+#define PPU_BG1_CSR_PIXMODE_LSB  1
+#define PPU_BG1_CSR_PIXMODE_BITS 3
+#define PPU_BG1_CSR_PIXMODE_MASK 0xe
+// Field BG1_CSR_TRANSPARENCY
+#define PPU_BG1_CSR_TRANSPARENCY_LSB  4
+#define PPU_BG1_CSR_TRANSPARENCY_BITS 1
+#define PPU_BG1_CSR_TRANSPARENCY_MASK 0x10
+// Field BG1_CSR_TILESIZE
+// 0 -> 8 px tiles. 1 -> 16 px tiles.
+#define PPU_BG1_CSR_TILESIZE_LSB  5
+#define PPU_BG1_CSR_TILESIZE_BITS 1
+#define PPU_BG1_CSR_TILESIZE_MASK 0x20
+// Field BG1_CSR_PFWIDTH
+// Playfield width is 2 ** (PFWIDTH + 1) pixels.
+#define PPU_BG1_CSR_PFWIDTH_LSB  6
+#define PPU_BG1_CSR_PFWIDTH_BITS 4
+#define PPU_BG1_CSR_PFWIDTH_MASK 0x3c0
+// Field BG1_CSR_PFHEIGHT
+// Playfield height is 2 ** (PFHEIGHT + 1) pixels.
+#define PPU_BG1_CSR_PFHEIGHT_LSB  10
+#define PPU_BG1_CSR_PFHEIGHT_BITS 4
+#define PPU_BG1_CSR_PFHEIGHT_MASK 0x3c00
+// Field BG1_CSR_PALOFFS
+// Offset ORed into upper 4 bits of palette index in paletted pixel modes.
+#define PPU_BG1_CSR_PALOFFS_LSB  16
+#define PPU_BG1_CSR_PALOFFS_BITS 4
+#define PPU_BG1_CSR_PALOFFS_MASK 0xf0000
+// Field BG1_CSR_FLUSH
+// flush background hardware and re-register all config state (temporary, will be automated)
+#define PPU_BG1_CSR_FLUSH_LSB  31
+#define PPU_BG1_CSR_FLUSH_BITS 1
+#define PPU_BG1_CSR_FLUSH_MASK 0x80000000
+
+/*******************************************************************************
+*                                  BG1_SCROLL                                  *
+*******************************************************************************/
+
+// Scroll the screen within the playfield
+
+// Field BG1_SCROLL_Y
+#define PPU_BG1_SCROLL_Y_LSB  16
+#define PPU_BG1_SCROLL_Y_BITS 10
+#define PPU_BG1_SCROLL_Y_MASK 0x3ff0000
+// Field BG1_SCROLL_X
+#define PPU_BG1_SCROLL_X_LSB  0
+#define PPU_BG1_SCROLL_X_BITS 10
+#define PPU_BG1_SCROLL_X_MASK 0x3ff
+
+/*******************************************************************************
+*                                  BG1_TSBASE                                  *
+*******************************************************************************/
+
+// Base address for BG1 tileset. Tileset must be naturally aligned.
+
+// Field BG1_TSBASE
+#define PPU_BG1_TSBASE_LSB  8
+#define PPU_BG1_TSBASE_BITS 24
+#define PPU_BG1_TSBASE_MASK 0xffffff00
+
+/*******************************************************************************
+*                                  BG1_TMBASE                                  *
+*******************************************************************************/
+
+// Base address for BG1 tilemap. Tilemap must be naturally aligned.
+
+// Field BG1_TMBASE
+#define PPU_BG1_TMBASE_LSB  8
+#define PPU_BG1_TMBASE_BITS 24
+#define PPU_BG1_TMBASE_MASK 0xffffff00
 
 /*******************************************************************************
 *                                  LCD_PXFIFO                                  *

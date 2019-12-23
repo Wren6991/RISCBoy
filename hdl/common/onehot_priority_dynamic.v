@@ -49,7 +49,7 @@ always @ (*) begin: mux_reqs_by_layer
 end
 
 onehot_priority #(
-	.W_INPUT (N_PRIORITIES)
+	.W_INPUT (N_REQ)
 ) prisel_tiebreak (
 	.in  (reqs_from_highest_layer),
 	.out (gnt)
