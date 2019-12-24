@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import argparse
+from PIL import Image
+from collections import OrderedDict
+
+__doc__ = """Utility for stripping non-unique tiles from a tileset image.
+Outputs the uniquified image, and an index map file from original tile indices
+to new tile indices."""
+
+parser = argparse.ArgumentParser()
+parser.add_argument("input", help="Input file name")
+parser.add_argument("output", help="Output file name")
+parser.add_argument("--tilesize", "-t", help="Tile size (pixels), default 8",
+	default="8", choices=["8", "16"])
+parser.epilog = __doc__
+args = parser.parse_args()
+
+img = Image.open(args.input)
+tilesize = int(args.tilesize)
+
+tile_first_seen = {}
+index_mapping = []
+output_images = []
+
+src_index = 0
+for y in range(0, img.height - (tilesize - 1), tilesize):
+	for x in range(0, img.width - (tilesize - 1), tilesize):
+		tile = img.crop((x, y, x + tilesize, y + tilesize))
+		tiledata = tuple(tile.getdata())
+		if tiledata in tile_first_seen:
+			index_mapping.append((src_index, tile_first_seen[tiledata]))
+		else:
+			tile_first_seen[tiledata] = len(output_images)
+			index_mapping.append((src_index, len(output_images)))
+			output_images.append(tile)
+		src_index += 1
+
+print("Found {} unique tile images".format(len(output_images)))
+
+oimg = Image.new("RGBA", (tilesize * len(output_images), tilesize))
+for i, tile in enumerate(output_images):
+	oimg.paste(tile, (i * tilesize, 0))
+
+with open(args.output, "wb") as ofile:
+	oimg.save(ofile)
+with open(args.output + ".index_map", "w") as mapfile:
+	for old, new in index_mapping:
+		mapfile.write("{}, {}\n".format(old, new))
