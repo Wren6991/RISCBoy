@@ -101,9 +101,9 @@ onehot_priority_dynamic #(
 	.N_PRIORITIES (N_LAYERS),
 	.HIGHEST_WINS (1)
 ) pixel_arbiter (
-	.priority ({{W_LAYERSEL{1'b0}}, req_layer}),
-	.req      ({1'b1, req_alpha}),
-	.gnt      (src_gnt)
+	.level ({{W_LAYERSEL{1'b0}}, req_layer}),
+	.req   ({1'b1, req_alpha}),
+	.gnt   (src_gnt)
 );
 
 // Then mux in the pixel data and mode from that source.

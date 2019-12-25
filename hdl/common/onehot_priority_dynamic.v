@@ -4,7 +4,7 @@ module onehot_priority_dynamic #(
 	parameter HIGHEST_WINS = 1, // If 1, numerically highest level has greatest priority. Otherwise, level 0 wins.
 	parameter W_PRIORITY = $clog2(N_PRIORITIES) // do not modify
 ) (
-	input wire [N_REQ*W_PRIORITY-1:0] priority,
+	input wire [N_REQ*W_PRIORITY-1:0] level,
 	input wire [N_REQ-1:0]            req,
 	input wire [N_REQ-1:0]            gnt
 );
@@ -22,7 +22,7 @@ always @ (*) begin: stratify
 	integer i, j;
 	for (i = 0; i < N_PRIORITIES; i = i + 1) begin
 		for (j = 0; j < N_REQ; j = j + 1) begin
-			req_stratified[i][j] = req[j] && priority[W_PRIORITY * j +: W_PRIORITY] == i;
+			req_stratified[i][j] = req[j] && level[W_PRIORITY * j +: W_PRIORITY] == i;
 		end
 		level_has_req[i] = |req_stratified[i];
 	end
