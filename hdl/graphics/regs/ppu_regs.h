@@ -69,12 +69,12 @@
 
 // Field DISPSIZE_W
 #define PPU_DISPSIZE_W_LSB  0
-#define PPU_DISPSIZE_W_BITS 12
-#define PPU_DISPSIZE_W_MASK 0xfff
+#define PPU_DISPSIZE_W_BITS 10
+#define PPU_DISPSIZE_W_MASK 0x3ff
 // Field DISPSIZE_H
 #define PPU_DISPSIZE_H_LSB  16
-#define PPU_DISPSIZE_H_BITS 12
-#define PPU_DISPSIZE_H_MASK 0xfff0000
+#define PPU_DISPSIZE_H_BITS 10
+#define PPU_DISPSIZE_H_MASK 0x3ff0000
 
 /*******************************************************************************
 *                              DEFAULT_BG_COLOUR                               *
@@ -95,12 +95,12 @@
 
 // Field BEAM_X
 #define PPU_BEAM_X_LSB  0
-#define PPU_BEAM_X_BITS 12
-#define PPU_BEAM_X_MASK 0xfff
+#define PPU_BEAM_X_BITS 10
+#define PPU_BEAM_X_MASK 0x3ff
 // Field BEAM_Y
 #define PPU_BEAM_Y_LSB  16
-#define PPU_BEAM_Y_BITS 12
-#define PPU_BEAM_Y_MASK 0xfff0000
+#define PPU_BEAM_Y_BITS 10
+#define PPU_BEAM_Y_MASK 0x3ff0000
 
 /*******************************************************************************
 *                                   BG0_CSR                                    *

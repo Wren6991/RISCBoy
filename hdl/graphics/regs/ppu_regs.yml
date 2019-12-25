@@ -2,7 +2,10 @@ name: ppu
 bus: apb
 addr: 16
 data: 32
-
+params:
+  W_COORD: 10
+  N_BACKGROUND: 2
+  N_SPRITE: 8
 regs:
   - name: csr
     info: PPU control and status register
@@ -15,8 +18,8 @@ regs:
   - name: dispsize
     info: Configure display dimensions. Actual width is W + 1, height is H + 1
     bits:
-      - {b: [11, 0],  name: w, access: rw}
-      - {b: [27, 16], name: h, access: rw}
+      - {b: [W_COORD - 1, 0],  name: w, access: rw}
+      - {b: [16 + W_COORD - 1, 16], name: h, access: rw}
   - name: default_bg_colour
     info: Colour displayed when all blended pixels are transparent, or all sprites/backgrounds are disabled.
     bits:
@@ -24,34 +27,34 @@ regs:
   - name: beam
     info: Scan coordinates of the next pixel to be blended (read-only)
     bits:
-      - {b: [11, 0],  name: x, access: rov}
-      - {b: [27, 16], name: y, access: rov}
+      - {b: [W_COORD - 1, 0],  name: x, access: rov}
+      - {b: [16 + W_COORD - 1, 16], name: y, access: rov}
   - generate: |
-      for bg in range(2):
+      for bg in range(N_BACKGROUND):
         _('- name: bg{}_csr'.format(bg))
         _('  info: Control and status register for BG{}.'.format(bg))
         _('  bits: ')
-        _('    - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender"}')
-        _('    - {b: [3, 1], name: pixmode, access: rw}')
-        _('    - {b: 4, name: transparency, access: rw}')
-        _('    - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles."}')
-        _('    - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels."}')
-        _('    - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels."}')
-        _('    - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes."}')
-        _('    - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)"}')
+        _('    - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender", concat: bg_en}')
+        _('    - {b: [3, 1], name: pixmode, access: rw, concat: bg_pixmode}')
+        _('    - {b: 4, name: transparency, access: rw, concat: bg_transparency}')
+        _('    - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles.", concat: bg_tilesize}')
+        _('    - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels.", concat: bg_pfwidth}')
+        _('    - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels.", concat: bg_pfheight}')
+        _('    - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes.", concat: bg_paloffs}')
+        _('    - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)", concat: bg_flush}')
         _('- name: bg{}_scroll'.format(bg))
         _('  info: Scroll the screen within the playfield')
         _('  bits:')
-        _('    - {b: [25, 16], name: y, access: rw}')
-        _('    - {b: [9, 0], name: x, access: rw}')
+        _('    - {b: [16 + W_COORD - 1, 16], name: y, access: rw, concat: bg_scroll_y}')
+        _('    - {b: [W_COORD - 1, 0], name: x, access: rw, concat: bg_scroll_x}')
         _('- name: bg{}_tsbase'.format(bg))
         _('  info: Base address for BG{} tileset. Tileset must be naturally aligned.'.format(bg))
         _('  bits:')
-        _('    - {b: [31, 8], access: rw}')
+        _('    - {b: [31, 8], access: rw, concat: bg_tsbase}')
         _('- name: bg{}_tmbase'.format(bg))
         _('  info: Base address for BG{} tilemap. Tilemap must be naturally aligned.'.format(bg))
         _('  bits:')
-        _('    - {b: [31, 8], access: rw}')
+        _('    - {b: [31, 8], access: rw, concat: bg_tmbase}')
   - name: lcd_pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
     bits:

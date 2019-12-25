@@ -12,7 +12,7 @@ from math import log2, ceil
 
 class RegBlock:
 	bus_types = ["apb"]
-	field_properties = ["name", "b", "access", "info", "rst"]
+	field_properties = ["name", "b", "access", "info", "rst", "concat"]
 	def __init__(self, name, w_data, w_addr, bus):
 		self.name = name
 		self.w_data = w_data
@@ -70,7 +70,8 @@ class RegBlock:
 					param_resolve(bitrange[1]),
 					fspec["access"],
 					fspec["rst"] if "rst" in fspec else 0,
-					fspec["info"] if "info" in fspec else None
+					fspec["info"] if "info" in fspec else None,
+					fspec["concat"] if "concat" in fspec else None
 				))
 		return rb
 
@@ -110,7 +111,7 @@ class Register:
 
 class Field:
 	access_types = ["ro", "rov", "rw", "rf", "wf", "rwf", "sc", "w1c"]
-	def __init__(self, name, msb, lsb, access, resetval=0, info="", parent = None):
+	def __init__(self, name, msb, lsb, access, resetval=0, info="", concat=None, parent=None):
 		if lsb > msb:
 			raise Exception("Field width must be >= 0 in field {}".format(name))
 		if access not in self.access_types:
@@ -123,6 +124,7 @@ class Field:
 		self.access = access
 		self.resetval = resetval
 		self.info = info
+		self.concat = concat
 		self.parent = parent
 
 	@property
@@ -255,6 +257,7 @@ class VerilogWriter(RegBlockVisitor):
 	def __init__(self):
 		self.v = Verilog()
 		self.regname = None
+		self.concat = OrderedDict()
 
 	def pre_regblock(self, rb):
 		v = self.v
@@ -304,7 +307,11 @@ class VerilogWriter(RegBlockVisitor):
 		v.logic_comb.append("endcase")
 
 	def post_regblock(self, rb):
-		pass
+		for name, conns in self.concat.items():
+			concat_name = "concat_{}_o".format(name)
+			width = sum(f[0] for f in conns)
+			self.v.ports.append("output wire [{}:0] {}".format(width - 1, concat_name))
+			self.v.decls.append("assign {} = {{{}}};".format(concat_name, ", ".join(f[1] for f in reversed(conns))))
 
 	def pre_register(self, reg):
 		v = self.v
@@ -366,6 +373,13 @@ class VerilogWriter(RegBlockVisitor):
 			v.logic_comb.append("{0}_o = {0}_wdata & {{{1}{{__{2}_wen}}}};".format(fname, f.width, rname))
 		if f.access in ["ro", "wf", "sc"]:
 			v.decls.append("assign {}_rdata = {}'h{:x};".format(fname, f.width, f.resetval))
+
+		if f.concat is not None:
+			if not f.access in ["rw", "wf", "rwf", "sc"]:
+				raise Exception("concat specified for port with no regblock output")
+			if not f.concat in self.concat:
+				self.concat[f.concat] = []
+			self.concat[f.concat].append((f.width, "{}_o".format(fname)))
 
 
 # C header generation

@@ -29,11 +29,11 @@ module ppu_regs (
 	input wire  csr_running_i,
 	output reg  csr_halt_hsync_o,
 	output reg  csr_halt_vsync_o,
-	output reg [11:0] dispsize_w_o,
-	output reg [11:0] dispsize_h_o,
+	output reg [9:0] dispsize_w_o,
+	output reg [9:0] dispsize_h_o,
 	output reg [14:0] default_bg_colour_o,
-	input wire [11:0] beam_x_i,
-	input wire [11:0] beam_y_i,
+	input wire [9:0] beam_x_i,
+	input wire [9:0] beam_y_i,
 	output reg  bg0_csr_en_o,
 	output reg [2:0] bg0_csr_pixmode_o,
 	output reg  bg0_csr_transparency_o,
@@ -76,7 +76,19 @@ module ppu_regs (
 	output reg ints_hsync_wen,
 	output reg ints_hsync_ren,
 	output reg  inte_vsync_o,
-	output reg  inte_hsync_o
+	output reg  inte_hsync_o,
+	output wire [1:0] concat_bg_en_o,
+	output wire [5:0] concat_bg_pixmode_o,
+	output wire [1:0] concat_bg_transparency_o,
+	output wire [1:0] concat_bg_tilesize_o,
+	output wire [7:0] concat_bg_pfwidth_o,
+	output wire [7:0] concat_bg_pfheight_o,
+	output wire [7:0] concat_bg_paloffs_o,
+	output wire [1:0] concat_bg_flush_o,
+	output wire [19:0] concat_bg_scroll_y_o,
+	output wire [19:0] concat_bg_scroll_x_o,
+	output wire [47:0] concat_bg_tsbase_o,
+	output wire [47:0] concat_bg_tmbase_o
 );
 
 // APB adapter
@@ -156,11 +168,11 @@ assign csr_running_rdata = csr_running_i;
 assign csr_halt_hsync_rdata = csr_halt_hsync_o;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
 
-wire [11:0] dispsize_w_wdata = wdata[11:0];
-wire [11:0] dispsize_w_rdata;
-wire [11:0] dispsize_h_wdata = wdata[27:16];
-wire [11:0] dispsize_h_rdata;
-wire [31:0] __dispsize_rdata = {4'h0, dispsize_h_rdata, 4'h0, dispsize_w_rdata};
+wire [9:0] dispsize_w_wdata = wdata[9:0];
+wire [9:0] dispsize_w_rdata;
+wire [9:0] dispsize_h_wdata = wdata[25:16];
+wire [9:0] dispsize_h_rdata;
+wire [31:0] __dispsize_rdata = {6'h0, dispsize_h_rdata, 6'h0, dispsize_w_rdata};
 assign dispsize_w_rdata = dispsize_w_o;
 assign dispsize_h_rdata = dispsize_h_o;
 
@@ -169,11 +181,11 @@ wire [14:0] default_bg_colour_rdata;
 wire [31:0] __default_bg_colour_rdata = {17'h0, default_bg_colour_rdata};
 assign default_bg_colour_rdata = default_bg_colour_o;
 
-wire [11:0] beam_x_wdata = wdata[11:0];
-wire [11:0] beam_x_rdata;
-wire [11:0] beam_y_wdata = wdata[27:16];
-wire [11:0] beam_y_rdata;
-wire [31:0] __beam_rdata = {4'h0, beam_y_rdata, 4'h0, beam_x_rdata};
+wire [9:0] beam_x_wdata = wdata[9:0];
+wire [9:0] beam_x_rdata;
+wire [9:0] beam_y_wdata = wdata[25:16];
+wire [9:0] beam_y_rdata;
+wire [31:0] __beam_rdata = {6'h0, beam_y_rdata, 6'h0, beam_x_rdata};
 assign beam_x_rdata = beam_x_i;
 assign beam_y_rdata = beam_y_i;
 
@@ -308,6 +320,18 @@ wire  inte_hsync_rdata;
 wire [31:0] __inte_rdata = {30'h0, inte_hsync_rdata, inte_vsync_rdata};
 assign inte_vsync_rdata = inte_vsync_o;
 assign inte_hsync_rdata = inte_hsync_o;
+assign concat_bg_en_o = {bg1_csr_en_o, bg0_csr_en_o};
+assign concat_bg_pixmode_o = {bg1_csr_pixmode_o, bg0_csr_pixmode_o};
+assign concat_bg_transparency_o = {bg1_csr_transparency_o, bg0_csr_transparency_o};
+assign concat_bg_tilesize_o = {bg1_csr_tilesize_o, bg0_csr_tilesize_o};
+assign concat_bg_pfwidth_o = {bg1_csr_pfwidth_o, bg0_csr_pfwidth_o};
+assign concat_bg_pfheight_o = {bg1_csr_pfheight_o, bg0_csr_pfheight_o};
+assign concat_bg_paloffs_o = {bg1_csr_paloffs_o, bg0_csr_paloffs_o};
+assign concat_bg_flush_o = {bg1_csr_flush_o, bg0_csr_flush_o};
+assign concat_bg_scroll_y_o = {bg1_scroll_y_o, bg0_scroll_y_o};
+assign concat_bg_scroll_x_o = {bg1_scroll_x_o, bg0_scroll_x_o};
+assign concat_bg_tsbase_o = {bg1_tsbase_o, bg0_tsbase_o};
+assign concat_bg_tmbase_o = {bg1_tmbase_o, bg0_tmbase_o};
 
 always @ (*) begin
 	case (addr)
@@ -347,8 +371,8 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		csr_halt_hsync_o <= 1'h0;
 		csr_halt_vsync_o <= 1'h0;
-		dispsize_w_o <= 12'h0;
-		dispsize_h_o <= 12'h0;
+		dispsize_w_o <= 10'h0;
+		dispsize_h_o <= 10'h0;
 		default_bg_colour_o <= 15'h0;
 		bg0_csr_en_o <= 1'h0;
 		bg0_csr_pixmode_o <= 3'h0;

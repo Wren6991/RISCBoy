@@ -97,18 +97,18 @@ wire [W_COORD-1:0]         raster_x;
 wire [W_COORD-1:0]         raster_y;
 
 localparam N_BACKGROUND = 2;
-wire                       bg_csr_en           [0:N_BACKGROUND-1];
-wire [W_PIXMODE-1:0]       bg_csr_pixmode      [0:N_BACKGROUND-1];
-wire                       bg_csr_transparency [0:N_BACKGROUND-1];
-wire                       bg_csr_tilesize     [0:N_BACKGROUND-1];
-wire [W_LOG_COORD-1:0]     bg_csr_pfwidth      [0:N_BACKGROUND-1];
-wire [W_LOG_COORD-1:0]     bg_csr_pfheight     [0:N_BACKGROUND-1];
-wire [3:0]                 bg_csr_paloffs      [0:N_BACKGROUND-1];
-wire                       bg_csr_flush        [0:N_BACKGROUND-1];
-wire [W_COORD-1:0]         bg_scroll_y         [0:N_BACKGROUND-1];
-wire [W_COORD-1:0]         bg_scroll_x         [0:N_BACKGROUND-1];
-wire [23:0]                bg_tsbase           [0:N_BACKGROUND-1];
-wire [23:0]                bg_tmbase           [0:N_BACKGROUND-1];
+wire [N_BACKGROUND-1:0]             bg_csr_en;
+wire [N_BACKGROUND*W_PIXMODE-1:0]   bg_csr_pixmode;
+wire [N_BACKGROUND-1:0]             bg_csr_transparency;
+wire [N_BACKGROUND-1:0]             bg_csr_tilesize;
+wire [N_BACKGROUND*W_LOG_COORD-1:0] bg_csr_pfwidth;
+wire [N_BACKGROUND*W_LOG_COORD-1:0] bg_csr_pfheight;
+wire [N_BACKGROUND*4-1:0]           bg_csr_paloffs;
+wire [N_BACKGROUND-1:0]             bg_csr_flush;
+wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_y;
+wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_x;
+wire [N_BACKGROUND*24-1:0]          bg_tsbase;
+wire [N_BACKGROUND*24-1:0]          bg_tmbase;
 
 wire [W_LCD_PIXDATA-1:0]   pxfifo_direct_wdata;
 wire                       pxfifo_direct_wen;
@@ -121,66 +121,53 @@ wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt;
 wire                       lcdctrl_busy;
 
 ppu_regs regs (
-	.clk                    (clk_ppu),
-	.rst_n                  (rst_n_ppu),
+	.clk                       (clk_ppu),
+	.rst_n                     (rst_n_ppu),
 
-	.apbs_psel              (apbs_psel && !apbs_paddr[11]), // FIXME terrible hack to map PRAM write port
-	.apbs_penable           (apbs_penable),
-	.apbs_pwrite            (apbs_pwrite),
-	.apbs_paddr             (apbs_paddr),
-	.apbs_pwdata            (apbs_pwdata),
-	.apbs_prdata            (apbs_prdata),
-	.apbs_pready            (apbs_pready),
-	.apbs_pslverr           (apbs_pslverr),
+	.apbs_psel                 (apbs_psel && !apbs_paddr[11]), // FIXME terrible hack to map PRAM write port
+	.apbs_penable              (apbs_penable),
+	.apbs_pwrite               (apbs_pwrite),
+	.apbs_paddr                (apbs_paddr),
+	.apbs_pwdata               (apbs_pwdata),
+	.apbs_prdata               (apbs_prdata),
+	.apbs_pready               (apbs_pready),
+	.apbs_pslverr              (apbs_pslverr),
 
-	.csr_run_o              (csr_run),
-	.csr_halt_o             (csr_halt),
-	.csr_running_i          (csr_running),
-	.csr_halt_hsync_o       (csr_halt_hsync),
-	.csr_halt_vsync_o       (csr_halt_vsync),
+	.csr_run_o                 (csr_run),
+	.csr_halt_o                (csr_halt),
+	.csr_running_i             (csr_running),
+	.csr_halt_hsync_o          (csr_halt_hsync),
+	.csr_halt_vsync_o          (csr_halt_vsync),
 
-	.default_bg_colour_o    (default_bg_colour),
+	.default_bg_colour_o       (default_bg_colour),
 
-	.dispsize_w_o           (raster_w),
-	.dispsize_h_o           (raster_h),
-	.beam_x_i               (raster_x),
-	.beam_y_i               (raster_y),
+	.dispsize_w_o              (raster_w),
+	.dispsize_h_o              (raster_h),
+	.beam_x_i                  (raster_x),
+	.beam_y_i                  (raster_y),
 
-	.bg0_csr_en_o           (bg_csr_en[0]),
-	.bg0_csr_pixmode_o      (bg_csr_pixmode[0]),
-	.bg0_csr_transparency_o (bg_csr_transparency[0]),
-	.bg0_csr_tilesize_o     (bg_csr_tilesize[0]),
-	.bg0_csr_pfwidth_o      (bg_csr_pfwidth[0]),
-	.bg0_csr_pfheight_o     (bg_csr_pfheight[0]),
-	.bg0_csr_paloffs_o      (bg_csr_paloffs[0]),
-	.bg0_csr_flush_o        (bg_csr_flush[0]),
-	.bg0_scroll_y_o         (bg_scroll_y[0]),
-	.bg0_scroll_x_o         (bg_scroll_x[0]),
-	.bg0_tsbase_o           (bg_tsbase[0]),
-	.bg0_tmbase_o           (bg_tmbase[0]),
+	.concat_bg_en_o            (bg_csr_en),
+	.concat_bg_pixmode_o       (bg_csr_pixmode),
+	.concat_bg_transparency_o  (bg_csr_transparency),
+	.concat_bg_tilesize_o      (bg_csr_tilesize),
+	.concat_bg_pfwidth_o       (bg_csr_pfwidth),
+	.concat_bg_pfheight_o      (bg_csr_pfheight),
+	.concat_bg_paloffs_o       (bg_csr_paloffs),
+	.concat_bg_flush_o         (bg_csr_flush),
+	.concat_bg_scroll_y_o      (bg_scroll_y),
+	.concat_bg_scroll_x_o      (bg_scroll_x),
+	.concat_bg_tsbase_o        (bg_tsbase),
+	.concat_bg_tmbase_o        (bg_tmbase),
 
-	.bg1_csr_en_o           (bg_csr_en[1]),
-	.bg1_csr_pixmode_o      (bg_csr_pixmode[1]),
-	.bg1_csr_transparency_o (bg_csr_transparency[1]),
-	.bg1_csr_tilesize_o     (bg_csr_tilesize[1]),
-	.bg1_csr_pfwidth_o      (bg_csr_pfwidth[1]),
-	.bg1_csr_pfheight_o     (bg_csr_pfheight[1]),
-	.bg1_csr_paloffs_o      (bg_csr_paloffs[1]),
-	.bg1_csr_flush_o        (bg_csr_flush[1]),
-	.bg1_scroll_y_o         (bg_scroll_y[1]),
-	.bg1_scroll_x_o         (bg_scroll_x[1]),
-	.bg1_tsbase_o           (bg_tsbase[1]),
-	.bg1_tmbase_o           (bg_tmbase[1]),
-
-	.lcd_pxfifo_o           (pxfifo_direct_wdata),
-	.lcd_pxfifo_wen         (pxfifo_direct_wen),
-	.lcd_csr_pxfifo_empty_i (pxfifo_wempty),
-	.lcd_csr_pxfifo_full_i  (pxfifo_wfull),
-	.lcd_csr_pxfifo_level_i (pxfifo_wlevel & 6'h0),
-	.lcd_csr_lcd_cs_o       (lcd_cs),
-	.lcd_csr_lcd_dc_o       (lcd_dc),
-	.lcd_csr_lcd_shiftcnt_o (lcdctrl_shamt),
-	.lcd_csr_tx_busy_i      (lcdctrl_busy)
+	.lcd_pxfifo_o              (pxfifo_direct_wdata),
+	.lcd_pxfifo_wen            (pxfifo_direct_wen),
+	.lcd_csr_pxfifo_empty_i    (pxfifo_wempty),
+	.lcd_csr_pxfifo_full_i     (pxfifo_wfull),
+	.lcd_csr_pxfifo_level_i    (pxfifo_wlevel & 6'h0),
+	.lcd_csr_lcd_cs_o          (lcd_cs),
+	.lcd_csr_lcd_dc_o          (lcd_dc),
+	.lcd_csr_lcd_shiftcnt_o    (lcdctrl_shamt),
+	.lcd_csr_tx_busy_i         (lcdctrl_busy)
 );
 
 // ----------------------------------------------------------------------------
@@ -283,7 +270,7 @@ riscboy_ppu_palette_mapper #(
 	.in_paletted (blend_out_paletted),
 
 	.pram_waddr  (apbs_paddr[8:1]),
-	.pram_wdata  (apbs_pwdata[15:0]),
+	.pram_wdata  (apbs_pwdata[W_PIXDATA-1:0]),
 	.pram_wen    (apbs_psel && apbs_penable && apbs_pwrite && apbs_paddr[11]),
 
 	.out_vld     (pmap_out_vld),
@@ -300,80 +287,46 @@ wire [1:0]        bg_bus_size [0:N_BACKGROUND-1];
 wire [W_DATA-1:0] bg_bus_data [0:N_BACKGROUND-1];
 wire              bg_bus_rdy  [0:N_BACKGROUND-1];
 
-// FIXME this should be a generate or a module array, but first we need to
-// solve having parameterised numbers of ports on a regblock
+genvar bg;
+generate
+for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin
+	riscboy_ppu_background #(
+		.W_COORD           (W_COORD),
+		.W_OUTDATA         (W_PIXDATA),
+		.W_ADDR            (W_ADDR),
+		.W_DATA            (W_DATA)
+	) bg0 (
+		.clk                (clk_ppu),
+		.rst_n              (rst_n_ppu),
+		.en                 (bg_csr_en[bg]),
+		.flush              (hsync || bg_csr_flush[bg]),
+		.beam_x             (raster_x),
+		.beam_y             (raster_y),
 
-riscboy_ppu_background #(
-	.W_COORD           (W_COORD),
-	.W_OUTDATA         (W_PIXDATA),
-	.W_ADDR            (W_ADDR),
-	.W_DATA            (W_DATA)
-) bg0 (
-	.clk                (clk_ppu),
-	.rst_n              (rst_n_ppu),
-	.en                 (bg_csr_en[0]),
-	.flush              (hsync || bg_csr_flush[0]),
-	.beam_x             (raster_x),
-	.beam_y             (raster_y),
+		.bus_vld            (bg_bus_vld[bg]),
+		.bus_addr           (bg_bus_addr[bg]),
+		.bus_size           (bg_bus_size[bg]),
+		.bus_rdy            (bg_bus_rdy[bg]),
+		.bus_data           (bg_bus_data[bg]),
 
-	.bus_vld            (bg_bus_vld[0]),
-	.bus_addr           (bg_bus_addr[0]),
-	.bus_size           (bg_bus_size[0]),
-	.bus_rdy            (bg_bus_rdy[0]),
-	.bus_data           (bg_bus_data[0]),
+		.cfg_scroll_x       (bg_scroll_x[bg * W_COORD +: W_COORD]),
+		.cfg_scroll_y       (bg_scroll_y[bg * W_COORD +: W_COORD]),
+		.cfg_log_w          (bg_csr_pfwidth[bg * 4 +: 4]),
+		.cfg_log_h          (bg_csr_pfheight[bg * 4 +: 4]),
+		.cfg_tileset_base   ({bg_tsbase[bg * 24 +: 24], 8'h0}),
+		.cfg_tilemap_base   ({bg_tmbase[bg * 24 +: 24], 8'h0}),
+		.cfg_tile_size      (bg_csr_tilesize[bg]),
+		.cfg_pixel_mode     (bg_csr_pixmode[bg * W_PIXMODE +: W_PIXMODE]),
+		.cfg_transparency   (bg_csr_transparency[bg]),
+		.cfg_palette_offset (bg_csr_paloffs[bg * 4 +: 4]),
 
-	.cfg_scroll_x       (bg_scroll_x[0]),
-	.cfg_scroll_y       (bg_scroll_y[0]),
-	.cfg_log_w          (bg_csr_pfwidth[0]),
-	.cfg_log_h          (bg_csr_pfheight[0]),
-	.cfg_tileset_base   ({bg_tsbase[0], 8'h0}),
-	.cfg_tilemap_base   ({bg_tmbase[0], 8'h0}),
-	.cfg_tile_size      (bg_csr_tilesize[0]),
-	.cfg_pixel_mode     (bg_csr_pixmode[0]),
-	.cfg_transparency   (bg_csr_transparency[0]),
-	.cfg_palette_offset (bg_csr_paloffs[0]),
-
-	.out_vld            (bg_blend_vld[0]),
-	.out_rdy            (bg_blend_rdy[0]),
-	.out_alpha          (bg_blend_alpha[0]),
-	.out_pixdata        (bg_blend_pixdata[0])
-);
-
-riscboy_ppu_background #(
-	.W_COORD           (W_COORD),
-	.W_OUTDATA         (W_PIXDATA),
-	.W_ADDR            (W_ADDR),
-	.W_DATA            (W_DATA)
-) bg1 (
-	.clk                (clk_ppu),
-	.rst_n              (rst_n_ppu),
-	.en                 (bg_csr_en[1]),
-	.flush              (hsync || bg_csr_flush[1]),
-	.beam_x             (raster_x),
-	.beam_y             (raster_y),
-
-	.bus_vld            (bg_bus_vld[1]),
-	.bus_addr           (bg_bus_addr[1]),
-	.bus_size           (bg_bus_size[1]),
-	.bus_rdy            (bg_bus_rdy[1]),
-	.bus_data           (bg_bus_data[1]),
-
-	.cfg_scroll_x       (bg_scroll_x[1]),
-	.cfg_scroll_y       (bg_scroll_y[1]),
-	.cfg_log_w          (bg_csr_pfwidth[1]),
-	.cfg_log_h          (bg_csr_pfheight[1]),
-	.cfg_tileset_base   ({bg_tsbase[1], 8'h0}),
-	.cfg_tilemap_base   ({bg_tmbase[1], 8'h0}),
-	.cfg_tile_size      (bg_csr_tilesize[1]),
-	.cfg_pixel_mode     (bg_csr_pixmode[1]),
-	.cfg_transparency   (bg_csr_transparency[1]),
-	.cfg_palette_offset (bg_csr_paloffs[1]),
-
-	.out_vld            (bg_blend_vld[1]),
-	.out_rdy            (bg_blend_rdy[1]),
-	.out_alpha          (bg_blend_alpha[1]),
-	.out_pixdata        (bg_blend_pixdata[1])
-);
+		.out_vld            (bg_blend_vld[bg]),
+		.out_rdy            (bg_blend_rdy[bg]),
+		.out_alpha          (bg_blend_alpha[bg]),
+		.out_pixdata        (bg_blend_pixdata[bg])
+	);
+end
+endgenerate
 
 // ----------------------------------------------------------------------------
 // LCD shifter and clock crossing
