@@ -5,6 +5,7 @@
 import argparse
 import re
 import sys
+import textwrap
 import yaml
 from collections import OrderedDict
 from math import log2, ceil
@@ -207,7 +208,9 @@ def c_block_comment(lines, width=80, align="<"):
 	return blines
 
 def c_line_comment(line):
-	return "// {}".format(line.strip())
+	if not hasattr(c_line_comment, "wrap"):
+		c_line_comment.wrap = textwrap.TextWrapper(width=80, initial_indent="// ", subsequent_indent="// ")
+	return "\n".join(c_line_comment.wrap.wrap(line.strip()))
 
 class Verilog:
 	def __init__(self):
