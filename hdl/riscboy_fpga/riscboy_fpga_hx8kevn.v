@@ -86,7 +86,7 @@ riscboy_core #(
 
 	.padout      (padout),
 	.padoe       (padoe),
-	.padin       (padin),
+	.padin       (padin)
 );
 
 // GPIO

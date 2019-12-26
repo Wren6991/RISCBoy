@@ -6,8 +6,8 @@ set_io led        B3
 set_io uart_tx    A2 # Pin 1
 set_io uart_rx    A1 # Pin 2
 
-set_io lcd_scl    B1 # Pin 3
-set_io lcd_sdo    C2 # Pin 4
+set_io lcd_sclk   B1 # Pin 3
+set_io lcd_mosi   C2 # Pin 4
 set_io lcd_cs     C1 # Pin 5
 set_io lcd_dc     D2 # Pin 6
 set_io lcd_pwm    D1 # Pin 7
