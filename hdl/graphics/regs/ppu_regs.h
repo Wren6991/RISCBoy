@@ -141,11 +141,6 @@
 #define PPU_BG0_CSR_PALOFFS_LSB  16
 #define PPU_BG0_CSR_PALOFFS_BITS 4
 #define PPU_BG0_CSR_PALOFFS_MASK 0xf0000
-// Field BG0_CSR_FLUSH
-// flush background hardware and re-register all config state (temporary, will be automated)
-#define PPU_BG0_CSR_FLUSH_LSB  31
-#define PPU_BG0_CSR_FLUSH_BITS 1
-#define PPU_BG0_CSR_FLUSH_MASK 0x80000000
 
 /*******************************************************************************
 *                                  BG0_SCROLL                                  *
@@ -223,11 +218,6 @@
 #define PPU_BG1_CSR_PALOFFS_LSB  16
 #define PPU_BG1_CSR_PALOFFS_BITS 4
 #define PPU_BG1_CSR_PALOFFS_MASK 0xf0000
-// Field BG1_CSR_FLUSH
-// flush background hardware and re-register all config state (temporary, will be automated)
-#define PPU_BG1_CSR_FLUSH_LSB  31
-#define PPU_BG1_CSR_FLUSH_BITS 1
-#define PPU_BG1_CSR_FLUSH_MASK 0x80000000
 
 /*******************************************************************************
 *                                  BG1_SCROLL                                  *

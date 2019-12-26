@@ -53,10 +53,9 @@ int main()
 	*PPU_BG0_TSBASE = (uint32_t)tileset;
 	*PPU_BG0_CSR =
 		(1u << PPU_BG0_CSR_EN_LSB) |
-		(7u << PPU_BG0_CSR_PFWIDTH_LSB) | // 256 px wide
+		(7u << PPU_BG0_CSR_PFWIDTH_LSB) |  // 256 px wide
 		(7u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
-		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
-		(1u << PPU_BG0_CSR_FLUSH_LSB);
+		(1u << PPU_BG0_CSR_TILESIZE_LSB);  // 16x16 pixel tiles
 
 	unsigned int scroll_x = 0;
 	unsigned int scroll_y = 0;

@@ -104,7 +104,7 @@ wire [N_BACKGROUND-1:0]             bg_csr_tilesize;
 wire [N_BACKGROUND*W_LOG_COORD-1:0] bg_csr_pfwidth;
 wire [N_BACKGROUND*W_LOG_COORD-1:0] bg_csr_pfheight;
 wire [N_BACKGROUND*4-1:0]           bg_csr_paloffs;
-wire [N_BACKGROUND-1:0]             bg_csr_flush;
+wire [N_BACKGROUND-1:0]             bg_flush;
 wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_y;
 wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_x;
 wire [N_BACKGROUND*24-1:0]          bg_tsbase;
@@ -153,7 +153,6 @@ ppu_regs regs (
 	.concat_bg_pfwidth_o       (bg_csr_pfwidth),
 	.concat_bg_pfheight_o      (bg_csr_pfheight),
 	.concat_bg_paloffs_o       (bg_csr_paloffs),
-	.concat_bg_flush_o         (bg_csr_flush),
 	.concat_bg_scroll_y_o      (bg_scroll_y),
 	.concat_bg_scroll_x_o      (bg_scroll_x),
 	.concat_bg_tsbase_o        (bg_tsbase),
@@ -167,7 +166,9 @@ ppu_regs regs (
 	.lcd_csr_lcd_cs_o          (lcd_cs),
 	.lcd_csr_lcd_dc_o          (lcd_dc),
 	.lcd_csr_lcd_shiftcnt_o    (lcdctrl_shamt),
-	.lcd_csr_tx_busy_i         (lcdctrl_busy)
+	.lcd_csr_tx_busy_i         (lcdctrl_busy),
+
+	.wstrobe_bg_flush          (bg_flush),
 );
 
 // ----------------------------------------------------------------------------
@@ -299,7 +300,7 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin
 		.clk                (clk_ppu),
 		.rst_n              (rst_n_ppu),
 		.en                 (bg_csr_en[bg]),
-		.flush              (hsync || bg_csr_flush[bg]),
+		.flush              (hsync || bg_flush[bg]),
 		.beam_x             (raster_x),
 		.beam_y             (raster_y),
 

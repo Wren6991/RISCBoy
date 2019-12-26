@@ -32,6 +32,7 @@ regs:
   - generate: |
       for bg in range(N_BACKGROUND):
         _('- name: bg{}_csr'.format(bg))
+        _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Control and status register for BG{}.'.format(bg))
         _('  bits: ')
         _('    - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender", concat: bg_en}')
@@ -41,17 +42,19 @@ regs:
         _('    - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels.", concat: bg_pfwidth}')
         _('    - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels.", concat: bg_pfheight}')
         _('    - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes.", concat: bg_paloffs}')
-        _('    - {b: 31, name: flush, access: sc, info: "flush background hardware and re-register all config state (temporary, will be automated)", concat: bg_flush}')
         _('- name: bg{}_scroll'.format(bg))
+        _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Scroll the screen within the playfield')
         _('  bits:')
         _('    - {b: [16 + W_COORD - 1, 16], name: y, access: rw, concat: bg_scroll_y}')
         _('    - {b: [W_COORD - 1, 0], name: x, access: rw, concat: bg_scroll_x}')
         _('- name: bg{}_tsbase'.format(bg))
+        _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Base address for BG{} tileset. Tileset must be naturally aligned.'.format(bg))
         _('  bits:')
         _('    - {b: [31, 8], access: rw, concat: bg_tsbase}')
         _('- name: bg{}_tmbase'.format(bg))
+        _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Base address for BG{} tilemap. Tilemap must be naturally aligned.'.format(bg))
         _('  bits:')
         _('    - {b: [31, 8], access: rw, concat: bg_tmbase}')
@@ -70,7 +73,6 @@ regs:
       - {b: 9,        name: lcd_dc,       access: rw}
       - {b: 10,       name: tx_busy,      access: rov}
       - {b: [20, 16], name: lcd_shiftcnt, access: rw}
-
   - name: ints
     info: Status of interrupt sources. Each source is write-1-clear.
     bits:

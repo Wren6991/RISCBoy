@@ -32,8 +32,7 @@ int main()
 		(9u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
 		(8u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 512 px high
 		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
-		(PPU_PIXMODE_PAL8 << PPU_BG0_CSR_PIXMODE_LSB) |
-		(1u << PPU_BG0_CSR_FLUSH_LSB);
+		(PPU_PIXMODE_PAL8 << PPU_BG0_CSR_PIXMODE_LSB);
 
 	for (int i = 0; i < ZELDA_MINI_PALETTE_SIZE; ++i)
 		PPU_PALETTE_RAM[i] = ((const uint16_t *)zelda_tileset_mini_pal8_palette)[i];

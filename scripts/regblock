@@ -2,9 +2,10 @@
 
 # Regblock generation script
 
+import argparse
+import re
 import sys
 import yaml
-import argparse
 from collections import OrderedDict
 from math import log2, ceil
 
@@ -55,7 +56,7 @@ class RegBlock:
 				reglist.extend(newregs)
 		# Then process the expanded reglist
 		for rspec in reglist:
-			reg = Register(rspec["name"], rb.w_data, rspec["info"] if "info" in rspec else None)
+			reg = Register(rspec["name"], rb.w_data, rspec["info"] if "info" in rspec else None, rspec["wstb"] if "wstb" in rspec else None)
 			rb.add(reg)
 			for fspec in rspec["bits"]:
 				for key in fspec:
@@ -82,13 +83,14 @@ class RegBlock:
 		visitor.post(self)
 
 class Register:
-	def __init__(self, name, width, info):
+	def __init__(self, name, width, info, wstrobe=None):
 		assert(width > 0)
 		self.name = name
 		self.width = width
 		self.info = info
 		self.occupancy = [None] * width
 		self.fields = OrderedDict()
+		self.wstrobe = wstrobe
 
 	def add(self, field):
 		if field.lsb >= self.width or field.msb >= self.width or field.lsb < 0 or field.msb < 0:
@@ -258,6 +260,7 @@ class VerilogWriter(RegBlockVisitor):
 		self.v = Verilog()
 		self.regname = None
 		self.concat = OrderedDict()
+		self.wstrobe = OrderedDict()
 
 	def pre_regblock(self, rb):
 		v = self.v
@@ -312,6 +315,22 @@ class VerilogWriter(RegBlockVisitor):
 			width = sum(f[0] for f in conns)
 			self.v.ports.append("output wire [{}:0] {}".format(width - 1, concat_name))
 			self.v.decls.append("assign {} = {{{}}};".format(concat_name, ", ".join(f[1] for f in reversed(conns))))
+		max_strobe_index = OrderedDict()
+		for name, conns in self.wstrobe.items():
+			self.v.logic_rst.append("wstrobe_{} <= 1'b0;".format(name))
+			self.v.logic_clk.append("wstrobe_{} <= {};".format(name, " || ".join(
+				"__{}_wen".format(conn) for conn in conns)))
+			if name.endswith("]"):
+				shortname = name.split("[")[0]
+				idx = int(name.split("[")[-1][:-1])
+				if shortname in max_strobe_index:
+					max_strobe_index[shortname] = max(max_strobe_index[shortname], idx)
+				else:
+					max_strobe_index[shortname] = idx
+			else:
+				self.v.ports.append("output reg wstrobe_{}".format(name))
+		for name, max_idx in max_strobe_index.items():
+			self.v.ports.append("output reg [{}:0] wstrobe_{}".format(max_idx, name))
 
 	def pre_register(self, reg):
 		v = self.v
@@ -338,6 +357,11 @@ class VerilogWriter(RegBlockVisitor):
 			v.decls.append("wire {} {}_wdata = wdata{};".format(field.width_decl, field.fullname, index))
 			v.decls.append("wire {} {}_rdata;".format(field.width_decl, field.fullname))
 		v.decls.append("wire {} __{}_rdata = {{{}}};".format(width2str(reg.width), reg.name, ", ".join(rdata_conns)))
+
+		if reg.wstrobe is not None:
+			if not reg.wstrobe in self.wstrobe:
+				self.wstrobe[reg.wstrobe] = []
+			self.wstrobe[reg.wstrobe].append(reg.name)
 
 	def post_register(self, reg):
 		pass
