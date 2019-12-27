@@ -58,11 +58,34 @@ regs:
         _('  info: Base address for BG{} tilemap. Tilemap must be naturally aligned.'.format(bg))
         _('  bits:')
         _('    - {b: [31, 8], access: rw, concat: bg_tmbase}')
+  - name: sp_csr
+    info: "Global settings for all sprites"
+    bits:
+      - {b: [3, 1], name: pixmode, access: rw}
+      - {b: 5, name: tilesize, access: rw, info: "0 -> all sprites are 8x8 px. 1 -> all are 16x16 px."}
+  - name: sp_tmbase
+    info: "Pointer to tilemap used for sprite images"
+    bits:
+      - {b: [31, 8], access: rw}
+  - generate: |
+      for sp in range(N_SPRITE):
+        _('- name: sp{}_csr'.format(sp))
+        _('  info: Control and status register for sprite {}'.format(sp))
+        _('  wstb: "sp_flush[{}]"'.format(sp))
+        _('  bits:')
+        _('    - {b: 0, name: en, access: rw, info: "If not enabled, sprite becomes fully transparent", concat: sp_en}')
+        _('    - {b: [15, 8], name: tile, access: rw, info: "Select tile from sprite tilemap for this sprite", concat: sp_tile}')
+        _('    - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted", concat: sp_paloffs}')
+        _('- name: sp{}_pos'.format(sp))
+        _('  info: Position of sprite {}'.format(sp))
+        _('  wstb: "sp_flush[{}]"'.format(sp))
+        _('  bits:')
+        _('    - {b: [W_COORD - 1, 0], name: x, access: rw, info: "X position of sprite. The hardware adjusts this downward by one sprite width, so a value of 0 means fully off left of screen.", concat: sp_pos_x}')
+        _('    - {b: [W_COORD - 1 + 16, 16], name: y, access: rw, info: "Y position of sprite. The hardware adjusts this downward by one sprite height, so a value of 0 means fully above screen.", concat: sp_pos_y}')
   - name: lcd_pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
     bits:
       - {b: [15, 0], access: wf}
-
   - name: lcd_csr
     info: Control and status register for the LCD interface
     bits:

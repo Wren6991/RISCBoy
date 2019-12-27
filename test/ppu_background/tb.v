@@ -29,6 +29,7 @@ reg  [W_ADDR-1:0]        cfg_tileset_base;
 reg  [W_ADDR-1:0]        cfg_tilemap_base;
 reg                      cfg_tile_size;
 reg  [2:0]               cfg_pixel_mode;
+reg  [3:0]               cfg_palette_offset;
 reg                      cfg_transparency;
 reg                      out_rdy;
 
@@ -66,6 +67,7 @@ riscboy_ppu_background #(
 	.cfg_tile_size         (cfg_tile_size),
 	.cfg_pixel_mode        (cfg_pixel_mode),
 	.cfg_transparency      (cfg_transparency),
+	.cfg_palette_offset    (cfg_palette_offset),
 	.out_vld               (out_vld),
 	.out_rdy               (out_rdy),
 	.out_alpha             (out_alpha),
@@ -135,6 +137,7 @@ initial begin: stimulus
 	cfg_tile_size = 0;
 	cfg_pixel_mode = 0;
 	cfg_transparency = 0;
+	cfg_palette_offset = 0;
 	out_rdy = 0;
 
 	for (i = 0; i < MEM_SIZE_BYTES; i = i + 1)

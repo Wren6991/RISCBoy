@@ -168,7 +168,7 @@ ppu_regs regs (
 	.lcd_csr_lcd_shiftcnt_o    (lcdctrl_shamt),
 	.lcd_csr_tx_busy_i         (lcdctrl_busy),
 
-	.wstrobe_bg_flush          (bg_flush),
+	.wstrobe_bg_flush          (bg_flush)
 );
 
 // ----------------------------------------------------------------------------
@@ -290,13 +290,13 @@ wire              bg_bus_rdy  [0:N_BACKGROUND-1];
 
 genvar bg;
 generate
-for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin
+for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 	riscboy_ppu_background #(
 		.W_COORD           (W_COORD),
 		.W_OUTDATA         (W_PIXDATA),
 		.W_ADDR            (W_ADDR),
 		.W_DATA            (W_DATA)
-	) bg0 (
+	) bg (
 		.clk                (clk_ppu),
 		.rst_n              (rst_n_ppu),
 		.en                 (bg_csr_en[bg]),

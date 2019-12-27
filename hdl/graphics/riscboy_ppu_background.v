@@ -22,7 +22,6 @@ module riscboy_ppu_background #(
 	parameter W_DATA = 32,
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),
-	parameter W_SHAMT = $clog2(W_SHIFTCTR + 1),
 	parameter W_LOG_COORD = $clog2(W_COORD),
 	parameter BUS_SIZE_MAX = $clog2(W_DATA) - 3
 ) (
@@ -95,106 +94,44 @@ wire [2:0] tile_log_size = cfg_tile_size ? 3'h4 : 3'h3;
 
 localparam W_PIX_MAX = W_OUTDATA + 1;
 
-wire [W_PIX_MAX-1:0]  shift_out;
-reg  [W_SHIFTCTR-1:0] shift_ctr;
-wire [W_SHIFTCTR-1:0] shift_ctr_next;
-wire                  shift_ctr_carryout;
-wire [W_SHIFTCTR-1:0] shift_increment;
-assign {shift_ctr_carryout, shift_ctr_next} = shift_ctr + shift_increment;
+reg tile_empty;
 
-wire pixel_load_rdy;
-
-// Seek: rapid log-time shift through the bus data when getting back into
-// steady state after flush.
-reg                   tile_empty;
-reg                   shift_empty;
-reg                   shift_seeking;
 wire [W_SHIFTCTR-1:0] shift_seek_target = u[W_SHIFTCTR-1:0] << pixel_log_size;
+wire                  shifter_flush_unaligned = |{u_flushval[W_SHIFTCTR-1:0] << pixel_log_size};
+wire                  pixel_load_req;
+wire [W_PIX_MAX-1:0]  pixel_data;
+wire                  pixel_alpha;
+wire                  pixel_vld;
+wire                  pixel_rdy = out_rdy;
 
-wire [W_SHAMT-1:0]    shamt;
-wire                  shift_en = (shift_seeking && !shift_empty) || (out_vld && out_rdy);
-
-// To seek, we shift by the highest bit-weight first, to maintain the
-// invariant that total shift count is aligned on a boundary of next shift
-// amount
-wire [W_SHIFTCTR-1:0] seek_shamt;
-wire seek_end = (shift_ctr | seek_shamt) == shift_seek_target;
-
-onehot_priority #(
-	.W_INPUT(W_SHIFTCTR),
-	.HIGHEST_WINS (1)
-) seek_order_u (
-	.in  (shift_ctr ^ shift_seek_target),
-	.out (seek_shamt)
-);
-
-assign shift_increment = shift_seeking ? seek_shamt : pixel_size_bits;
-
-onehot_encoder #(
-	.W_INPUT(W_SHIFTCTR)
-) shamt_encoder (
-	.in  (shift_ctr_next & ~shift_ctr),
-	.out (shamt)
-);
-
-riscboy_ppu_pixel_gearbox #(
+riscboy_ppu_pixel_streamer #(
 	.W_DATA(W_DATA),
-	.W_PIX_MIN(1),
 	.W_PIX_MAX(W_PIX_MAX)
-) gearbox_u (
-	.clk     (clk),
-	.rst_n   (rst_n),
-	.din     (bus_data),
-	.din_vld (pixel_load_rdy),
-	.shamt   ((shamt + {{W_SHAMT-1{1'b0}}, 1'b1}) & {W_SHAMT{shift_en}}),
-	.dout    (shift_out)
+) streamer (
+	.clk               (clk),
+	.rst_n             (rst_n),
+
+	.flush             (flush || tile_empty),
+	.flush_unaligned   (shifter_flush_unaligned),
+	.shift_seek_target (shift_seek_target),
+	.pixel_mode        (cfg_pixel_mode),
+	.palette_offset    (cfg_palette_offset),
+
+	.load_req          (pixel_load_req),
+	.load_ack          (pixel_load_rdy),
+	.load_data         (bus_data),
+
+	.out_data          (pixel_data),
+	.out_alpha         (pixel_alpha),
+	.out_vld           (pixel_vld),
+	.out_rdy           (pixel_rdy)
 );
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		shift_ctr <= {W_SHIFTCTR{1'b0}};
-		shift_seeking <= 1'b0;
-		shift_empty <= 1'b1;
-	end else if (flush || tile_empty) begin
-		shift_ctr <= {W_SHIFTCTR{1'b0}};
-		shift_seeking <= |{u_flushval[W_SHIFTCTR-1:0] << pixel_log_size};
-		shift_empty <= 1'b1;
-	end else if (!shift_empty) begin
-		shift_empty <= shift_en && shift_ctr_carryout;
-		if (shift_en) begin
-			shift_seeking <= shift_seeking && !seek_end;
-			shift_ctr <= shift_ctr_next;
-		end
-	end else begin
-		shift_empty <= !pixel_load_rdy;
-	end
-end
-
-wire [7:0] palette_mask =
-	cfg_pixel_mode == PIXMODE_PAL1 ? 8'h1 :
-	cfg_pixel_mode == PIXMODE_PAL2 ? 8'h3 :
-	cfg_pixel_mode == PIXMODE_PAL4 ? 8'hf : 8'hff;
-
-wire [W_PIX_MAX-1:0] pixdata_masked = {
-	shift_out[W_PIX_MAX-1:8],
-	shift_out[7:0] & palette_mask
-};
-
-wire [W_PIX_MAX-1:0] pixdata_masked_offset = {
-	pixdata_masked[W_PIX_MAX-1:8],
-	pixdata_masked[7:0] | {cfg_palette_offset, 4'h0}
-};
-
-wire pixel_alpha =
-	cfg_pixel_mode == PIXMODE_ARGB1555 ? shift_out[15] :
-	cfg_pixel_mode == PIXMODE_ARGB1232 ? shift_out[7]  :
-	                                    |pixdata_masked[7:0];
 
 // When not enabled, continuously output transparency so that we don't hold up the blender
-assign out_vld = !en || !(shift_empty || shift_seeking || flush || tile_empty);
+assign out_vld = !en || !(!pixel_vld || flush || tile_empty);
 assign out_alpha = en && (!cfg_transparency || pixel_alpha);
-assign out_pixdata = pixdata_masked_offset[0 +: W_OUTDATA];
-wire out_paletted = MODE_IS_PALETTED(cfg_pixel_mode);
+assign out_pixdata = pixel_data[0 +: W_OUTDATA];
 
 // ----------------------------------------------------------------------------
 // Tile bookkeeping
@@ -253,7 +190,7 @@ reg bus_dphase_dirty;
 
 assign bus_addr = tile_empty ? tile_addr : pixel_addr;
 assign bus_size = tile_empty ? 2'b00 : BUS_SIZE_MAX;
-assign bus_vld = ((tile_empty || shift_empty) && en) || bus_dphase_dirty;
+assign bus_vld = ((tile_empty || pixel_load_req) && en) || bus_dphase_dirty;
 
 assign pixel_load_rdy = bus_rdy && !bus_dphase_dirty && !tile_empty;
 assign tile_load_rdy = bus_rdy && !bus_dphase_dirty && tile_empty;
