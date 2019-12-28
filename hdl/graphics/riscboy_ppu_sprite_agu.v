@@ -128,7 +128,7 @@ onehot_mux #(
 	.N_INPUTS (N_SPRITE),
 	.W_INPUT  (5)
 ) mux_bus_postcount (
-	.in  (sprite_x_postcount),
+	.in  (sprite_bus_postcount),
 	.sel (sprite_bus_gnt),
 	.out (bus_chosen_postcount)
 );
@@ -149,6 +149,8 @@ wire [W_ADDR-1:0] idx_of_pixel_in_tileset = cfg_sprite_tilesize ?
 	{{W_ADDR-14{1'b0}}, bus_chosen_tile, bus_pixel_v[2:0], bus_pixel_v[2:0]};
 
 assign bus_addr = ({cfg_sprite_tmbase, 8'h0} | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
+assign bus_size = BUS_SIZE_MAX[2:0];
+assign bus_vld = |sprite_bus_gnt;
 
 assign sprite_bus_rdy = sprite_bus_gnt_reg & {N_SPRITE{bus_rdy}};
 assign sprite_bus_data = bus_data;

@@ -5,7 +5,7 @@ data: 32
 params:
   W_COORD: 10
   N_BACKGROUND: 2
-  N_SPRITE: 8
+  N_SPRITE: 4
 regs:
   - name: csr
     info: PPU control and status register

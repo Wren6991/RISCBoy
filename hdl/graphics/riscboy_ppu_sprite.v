@@ -40,7 +40,9 @@ reg                  active_this_scanline;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		need_agu_resp <= 1'b0
+		need_agu_resp <= 1'b0;
+		shift_seek_target <= {W_SHIFTCTR{1'b0}};
+		active_this_scanline <= 1'b0;
 	end else if (flush) begin
 		need_agu_resp <= 1'b1;
 	end else if (agu_ack) begin
@@ -95,7 +97,7 @@ riscboy_ppu_pixel_streamer #(
 
 	.shift_seek_target (shift_seek_target),
 	.pixel_mode        (cfg_pixel_mode),
-	.palette_offset    (cfg_palette_offset),
+	.palette_offset    (cfg_palette_offs),
 
 	.load_req          (pixel_load_req),
 	.load_ack          (pixel_load_ack),
@@ -108,7 +110,7 @@ riscboy_ppu_pixel_streamer #(
 );
 
 assign out_pixdata = pixel_data[0 +: W_OUTDATA];
-assign out_alpha = !en && pixel_alpha;
+assign out_alpha = en && pixel_alpha;
 
 wire beam_outside_sprite = ~|x_postcount || |x_precount;
 assign out_vld = !en || (!need_agu_resp && !flush && (
@@ -128,5 +130,6 @@ end
 
 assign bus_vld = bus_dphase_dirty || (pixel_load_req && |x_postcount && active_this_scanline && !need_agu_resp);
 assign pixel_load_ack = bus_rdy && !bus_dphase_dirty;
+assign bus_postcount = x_postcount;
 
 endmodule

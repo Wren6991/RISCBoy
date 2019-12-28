@@ -111,7 +111,7 @@ wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_x;
 wire [N_BACKGROUND*24-1:0]          bg_tsbase;
 wire [N_BACKGROUND*24-1:0]          bg_tmbase;
 
-localparam N_SPRITE = 8;
+localparam N_SPRITE = 4;
 wire [N_SPRITE-1:0]           sprite_en;
 wire [N_SPRITE*8-1:0]         sprite_tile;
 wire [N_SPRITE*4-1:0]         sprite_paloffs;
@@ -280,11 +280,20 @@ endgenerate
 genvar g;
 generate
 for (g = 0; g < N_SPRITE + N_BACKGROUND; g = g + 1) begin: blend_input_hookup
-	assign blend_in_vld     [g * 1 +: 1]                   = g > N_BACKGROUND ? sp_blend_vld     [g - N_BACKGROUND] : bg_blend_vld     [g];
-	assign blend_in_alpha   [g * 1 +: 1]                   = g > N_BACKGROUND ? sp_blend_alpha   [g - N_BACKGROUND] : bg_blend_alpha   [g];
-	assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = g > N_BACKGROUND ? sp_blend_pixdata [g - N_BACKGROUND] : bg_blend_pixdata [g];
-	assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = g > N_BACKGROUND ? sp_blend_mode    [g - N_BACKGROUND] : bg_blend_mode    [g];
-	assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = g > N_BACKGROUND ? sp_blend_layer   [g - N_BACKGROUND] : bg_blend_layer   [g];
+	if (g < N_BACKGROUND) begin
+		assign blend_in_vld     [g * 1 +: 1]                   = bg_blend_vld     [g];
+		assign blend_in_alpha   [g * 1 +: 1]                   = bg_blend_alpha   [g];
+		assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = bg_blend_pixdata [g];
+		assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = bg_blend_mode    [g];
+		assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = bg_blend_layer   [g];
+	end else begin
+		assign blend_in_vld     [g * 1 +: 1]                   = sp_blend_vld     [g - N_BACKGROUND];
+		assign blend_in_alpha   [g * 1 +: 1]                   = sp_blend_alpha   [g - N_BACKGROUND];
+		assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = sp_blend_pixdata [g - N_BACKGROUND];
+		assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = sp_blend_mode    [g - N_BACKGROUND];
+		assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = sp_blend_layer   [g - N_BACKGROUND];
+
+	end
 end
 endgenerate
 
@@ -473,7 +482,7 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
 
 		.bus_vld               (sprite_bus_vld[sp]),
 		.bus_rdy               (sprite_bus_rdy[sp]),
-		.bus_postcount         (sprite_bus_postcount[5 * sp +: sp]),
+		.bus_postcount         (sprite_bus_postcount[sp * 5 +: 5]),
 		.bus_data              (sprite_bus_data),
 
 		.out_vld               (sp_blend_vld[sp]),
@@ -557,21 +566,48 @@ riscboy_ppu_dispctrl #(
 // ----------------------------------------------------------------------------
 // AHB-lite busmaster
 
+localparam N_BUS_REQ = N_BACKGROUND + 1;
+
+wire [N_BUS_REQ-1:0]        bus_req_vld;
+wire [N_BUS_REQ*W_ADDR-1:0] bus_req_addr;
+wire [N_BUS_REQ*2-1:0]      bus_req_size;
+wire [N_BUS_REQ-1:0]        bus_req_rdy;
+wire [N_BUS_REQ*W_DATA-1:0] bus_req_data;
+
+genvar req;
+generate
+for (req = 0; req < N_BUS_REQ; req = req + 1) begin: bus_req_hookup
+	if (req < N_BACKGROUND) begin
+		assign bus_req_vld [req]                    = bg_bus_vld[req];
+		assign bus_req_addr[req * W_ADDR +: W_ADDR] = bg_bus_addr[req];
+		assign bus_req_size[req * 2 +: 2]           = bg_bus_size[req];
+		assign bg_bus_rdy  [req]                    = bus_req_rdy[req];
+		assign bg_bus_data [req]                    = bus_req_data[req * W_DATA +: W_DATA];
+	end else begin
+		assign bus_req_vld [req]                    = sagu_bus_vld;
+		assign bus_req_addr[req * W_ADDR +: W_ADDR] = sagu_bus_addr;
+		assign bus_req_size[req * 2 +: 2]           = sagu_bus_size;
+		assign sagu_bus_rdy                         = bus_req_rdy[req];
+		assign sagu_bus_data                        = bus_req_data[req * W_DATA +: W_DATA];
+	end
+end
+endgenerate
+
 riscboy_ppu_busmaster #(
-	.N_REQ(N_BACKGROUND),
-	.W_ADDR(W_ADDR),
-	.W_DATA(W_DATA)
+	.N_REQ  (N_BACKGROUND + 1),
+	.W_ADDR (W_ADDR),
+	.W_DATA (W_DATA)
 ) inst_riscboy_ppu_busmaster (
 	.clk             (clk_ppu),
 	.rst_n           (rst_n_ppu),
 
 	.ppu_running     (ppu_running),
 
-	.req_vld         ({sagu_bus_vld , bg_bus_vld [1], bg_bus_vld [0]}), // TODO stack up requests properly once we have more requesters
-	.req_addr        ({sagu_bus_addr, bg_bus_addr[1], bg_bus_addr[0]}),
-	.req_size        ({sagu_bus_size, bg_bus_size[1], bg_bus_size[0]}),
-	.req_rdy         ({sagu_bus_rdy , bg_bus_rdy [1], bg_bus_rdy [0]}),
-	.req_data        ({sagu_bus_data, bg_bus_data[1], bg_bus_data[0]}),
+	.req_vld         (bus_req_vld),
+	.req_addr        (bus_req_addr),
+	.req_size        (bus_req_size),
+	.req_rdy         (bus_req_rdy),
+	.req_data        (bus_req_data),
 
 	.ahblm_haddr     (ahblm_haddr),
 	.ahblm_hwrite    (ahblm_hwrite),
