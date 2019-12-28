@@ -113,7 +113,7 @@ class Register:
 
 
 class Field:
-	access_types = ["ro", "rov", "rw", "rf", "wf", "rwf", "sc", "w1c"]
+	access_types = ["ro", "rov", "wo", "rw", "rf", "wf", "rwf", "sc", "w1c"]
 	def __init__(self, name, msb, lsb, access, resetval=0, info="", concat=None, parent=None):
 		if lsb > msb:
 			raise Exception("Field width must be >= 0 in field {}".format(name))
@@ -377,7 +377,7 @@ class VerilogWriter(RegBlockVisitor):
 			v.ports.append("input wire {} {}_i".format(f.width_decl, fname))
 		if f.access in ["rov", "rf", "rwf"]:
 			v.decls.append("assign {}_rdata = {}_i;".format(fname, fname))
-		if f.access in ["rw", "wf", "rwf", "sc"]:
+		if f.access in ["wo", "rw", "wf", "rwf", "sc"]:
 			v.ports.append("output reg {} {}_o".format(f.width_decl, fname))
 		if f.access in ["wf", "rwf"]:
 			v.ports.append("output reg {}_wen".format(fname))
@@ -388,6 +388,7 @@ class VerilogWriter(RegBlockVisitor):
 			v.logic_comb.append("{}_ren = __{}_ren;".format(fname, rname))
 		if f.access in ["rw"]:
 			v.decls.append("assign {}_rdata = {}_o;".format(fname, fname))
+		if f.access in ["rw", "wo"]:
 			v.logic_rst.append("{}_o <= {}'h{:x};".format(fname, f.width, f.resetval))
 			v.logic_clk.append("if (__{}_wen)".format(rname))
 			v.logic_clk.append("\t{}_o <= {}_wdata;".format(fname, fname))
@@ -398,11 +399,11 @@ class VerilogWriter(RegBlockVisitor):
 			v.logic_clk.append("{0} <= ({0} && !(__{1}_wen && {0}_wdata)) || {0}_i;".format(fname, rname))
 		if f.access in ["sc"]:
 			v.logic_comb.append("{0}_o = {0}_wdata & {{{1}{{__{2}_wen}}}};".format(fname, f.width, rname))
-		if f.access in ["ro", "wf", "sc"]:
+		if f.access in ["ro", "wo", "wf", "sc"]:
 			v.decls.append("assign {}_rdata = {}'h{:x};".format(fname, f.width, f.resetval))
 
 		if f.concat is not None:
-			if not f.access in ["rw", "wf", "rwf", "sc"]:
+			if not f.access in ["wo", "rw", "wf", "rwf", "sc"]:
 				raise Exception("concat specified for port with no regblock output")
 			if not f.concat in self.concat:
 				self.concat[f.concat] = []

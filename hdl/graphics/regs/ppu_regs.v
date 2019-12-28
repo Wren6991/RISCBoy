@@ -231,8 +231,8 @@ wire [9:0] dispsize_w_rdata;
 wire [9:0] dispsize_h_wdata = wdata[25:16];
 wire [9:0] dispsize_h_rdata;
 wire [31:0] __dispsize_rdata = {6'h0, dispsize_h_rdata, 6'h0, dispsize_w_rdata};
-assign dispsize_w_rdata = dispsize_w_o;
-assign dispsize_h_rdata = dispsize_h_o;
+assign dispsize_w_rdata = 10'h0;
+assign dispsize_h_rdata = 10'h0;
 
 wire [14:0] default_bg_colour_wdata = wdata[14:0];
 wire [14:0] default_bg_colour_rdata;
@@ -275,18 +275,18 @@ wire [9:0] bg0_scroll_y_rdata;
 wire [9:0] bg0_scroll_x_wdata = wdata[9:0];
 wire [9:0] bg0_scroll_x_rdata;
 wire [31:0] __bg0_scroll_rdata = {6'h0, bg0_scroll_y_rdata, 6'h0, bg0_scroll_x_rdata};
-assign bg0_scroll_y_rdata = bg0_scroll_y_o;
-assign bg0_scroll_x_rdata = bg0_scroll_x_o;
+assign bg0_scroll_y_rdata = 10'h0;
+assign bg0_scroll_x_rdata = 10'h0;
 
 wire [23:0] bg0_tsbase_wdata = wdata[31:8];
 wire [23:0] bg0_tsbase_rdata;
 wire [31:0] __bg0_tsbase_rdata = {bg0_tsbase_rdata, 8'h0};
-assign bg0_tsbase_rdata = bg0_tsbase_o;
+assign bg0_tsbase_rdata = 24'h0;
 
 wire [23:0] bg0_tmbase_wdata = wdata[31:8];
 wire [23:0] bg0_tmbase_rdata;
 wire [31:0] __bg0_tmbase_rdata = {bg0_tmbase_rdata, 8'h0};
-assign bg0_tmbase_rdata = bg0_tmbase_o;
+assign bg0_tmbase_rdata = 24'h0;
 
 wire  bg1_csr_en_wdata = wdata[0];
 wire  bg1_csr_en_rdata;
@@ -316,18 +316,18 @@ wire [9:0] bg1_scroll_y_rdata;
 wire [9:0] bg1_scroll_x_wdata = wdata[9:0];
 wire [9:0] bg1_scroll_x_rdata;
 wire [31:0] __bg1_scroll_rdata = {6'h0, bg1_scroll_y_rdata, 6'h0, bg1_scroll_x_rdata};
-assign bg1_scroll_y_rdata = bg1_scroll_y_o;
-assign bg1_scroll_x_rdata = bg1_scroll_x_o;
+assign bg1_scroll_y_rdata = 10'h0;
+assign bg1_scroll_x_rdata = 10'h0;
 
 wire [23:0] bg1_tsbase_wdata = wdata[31:8];
 wire [23:0] bg1_tsbase_rdata;
 wire [31:0] __bg1_tsbase_rdata = {bg1_tsbase_rdata, 8'h0};
-assign bg1_tsbase_rdata = bg1_tsbase_o;
+assign bg1_tsbase_rdata = 24'h0;
 
 wire [23:0] bg1_tmbase_wdata = wdata[31:8];
 wire [23:0] bg1_tmbase_rdata;
 wire [31:0] __bg1_tmbase_rdata = {bg1_tmbase_rdata, 8'h0};
-assign bg1_tmbase_rdata = bg1_tmbase_o;
+assign bg1_tmbase_rdata = 24'h0;
 
 wire [2:0] sp_csr_pixmode_wdata = wdata[3:1];
 wire [2:0] sp_csr_pixmode_rdata;
@@ -340,7 +340,7 @@ assign sp_csr_tilesize_rdata = sp_csr_tilesize_o;
 wire [23:0] sp_tmbase_wdata = wdata[31:8];
 wire [23:0] sp_tmbase_rdata;
 wire [31:0] __sp_tmbase_rdata = {sp_tmbase_rdata, 8'h0};
-assign sp_tmbase_rdata = sp_tmbase_o;
+assign sp_tmbase_rdata = 24'h0;
 
 wire  sp0_csr_en_wdata = wdata[0];
 wire  sp0_csr_en_rdata;
@@ -349,17 +349,17 @@ wire [7:0] sp0_csr_tile_rdata;
 wire [3:0] sp0_csr_paloffs_wdata = wdata[19:16];
 wire [3:0] sp0_csr_paloffs_rdata;
 wire [31:0] __sp0_csr_rdata = {12'h0, sp0_csr_paloffs_rdata, sp0_csr_tile_rdata, 7'h0, sp0_csr_en_rdata};
-assign sp0_csr_en_rdata = sp0_csr_en_o;
-assign sp0_csr_tile_rdata = sp0_csr_tile_o;
-assign sp0_csr_paloffs_rdata = sp0_csr_paloffs_o;
+assign sp0_csr_en_rdata = 1'h0;
+assign sp0_csr_tile_rdata = 8'h0;
+assign sp0_csr_paloffs_rdata = 4'h0;
 
 wire [9:0] sp0_pos_x_wdata = wdata[9:0];
 wire [9:0] sp0_pos_x_rdata;
 wire [9:0] sp0_pos_y_wdata = wdata[25:16];
 wire [9:0] sp0_pos_y_rdata;
 wire [31:0] __sp0_pos_rdata = {6'h0, sp0_pos_y_rdata, 6'h0, sp0_pos_x_rdata};
-assign sp0_pos_x_rdata = sp0_pos_x_o;
-assign sp0_pos_y_rdata = sp0_pos_y_o;
+assign sp0_pos_x_rdata = 10'h0;
+assign sp0_pos_y_rdata = 10'h0;
 
 wire  sp1_csr_en_wdata = wdata[0];
 wire  sp1_csr_en_rdata;
@@ -368,17 +368,17 @@ wire [7:0] sp1_csr_tile_rdata;
 wire [3:0] sp1_csr_paloffs_wdata = wdata[19:16];
 wire [3:0] sp1_csr_paloffs_rdata;
 wire [31:0] __sp1_csr_rdata = {12'h0, sp1_csr_paloffs_rdata, sp1_csr_tile_rdata, 7'h0, sp1_csr_en_rdata};
-assign sp1_csr_en_rdata = sp1_csr_en_o;
-assign sp1_csr_tile_rdata = sp1_csr_tile_o;
-assign sp1_csr_paloffs_rdata = sp1_csr_paloffs_o;
+assign sp1_csr_en_rdata = 1'h0;
+assign sp1_csr_tile_rdata = 8'h0;
+assign sp1_csr_paloffs_rdata = 4'h0;
 
 wire [9:0] sp1_pos_x_wdata = wdata[9:0];
 wire [9:0] sp1_pos_x_rdata;
 wire [9:0] sp1_pos_y_wdata = wdata[25:16];
 wire [9:0] sp1_pos_y_rdata;
 wire [31:0] __sp1_pos_rdata = {6'h0, sp1_pos_y_rdata, 6'h0, sp1_pos_x_rdata};
-assign sp1_pos_x_rdata = sp1_pos_x_o;
-assign sp1_pos_y_rdata = sp1_pos_y_o;
+assign sp1_pos_x_rdata = 10'h0;
+assign sp1_pos_y_rdata = 10'h0;
 
 wire  sp2_csr_en_wdata = wdata[0];
 wire  sp2_csr_en_rdata;
@@ -387,17 +387,17 @@ wire [7:0] sp2_csr_tile_rdata;
 wire [3:0] sp2_csr_paloffs_wdata = wdata[19:16];
 wire [3:0] sp2_csr_paloffs_rdata;
 wire [31:0] __sp2_csr_rdata = {12'h0, sp2_csr_paloffs_rdata, sp2_csr_tile_rdata, 7'h0, sp2_csr_en_rdata};
-assign sp2_csr_en_rdata = sp2_csr_en_o;
-assign sp2_csr_tile_rdata = sp2_csr_tile_o;
-assign sp2_csr_paloffs_rdata = sp2_csr_paloffs_o;
+assign sp2_csr_en_rdata = 1'h0;
+assign sp2_csr_tile_rdata = 8'h0;
+assign sp2_csr_paloffs_rdata = 4'h0;
 
 wire [9:0] sp2_pos_x_wdata = wdata[9:0];
 wire [9:0] sp2_pos_x_rdata;
 wire [9:0] sp2_pos_y_wdata = wdata[25:16];
 wire [9:0] sp2_pos_y_rdata;
 wire [31:0] __sp2_pos_rdata = {6'h0, sp2_pos_y_rdata, 6'h0, sp2_pos_x_rdata};
-assign sp2_pos_x_rdata = sp2_pos_x_o;
-assign sp2_pos_y_rdata = sp2_pos_y_o;
+assign sp2_pos_x_rdata = 10'h0;
+assign sp2_pos_y_rdata = 10'h0;
 
 wire  sp3_csr_en_wdata = wdata[0];
 wire  sp3_csr_en_rdata;
@@ -406,17 +406,17 @@ wire [7:0] sp3_csr_tile_rdata;
 wire [3:0] sp3_csr_paloffs_wdata = wdata[19:16];
 wire [3:0] sp3_csr_paloffs_rdata;
 wire [31:0] __sp3_csr_rdata = {12'h0, sp3_csr_paloffs_rdata, sp3_csr_tile_rdata, 7'h0, sp3_csr_en_rdata};
-assign sp3_csr_en_rdata = sp3_csr_en_o;
-assign sp3_csr_tile_rdata = sp3_csr_tile_o;
-assign sp3_csr_paloffs_rdata = sp3_csr_paloffs_o;
+assign sp3_csr_en_rdata = 1'h0;
+assign sp3_csr_tile_rdata = 8'h0;
+assign sp3_csr_paloffs_rdata = 4'h0;
 
 wire [9:0] sp3_pos_x_wdata = wdata[9:0];
 wire [9:0] sp3_pos_x_rdata;
 wire [9:0] sp3_pos_y_wdata = wdata[25:16];
 wire [9:0] sp3_pos_y_rdata;
 wire [31:0] __sp3_pos_rdata = {6'h0, sp3_pos_y_rdata, 6'h0, sp3_pos_x_rdata};
-assign sp3_pos_x_rdata = sp3_pos_x_o;
-assign sp3_pos_y_rdata = sp3_pos_y_o;
+assign sp3_pos_x_rdata = 10'h0;
+assign sp3_pos_y_rdata = 10'h0;
 
 wire [15:0] lcd_pxfifo_wdata = wdata[15:0];
 wire [15:0] lcd_pxfifo_rdata;
