@@ -458,7 +458,7 @@ class HeaderWriter(RegBlockVisitor):
 	def pre_field(self, f):
 		fname = f.fullname.upper()
 		lines = self.lines
-		lines.append(c_line_comment("Field " + fname))
+		lines.append(c_line_comment("Field: {}  Access: {}".format(fname, f.access.upper())))
 		fname = self.blockname.upper() + "_" + fname
 		if f.info is not None:
 			lines.append(c_line_comment(f.info))
