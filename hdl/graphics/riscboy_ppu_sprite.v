@@ -1,6 +1,5 @@
 module riscboy_ppu_sprite #(
 	parameter W_DATA = 32,
-	parameter W_PIX_MAX = 16,
 	parameter W_OUTDATA = 15,
 	parameter W_COORD = 10,
 	// Driven parameters:
@@ -32,6 +31,8 @@ module riscboy_ppu_sprite #(
 	output wire                  out_alpha,
 	output wire [W_OUTDATA-1:0]  out_pixdata
 );
+
+localparam W_PIX_MAX = W_OUTDATA + 1;
 
 reg                  need_agu_resp;
 reg [W_SHIFTCTR-1:0] shift_seek_target;
@@ -80,7 +81,7 @@ wire                  stream_flush = flush || need_agu_resp;
 wire [W_PIX_MAX-1:0]  pixel_data;
 wire                  pixel_alpha;
 wire                  pixel_vld;
-wire                  pixel_rdy = out_rdy;
+wire                  pixel_rdy;
 
 riscboy_ppu_pixel_streamer #(
 	.W_DATA(W_DATA),
@@ -95,9 +96,11 @@ riscboy_ppu_pixel_streamer #(
 	.shift_seek_target (shift_seek_target),
 	.pixel_mode        (cfg_pixel_mode),
 	.palette_offset    (cfg_palette_offset),
+
 	.load_req          (pixel_load_req),
 	.load_ack          (pixel_load_ack),
 	.load_data         (bus_data),
+
 	.out_data          (pixel_data),
 	.out_alpha         (pixel_alpha),
 	.out_vld           (pixel_vld),
@@ -105,12 +108,25 @@ riscboy_ppu_pixel_streamer #(
 );
 
 assign out_pixdata = pixel_data[0 +: W_OUTDATA];
-assign out_vld = !en || (!need_agu_resp && !flush && (pixel_vld || !active_this_scanline));
 assign out_alpha = !en && pixel_alpha;
 
-// FIXME dirty dphase
-assign bus_vld = pixel_load_req && |x_postcount && active_this_scanline && !flush;
+wire beam_outside_sprite = ~|x_postcount || |x_precount;
+assign out_vld = !en || (!need_agu_resp && !flush && (
+	beam_outside_sprite || pixel_vld || !active_this_scanline
+));
+assign pixel_rdy = out_rdy && !beam_outside_sprite;
 
-assign pixel_load_ack = bus_rdy;
+reg bus_dphase_dirty;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		bus_dphase_dirty <= 1'b0;
+	end else begin
+		bus_dphase_dirty <= (bus_dphase_dirty || (bus_vld && flush)) && !bus_rdy;
+	end
+end
+
+assign bus_vld = bus_dphase_dirty || (pixel_load_req && |x_postcount && active_this_scanline && !need_agu_resp);
+assign pixel_load_ack = bus_rdy && !bus_dphase_dirty;
 
 endmodule

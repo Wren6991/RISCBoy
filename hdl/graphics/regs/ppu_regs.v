@@ -134,6 +134,7 @@ module ppu_regs (
 	output wire [31:0] concat_sp_paloffs_o,
 	output wire [79:0] concat_sp_pos_x_o,
 	output wire [79:0] concat_sp_pos_y_o,
+	output reg wstrobe_sp_flush_all,
 	output reg [1:0] wstrobe_bg_flush,
 	output reg [7:0] wstrobe_sp_flush
 );
@@ -726,6 +727,7 @@ always @ (posedge clk or negedge rst_n) begin
 		inte_hsync_o <= 1'h0;
 		wstrobe_bg_flush[0] <= 1'b0;
 		wstrobe_bg_flush[1] <= 1'b0;
+		wstrobe_sp_flush_all <= 1'b0;
 		wstrobe_sp_flush[0] <= 1'b0;
 		wstrobe_sp_flush[1] <= 1'b0;
 		wstrobe_sp_flush[2] <= 1'b0;
@@ -887,6 +889,7 @@ always @ (posedge clk or negedge rst_n) begin
 			inte_hsync_o <= inte_hsync_wdata;
 		wstrobe_bg_flush[0] <= __bg0_csr_wen || __bg0_scroll_wen || __bg0_tsbase_wen || __bg0_tmbase_wen;
 		wstrobe_bg_flush[1] <= __bg1_csr_wen || __bg1_scroll_wen || __bg1_tsbase_wen || __bg1_tmbase_wen;
+		wstrobe_sp_flush_all <= __sp_csr_wen || __sp_tmbase_wen;
 		wstrobe_sp_flush[0] <= __sp0_csr_wen || __sp0_pos_wen;
 		wstrobe_sp_flush[1] <= __sp1_csr_wen || __sp1_pos_wen;
 		wstrobe_sp_flush[2] <= __sp2_csr_wen || __sp2_pos_wen;

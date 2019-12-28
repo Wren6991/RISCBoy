@@ -64,6 +64,7 @@ parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
 parameter W_LCDCTRL_SHAMT = $clog2(W_LCD_PIXDATA + 1);
 parameter W_LOG_COORD = $clog2(W_COORD);
 parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1;
+parameter W_SHIFTCTR = $clog2(W_DATA);
 
 // ----------------------------------------------------------------------------
 // Reset synchronisers and regblock
@@ -109,6 +110,18 @@ wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_y;
 wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_x;
 wire [N_BACKGROUND*24-1:0]          bg_tsbase;
 wire [N_BACKGROUND*24-1:0]          bg_tmbase;
+
+localparam N_SPRITE = 8;
+wire [N_SPRITE-1:0]           sprite_en;
+wire [N_SPRITE*8-1:0]         sprite_tile;
+wire [N_SPRITE*4-1:0]         sprite_paloffs;
+wire [N_SPRITE*W_COORD-1:0]   sprite_pos_x;
+wire [N_SPRITE*W_COORD-1:0]   sprite_pos_y;
+wire [N_SPRITE-1:0]           sprite_flush;
+wire                          sprite_flush_all;
+wire [23:0]                   sprite_tmbase;
+wire [2:0]                    sprite_pixmode;
+wire                          sprite_tilesize;
 
 wire [W_LCD_PIXDATA-1:0]   pxfifo_direct_wdata;
 wire                       pxfifo_direct_wen;
@@ -158,6 +171,15 @@ ppu_regs regs (
 	.concat_bg_tsbase_o        (bg_tsbase),
 	.concat_bg_tmbase_o        (bg_tmbase),
 
+	.concat_sp_en_o            (sprite_en),
+	.concat_sp_tile_o          (sprite_tile),
+	.concat_sp_paloffs_o       (sprite_paloffs),
+	.concat_sp_pos_x_o         (sprite_pos_x),
+	.concat_sp_pos_y_o         (sprite_pos_y),
+	.sp_csr_pixmode_o          (sprite_pixmode),
+	.sp_csr_tilesize_o         (sprite_tilesize),
+	.sp_tmbase_o               (sprite_tmbase),
+
 	.lcd_pxfifo_o              (pxfifo_direct_wdata),
 	.lcd_pxfifo_wen            (pxfifo_direct_wen),
 	.lcd_csr_pxfifo_empty_i    (pxfifo_wempty),
@@ -168,7 +190,9 @@ ppu_regs regs (
 	.lcd_csr_lcd_shiftcnt_o    (lcdctrl_shamt),
 	.lcd_csr_tx_busy_i         (lcdctrl_busy),
 
-	.wstrobe_bg_flush          (bg_flush)
+	.wstrobe_bg_flush          (bg_flush),
+	.wstrobe_sp_flush          (sprite_flush),
+	.wstrobe_sp_flush_all      (sprite_flush_all)
 );
 
 // ----------------------------------------------------------------------------
@@ -208,33 +232,72 @@ riscboy_ppu_raster_counter #(
 	.start_frame (vsync)
 );
 
-wire                  bg_blend_vld     [0:N_BACKGROUND-1];
-wire                  bg_blend_rdy     [0:N_BACKGROUND-1];
-wire                  bg_blend_alpha   [0:N_BACKGROUND-1];
-wire [W_PIXDATA-1:0]  bg_blend_pixdata [0:N_BACKGROUND-1];
-wire [W_PIXMODE-1:0]  bg_blend_mode    [0:N_BACKGROUND-1]; // TODO: timing of pixel mode vs flush?
-wire [W_LAYERSEL-1:0] bg_blend_layer   [0:N_BACKGROUND-1];
+wire                                          bg_blend_vld     [0:N_BACKGROUND-1];
+wire                                          bg_blend_rdy     [0:N_BACKGROUND-1];
+wire                                          bg_blend_alpha   [0:N_BACKGROUND-1];
+wire [W_PIXDATA-1:0]                          bg_blend_pixdata [0:N_BACKGROUND-1];
+wire [W_PIXMODE-1:0]                          bg_blend_mode    [0:N_BACKGROUND-1];
+wire [W_LAYERSEL-1:0]                         bg_blend_layer   [0:N_BACKGROUND-1];
 
-assign bg_blend_layer[0] = 0; // FIXME
-assign bg_blend_mode[0] = bg_csr_pixmode[0];
-assign bg_blend_layer[1] = 0; // FIXME
-assign bg_blend_mode[1] = bg_csr_pixmode[1];
+wire                                          sp_blend_vld     [0:N_SPRITE-1];
+wire                                          sp_blend_rdy     [0:N_SPRITE-1];
+wire                                          sp_blend_alpha   [0:N_SPRITE-1];
+wire [W_PIXDATA-1:0]                          sp_blend_pixdata [0:N_SPRITE-1];
+wire [W_PIXMODE-1:0]                          sp_blend_mode    [0:N_SPRITE-1];
+wire [W_LAYERSEL-1:0]                         sp_blend_layer   [0:N_SPRITE-1];
 
-wire                  blend_out_vld;
-wire                  blend_out_rdy;
-wire [W_PIXDATA-1:0]  blend_out_pixdata;
-wire                  blend_out_paletted;
+wire [N_SPRITE+N_BACKGROUND-1:0]              blend_in_vld;
+wire [N_SPRITE+N_BACKGROUND-1:0]              blend_in_rdy;
+wire [N_SPRITE+N_BACKGROUND-1:0]              blend_in_alpha;
+wire [(N_SPRITE+N_BACKGROUND)*W_PIXDATA-1:0]  blend_in_pixdata;
+wire [(N_SPRITE+N_BACKGROUND)*W_PIXMODE-1:0]  blend_in_mode;
+wire [(N_SPRITE+N_BACKGROUND)*W_LAYERSEL-1:0] blend_in_layer;
+
+wire                                          blend_out_vld;
+wire                                          blend_out_rdy;
+wire [W_PIXDATA-1:0]                          blend_out_pixdata;
+wire                                          blend_out_paletted;
+
+// Collate sprite + background blend requests. Really wish I was using nMigen right now
+genvar bg;
+generate
+for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_blend_tieoff
+	assign bg_blend_layer[bg] = 0; // FIXME
+	assign bg_blend_mode[bg] = bg_csr_pixmode[W_PIXMODE * bg +: W_PIXMODE];
+	assign bg_blend_rdy[bg] = blend_in_rdy[bg];
+end
+endgenerate
+
+genvar sp;
+generate
+for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sp_blend_tieoff
+	assign sp_blend_layer[sp] = 0; // FIXME
+	assign sp_blend_mode[sp] = sprite_pixmode;
+	assign sp_blend_rdy[sp] = blend_in_rdy[sp + N_BACKGROUND];
+end
+endgenerate
+
+genvar g;
+generate
+for (g = 0; g < N_SPRITE + N_BACKGROUND; g = g + 1) begin: blend_input_hookup
+	assign blend_in_vld     [g * 1 +: 1]                   = g > N_BACKGROUND ? sp_blend_vld     [g - N_BACKGROUND] : bg_blend_vld     [g];
+	assign blend_in_alpha   [g * 1 +: 1]                   = g > N_BACKGROUND ? sp_blend_alpha   [g - N_BACKGROUND] : bg_blend_alpha   [g];
+	assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = g > N_BACKGROUND ? sp_blend_pixdata [g - N_BACKGROUND] : bg_blend_pixdata [g];
+	assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = g > N_BACKGROUND ? sp_blend_mode    [g - N_BACKGROUND] : bg_blend_mode    [g];
+	assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = g > N_BACKGROUND ? sp_blend_layer   [g - N_BACKGROUND] : bg_blend_layer   [g];
+end
+endgenerate
 
 riscboy_ppu_blender #(
-	.N_REQ(N_BACKGROUND),
+	.N_REQ(N_BACKGROUND + N_SPRITE),
 	.N_LAYERS(N_LAYERS)
 ) inst_riscboy_ppu_blender (
-	.req_vld           ({bg_blend_vld    [1], bg_blend_vld    [0]}),
-	.req_rdy           ({bg_blend_rdy    [1], bg_blend_rdy    [0]}),
-	.req_alpha         ({bg_blend_alpha  [1], bg_blend_alpha  [0]}),
-	.req_pixdata       ({bg_blend_pixdata[1], bg_blend_pixdata[0]}),
-	.req_mode          ({bg_blend_mode   [1], bg_blend_mode   [0]}),
-	.req_layer         ({bg_blend_layer  [1], bg_blend_layer  [0]}),
+	.req_vld           (blend_in_vld),
+	.req_rdy           (blend_in_rdy),
+	.req_alpha         (blend_in_alpha),
+	.req_pixdata       (blend_in_pixdata),
+	.req_mode          (blend_in_mode),
+	.req_layer         (blend_in_layer),
 	.default_bg_colour (default_bg_colour),
 
 	.out_vld           (blend_out_vld),
@@ -288,7 +351,6 @@ wire [1:0]        bg_bus_size [0:N_BACKGROUND-1];
 wire [W_DATA-1:0] bg_bus_data [0:N_BACKGROUND-1];
 wire              bg_bus_rdy  [0:N_BACKGROUND-1];
 
-genvar bg;
 generate
 for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 	riscboy_ppu_background #(
@@ -325,6 +387,99 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 		.out_rdy            (bg_blend_rdy[bg]),
 		.out_alpha          (bg_blend_alpha[bg]),
 		.out_pixdata        (bg_blend_pixdata[bg])
+	);
+end
+endgenerate
+
+// ----------------------------------------------------------------------------
+// Sprites and sprite AGU
+
+wire [N_SPRITE-1:0]   sprite_agu_req;
+wire [N_SPRITE-1:0]   sprite_agu_ack;
+wire                  sprite_agu_active;
+wire [W_COORD-1:0]    sprite_agu_x_precount;
+wire [4:0]            sprite_agu_x_postcount;
+wire [W_SHIFTCTR-1:0] sprite_agu_shift_seek_target;
+
+wire                  sagu_bus_vld;
+wire [W_ADDR-1:0]     sagu_bus_addr;
+wire [1:0]            sagu_bus_size;
+wire [W_DATA-1:0]     sagu_bus_data;
+wire                  sagu_bus_rdy;
+
+wire [N_SPRITE-1:0]   sprite_bus_vld;
+wire [N_SPRITE-1:0]   sprite_bus_rdy;
+wire [N_SPRITE*5-1:0] sprite_bus_postcount;
+wire [W_DATA-1:0]     sprite_bus_data;
+
+riscboy_ppu_sprite_agu #(
+	.W_DATA   (W_DATA),
+	.W_ADDR   (W_ADDR),
+	.W_COORD  (W_COORD),
+	.N_SPRITE (N_SPRITE)
+) sprite_agu (
+	.clk                      (clk_ppu),
+	.rst_n                    (rst_n_ppu),
+	.beam_x                   (raster_x),
+	.beam_y                   (raster_y),
+
+	.cfg_sprite_pos_x         (sprite_pos_x),
+	.cfg_sprite_pos_y         (sprite_pos_y),
+	.cfg_sprite_tile          (sprite_tile),
+	.cfg_sprite_tmbase        (sprite_tmbase),
+	.cfg_sprite_pixmode       (sprite_pixmode),
+	.cfg_sprite_tilesize      (sprite_tilesize),
+
+	.sprite_req               (sprite_agu_req),
+	.sprite_ack               (sprite_agu_ack),
+	.sprite_active            (sprite_agu_active),
+	.sprite_x_precount        (sprite_agu_x_precount),
+	.sprite_x_postcount       (sprite_agu_x_postcount),
+	.sprite_shift_seek_target (sprite_agu_shift_seek_target),
+
+	.sprite_bus_vld           (sprite_bus_vld),
+	.sprite_bus_rdy           (sprite_bus_rdy),
+	.sprite_bus_postcount     (sprite_bus_postcount),
+	.sprite_bus_data          (sprite_bus_data),
+
+	.bus_vld                  (sagu_bus_vld),
+	.bus_addr                 (sagu_bus_addr),
+	.bus_size                 (sagu_bus_size),
+	.bus_rdy                  (sagu_bus_rdy),
+	.bus_data                 (sagu_bus_data)
+);
+
+generate
+for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
+	riscboy_ppu_sprite #(
+		.W_DATA    (W_DATA),
+		.W_OUTDATA (W_PIXDATA),
+		.W_COORD   (W_COORD)
+	) sp (
+		.clk                   (clk_ppu),
+		.rst_n                 (rst_n_ppu),
+		.flush                 (hsync || sprite_flush[sp] || sprite_flush_all),
+		.en                    (sprite_en[sp]),
+
+		.cfg_pixel_mode        (sprite_pixmode),
+		.cfg_palette_offs      (sprite_paloffs[sp * 4 +: 4]),
+
+		.agu_req               (sprite_agu_req[sp]),
+		.agu_ack               (sprite_agu_ack[sp]),
+		.agu_active            (sprite_agu_active),
+		.agu_x_precount        (sprite_agu_x_precount),
+		.agu_x_postcount       (sprite_agu_x_postcount),
+		.agu_shift_seek_target (sprite_agu_shift_seek_target),
+
+		.bus_vld               (sprite_bus_vld[sp]),
+		.bus_rdy               (sprite_bus_rdy[sp]),
+		.bus_postcount         (sprite_bus_postcount[5 * sp +: sp]),
+		.bus_data              (sprite_bus_data),
+
+		.out_vld               (sp_blend_vld[sp]),
+		.out_rdy               (sp_blend_rdy[sp]),
+		.out_alpha             (sp_blend_alpha[sp]),
+		.out_pixdata           (sp_blend_pixdata[sp])
 	);
 end
 endgenerate
@@ -412,11 +567,11 @@ riscboy_ppu_busmaster #(
 
 	.ppu_running     (ppu_running),
 
-	.req_vld         ({bg_bus_vld [1], bg_bus_vld [0]}), // TODO stack up requests properly once we have more requesters
-	.req_addr        ({bg_bus_addr[1], bg_bus_addr[0]}),
-	.req_size        ({bg_bus_size[1], bg_bus_size[0]}),
-	.req_rdy         ({bg_bus_rdy [1], bg_bus_rdy [0]}),
-	.req_data        ({bg_bus_data[1], bg_bus_data[0]}),
+	.req_vld         ({sagu_bus_vld , bg_bus_vld [1], bg_bus_vld [0]}), // TODO stack up requests properly once we have more requesters
+	.req_addr        ({sagu_bus_addr, bg_bus_addr[1], bg_bus_addr[0]}),
+	.req_size        ({sagu_bus_size, bg_bus_size[1], bg_bus_size[0]}),
+	.req_rdy         ({sagu_bus_rdy , bg_bus_rdy [1], bg_bus_rdy [0]}),
+	.req_data        ({sagu_bus_data, bg_bus_data[1], bg_bus_data[0]}),
 
 	.ahblm_haddr     (ahblm_haddr),
 	.ahblm_hwrite    (ahblm_hwrite),

@@ -6,36 +6,36 @@ module riscboy_ppu_sprite_agu #(
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA)
 ) (
-	input  wire                           clk,
-	input  wire                           rst_n,
+	input  wire                         clk,
+	input  wire                         rst_n,
 
-	input  wire  [W_COORD-1:0]            beam_x,
-	input  wire  [W_COORD-1:0]            beam_y,
+	input  wire  [W_COORD-1:0]          beam_x,
+	input  wire  [W_COORD-1:0]          beam_y,
 
-	input  wire  [N_SPRITE*W_COORD-1:0]   cfg_sprite_pos_x,
-	input  wire  [N_SPRITE*W_COORD-1:0]   cfg_sprite_pos_y,
-	input  wire  [N_SPRITE*8-1:0]         cfg_sprite_tile,
-	input  wire  [23:0]                   cfg_sprite_tmbase,
-	input  wire  [2:0]                    cfg_sprite_pixmode,
-	input  wire                           cfg_sprite_tilesize,
+	input  wire  [N_SPRITE*W_COORD-1:0] cfg_sprite_pos_x,
+	input  wire  [N_SPRITE*W_COORD-1:0] cfg_sprite_pos_y,
+	input  wire  [N_SPRITE*8-1:0]       cfg_sprite_tile,
+	input  wire  [23:0]                 cfg_sprite_tmbase,
+	input  wire  [2:0]                  cfg_sprite_pixmode,
+	input  wire                         cfg_sprite_tilesize,
 
-	input  wire [N_SPRITE-1:0]            sprite_req,
-	output wire [N_SPRITE-1:0]            sprite_ack,
-	output wire [N_SPRITE-1:0]            sprite_active,
-	output wire [N_SPRITE*W_COORD-1:0]    sprite_x_precount,
-	output wire [N_SPRITE*5-1:0]          sprite_x_postcount,
-	output wire [N_SPRITE*W_SHIFTCTR-1:0] sprite_shift_seek_target,
+	input  wire [N_SPRITE-1:0]          sprite_req,
+	output wire [N_SPRITE-1:0]          sprite_ack,
+	output wire                         sprite_active,
+	output wire [W_COORD-1:0]           sprite_x_precount,
+	output wire [4:0]                   sprite_x_postcount,
+	output wire [W_SHIFTCTR-1:0]        sprite_shift_seek_target,
 
-	input  wire [N_SPRITE-1:0]            sprite_bus_vld,
-	output wire [N_SPRITE-1:0]            sprite_bus_rdy,
-	input  wire [N_SPRITE*5-1:0]          sprite_bus_postcount,
-	output wire [N_SPRITE*W_DATA-1:0]     sprite_bus_data,
+	input  wire [N_SPRITE-1:0]          sprite_bus_vld,
+	output wire [N_SPRITE-1:0]          sprite_bus_rdy,
+	input  wire [N_SPRITE*5-1:0]        sprite_bus_postcount,
+	output wire [W_DATA-1:0]            sprite_bus_data,
 
-	output wire                           bus_vld,
-	output wire [W_ADDR-1:0]              bus_addr,
-	output wire [1:0]                     bus_size,
-	input  wire                           bus_rdy,
-	input  wire [W_DATA-1:0]              bus_data
+	output wire                         bus_vld,
+	output wire [W_ADDR-1:0]            bus_addr,
+	output wire [1:0]                   bus_size,
+	input  wire                         bus_rdy,
+	input  wire [W_DATA-1:0]            bus_data
 );
 
 `include "riscboy_ppu_const.vh"
@@ -149,5 +149,8 @@ wire [W_ADDR-1:0] idx_of_pixel_in_tileset = cfg_sprite_tilesize ?
 	{{W_ADDR-14{1'b0}}, bus_chosen_tile, bus_pixel_v[2:0], bus_pixel_v[2:0]};
 
 assign bus_addr = ({cfg_sprite_tmbase, 8'h0} | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
+
+assign sprite_bus_rdy = sprite_bus_gnt_reg & {N_SPRITE{bus_rdy}};
+assign sprite_bus_data = bus_data;
 
 endmodule

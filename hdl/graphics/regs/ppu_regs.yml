@@ -60,11 +60,13 @@ regs:
         _('    - {b: [31, 8], access: rw, concat: bg_tmbase}')
   - name: sp_csr
     info: "Global settings for all sprites"
+    wstb: sp_flush_all
     bits:
       - {b: [3, 1], name: pixmode, access: rw}
       - {b: 5, name: tilesize, access: rw, info: "0 -> all sprites are 8x8 px. 1 -> all are 16x16 px."}
   - name: sp_tmbase
     info: "Pointer to tilemap used for sprite images"
+    wstb: sp_flush_all
     bits:
       - {b: [31, 8], access: rw}
   - generate: |
