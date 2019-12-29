@@ -32,7 +32,8 @@
 module ahbl_arbiter #(
 	parameter N_PORTS = 2,
 	parameter W_ADDR = 32,
-	parameter W_DATA = 32
+	parameter W_DATA = 32,
+	parameter CONN_MASK = {N_PORTS{1'b1}}
 ) (
 	// Global signals
 	input wire                       clk,
@@ -118,7 +119,7 @@ wire [N_PORTS-1:0] mast_gnt_a;
 always @ (*) begin
 	for (i = 0; i < N_PORTS; i = i + 1) begin
 		// HTRANS == 2'b10, 2'b11 when active
-		mast_req_a[i] = actual_htrans[i * 2 + 1];
+		mast_req_a[i] = actual_htrans[i * 2 + 1] && CONN_MASK[i];
 	end
 end
 

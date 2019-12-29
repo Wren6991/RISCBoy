@@ -18,15 +18,26 @@
 // Wrapper module to instantiate an M x N crossbar of ahbl_splitter and
 // ahbl_arbiter modules
 
-// TODO: add connectivity matrix parameter
-
 module ahbl_crossbar #(
-	parameter N_MASTERS = 3,
-	parameter N_SLAVES = 4,
+	parameter N_MASTERS = 2,
+	parameter N_SLAVES = 3,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
-	parameter ADDR_MAP  = 64'h20000000_00000000,
-	parameter ADDR_MASK = 64'hf0000000_f0000000
+
+	parameter ADDR_MAP  = 96'h40000000_20080000_20000000,
+	parameter ADDR_MASK = 96'he0000000_e0080000_e0080000,
+
+	// These are redundant, but I couldn't find a convincingly-constant way to
+	// slice the matrix in both directions for both splitters and arbiters.
+	// Setting CONN_MATRIX only is sufficient to remove connectivity, but
+	// setting CONN_MATRIX_TRANSPOSE too will get you the full LUT savings of
+	// parameter-based tie-offs.
+	parameter CONN_MATRIX = {N_MASTERS{
+		{N_SLAVES{1'b1}}
+	}},
+	parameter CONN_MATRIX_TRANSPOSE = {N_SLAVES{
+		{N_MASTERS{1'b1}}
+	}}
 ) (
 	// Global signals
 	input wire                         clk,
@@ -102,27 +113,45 @@ for (i = 0; i < N_MASTERS; i = i + 1) begin: split_instantiate
 	wire [N_SLAVES*W_DATA-1:0]  split_hrdata;
 
 	for (j = 0; j < N_SLAVES; j = j + 1) begin: split_connect
-		assign xbar_hready[i][j]                  = split_hready[j];
-		assign xbar_haddr[i][j]                   = split_haddr[W_ADDR * j +: W_ADDR];
-		assign xbar_hwrite[i][j]                  = split_hwrite[j];
-		assign xbar_htrans[i][j]                  = split_htrans[2 * j +: 2];
-		assign xbar_hsize[i][j]                   = split_hsize[3 * j +: 3];
-		assign xbar_hburst[i][j]                  = split_hburst[3 * j +: 3];
-		assign xbar_hprot[i][j]                   = split_hprot[4 * j +: 4];
-		assign xbar_hmastlock[i][j]               = split_hmastlock[j];
-		assign xbar_hwdata[i][j]                  = split_hwdata[W_DATA * j +: W_DATA];
+		if (CONN_MATRIX[i * N_SLAVES + j] && CONN_MATRIX_TRANSPOSE[j * N_MASTERS + i]) begin
+			assign xbar_hready[i][j]                  = split_hready[j];
+			assign xbar_haddr[i][j]                   = split_haddr[W_ADDR * j +: W_ADDR];
+			assign xbar_hwrite[i][j]                  = split_hwrite[j];
+			assign xbar_htrans[i][j]                  = split_htrans[2 * j +: 2];
+			assign xbar_hsize[i][j]                   = split_hsize[3 * j +: 3];
+			assign xbar_hburst[i][j]                  = split_hburst[3 * j +: 3];
+			assign xbar_hprot[i][j]                   = split_hprot[4 * j +: 4];
+			assign xbar_hmastlock[i][j]               = split_hmastlock[j];
+			assign xbar_hwdata[i][j]                  = split_hwdata[W_DATA * j +: W_DATA];
 
-		assign split_hready_resp[j]               = xbar_hready_resp[i][j];
-		assign split_hresp[j]                     = xbar_hresp[i][j];
-		assign split_hrdata[W_DATA * j +: W_DATA] = xbar_hrdata[i][j];
+			assign split_hready_resp[j]               = xbar_hready_resp[i][j];
+			assign split_hresp[j]                     = xbar_hresp[i][j];
+			assign split_hrdata[W_DATA * j +: W_DATA] = xbar_hrdata[i][j];
+		end else begin
+			// Disconnected
+			assign xbar_hready[i][j]                  = 1'b1;
+			assign xbar_haddr[i][j]                   = {W_ADDR{1'b0}};
+			assign xbar_hwrite[i][j]                  = 1'b0;
+			assign xbar_htrans[i][j]                  = 2'h0;
+			assign xbar_hsize[i][j]                   = 3'h0;
+			assign xbar_hburst[i][j]                  = 3'h0;
+			assign xbar_hprot[i][j]                   = 4'h0;
+			assign xbar_hmastlock[i][j]               = 1'b0;
+			assign xbar_hwdata[i][j]                  = {W_DATA{1'b0}};
+
+			assign split_hready_resp[j]               = 1'b1;
+			assign split_hresp[j]                     = 1'b1;
+			assign split_hrdata[W_DATA * j +: W_DATA] = {W_DATA{1'b0}};
+		end
 	end
 
 	ahbl_splitter #(
 		.N_PORTS(N_SLAVES),
 		.W_ADDR(W_ADDR),
 		.W_DATA(W_DATA),
-		.ADDR_MAP(ADDR_MAP),
-		.ADDR_MASK(ADDR_MASK)
+		.ADDR_MAP  (ADDR_MAP),
+		.ADDR_MASK (ADDR_MASK),
+		.CONN_MASK (CONN_MATRIX[i * N_SLAVES +: N_SLAVES])
 	) split (
 		.clk             (clk),
 		.rst_n           (rst_n),
@@ -189,9 +218,10 @@ for (j = 0; j < N_SLAVES; j = j + 1) begin: arb_instantiate
 	end
 
 	ahbl_arbiter #(
-		.N_PORTS(N_MASTERS),
-		.W_ADDR(W_ADDR),
-		.W_DATA(W_DATA)
+		.N_PORTS   (N_MASTERS),
+		.W_ADDR    (W_ADDR),
+		.W_DATA    (W_DATA),
+		.CONN_MASK (CONN_MATRIX_TRANSPOSE[j * N_MASTERS +: N_MASTERS])
 	) arb (
 		.clk             (clk),
 		.rst_n           (rst_n),

@@ -292,12 +292,21 @@ riscboy_ppu #(
 // =============================================================================
 
 ahbl_crossbar #(
-	.N_MASTERS(2),
-	.N_SLAVES(3),
-	.W_ADDR(W_ADDR),
-	.W_DATA(W_DATA),
-	.ADDR_MAP (96'h40000000_20080000_20000000),
-	.ADDR_MASK(96'he0000000_e0080000_e0080000)
+	.N_MASTERS (2),
+	.N_SLAVES  (3),
+	.W_ADDR    (W_ADDR),
+	.W_DATA    (W_DATA),
+	.ADDR_MAP  (96'h40000000_20080000_20000000),
+	.ADDR_MASK (96'he0000000_e0080000_e0080000),
+	.CONN_MATRIX ({
+		3'b111,
+		3'b001
+	}),
+	.CONN_MATRIX_TRANSPOSE ({
+		2'b10,
+		2'b10,
+		2'b11
+	})
 ) inst_ahbl_crossbar (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),

@@ -30,7 +30,8 @@ module ahbl_splitter #(
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
 	parameter ADDR_MAP  = 64'h20000000_00000000,
-	parameter ADDR_MASK = 64'hf0000000_f0000000
+	parameter ADDR_MASK = 64'hf0000000_f0000000,
+	parameter CONN_MASK = {N_PORTS{1'b1}}
 ) (
 	// Global signals
 	input wire                       clk,
@@ -71,19 +72,22 @@ integer i;
 
 // Address decode
 
+reg [N_PORTS-1:0] slave_sel_a_nomask;
 reg [N_PORTS-1:0] slave_sel_a;
 reg decode_err_a;
 
 always @ (*) begin
 	if (src_htrans == HTRANS_IDLE) begin
+		slave_sel_a_nomask = {N_PORTS{1'b0}};
 		slave_sel_a = {N_PORTS{1'b0}};
 		decode_err_a = 1'b0;
 	end else begin
 		for (i = 0; i < N_PORTS; i = i + 1) begin
-			slave_sel_a[i] = !((src_haddr ^ ADDR_MAP[i * W_ADDR +: W_ADDR])
+			slave_sel_a_nomask[i] = !((src_haddr ^ ADDR_MAP[i * W_ADDR +: W_ADDR])
 				& ADDR_MASK[i * W_ADDR +: W_ADDR]);
-			decode_err_a = !slave_sel_a;
 		end
+		slave_sel_a = slave_sel_a_nomask & CONN_MASK;
+		decode_err_a = !slave_sel_a_nomask;
 	end
 end
 
