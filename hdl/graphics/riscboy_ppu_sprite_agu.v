@@ -3,6 +3,7 @@ module riscboy_ppu_sprite_agu #(
 	parameter W_ADDR = 32,
 	parameter W_COORD = 10,
 	parameter N_SPRITE = 8,
+	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA)
 ) (
@@ -148,7 +149,8 @@ wire [W_ADDR-1:0] idx_of_pixel_in_tileset = cfg_sprite_tilesize ?
 	{{W_ADDR-16{1'b0}}, bus_chosen_tile, bus_pixel_v[3:0], bus_pixel_u[3:0]} :
 	{{W_ADDR-14{1'b0}}, bus_chosen_tile, bus_pixel_v[2:0], bus_pixel_u[2:0]};
 
-assign bus_addr = ({cfg_sprite_tsbase, 8'h0} | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
+assign bus_addr = ({cfg_sprite_tsbase, 8'h0} | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3))
+	& ({W_ADDR{1'b1}} << BUS_SIZE_MAX) & ADDR_MASK;
 assign bus_size = BUS_SIZE_MAX[2:0];
 assign bus_vld = |sprite_bus_gnt;
 

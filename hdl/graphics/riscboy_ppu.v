@@ -18,7 +18,8 @@
  module riscboy_ppu #(
 	parameter PXFIFO_DEPTH = 8,
 	parameter W_DATA = 32,
-	parameter W_ADDR = 32
+	parameter W_ADDR = 32,
+	parameter ADDR_MASK = {W_ADDR{1'b1}}
 ) (
 	input  wire              clk_ppu,
 	input  wire              clk_lcd,
@@ -66,6 +67,9 @@ parameter W_LOG_COORD = $clog2(W_COORD);
 parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1;
 parameter W_SHIFTCTR = $clog2(W_DATA);
 
+localparam N_BACKGROUND = 2;
+localparam N_SPRITE = 8;
+
 // ----------------------------------------------------------------------------
 // Reset synchronisers and regblock
 
@@ -97,7 +101,6 @@ wire [W_COORD-1:0]         raster_h;
 wire [W_COORD-1:0]         raster_x;
 wire [W_COORD-1:0]         raster_y;
 
-localparam N_BACKGROUND = 2;
 wire [N_BACKGROUND-1:0]             bg_csr_en;
 wire [N_BACKGROUND*W_PIXMODE-1:0]   bg_csr_pixmode;
 wire [N_BACKGROUND-1:0]             bg_csr_transparency;
@@ -111,7 +114,6 @@ wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_x;
 wire [N_BACKGROUND*24-1:0]          bg_tsbase;
 wire [N_BACKGROUND*24-1:0]          bg_tmbase;
 
-localparam N_SPRITE = 4;
 wire [N_SPRITE-1:0]           sprite_en;
 wire [N_SPRITE*8-1:0]         sprite_tile;
 wire [N_SPRITE*4-1:0]         sprite_paloffs;
@@ -284,20 +286,18 @@ endgenerate
 genvar g;
 generate
 for (g = 0; g < N_SPRITE + N_BACKGROUND; g = g + 1) begin: blend_input_hookup
-	integer grev = N_SPRITE + N_BACKGROUND - 1 - g;
-	if (g < N_BACKGROUND) begin
-		assign blend_in_vld     [grev * 1 +: 1]                   = bg_blend_vld     [g];
-		assign blend_in_alpha   [grev * 1 +: 1]                   = bg_blend_alpha   [g];
-		assign blend_in_pixdata [grev * W_PIXDATA +: W_PIXDATA]   = bg_blend_pixdata [g];
-		assign blend_in_mode    [grev * W_PIXMODE +: W_PIXMODE]   = bg_blend_mode    [g];
-		assign blend_in_layer   [grev * W_LAYERSEL +: W_LAYERSEL] = bg_blend_layer   [g];
+	if (g < N_SPRITE) begin
+		assign blend_in_vld     [g * 1 +: 1]                   = sp_blend_vld     [N_SPRITE - 1 - g];
+		assign blend_in_alpha   [g * 1 +: 1]                   = sp_blend_alpha   [N_SPRITE - 1 - g];
+		assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = sp_blend_pixdata [N_SPRITE - 1 - g];
+		assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = sp_blend_mode    [N_SPRITE - 1 - g];
+		assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = sp_blend_layer   [N_SPRITE - 1 - g];
 	end else begin
-		assign blend_in_vld     [grev * 1 +: 1]                   = sp_blend_vld     [g - N_BACKGROUND];
-		assign blend_in_alpha   [grev * 1 +: 1]                   = sp_blend_alpha   [g - N_BACKGROUND];
-		assign blend_in_pixdata [grev * W_PIXDATA +: W_PIXDATA]   = sp_blend_pixdata [g - N_BACKGROUND];
-		assign blend_in_mode    [grev * W_PIXMODE +: W_PIXMODE]   = sp_blend_mode    [g - N_BACKGROUND];
-		assign blend_in_layer   [grev * W_LAYERSEL +: W_LAYERSEL] = sp_blend_layer   [g - N_BACKGROUND];
-
+		assign blend_in_vld     [g * 1 +: 1]                   = bg_blend_vld     [N_SPRITE + N_BACKGROUND - 1 - g];
+		assign blend_in_alpha   [g * 1 +: 1]                   = bg_blend_alpha   [N_SPRITE + N_BACKGROUND - 1 - g];
+		assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = bg_blend_pixdata [N_SPRITE + N_BACKGROUND - 1 - g];
+		assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = bg_blend_mode    [N_SPRITE + N_BACKGROUND - 1 - g];
+		assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = bg_blend_layer   [N_SPRITE + N_BACKGROUND - 1 - g];
 	end
 end
 endgenerate
@@ -371,7 +371,8 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 		.W_COORD           (W_COORD),
 		.W_OUTDATA         (W_PIXDATA),
 		.W_ADDR            (W_ADDR),
-		.W_DATA            (W_DATA)
+		.W_DATA            (W_DATA),
+		.ADDR_MASK         (ADDR_MASK)
 	) bg (
 		.clk                (clk_ppu),
 		.rst_n              (rst_n_ppu),
@@ -427,10 +428,11 @@ wire [N_SPRITE*5-1:0] sprite_bus_postcount;
 wire [W_DATA-1:0]     sprite_bus_data;
 
 riscboy_ppu_sprite_agu #(
-	.W_DATA   (W_DATA),
-	.W_ADDR   (W_ADDR),
-	.W_COORD  (W_COORD),
-	.N_SPRITE (N_SPRITE)
+	.W_DATA    (W_DATA),
+	.W_ADDR    (W_ADDR),
+	.ADDR_MASK (ADDR_MASK),
+	.W_COORD   (W_COORD),
+	.N_SPRITE  (N_SPRITE)
 ) sprite_agu (
 	.clk                      (clk_ppu),
 	.rst_n                    (rst_n_ppu),
@@ -599,9 +601,10 @@ end
 endgenerate
 
 riscboy_ppu_busmaster #(
-	.N_REQ  (N_BACKGROUND + 1),
-	.W_ADDR (W_ADDR),
-	.W_DATA (W_DATA)
+	.N_REQ     (N_BACKGROUND + 1),
+	.W_ADDR    (W_ADDR),
+	.ADDR_MASK (ADDR_MASK),
+	.W_DATA    (W_DATA)
 ) inst_riscboy_ppu_busmaster (
 	.clk             (clk_ppu),
 	.rst_n           (rst_n_ppu),

@@ -20,6 +20,7 @@ module riscboy_ppu_background #(
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
+	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),
 	parameter W_LOG_COORD = $clog2(W_COORD),
@@ -188,7 +189,7 @@ wire [W_ADDR-1:0] pixel_addr = (cfg_tileset_base | ((idx_of_pixel_in_tileset << 
 
 reg bus_dphase_dirty;
 
-assign bus_addr = tile_empty ? tile_addr : pixel_addr;
+assign bus_addr = (tile_empty ? tile_addr : pixel_addr) & ADDR_MASK;
 assign bus_size = tile_empty ? 2'b00 : BUS_SIZE_MAX;
 assign bus_vld = ((tile_empty || pixel_load_req) && en) || bus_dphase_dirty;
 

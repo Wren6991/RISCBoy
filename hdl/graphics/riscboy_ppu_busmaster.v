@@ -1,7 +1,8 @@
 module riscboy_ppu_busmaster #(
 	parameter N_REQ = 10,
 	parameter W_ADDR = 32,
-	parameter W_DATA = 32  // must be 32 (just up here for use on ports)
+	parameter W_DATA = 32,  // must be 32 (just up here for use on ports)
+	parameter ADDR_MASK = {W_ADDR{1'b1}}
 ) (
 	input wire                    clk,
 	input wire                    rst_n,
@@ -116,7 +117,7 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-assign ahblm_haddr = use_buf_transattr ? aph_buf_addr : req_addr_muxed;
+assign ahblm_haddr = (use_buf_transattr ? aph_buf_addr : req_addr_muxed) & ADDR_MASK;
 assign ahblm_hsize = {1'b0, use_buf_transattr ? aph_buf_size : req_size_muxed};
 assign ahblm_htrans = {|grant_aph, 1'b0};
 

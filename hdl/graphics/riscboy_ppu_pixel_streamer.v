@@ -138,9 +138,8 @@ wire [W_PIX_MAX-1:0] pixdata_masked_offset = {
 
 assign out_data = pixdata_masked_offset;
 assign out_alpha =
-	pixel_mode == PIXMODE_ARGB1555 ? shift_out[15] :
-	pixel_mode == PIXMODE_ARGB1232 ? shift_out[7]  :
-	                                    |pixdata_masked[7:0];
+	pixel_mode[2] ? |pixdata_masked[7:0] :
+	pixel_mode[1] ? shift_out[7] : shift_out[15];
 
 assign load_req = shift_empty;
 assign out_vld = !(shift_empty || shift_seeking);
