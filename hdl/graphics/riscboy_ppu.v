@@ -119,7 +119,7 @@ wire [N_SPRITE*W_COORD-1:0]   sprite_pos_x;
 wire [N_SPRITE*W_COORD-1:0]   sprite_pos_y;
 wire [N_SPRITE-1:0]           sprite_flush;
 wire                          sprite_flush_all;
-wire [23:0]                   sprite_tmbase;
+wire [23:0]                   sprite_tsbase;
 wire [2:0]                    sprite_pixmode;
 wire                          sprite_tilesize;
 
@@ -178,7 +178,7 @@ ppu_regs regs (
 	.concat_sp_pos_y_o         (sprite_pos_y),
 	.sp_csr_pixmode_o          (sprite_pixmode),
 	.sp_csr_tilesize_o         (sprite_tilesize),
-	.sp_tmbase_o               (sprite_tmbase),
+	.sp_tsbase_o               (sprite_tsbase),
 
 	.lcd_pxfifo_o              (pxfifo_direct_wdata),
 	.lcd_pxfifo_wen            (pxfifo_direct_wen),
@@ -277,21 +277,26 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sp_blend_tieoff
 end
 endgenerate
 
+// Reverse connections. Lowest blender request wins tie break, and we want:
+// - Sprites beat backgrounds
+// - Higher-numbered backgrounds win
+// A consequence of this is that higher-numbered sprites win.
 genvar g;
 generate
 for (g = 0; g < N_SPRITE + N_BACKGROUND; g = g + 1) begin: blend_input_hookup
+	integer grev = N_SPRITE + N_BACKGROUND - 1 - g;
 	if (g < N_BACKGROUND) begin
-		assign blend_in_vld     [g * 1 +: 1]                   = bg_blend_vld     [g];
-		assign blend_in_alpha   [g * 1 +: 1]                   = bg_blend_alpha   [g];
-		assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = bg_blend_pixdata [g];
-		assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = bg_blend_mode    [g];
-		assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = bg_blend_layer   [g];
+		assign blend_in_vld     [grev * 1 +: 1]                   = bg_blend_vld     [g];
+		assign blend_in_alpha   [grev * 1 +: 1]                   = bg_blend_alpha   [g];
+		assign blend_in_pixdata [grev * W_PIXDATA +: W_PIXDATA]   = bg_blend_pixdata [g];
+		assign blend_in_mode    [grev * W_PIXMODE +: W_PIXMODE]   = bg_blend_mode    [g];
+		assign blend_in_layer   [grev * W_LAYERSEL +: W_LAYERSEL] = bg_blend_layer   [g];
 	end else begin
-		assign blend_in_vld     [g * 1 +: 1]                   = sp_blend_vld     [g - N_BACKGROUND];
-		assign blend_in_alpha   [g * 1 +: 1]                   = sp_blend_alpha   [g - N_BACKGROUND];
-		assign blend_in_pixdata [g * W_PIXDATA +: W_PIXDATA]   = sp_blend_pixdata [g - N_BACKGROUND];
-		assign blend_in_mode    [g * W_PIXMODE +: W_PIXMODE]   = sp_blend_mode    [g - N_BACKGROUND];
-		assign blend_in_layer   [g * W_LAYERSEL +: W_LAYERSEL] = sp_blend_layer   [g - N_BACKGROUND];
+		assign blend_in_vld     [grev * 1 +: 1]                   = sp_blend_vld     [g - N_BACKGROUND];
+		assign blend_in_alpha   [grev * 1 +: 1]                   = sp_blend_alpha   [g - N_BACKGROUND];
+		assign blend_in_pixdata [grev * W_PIXDATA +: W_PIXDATA]   = sp_blend_pixdata [g - N_BACKGROUND];
+		assign blend_in_mode    [grev * W_PIXMODE +: W_PIXMODE]   = sp_blend_mode    [g - N_BACKGROUND];
+		assign blend_in_layer   [grev * W_LAYERSEL +: W_LAYERSEL] = sp_blend_layer   [g - N_BACKGROUND];
 
 	end
 end
@@ -435,7 +440,7 @@ riscboy_ppu_sprite_agu #(
 	.cfg_sprite_pos_x         (sprite_pos_x),
 	.cfg_sprite_pos_y         (sprite_pos_y),
 	.cfg_sprite_tile          (sprite_tile),
-	.cfg_sprite_tmbase        (sprite_tmbase),
+	.cfg_sprite_tsbase        (sprite_tsbase),
 	.cfg_sprite_pixmode       (sprite_pixmode),
 	.cfg_sprite_tilesize      (sprite_tilesize),
 

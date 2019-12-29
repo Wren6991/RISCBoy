@@ -64,8 +64,8 @@ regs:
     bits:
       - {b: [3, 1], name: pixmode, access: rw}
       - {b: 5, name: tilesize, access: rw, info: "0 -> all sprites are 8x8 px. 1 -> all are 16x16 px."}
-  - name: sp_tmbase
-    info: "Pointer to tilemap used for sprite images"
+  - name: sp_tsbase
+    info: "Pointer to tileset used for sprite images. This can be shared with a background, provided the pixel format and tile size are the same."
     wstb: sp_flush_all
     bits:
       - {b: [31, 8], access: wo}

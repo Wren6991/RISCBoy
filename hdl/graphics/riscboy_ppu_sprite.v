@@ -109,14 +109,14 @@ riscboy_ppu_pixel_streamer #(
 	.out_rdy           (pixel_rdy)
 );
 
-assign out_pixdata = pixel_data[0 +: W_OUTDATA];
-assign out_alpha = en && pixel_alpha;
-
 wire beam_outside_sprite = ~|x_postcount || |x_precount;
 assign out_vld = !en || (!need_agu_resp && !flush && (
 	beam_outside_sprite || pixel_vld || !active_this_scanline
 ));
 assign pixel_rdy = out_rdy && !beam_outside_sprite;
+
+assign out_pixdata = pixel_data[0 +: W_OUTDATA];
+assign out_alpha = en && active_this_scanline && !beam_outside_sprite && pixel_alpha;
 
 reg bus_dphase_dirty;
 

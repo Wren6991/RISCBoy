@@ -7,10 +7,40 @@
 #include "addressmap.h"
 #include "hw/ppu_regs.h"
 
+typedef volatile uint32_t io_rw_32;
+
+#define N_PPU_BACKGROUNDS 2
+#define N_PPU_SPRITES 4
+
+struct ppu_hw {
+	io_rw_32 csr;
+	io_rw_32 dispsize;
+	io_rw_32 default_bg_colour;
+	io_rw_32 beam;
+	struct ppu_bg_hw {
+		io_rw_32 csr;
+		io_rw_32 scroll;
+		io_rw_32 tsbase;
+		io_rw_32 tmbase;
+	} bg[N_PPU_BACKGROUNDS];
+	io_rw_32 sp_csr;
+	io_rw_32 sp_tsbase;
+	struct ppu_sp_hw {
+		io_rw_32 csr;
+		io_rw_32 pos;
+	} sp[N_PPU_SPRITES];
+	io_rw_32 pxfifo;
+	io_rw_32 lcd_csr;
+};
+
+#define mm_ppu ((struct ppu_hw *const)PPU_BASE)
+
+// TODO get rid of old-style definitions:
 DECL_REG(PPU_BASE + PPU_CSR_OFFS, PPU_CSR);
 DECL_REG(PPU_BASE + PPU_DISPSIZE_OFFS	, PPU_DISPSIZE);
 DECL_REG(PPU_BASE + PPU_DEFAULT_BG_COLOUR_OFFS, PPU_DEFAULT_BG_COLOUR);
 DECL_REG(PPU_BASE + PPU_BEAM_OFFS, PPU_BEAM);
+
 DECL_REG(PPU_BASE + PPU_BG0_CSR_OFFS, PPU_BG0_CSR);
 DECL_REG(PPU_BASE + PPU_BG0_SCROLL_OFFS, PPU_BG0_SCROLL);
 DECL_REG(PPU_BASE + PPU_BG0_TSBASE_OFFS, PPU_BG0_TSBASE);
@@ -19,6 +49,12 @@ DECL_REG(PPU_BASE + PPU_BG1_CSR_OFFS, PPU_BG1_CSR);
 DECL_REG(PPU_BASE + PPU_BG1_SCROLL_OFFS, PPU_BG1_SCROLL);
 DECL_REG(PPU_BASE + PPU_BG1_TSBASE_OFFS, PPU_BG1_TSBASE);
 DECL_REG(PPU_BASE + PPU_BG1_TMBASE_OFFS, PPU_BG1_TMBASE);
+
+DECL_REG(PPU_BASE + PPU_SP_CSR_OFFS, PPU_SP_CSR);
+DECL_REG(PPU_BASE + PPU_SP_TSBASE_OFFS, PPU_SP_TMBASE);
+DECL_REG(PPU_BASE + PPU_SP0_CSR_OFFS, PPU_SP0_CSR);
+DECL_REG(PPU_BASE + PPU_SP0_POS_OFFS, PPU_SP0_POS);
+
 DECL_REG(PPU_BASE + PPU_LCD_PXFIFO_OFFS, PPU_LCD_PXFIFO);
 DECL_REG(PPU_BASE + PPU_LCD_CSR_OFFS, PPU_LCD_CSR);
 

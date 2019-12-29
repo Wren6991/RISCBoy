@@ -58,7 +58,7 @@ module ppu_regs (
 	output reg [23:0] bg1_tmbase_o,
 	output reg [2:0] sp_csr_pixmode_o,
 	output reg  sp_csr_tilesize_o,
-	output reg [23:0] sp_tmbase_o,
+	output reg [23:0] sp_tsbase_o,
 	output reg  sp0_csr_en_o,
 	output reg [7:0] sp0_csr_tile_o,
 	output reg [3:0] sp0_csr_paloffs_o,
@@ -142,7 +142,7 @@ localparam ADDR_BG1_SCROLL = 36;
 localparam ADDR_BG1_TSBASE = 40;
 localparam ADDR_BG1_TMBASE = 44;
 localparam ADDR_SP_CSR = 48;
-localparam ADDR_SP_TMBASE = 52;
+localparam ADDR_SP_TSBASE = 52;
 localparam ADDR_SP0_CSR = 56;
 localparam ADDR_SP0_POS = 60;
 localparam ADDR_SP1_CSR = 64;
@@ -182,8 +182,8 @@ wire __bg1_tmbase_wen = wen && addr == ADDR_BG1_TMBASE;
 wire __bg1_tmbase_ren = ren && addr == ADDR_BG1_TMBASE;
 wire __sp_csr_wen = wen && addr == ADDR_SP_CSR;
 wire __sp_csr_ren = ren && addr == ADDR_SP_CSR;
-wire __sp_tmbase_wen = wen && addr == ADDR_SP_TMBASE;
-wire __sp_tmbase_ren = ren && addr == ADDR_SP_TMBASE;
+wire __sp_tsbase_wen = wen && addr == ADDR_SP_TSBASE;
+wire __sp_tsbase_ren = ren && addr == ADDR_SP_TSBASE;
 wire __sp0_csr_wen = wen && addr == ADDR_SP0_CSR;
 wire __sp0_csr_ren = ren && addr == ADDR_SP0_CSR;
 wire __sp0_pos_wen = wen && addr == ADDR_SP0_POS;
@@ -337,10 +337,10 @@ wire [31:0] __sp_csr_rdata = {26'h0, sp_csr_tilesize_rdata, 1'h0, sp_csr_pixmode
 assign sp_csr_pixmode_rdata = sp_csr_pixmode_o;
 assign sp_csr_tilesize_rdata = sp_csr_tilesize_o;
 
-wire [23:0] sp_tmbase_wdata = wdata[31:8];
-wire [23:0] sp_tmbase_rdata;
-wire [31:0] __sp_tmbase_rdata = {sp_tmbase_rdata, 8'h0};
-assign sp_tmbase_rdata = 24'h0;
+wire [23:0] sp_tsbase_wdata = wdata[31:8];
+wire [23:0] sp_tsbase_rdata;
+wire [31:0] __sp_tsbase_rdata = {sp_tsbase_rdata, 8'h0};
+assign sp_tsbase_rdata = 24'h0;
 
 wire  sp0_csr_en_wdata = wdata[0];
 wire  sp0_csr_en_rdata;
@@ -493,7 +493,7 @@ always @ (*) begin
 		ADDR_BG1_TSBASE: rdata = __bg1_tsbase_rdata;
 		ADDR_BG1_TMBASE: rdata = __bg1_tmbase_rdata;
 		ADDR_SP_CSR: rdata = __sp_csr_rdata;
-		ADDR_SP_TMBASE: rdata = __sp_tmbase_rdata;
+		ADDR_SP_TSBASE: rdata = __sp_tsbase_rdata;
 		ADDR_SP0_CSR: rdata = __sp0_csr_rdata;
 		ADDR_SP0_POS: rdata = __sp0_pos_rdata;
 		ADDR_SP1_CSR: rdata = __sp1_csr_rdata;
@@ -551,7 +551,7 @@ always @ (posedge clk or negedge rst_n) begin
 		bg1_tmbase_o <= 24'h0;
 		sp_csr_pixmode_o <= 3'h0;
 		sp_csr_tilesize_o <= 1'h0;
-		sp_tmbase_o <= 24'h0;
+		sp_tsbase_o <= 24'h0;
 		sp0_csr_en_o <= 1'h0;
 		sp0_csr_tile_o <= 8'h0;
 		sp0_csr_paloffs_o <= 4'h0;
@@ -643,8 +643,8 @@ always @ (posedge clk or negedge rst_n) begin
 			sp_csr_pixmode_o <= sp_csr_pixmode_wdata;
 		if (__sp_csr_wen)
 			sp_csr_tilesize_o <= sp_csr_tilesize_wdata;
-		if (__sp_tmbase_wen)
-			sp_tmbase_o <= sp_tmbase_wdata;
+		if (__sp_tsbase_wen)
+			sp_tsbase_o <= sp_tsbase_wdata;
 		if (__sp0_csr_wen)
 			sp0_csr_en_o <= sp0_csr_en_wdata;
 		if (__sp0_csr_wen)
@@ -697,7 +697,7 @@ always @ (posedge clk or negedge rst_n) begin
 			inte_hsync_o <= inte_hsync_wdata;
 		wstrobe_bg_flush[0] <= __bg0_csr_wen || __bg0_scroll_wen || __bg0_tsbase_wen || __bg0_tmbase_wen;
 		wstrobe_bg_flush[1] <= __bg1_csr_wen || __bg1_scroll_wen || __bg1_tsbase_wen || __bg1_tmbase_wen;
-		wstrobe_sp_flush_all <= __sp_csr_wen || __sp_tmbase_wen;
+		wstrobe_sp_flush_all <= __sp_csr_wen || __sp_tsbase_wen;
 		wstrobe_sp_flush[0] <= __sp0_csr_wen || __sp0_pos_wen;
 		wstrobe_sp_flush[1] <= __sp1_csr_wen || __sp1_pos_wen;
 		wstrobe_sp_flush[2] <= __sp2_csr_wen || __sp2_pos_wen;

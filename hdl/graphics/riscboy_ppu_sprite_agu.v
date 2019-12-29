@@ -15,7 +15,7 @@ module riscboy_ppu_sprite_agu #(
 	input  wire  [N_SPRITE*W_COORD-1:0] cfg_sprite_pos_x,
 	input  wire  [N_SPRITE*W_COORD-1:0] cfg_sprite_pos_y,
 	input  wire  [N_SPRITE*8-1:0]       cfg_sprite_tile,
-	input  wire  [23:0]                 cfg_sprite_tmbase,
+	input  wire  [23:0]                 cfg_sprite_tsbase,
 	input  wire  [2:0]                  cfg_sprite_pixmode,
 	input  wire                         cfg_sprite_tilesize,
 
@@ -145,10 +145,10 @@ onehot_mux #(
 wire [3:0] bus_pixel_v = beam_y - bus_chosen_pos_y;
 wire [3:0] bus_pixel_u = tile_size - bus_chosen_postcount;
 wire [W_ADDR-1:0] idx_of_pixel_in_tileset = cfg_sprite_tilesize ?
-	{{W_ADDR-16{1'b0}}, bus_chosen_tile, bus_pixel_v[3:0], bus_pixel_v[3:0]} :
-	{{W_ADDR-14{1'b0}}, bus_chosen_tile, bus_pixel_v[2:0], bus_pixel_v[2:0]};
+	{{W_ADDR-16{1'b0}}, bus_chosen_tile, bus_pixel_v[3:0], bus_pixel_u[3:0]} :
+	{{W_ADDR-14{1'b0}}, bus_chosen_tile, bus_pixel_v[2:0], bus_pixel_u[2:0]};
 
-assign bus_addr = ({cfg_sprite_tmbase, 8'h0} | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
+assign bus_addr = ({cfg_sprite_tsbase, 8'h0} | ((idx_of_pixel_in_tileset << pixel_log_size) >> 3)) & ({W_ADDR{1'b1}} << BUS_SIZE_MAX);
 assign bus_size = BUS_SIZE_MAX[2:0];
 assign bus_vld = |sprite_bus_gnt;
 

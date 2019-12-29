@@ -25,7 +25,7 @@
 #define PPU_BG1_TSBASE_OFFS 40
 #define PPU_BG1_TMBASE_OFFS 44
 #define PPU_SP_CSR_OFFS 48
-#define PPU_SP_TMBASE_OFFS 52
+#define PPU_SP_TSBASE_OFFS 52
 #define PPU_SP0_CSR_OFFS 56
 #define PPU_SP0_POS_OFFS 60
 #define PPU_SP1_CSR_OFFS 64
@@ -284,15 +284,16 @@
 #define PPU_SP_CSR_TILESIZE_MASK 0x20
 
 /*******************************************************************************
-*                                  SP_TMBASE                                   *
+*                                  SP_TSBASE                                   *
 *******************************************************************************/
 
-// Pointer to tilemap used for sprite images
+// Pointer to tileset used for sprite images. This can be shared with a
+// background, provided the pixel format and tile size are the same.
 
-// Field: SP_TMBASE  Access: WO
-#define PPU_SP_TMBASE_LSB  8
-#define PPU_SP_TMBASE_BITS 24
-#define PPU_SP_TMBASE_MASK 0xffffff00
+// Field: SP_TSBASE  Access: WO
+#define PPU_SP_TSBASE_LSB  8
+#define PPU_SP_TSBASE_BITS 24
+#define PPU_SP_TSBASE_MASK 0xffffff00
 
 /*******************************************************************************
 *                                   SP0_CSR                                    *
