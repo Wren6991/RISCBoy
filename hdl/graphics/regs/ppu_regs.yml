@@ -5,7 +5,7 @@ data: 32
 params:
   W_COORD: 10
   N_BACKGROUND: 2
-  N_SPRITE: 4
+  N_SPRITE: 8
 regs:
   - name: csr
     info: PPU control and status register
@@ -23,7 +23,7 @@ regs:
   - name: default_bg_colour
     info: Colour displayed when all blended pixels are transparent, or all sprites/backgrounds are disabled.
     bits:
-      - {b: [14, 0], access: rw}
+      - {b: [14, 0], access: wo}
   - name: beam
     info: Scan coordinates of the next pixel to be blended (read-only)
     bits:
@@ -35,13 +35,13 @@ regs:
         _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Control and status register for BG{}.'.format(bg))
         _('  bits: ')
-        _('    - {b: 0, name: en, access: rw, info: "If not enabled, will continuously output transparent pixels to blender", concat: bg_en}')
-        _('    - {b: [3, 1], name: pixmode, access: rw, concat: bg_pixmode}')
-        _('    - {b: 4, name: transparency, access: rw, concat: bg_transparency}')
-        _('    - {b: 5, name: tilesize, access: rw, info: "0 -> 8 px tiles. 1 -> 16 px tiles.", concat: bg_tilesize}')
-        _('    - {b: [9, 6], name: pfwidth, access: rw, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels.", concat: bg_pfwidth}')
-        _('    - {b: [13, 10], name: pfheight, access: rw, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels.", concat: bg_pfheight}')
-        _('    - {b: [19, 16], name: paloffs, access: rw, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes.", concat: bg_paloffs}')
+        _('    - {b: 0, name: en, access: wo, info: "If not enabled, will continuously output transparent pixels to blender", concat: bg_en}')
+        _('    - {b: [3, 1], name: pixmode, access: wo, concat: bg_pixmode}')
+        _('    - {b: 4, name: transparency, access: wo, concat: bg_transparency}')
+        _('    - {b: 5, name: tilesize, access: wo, info: "0 -> 8 px tiles. 1 -> 16 px tiles.", concat: bg_tilesize}')
+        _('    - {b: [9, 6], name: pfwidth, access: wo, info: "Playfield width is 2 ** (PFWIDTH + 1) pixels.", concat: bg_pfwidth}')
+        _('    - {b: [13, 10], name: pfheight, access: wo, info: "Playfield height is 2 ** (PFHEIGHT + 1) pixels.", concat: bg_pfheight}')
+        _('    - {b: [19, 16], name: paloffs, access: wo, info: "Offset ORed into upper 4 bits of palette index in paletted pixel modes.", concat: bg_paloffs}')
         _('- name: bg{}_scroll'.format(bg))
         _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Scroll the screen within the playfield')
@@ -62,8 +62,8 @@ regs:
     info: "Global settings for all sprites"
     wstb: sp_flush_all
     bits:
-      - {b: [3, 1], name: pixmode, access: rw}
-      - {b: 5, name: tilesize, access: rw, info: "0 -> all sprites are 8x8 px. 1 -> all are 16x16 px."}
+      - {b: [3, 1], name: pixmode, access: wo}
+      - {b: 5, name: tilesize, access: wo, info: "0 -> all sprites are 8x8 px. 1 -> all are 16x16 px."}
   - name: sp_tsbase
     info: "Pointer to tileset used for sprite images. This can be shared with a background, provided the pixel format and tile size are the same."
     wstb: sp_flush_all
