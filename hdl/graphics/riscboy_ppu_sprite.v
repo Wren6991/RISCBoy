@@ -54,6 +54,8 @@ end
 
 assign agu_req = en && need_agu_resp;
 
+// Precount: how many pixels remaining until the sprite region begins.
+// Postcount: how many pixels until it ends, once it has begun.
 reg [W_COORD-1:0] x_precount;
 reg [4:0]         x_postcount;
 

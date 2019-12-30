@@ -87,7 +87,7 @@ assign sprite_x_postcount =
 	!beam_x_left_of_rbound  ? 5'h0 :
 	!beam_x_right_of_lbound ? tile_size : chosen_sprite_pos_x - beam_x;
 assign sprite_active = sprite_intersects_y && |{sprite_x_precount, sprite_x_postcount};
-assign sprite_shift_seek_target = {tile_size - sprite_x_precount} << pixel_log_size;
+assign sprite_shift_seek_target = {tile_size - sprite_x_postcount} << pixel_log_size;
 
 assign sprite_ack = sprite_req_gnt;
 
