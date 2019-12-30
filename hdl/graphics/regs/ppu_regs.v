@@ -29,11 +29,11 @@ module ppu_regs (
 	input wire  csr_running_i,
 	output reg  csr_halt_hsync_o,
 	output reg  csr_halt_vsync_o,
-	output reg [9:0] dispsize_w_o,
-	output reg [9:0] dispsize_h_o,
+	output reg [8:0] dispsize_w_o,
+	output reg [8:0] dispsize_h_o,
 	output reg [14:0] default_bg_colour_o,
-	input wire [9:0] beam_x_i,
-	input wire [9:0] beam_y_i,
+	input wire [8:0] beam_x_i,
+	input wire [8:0] beam_y_i,
 	output reg  bg0_csr_en_o,
 	output reg [2:0] bg0_csr_pixmode_o,
 	output reg  bg0_csr_transparency_o,
@@ -62,43 +62,43 @@ module ppu_regs (
 	output reg  sp0_csr_en_o,
 	output reg [7:0] sp0_csr_tile_o,
 	output reg [3:0] sp0_csr_paloffs_o,
-	output reg [9:0] sp0_pos_x_o,
-	output reg [9:0] sp0_pos_y_o,
+	output reg [8:0] sp0_pos_x_o,
+	output reg [8:0] sp0_pos_y_o,
 	output reg  sp1_csr_en_o,
 	output reg [7:0] sp1_csr_tile_o,
 	output reg [3:0] sp1_csr_paloffs_o,
-	output reg [9:0] sp1_pos_x_o,
-	output reg [9:0] sp1_pos_y_o,
+	output reg [8:0] sp1_pos_x_o,
+	output reg [8:0] sp1_pos_y_o,
 	output reg  sp2_csr_en_o,
 	output reg [7:0] sp2_csr_tile_o,
 	output reg [3:0] sp2_csr_paloffs_o,
-	output reg [9:0] sp2_pos_x_o,
-	output reg [9:0] sp2_pos_y_o,
+	output reg [8:0] sp2_pos_x_o,
+	output reg [8:0] sp2_pos_y_o,
 	output reg  sp3_csr_en_o,
 	output reg [7:0] sp3_csr_tile_o,
 	output reg [3:0] sp3_csr_paloffs_o,
-	output reg [9:0] sp3_pos_x_o,
-	output reg [9:0] sp3_pos_y_o,
+	output reg [8:0] sp3_pos_x_o,
+	output reg [8:0] sp3_pos_y_o,
 	output reg  sp4_csr_en_o,
 	output reg [7:0] sp4_csr_tile_o,
 	output reg [3:0] sp4_csr_paloffs_o,
-	output reg [9:0] sp4_pos_x_o,
-	output reg [9:0] sp4_pos_y_o,
+	output reg [8:0] sp4_pos_x_o,
+	output reg [8:0] sp4_pos_y_o,
 	output reg  sp5_csr_en_o,
 	output reg [7:0] sp5_csr_tile_o,
 	output reg [3:0] sp5_csr_paloffs_o,
-	output reg [9:0] sp5_pos_x_o,
-	output reg [9:0] sp5_pos_y_o,
+	output reg [8:0] sp5_pos_x_o,
+	output reg [8:0] sp5_pos_y_o,
 	output reg  sp6_csr_en_o,
 	output reg [7:0] sp6_csr_tile_o,
 	output reg [3:0] sp6_csr_paloffs_o,
-	output reg [9:0] sp6_pos_x_o,
-	output reg [9:0] sp6_pos_y_o,
+	output reg [8:0] sp6_pos_x_o,
+	output reg [8:0] sp6_pos_y_o,
 	output reg  sp7_csr_en_o,
 	output reg [7:0] sp7_csr_tile_o,
 	output reg [3:0] sp7_csr_paloffs_o,
-	output reg [9:0] sp7_pos_x_o,
-	output reg [9:0] sp7_pos_y_o,
+	output reg [8:0] sp7_pos_x_o,
+	output reg [8:0] sp7_pos_y_o,
 	output reg [15:0] lcd_pxfifo_o,
 	output reg lcd_pxfifo_wen,
 	input wire  lcd_csr_pxfifo_empty_i,
@@ -132,8 +132,8 @@ module ppu_regs (
 	output wire [7:0] concat_sp_en_o,
 	output wire [63:0] concat_sp_tile_o,
 	output wire [31:0] concat_sp_paloffs_o,
-	output wire [79:0] concat_sp_pos_x_o,
-	output wire [79:0] concat_sp_pos_y_o,
+	output wire [71:0] concat_sp_pos_x_o,
+	output wire [71:0] concat_sp_pos_y_o,
 	output reg wstrobe_sp_flush_all,
 	output reg [1:0] wstrobe_bg_flush,
 	output reg [7:0] wstrobe_sp_flush
@@ -270,24 +270,24 @@ assign csr_running_rdata = csr_running_i;
 assign csr_halt_hsync_rdata = csr_halt_hsync_o;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
 
-wire [9:0] dispsize_w_wdata = wdata[9:0];
-wire [9:0] dispsize_w_rdata;
-wire [9:0] dispsize_h_wdata = wdata[25:16];
-wire [9:0] dispsize_h_rdata;
-wire [31:0] __dispsize_rdata = {6'h0, dispsize_h_rdata, 6'h0, dispsize_w_rdata};
-assign dispsize_w_rdata = 10'h0;
-assign dispsize_h_rdata = 10'h0;
+wire [8:0] dispsize_w_wdata = wdata[8:0];
+wire [8:0] dispsize_w_rdata;
+wire [8:0] dispsize_h_wdata = wdata[24:16];
+wire [8:0] dispsize_h_rdata;
+wire [31:0] __dispsize_rdata = {7'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
+assign dispsize_w_rdata = 9'h0;
+assign dispsize_h_rdata = 9'h0;
 
 wire [14:0] default_bg_colour_wdata = wdata[14:0];
 wire [14:0] default_bg_colour_rdata;
 wire [31:0] __default_bg_colour_rdata = {17'h0, default_bg_colour_rdata};
 assign default_bg_colour_rdata = 15'h0;
 
-wire [9:0] beam_x_wdata = wdata[9:0];
-wire [9:0] beam_x_rdata;
-wire [9:0] beam_y_wdata = wdata[25:16];
-wire [9:0] beam_y_rdata;
-wire [31:0] __beam_rdata = {6'h0, beam_y_rdata, 6'h0, beam_x_rdata};
+wire [8:0] beam_x_wdata = wdata[8:0];
+wire [8:0] beam_x_rdata;
+wire [8:0] beam_y_wdata = wdata[24:16];
+wire [8:0] beam_y_rdata;
+wire [31:0] __beam_rdata = {7'h0, beam_y_rdata, 7'h0, beam_x_rdata};
 assign beam_x_rdata = beam_x_i;
 assign beam_y_rdata = beam_y_i;
 
@@ -397,13 +397,13 @@ assign sp0_csr_en_rdata = 1'h0;
 assign sp0_csr_tile_rdata = 8'h0;
 assign sp0_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp0_pos_x_wdata = wdata[9:0];
-wire [9:0] sp0_pos_x_rdata;
-wire [9:0] sp0_pos_y_wdata = wdata[25:16];
-wire [9:0] sp0_pos_y_rdata;
-wire [31:0] __sp0_pos_rdata = {6'h0, sp0_pos_y_rdata, 6'h0, sp0_pos_x_rdata};
-assign sp0_pos_x_rdata = 10'h0;
-assign sp0_pos_y_rdata = 10'h0;
+wire [8:0] sp0_pos_x_wdata = wdata[8:0];
+wire [8:0] sp0_pos_x_rdata;
+wire [8:0] sp0_pos_y_wdata = wdata[24:16];
+wire [8:0] sp0_pos_y_rdata;
+wire [31:0] __sp0_pos_rdata = {7'h0, sp0_pos_y_rdata, 7'h0, sp0_pos_x_rdata};
+assign sp0_pos_x_rdata = 9'h0;
+assign sp0_pos_y_rdata = 9'h0;
 
 wire  sp1_csr_en_wdata = wdata[0];
 wire  sp1_csr_en_rdata;
@@ -416,13 +416,13 @@ assign sp1_csr_en_rdata = 1'h0;
 assign sp1_csr_tile_rdata = 8'h0;
 assign sp1_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp1_pos_x_wdata = wdata[9:0];
-wire [9:0] sp1_pos_x_rdata;
-wire [9:0] sp1_pos_y_wdata = wdata[25:16];
-wire [9:0] sp1_pos_y_rdata;
-wire [31:0] __sp1_pos_rdata = {6'h0, sp1_pos_y_rdata, 6'h0, sp1_pos_x_rdata};
-assign sp1_pos_x_rdata = 10'h0;
-assign sp1_pos_y_rdata = 10'h0;
+wire [8:0] sp1_pos_x_wdata = wdata[8:0];
+wire [8:0] sp1_pos_x_rdata;
+wire [8:0] sp1_pos_y_wdata = wdata[24:16];
+wire [8:0] sp1_pos_y_rdata;
+wire [31:0] __sp1_pos_rdata = {7'h0, sp1_pos_y_rdata, 7'h0, sp1_pos_x_rdata};
+assign sp1_pos_x_rdata = 9'h0;
+assign sp1_pos_y_rdata = 9'h0;
 
 wire  sp2_csr_en_wdata = wdata[0];
 wire  sp2_csr_en_rdata;
@@ -435,13 +435,13 @@ assign sp2_csr_en_rdata = 1'h0;
 assign sp2_csr_tile_rdata = 8'h0;
 assign sp2_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp2_pos_x_wdata = wdata[9:0];
-wire [9:0] sp2_pos_x_rdata;
-wire [9:0] sp2_pos_y_wdata = wdata[25:16];
-wire [9:0] sp2_pos_y_rdata;
-wire [31:0] __sp2_pos_rdata = {6'h0, sp2_pos_y_rdata, 6'h0, sp2_pos_x_rdata};
-assign sp2_pos_x_rdata = 10'h0;
-assign sp2_pos_y_rdata = 10'h0;
+wire [8:0] sp2_pos_x_wdata = wdata[8:0];
+wire [8:0] sp2_pos_x_rdata;
+wire [8:0] sp2_pos_y_wdata = wdata[24:16];
+wire [8:0] sp2_pos_y_rdata;
+wire [31:0] __sp2_pos_rdata = {7'h0, sp2_pos_y_rdata, 7'h0, sp2_pos_x_rdata};
+assign sp2_pos_x_rdata = 9'h0;
+assign sp2_pos_y_rdata = 9'h0;
 
 wire  sp3_csr_en_wdata = wdata[0];
 wire  sp3_csr_en_rdata;
@@ -454,13 +454,13 @@ assign sp3_csr_en_rdata = 1'h0;
 assign sp3_csr_tile_rdata = 8'h0;
 assign sp3_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp3_pos_x_wdata = wdata[9:0];
-wire [9:0] sp3_pos_x_rdata;
-wire [9:0] sp3_pos_y_wdata = wdata[25:16];
-wire [9:0] sp3_pos_y_rdata;
-wire [31:0] __sp3_pos_rdata = {6'h0, sp3_pos_y_rdata, 6'h0, sp3_pos_x_rdata};
-assign sp3_pos_x_rdata = 10'h0;
-assign sp3_pos_y_rdata = 10'h0;
+wire [8:0] sp3_pos_x_wdata = wdata[8:0];
+wire [8:0] sp3_pos_x_rdata;
+wire [8:0] sp3_pos_y_wdata = wdata[24:16];
+wire [8:0] sp3_pos_y_rdata;
+wire [31:0] __sp3_pos_rdata = {7'h0, sp3_pos_y_rdata, 7'h0, sp3_pos_x_rdata};
+assign sp3_pos_x_rdata = 9'h0;
+assign sp3_pos_y_rdata = 9'h0;
 
 wire  sp4_csr_en_wdata = wdata[0];
 wire  sp4_csr_en_rdata;
@@ -473,13 +473,13 @@ assign sp4_csr_en_rdata = 1'h0;
 assign sp4_csr_tile_rdata = 8'h0;
 assign sp4_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp4_pos_x_wdata = wdata[9:0];
-wire [9:0] sp4_pos_x_rdata;
-wire [9:0] sp4_pos_y_wdata = wdata[25:16];
-wire [9:0] sp4_pos_y_rdata;
-wire [31:0] __sp4_pos_rdata = {6'h0, sp4_pos_y_rdata, 6'h0, sp4_pos_x_rdata};
-assign sp4_pos_x_rdata = 10'h0;
-assign sp4_pos_y_rdata = 10'h0;
+wire [8:0] sp4_pos_x_wdata = wdata[8:0];
+wire [8:0] sp4_pos_x_rdata;
+wire [8:0] sp4_pos_y_wdata = wdata[24:16];
+wire [8:0] sp4_pos_y_rdata;
+wire [31:0] __sp4_pos_rdata = {7'h0, sp4_pos_y_rdata, 7'h0, sp4_pos_x_rdata};
+assign sp4_pos_x_rdata = 9'h0;
+assign sp4_pos_y_rdata = 9'h0;
 
 wire  sp5_csr_en_wdata = wdata[0];
 wire  sp5_csr_en_rdata;
@@ -492,13 +492,13 @@ assign sp5_csr_en_rdata = 1'h0;
 assign sp5_csr_tile_rdata = 8'h0;
 assign sp5_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp5_pos_x_wdata = wdata[9:0];
-wire [9:0] sp5_pos_x_rdata;
-wire [9:0] sp5_pos_y_wdata = wdata[25:16];
-wire [9:0] sp5_pos_y_rdata;
-wire [31:0] __sp5_pos_rdata = {6'h0, sp5_pos_y_rdata, 6'h0, sp5_pos_x_rdata};
-assign sp5_pos_x_rdata = 10'h0;
-assign sp5_pos_y_rdata = 10'h0;
+wire [8:0] sp5_pos_x_wdata = wdata[8:0];
+wire [8:0] sp5_pos_x_rdata;
+wire [8:0] sp5_pos_y_wdata = wdata[24:16];
+wire [8:0] sp5_pos_y_rdata;
+wire [31:0] __sp5_pos_rdata = {7'h0, sp5_pos_y_rdata, 7'h0, sp5_pos_x_rdata};
+assign sp5_pos_x_rdata = 9'h0;
+assign sp5_pos_y_rdata = 9'h0;
 
 wire  sp6_csr_en_wdata = wdata[0];
 wire  sp6_csr_en_rdata;
@@ -511,13 +511,13 @@ assign sp6_csr_en_rdata = 1'h0;
 assign sp6_csr_tile_rdata = 8'h0;
 assign sp6_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp6_pos_x_wdata = wdata[9:0];
-wire [9:0] sp6_pos_x_rdata;
-wire [9:0] sp6_pos_y_wdata = wdata[25:16];
-wire [9:0] sp6_pos_y_rdata;
-wire [31:0] __sp6_pos_rdata = {6'h0, sp6_pos_y_rdata, 6'h0, sp6_pos_x_rdata};
-assign sp6_pos_x_rdata = 10'h0;
-assign sp6_pos_y_rdata = 10'h0;
+wire [8:0] sp6_pos_x_wdata = wdata[8:0];
+wire [8:0] sp6_pos_x_rdata;
+wire [8:0] sp6_pos_y_wdata = wdata[24:16];
+wire [8:0] sp6_pos_y_rdata;
+wire [31:0] __sp6_pos_rdata = {7'h0, sp6_pos_y_rdata, 7'h0, sp6_pos_x_rdata};
+assign sp6_pos_x_rdata = 9'h0;
+assign sp6_pos_y_rdata = 9'h0;
 
 wire  sp7_csr_en_wdata = wdata[0];
 wire  sp7_csr_en_rdata;
@@ -530,13 +530,13 @@ assign sp7_csr_en_rdata = 1'h0;
 assign sp7_csr_tile_rdata = 8'h0;
 assign sp7_csr_paloffs_rdata = 4'h0;
 
-wire [9:0] sp7_pos_x_wdata = wdata[9:0];
-wire [9:0] sp7_pos_x_rdata;
-wire [9:0] sp7_pos_y_wdata = wdata[25:16];
-wire [9:0] sp7_pos_y_rdata;
-wire [31:0] __sp7_pos_rdata = {6'h0, sp7_pos_y_rdata, 6'h0, sp7_pos_x_rdata};
-assign sp7_pos_x_rdata = 10'h0;
-assign sp7_pos_y_rdata = 10'h0;
+wire [8:0] sp7_pos_x_wdata = wdata[8:0];
+wire [8:0] sp7_pos_x_rdata;
+wire [8:0] sp7_pos_y_wdata = wdata[24:16];
+wire [8:0] sp7_pos_y_rdata;
+wire [31:0] __sp7_pos_rdata = {7'h0, sp7_pos_y_rdata, 7'h0, sp7_pos_x_rdata};
+assign sp7_pos_x_rdata = 9'h0;
+assign sp7_pos_y_rdata = 9'h0;
 
 wire [15:0] lcd_pxfifo_wdata = wdata[15:0];
 wire [15:0] lcd_pxfifo_rdata;
@@ -652,8 +652,8 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		csr_halt_hsync_o <= 1'h0;
 		csr_halt_vsync_o <= 1'h0;
-		dispsize_w_o <= 10'h0;
-		dispsize_h_o <= 10'h0;
+		dispsize_w_o <= 9'h0;
+		dispsize_h_o <= 9'h0;
 		default_bg_colour_o <= 15'h0;
 		bg0_csr_en_o <= 1'h0;
 		bg0_csr_pixmode_o <= 3'h0;
@@ -683,43 +683,43 @@ always @ (posedge clk or negedge rst_n) begin
 		sp0_csr_en_o <= 1'h0;
 		sp0_csr_tile_o <= 8'h0;
 		sp0_csr_paloffs_o <= 4'h0;
-		sp0_pos_x_o <= 10'h0;
-		sp0_pos_y_o <= 10'h0;
+		sp0_pos_x_o <= 9'h0;
+		sp0_pos_y_o <= 9'h0;
 		sp1_csr_en_o <= 1'h0;
 		sp1_csr_tile_o <= 8'h0;
 		sp1_csr_paloffs_o <= 4'h0;
-		sp1_pos_x_o <= 10'h0;
-		sp1_pos_y_o <= 10'h0;
+		sp1_pos_x_o <= 9'h0;
+		sp1_pos_y_o <= 9'h0;
 		sp2_csr_en_o <= 1'h0;
 		sp2_csr_tile_o <= 8'h0;
 		sp2_csr_paloffs_o <= 4'h0;
-		sp2_pos_x_o <= 10'h0;
-		sp2_pos_y_o <= 10'h0;
+		sp2_pos_x_o <= 9'h0;
+		sp2_pos_y_o <= 9'h0;
 		sp3_csr_en_o <= 1'h0;
 		sp3_csr_tile_o <= 8'h0;
 		sp3_csr_paloffs_o <= 4'h0;
-		sp3_pos_x_o <= 10'h0;
-		sp3_pos_y_o <= 10'h0;
+		sp3_pos_x_o <= 9'h0;
+		sp3_pos_y_o <= 9'h0;
 		sp4_csr_en_o <= 1'h0;
 		sp4_csr_tile_o <= 8'h0;
 		sp4_csr_paloffs_o <= 4'h0;
-		sp4_pos_x_o <= 10'h0;
-		sp4_pos_y_o <= 10'h0;
+		sp4_pos_x_o <= 9'h0;
+		sp4_pos_y_o <= 9'h0;
 		sp5_csr_en_o <= 1'h0;
 		sp5_csr_tile_o <= 8'h0;
 		sp5_csr_paloffs_o <= 4'h0;
-		sp5_pos_x_o <= 10'h0;
-		sp5_pos_y_o <= 10'h0;
+		sp5_pos_x_o <= 9'h0;
+		sp5_pos_y_o <= 9'h0;
 		sp6_csr_en_o <= 1'h0;
 		sp6_csr_tile_o <= 8'h0;
 		sp6_csr_paloffs_o <= 4'h0;
-		sp6_pos_x_o <= 10'h0;
-		sp6_pos_y_o <= 10'h0;
+		sp6_pos_x_o <= 9'h0;
+		sp6_pos_y_o <= 9'h0;
 		sp7_csr_en_o <= 1'h0;
 		sp7_csr_tile_o <= 8'h0;
 		sp7_csr_paloffs_o <= 4'h0;
-		sp7_pos_x_o <= 10'h0;
-		sp7_pos_y_o <= 10'h0;
+		sp7_pos_x_o <= 9'h0;
+		sp7_pos_y_o <= 9'h0;
 		lcd_csr_lcd_cs_o <= 1'h1;
 		lcd_csr_lcd_dc_o <= 1'h0;
 		lcd_csr_lcd_shiftcnt_o <= 5'h0;

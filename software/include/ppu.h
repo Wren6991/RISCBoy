@@ -10,7 +10,7 @@
 typedef volatile uint32_t io_rw_32;
 
 #define N_PPU_BACKGROUNDS 2
-#define N_PPU_SPRITES 4
+#define N_PPU_SPRITES 8
 
 struct ppu_hw {
 	io_rw_32 csr;

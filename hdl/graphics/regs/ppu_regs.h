@@ -87,12 +87,12 @@
 
 // Field: DISPSIZE_W  Access: WO
 #define PPU_DISPSIZE_W_LSB  0
-#define PPU_DISPSIZE_W_BITS 10
-#define PPU_DISPSIZE_W_MASK 0x3ff
+#define PPU_DISPSIZE_W_BITS 9
+#define PPU_DISPSIZE_W_MASK 0x1ff
 // Field: DISPSIZE_H  Access: WO
 #define PPU_DISPSIZE_H_LSB  16
-#define PPU_DISPSIZE_H_BITS 10
-#define PPU_DISPSIZE_H_MASK 0x3ff0000
+#define PPU_DISPSIZE_H_BITS 9
+#define PPU_DISPSIZE_H_MASK 0x1ff0000
 
 /*******************************************************************************
 *                              DEFAULT_BG_COLOUR                               *
@@ -114,12 +114,12 @@
 
 // Field: BEAM_X  Access: ROV
 #define PPU_BEAM_X_LSB  0
-#define PPU_BEAM_X_BITS 10
-#define PPU_BEAM_X_MASK 0x3ff
+#define PPU_BEAM_X_BITS 9
+#define PPU_BEAM_X_MASK 0x1ff
 // Field: BEAM_Y  Access: ROV
 #define PPU_BEAM_Y_LSB  16
-#define PPU_BEAM_Y_BITS 10
-#define PPU_BEAM_Y_MASK 0x3ff0000
+#define PPU_BEAM_Y_BITS 9
+#define PPU_BEAM_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   BG0_CSR                                    *
@@ -335,14 +335,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP0_POS_X_LSB  0
-#define PPU_SP0_POS_X_BITS 10
-#define PPU_SP0_POS_X_MASK 0x3ff
+#define PPU_SP0_POS_X_BITS 9
+#define PPU_SP0_POS_X_MASK 0x1ff
 // Field: SP0_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP0_POS_Y_LSB  16
-#define PPU_SP0_POS_Y_BITS 10
-#define PPU_SP0_POS_Y_MASK 0x3ff0000
+#define PPU_SP0_POS_Y_BITS 9
+#define PPU_SP0_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP1_CSR                                    *
@@ -376,14 +376,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP1_POS_X_LSB  0
-#define PPU_SP1_POS_X_BITS 10
-#define PPU_SP1_POS_X_MASK 0x3ff
+#define PPU_SP1_POS_X_BITS 9
+#define PPU_SP1_POS_X_MASK 0x1ff
 // Field: SP1_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP1_POS_Y_LSB  16
-#define PPU_SP1_POS_Y_BITS 10
-#define PPU_SP1_POS_Y_MASK 0x3ff0000
+#define PPU_SP1_POS_Y_BITS 9
+#define PPU_SP1_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP2_CSR                                    *
@@ -417,14 +417,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP2_POS_X_LSB  0
-#define PPU_SP2_POS_X_BITS 10
-#define PPU_SP2_POS_X_MASK 0x3ff
+#define PPU_SP2_POS_X_BITS 9
+#define PPU_SP2_POS_X_MASK 0x1ff
 // Field: SP2_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP2_POS_Y_LSB  16
-#define PPU_SP2_POS_Y_BITS 10
-#define PPU_SP2_POS_Y_MASK 0x3ff0000
+#define PPU_SP2_POS_Y_BITS 9
+#define PPU_SP2_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP3_CSR                                    *
@@ -458,14 +458,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP3_POS_X_LSB  0
-#define PPU_SP3_POS_X_BITS 10
-#define PPU_SP3_POS_X_MASK 0x3ff
+#define PPU_SP3_POS_X_BITS 9
+#define PPU_SP3_POS_X_MASK 0x1ff
 // Field: SP3_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP3_POS_Y_LSB  16
-#define PPU_SP3_POS_Y_BITS 10
-#define PPU_SP3_POS_Y_MASK 0x3ff0000
+#define PPU_SP3_POS_Y_BITS 9
+#define PPU_SP3_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP4_CSR                                    *
@@ -499,14 +499,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP4_POS_X_LSB  0
-#define PPU_SP4_POS_X_BITS 10
-#define PPU_SP4_POS_X_MASK 0x3ff
+#define PPU_SP4_POS_X_BITS 9
+#define PPU_SP4_POS_X_MASK 0x1ff
 // Field: SP4_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP4_POS_Y_LSB  16
-#define PPU_SP4_POS_Y_BITS 10
-#define PPU_SP4_POS_Y_MASK 0x3ff0000
+#define PPU_SP4_POS_Y_BITS 9
+#define PPU_SP4_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP5_CSR                                    *
@@ -540,14 +540,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP5_POS_X_LSB  0
-#define PPU_SP5_POS_X_BITS 10
-#define PPU_SP5_POS_X_MASK 0x3ff
+#define PPU_SP5_POS_X_BITS 9
+#define PPU_SP5_POS_X_MASK 0x1ff
 // Field: SP5_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP5_POS_Y_LSB  16
-#define PPU_SP5_POS_Y_BITS 10
-#define PPU_SP5_POS_Y_MASK 0x3ff0000
+#define PPU_SP5_POS_Y_BITS 9
+#define PPU_SP5_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP6_CSR                                    *
@@ -581,14 +581,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP6_POS_X_LSB  0
-#define PPU_SP6_POS_X_BITS 10
-#define PPU_SP6_POS_X_MASK 0x3ff
+#define PPU_SP6_POS_X_BITS 9
+#define PPU_SP6_POS_X_MASK 0x1ff
 // Field: SP6_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP6_POS_Y_LSB  16
-#define PPU_SP6_POS_Y_BITS 10
-#define PPU_SP6_POS_Y_MASK 0x3ff0000
+#define PPU_SP6_POS_Y_BITS 9
+#define PPU_SP6_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   SP7_CSR                                    *
@@ -622,14 +622,14 @@
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
 #define PPU_SP7_POS_X_LSB  0
-#define PPU_SP7_POS_X_BITS 10
-#define PPU_SP7_POS_X_MASK 0x3ff
+#define PPU_SP7_POS_X_BITS 9
+#define PPU_SP7_POS_X_MASK 0x1ff
 // Field: SP7_POS_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
 #define PPU_SP7_POS_Y_LSB  16
-#define PPU_SP7_POS_Y_BITS 10
-#define PPU_SP7_POS_Y_MASK 0x3ff0000
+#define PPU_SP7_POS_Y_BITS 9
+#define PPU_SP7_POS_Y_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                  LCD_PXFIFO                                  *

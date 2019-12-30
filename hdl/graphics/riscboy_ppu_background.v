@@ -16,46 +16,46 @@
  *********************************************************************/
 
 module riscboy_ppu_background #(
-	parameter W_COORD = 9,
+	parameter W_SCREEN_COORD = 9,
+	parameter W_PLAYFIELD_COORD = 10,
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
 	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),
-	parameter W_LOG_COORD = $clog2(W_COORD),
+	parameter W_LOG_COORD = $clog2(W_PLAYFIELD_COORD),
 	parameter BUS_SIZE_MAX = $clog2(W_DATA) - 3
 ) (
-	input  wire                   clk,
-	input  wire                   rst_n,
+	input  wire                         clk,
+	input  wire                         rst_n,
 
-	input  wire                   en,
-	input  wire                   flush,
+	input  wire                         en,
+	input  wire                         flush,
 
-	input  wire [W_COORD-1:0]     beam_x,
-	input  wire [W_COORD-1:0]     beam_y,
+	input  wire [W_SCREEN_COORD-1:0]    beam_x,
+	input  wire [W_SCREEN_COORD-1:0]    beam_y,
 
-	output wire                   bus_vld,
-	output wire [W_ADDR-1:0]      bus_addr,
-	output wire [1:0]             bus_size,
-	input  wire                   bus_rdy,
-	input  wire [W_DATA-1:0]      bus_data,
+	output wire                         bus_vld,
+	output wire [W_ADDR-1:0]            bus_addr,
+	output wire [1:0]                   bus_size,
+	input  wire                         bus_rdy,
+	input  wire [W_DATA-1:0]            bus_data,
 
-	// Config signals -- source tbd
-	input  wire [W_COORD-1:0]     cfg_scroll_x,
-	input  wire [W_COORD-1:0]     cfg_scroll_y,
-	input  wire [W_LOG_COORD-1:0] cfg_log_w,
-	input  wire [W_LOG_COORD-1:0] cfg_log_h,
-	input  wire [W_ADDR-1:0]      cfg_tileset_base,
-	input  wire [W_ADDR-1:0]      cfg_tilemap_base,
-	input  wire                   cfg_tile_size,
-	input  wire [2:0]             cfg_pixel_mode,
-	input  wire                   cfg_transparency,
-	input  wire [3:0]             cfg_palette_offset,
-	output wire                   out_vld,
-	input  wire                   out_rdy,
-	output wire                   out_alpha,
-	output wire [W_OUTDATA-1:0]   out_pixdata
+	input  wire [W_PLAYFIELD_COORD-1:0] cfg_scroll_x,
+	input  wire [W_PLAYFIELD_COORD-1:0] cfg_scroll_y,
+	input  wire [W_LOG_COORD-1:0]       cfg_log_w,
+	input  wire [W_LOG_COORD-1:0]       cfg_log_h,
+	input  wire [W_ADDR-1:0]            cfg_tileset_base,
+	input  wire [W_ADDR-1:0]            cfg_tilemap_base,
+	input  wire                         cfg_tile_size,
+	input  wire [2:0]                   cfg_pixel_mode,
+	input  wire                         cfg_transparency,
+	input  wire [3:0]                   cfg_palette_offset,
+	output wire                         out_vld,
+	input  wire                         out_rdy,
+	output wire                         out_alpha,
+	output wire [W_OUTDATA-1:0]         out_pixdata
 );
 
 `include "riscboy_ppu_const.vh"
@@ -64,19 +64,19 @@ module riscboy_ppu_background #(
 // Coordinate handling
 
 // Pixel's location in the background coordinate system
-reg [W_COORD-1:0] u;
-reg [W_COORD-1:0] v;
+reg [W_PLAYFIELD_COORD-1:0] u;
+reg [W_PLAYFIELD_COORD-1:0] v;
 
-wire [W_COORD-1:0] w_mask = ~({{W_COORD{1'b1}}, 1'b0} << cfg_log_w);
-wire [W_COORD-1:0] h_mask = ~({{W_COORD{1'b1}}, 1'b0} << cfg_log_h);
+wire [W_PLAYFIELD_COORD-1:0] w_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 1'b0} << cfg_log_w);
+wire [W_PLAYFIELD_COORD-1:0] h_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 1'b0} << cfg_log_h);
 
-wire [W_COORD-1:0] u_flushval = (beam_x + cfg_scroll_x) & w_mask;
-wire [W_COORD-1:0] v_flushval = (beam_y + cfg_scroll_y) & h_mask;
+wire [W_PLAYFIELD_COORD-1:0] u_flushval = (beam_x + cfg_scroll_x) & w_mask;
+wire [W_PLAYFIELD_COORD-1:0] v_flushval = (beam_y + cfg_scroll_y) & h_mask;
 
 always @ (posedge clk) begin
 	if (!rst_n) begin
-		u <= {W_COORD{1'b0}};
-		v <= {W_COORD{1'b0}};
+		u <= {W_PLAYFIELD_COORD{1'b0}};
+		v <= {W_PLAYFIELD_COORD{1'b0}};
 	end else if (flush) begin
 		u <= u_flushval;
 		v <= v_flushval;
@@ -171,7 +171,7 @@ end
 wire [W_LOG_COORD-1:0] log_playfield_width_tiles = cfg_log_w + 1'b1 - tile_log_size;
 
 
-wire [W_ADDR-1:0] idx_of_tile_in_tilemap = (u >> tile_log_size) | ({{W_ADDR-W_COORD{1'b0}}, v >> tile_log_size} << log_playfield_width_tiles);
+wire [W_ADDR-1:0] idx_of_tile_in_tilemap = (u >> tile_log_size) | ({{W_ADDR-W_PLAYFIELD_COORD{1'b0}}, v >> tile_log_size} << log_playfield_width_tiles);
 
 wire [W_ADDR-1:0] tile_addr = cfg_tilemap_base | idx_of_tile_in_tilemap;
 

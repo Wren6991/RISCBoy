@@ -3,7 +3,8 @@ bus: apb
 addr: 16
 data: 32
 params:
-  W_COORD: 10
+  W_SCREEN_COORD: 9
+  W_PLAYFIELD_COORD: 10
   N_BACKGROUND: 2
   N_SPRITE: 8
 regs:
@@ -18,8 +19,8 @@ regs:
   - name: dispsize
     info: Configure display dimensions. Actual width is W + 1, height is H + 1
     bits:
-      - {b: [W_COORD - 1, 0],  name: w, access: wo}
-      - {b: [16 + W_COORD - 1, 16], name: h, access: wo}
+      - {b: [W_SCREEN_COORD - 1, 0],  name: w, access: wo}
+      - {b: [16 + W_SCREEN_COORD - 1, 16], name: h, access: wo}
   - name: default_bg_colour
     info: Colour displayed when all blended pixels are transparent, or all sprites/backgrounds are disabled.
     bits:
@@ -27,8 +28,8 @@ regs:
   - name: beam
     info: Scan coordinates of the next pixel to be blended (read-only)
     bits:
-      - {b: [W_COORD - 1, 0],  name: x, access: rov}
-      - {b: [16 + W_COORD - 1, 16], name: y, access: rov}
+      - {b: [W_SCREEN_COORD - 1, 0],  name: x, access: rov}
+      - {b: [16 + W_SCREEN_COORD - 1, 16], name: y, access: rov}
   - generate: |
       for bg in range(N_BACKGROUND):
         _('- name: bg{}_csr'.format(bg))
@@ -46,8 +47,8 @@ regs:
         _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Scroll the screen within the playfield')
         _('  bits:')
-        _('    - {b: [16 + W_COORD - 1, 16], name: y, access: wo, concat: bg_scroll_y}')
-        _('    - {b: [W_COORD - 1, 0], name: x, access: wo, concat: bg_scroll_x}')
+        _('    - {b: [16 + W_PLAYFIELD_COORD - 1, 16], name: y, access: wo, concat: bg_scroll_y}')
+        _('    - {b: [W_PLAYFIELD_COORD - 1, 0], name: x, access: wo, concat: bg_scroll_x}')
         _('- name: bg{}_tsbase'.format(bg))
         _('  wstb: "bg_flush[{}]"'.format(bg))
         _('  info: Base address for BG{} tileset. Tileset must be naturally aligned.'.format(bg))
@@ -82,8 +83,8 @@ regs:
         _('  info: Position of sprite {}'.format(sp))
         _('  wstb: "sp_flush[{}]"'.format(sp))
         _('  bits:')
-        _('    - {b: [W_COORD - 1, 0], name: x, access: wo, info: "X position of sprite. The hardware adjusts this downward by one sprite width, so a value of 0 means fully off left of screen.", concat: sp_pos_x}')
-        _('    - {b: [W_COORD - 1 + 16, 16], name: y, access: wo, info: "Y position of sprite. The hardware adjusts this downward by one sprite height, so a value of 0 means fully above screen.", concat: sp_pos_y}')
+        _('    - {b: [W_SCREEN_COORD - 1, 0], name: x, access: wo, info: "X position of sprite. The hardware adjusts this downward by one sprite width, so a value of 0 means fully off left of screen.", concat: sp_pos_x}')
+        _('    - {b: [W_SCREEN_COORD - 1 + 16, 16], name: y, access: wo, info: "Y position of sprite. The hardware adjusts this downward by one sprite height, so a value of 0 means fully above screen.", concat: sp_pos_y}')
   - name: lcd_pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
     bits:

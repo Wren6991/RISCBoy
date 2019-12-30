@@ -45,7 +45,7 @@ $(CHIPNAME).asc: $(CHIPNAME).json $(CHIPNAME).pcf
 	@echo ">>> Place and Route"
 	@echo
 	$(NEXTPNR) -r --placer sa --$(DEVICE) --package $(PACKAGE) --pcf $(CHIPNAME).pcf --json $(CHIPNAME).json --asc $(CHIPNAME).asc --quiet --log pnr.log
-	@grep "Info: Max frequency for clock 'clk_sys" pnr.log | tail -n 1
+	@grep "Info: Max frequency for clock " pnr.log | tail -n 1
 
 $(CHIPNAME).bin: $(CHIPNAME).asc
 	@echo ">>> Generate Bitstream"

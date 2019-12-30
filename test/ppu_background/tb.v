@@ -42,7 +42,8 @@ wire                     out_alpha;
 wire [W_OUTDATA-1:0]     out_pixdata;
 
 riscboy_ppu_background #(
-	.W_COORD           (W_COORD),
+	.W_SCREEN_COORD    (W_COORD),
+	.W_PLAYFIELD_COORD (W_COORD),
 	.W_OUTDATA         (W_OUTDATA),
 	.W_ADDR            (W_ADDR),
 	.W_DATA            (W_DATA)

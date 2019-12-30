@@ -58,17 +58,18 @@
 
 localparam W_PIXDATA = 15;
 localparam W_LCD_PIXDATA = 16;
-localparam W_COORD = 10;
+localparam W_SCREEN_COORD = 9;
+localparam W_PLAYFIELD_COORD = 10;
 parameter N_LAYERS = 2;
 // Should be locals but ISIM bug etc etc:
 parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
 parameter W_LCDCTRL_SHAMT = $clog2(W_LCD_PIXDATA + 1);
-parameter W_LOG_COORD = $clog2(W_COORD);
+parameter W_LOG_COORD = $clog2(W_PLAYFIELD_COORD);
 parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1;
 parameter W_SHIFTCTR = $clog2(W_DATA);
 
 localparam N_BACKGROUND = 2;
-localparam N_SPRITE = 8;
+localparam N_SPRITE = 4;
 
 // ----------------------------------------------------------------------------
 // Reset synchronisers and regblock
@@ -88,52 +89,52 @@ reset_sync sync_rst_lcd (
 	.rst_n_out (rst_n_lcd)
 );
 
-wire                       csr_run;
-wire                       csr_halt;
-wire                       csr_running;
-wire                       csr_halt_hsync;
-wire                       csr_halt_vsync;
+wire                                      csr_run;
+wire                                      csr_halt;
+wire                                      csr_running;
+wire                                      csr_halt_hsync;
+wire                                      csr_halt_vsync;
 
-wire [W_PIXDATA-1:0]       default_bg_colour;
+wire [W_PIXDATA-1:0]                      default_bg_colour;
 
-wire [W_COORD-1:0]         raster_w;
-wire [W_COORD-1:0]         raster_h;
-wire [W_COORD-1:0]         raster_x;
-wire [W_COORD-1:0]         raster_y;
+wire [W_SCREEN_COORD-1:0]                 raster_w;
+wire [W_SCREEN_COORD-1:0]                 raster_h;
+wire [W_SCREEN_COORD-1:0]                 raster_x;
+wire [W_SCREEN_COORD-1:0]                 raster_y;
 
-wire [N_BACKGROUND-1:0]             bg_csr_en;
-wire [N_BACKGROUND*W_PIXMODE-1:0]   bg_csr_pixmode;
-wire [N_BACKGROUND-1:0]             bg_csr_transparency;
-wire [N_BACKGROUND-1:0]             bg_csr_tilesize;
-wire [N_BACKGROUND*W_LOG_COORD-1:0] bg_csr_pfwidth;
-wire [N_BACKGROUND*W_LOG_COORD-1:0] bg_csr_pfheight;
-wire [N_BACKGROUND*4-1:0]           bg_csr_paloffs;
-wire [N_BACKGROUND-1:0]             bg_flush;
-wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_y;
-wire [N_BACKGROUND*W_COORD-1:0]     bg_scroll_x;
-wire [N_BACKGROUND*24-1:0]          bg_tsbase;
-wire [N_BACKGROUND*24-1:0]          bg_tmbase;
+wire [N_BACKGROUND-1:0]                   bg_csr_en;
+wire [N_BACKGROUND*W_PIXMODE-1:0]         bg_csr_pixmode;
+wire [N_BACKGROUND-1:0]                   bg_csr_transparency;
+wire [N_BACKGROUND-1:0]                   bg_csr_tilesize;
+wire [N_BACKGROUND*W_LOG_COORD-1:0]       bg_csr_pfwidth;
+wire [N_BACKGROUND*W_LOG_COORD-1:0]       bg_csr_pfheight;
+wire [N_BACKGROUND*4-1:0]                 bg_csr_paloffs;
+wire [N_BACKGROUND-1:0]                   bg_flush;
+wire [N_BACKGROUND*W_PLAYFIELD_COORD-1:0] bg_scroll_y;
+wire [N_BACKGROUND*W_PLAYFIELD_COORD-1:0] bg_scroll_x;
+wire [N_BACKGROUND*24-1:0]                bg_tsbase;
+wire [N_BACKGROUND*24-1:0]                bg_tmbase;
 
-wire [N_SPRITE-1:0]           sprite_en;
-wire [N_SPRITE*8-1:0]         sprite_tile;
-wire [N_SPRITE*4-1:0]         sprite_paloffs;
-wire [N_SPRITE*W_COORD-1:0]   sprite_pos_x;
-wire [N_SPRITE*W_COORD-1:0]   sprite_pos_y;
-wire [N_SPRITE-1:0]           sprite_flush;
-wire                          sprite_flush_all;
-wire [23:0]                   sprite_tsbase;
-wire [2:0]                    sprite_pixmode;
-wire                          sprite_tilesize;
+wire [N_SPRITE-1:0]                       sprite_en;
+wire [N_SPRITE*8-1:0]                     sprite_tile;
+wire [N_SPRITE*4-1:0]                     sprite_paloffs;
+wire [N_SPRITE*W_SCREEN_COORD-1:0]        sprite_pos_x;
+wire [N_SPRITE*W_SCREEN_COORD-1:0]        sprite_pos_y;
+wire [N_SPRITE-1:0]                       sprite_flush;
+wire                                      sprite_flush_all;
+wire [23:0]                               sprite_tsbase;
+wire [2:0]                                sprite_pixmode;
+wire                                      sprite_tilesize;
 
-wire [W_LCD_PIXDATA-1:0]   pxfifo_direct_wdata;
-wire                       pxfifo_direct_wen;
+wire [W_LCD_PIXDATA-1:0]                  pxfifo_direct_wdata;
+wire                                      pxfifo_direct_wen;
 
-wire                       pxfifo_wfull;
-wire                       pxfifo_wempty;
-wire [W_PXFIFO_LEVEL-1:0]  pxfifo_wlevel;
+wire                                      pxfifo_wfull;
+wire                                      pxfifo_wempty;
+wire [W_PXFIFO_LEVEL-1:0]                 pxfifo_wlevel;
 
-wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt;
-wire                       lcdctrl_busy;
+wire [W_LCDCTRL_SHAMT-1:0]                lcdctrl_shamt;
+wire                                      lcdctrl_busy;
 
 ppu_regs regs (
 	.clk                       (clk_ppu),
@@ -220,7 +221,7 @@ end
 wire raster_count_advance;
 
 riscboy_ppu_raster_counter #(
-	.W_COORD (W_COORD)
+	.W_COORD (W_SCREEN_COORD)
 ) raster_counter_u (
 	.clk         (clk_ppu),
 	.rst_n       (rst_n_ppu),
@@ -368,7 +369,8 @@ wire              bg_bus_rdy  [0:N_BACKGROUND-1];
 generate
 for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 	riscboy_ppu_background #(
-		.W_COORD           (W_COORD),
+		.W_SCREEN_COORD    (W_SCREEN_COORD),
+		.W_PLAYFIELD_COORD (W_PLAYFIELD_COORD),
 		.W_OUTDATA         (W_PIXDATA),
 		.W_ADDR            (W_ADDR),
 		.W_DATA            (W_DATA),
@@ -387,8 +389,8 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 		.bus_rdy            (bg_bus_rdy[bg]),
 		.bus_data           (bg_bus_data[bg]),
 
-		.cfg_scroll_x       (bg_scroll_x[bg * W_COORD +: W_COORD]),
-		.cfg_scroll_y       (bg_scroll_y[bg * W_COORD +: W_COORD]),
+		.cfg_scroll_x       (bg_scroll_x[bg * W_PLAYFIELD_COORD +: W_PLAYFIELD_COORD]),
+		.cfg_scroll_y       (bg_scroll_y[bg * W_PLAYFIELD_COORD +: W_PLAYFIELD_COORD]),
 		.cfg_log_w          (bg_csr_pfwidth[bg * 4 +: 4]),
 		.cfg_log_h          (bg_csr_pfheight[bg * 4 +: 4]),
 		.cfg_tileset_base   ({bg_tsbase[bg * 24 +: 24], 8'h0}),
@@ -412,7 +414,7 @@ endgenerate
 wire [N_SPRITE-1:0]   sprite_agu_req;
 wire [N_SPRITE-1:0]   sprite_agu_ack;
 wire                  sprite_agu_active;
-wire [W_COORD-1:0]    sprite_agu_x_precount;
+wire [W_SCREEN_COORD-1:0] sprite_agu_x_precount;
 wire [4:0]            sprite_agu_x_postcount;
 wire [W_SHIFTCTR-1:0] sprite_agu_shift_seek_target;
 
@@ -431,7 +433,7 @@ riscboy_ppu_sprite_agu #(
 	.W_DATA    (W_DATA),
 	.W_ADDR    (W_ADDR),
 	.ADDR_MASK (ADDR_MASK),
-	.W_COORD   (W_COORD),
+	.W_COORD   (W_SCREEN_COORD),
 	.N_SPRITE  (N_SPRITE)
 ) sprite_agu (
 	.clk                      (clk_ppu),
@@ -470,7 +472,7 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
 	riscboy_ppu_sprite #(
 		.W_DATA    (W_DATA),
 		.W_OUTDATA (W_PIXDATA),
-		.W_COORD   (W_COORD)
+		.W_COORD   (W_SCREEN_COORD)
 	) sp (
 		.clk                   (clk_ppu),
 		.rst_n                 (rst_n_ppu),

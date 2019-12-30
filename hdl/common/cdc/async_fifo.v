@@ -32,7 +32,8 @@
 module async_fifo #(
 	parameter W_DATA = 16,
 	parameter W_ADDR = 3,
-	parameter SYNC_STAGES = 2
+	parameter SYNC_STAGES = 2,
+	parameter USE_MEM = 0
 ) (
 	input  wire              wrst_n,
 	input  wire              wclk,
