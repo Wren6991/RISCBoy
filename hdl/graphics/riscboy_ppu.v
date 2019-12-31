@@ -411,23 +411,22 @@ endgenerate
 // ----------------------------------------------------------------------------
 // Sprites and sprite AGU
 
-wire [N_SPRITE-1:0]   sprite_agu_req;
-wire [N_SPRITE-1:0]   sprite_agu_ack;
-wire                  sprite_agu_active;
-wire [W_SCREEN_COORD-1:0] sprite_agu_x_precount;
-wire [4:0]            sprite_agu_x_postcount;
-wire [W_SHIFTCTR-1:0] sprite_agu_shift_seek_target;
+wire [N_SPRITE-1:0]       sprite_agu_req;
+wire [N_SPRITE-1:0]       sprite_agu_ack;
+wire                      sprite_agu_active;
+wire [W_SCREEN_COORD-1:0] sprite_agu_x_count;
+wire [W_SHIFTCTR-1:0]     sprite_agu_shift_seek_target;
 
-wire                  sagu_bus_vld;
-wire [W_ADDR-1:0]     sagu_bus_addr;
-wire [1:0]            sagu_bus_size;
-wire [W_DATA-1:0]     sagu_bus_data;
-wire                  sagu_bus_rdy;
+wire                      sagu_bus_vld;
+wire [W_ADDR-1:0]         sagu_bus_addr;
+wire [1:0]                sagu_bus_size;
+wire [W_DATA-1:0]         sagu_bus_data;
+wire                      sagu_bus_rdy;
 
-wire [N_SPRITE-1:0]   sprite_bus_vld;
-wire [N_SPRITE-1:0]   sprite_bus_rdy;
-wire [N_SPRITE*5-1:0] sprite_bus_postcount;
-wire [W_DATA-1:0]     sprite_bus_data;
+wire [N_SPRITE-1:0]       sprite_bus_vld;
+wire [N_SPRITE-1:0]       sprite_bus_rdy;
+wire [N_SPRITE*5-1:0]     sprite_bus_postcount;
+wire [W_DATA-1:0]         sprite_bus_data;
 
 riscboy_ppu_sprite_agu #(
 	.W_DATA    (W_DATA),
@@ -451,8 +450,7 @@ riscboy_ppu_sprite_agu #(
 	.sprite_req               (sprite_agu_req),
 	.sprite_ack               (sprite_agu_ack),
 	.sprite_active            (sprite_agu_active),
-	.sprite_x_precount        (sprite_agu_x_precount),
-	.sprite_x_postcount       (sprite_agu_x_postcount),
+	.sprite_x_count           (sprite_agu_x_count),
 	.sprite_shift_seek_target (sprite_agu_shift_seek_target),
 
 	.sprite_bus_vld           (sprite_bus_vld),
@@ -479,14 +477,14 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
 		.flush                 (hsync || sprite_flush[sp] || sprite_flush_all),
 		.en                    (sprite_en[sp]),
 
+		.cfg_tilesize          (sprite_tilesize),
 		.cfg_pixel_mode        (sprite_pixmode),
 		.cfg_palette_offs      (sprite_paloffs[sp * 4 +: 4]),
 
 		.agu_req               (sprite_agu_req[sp]),
 		.agu_ack               (sprite_agu_ack[sp]),
 		.agu_active            (sprite_agu_active),
-		.agu_x_precount        (sprite_agu_x_precount),
-		.agu_x_postcount       (sprite_agu_x_postcount),
+		.agu_x_count           (sprite_agu_x_count),
 		.agu_shift_seek_target (sprite_agu_shift_seek_target),
 
 		.bus_vld               (sprite_bus_vld[sp]),

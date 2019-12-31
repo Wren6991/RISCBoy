@@ -23,8 +23,7 @@ module riscboy_ppu_sprite_agu #(
 	input  wire [N_SPRITE-1:0]          sprite_req,
 	output wire [N_SPRITE-1:0]          sprite_ack,
 	output wire                         sprite_active,
-	output wire [W_COORD-1:0]           sprite_x_precount,
-	output wire [4:0]                   sprite_x_postcount,
+	output wire [W_COORD-1:0]           sprite_x_count,
 	output wire [W_SHIFTCTR-1:0]        sprite_shift_seek_target,
 
 	input  wire [N_SPRITE-1:0]          sprite_bus_vld,
@@ -82,12 +81,13 @@ wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(cfg_sprite_pixmode);
 wire sprite_intersects_y = beam_y < chosen_sprite_pos_y && beam_y + tile_size >= chosen_sprite_pos_y;
 wire beam_x_right_of_lbound = beam_x + tile_size >= chosen_sprite_pos_x;
 wire beam_x_left_of_rbound = beam_x < chosen_sprite_pos_x;
-assign sprite_x_precount = beam_x_right_of_lbound ? {W_COORD{1'b0}} : chosen_sprite_pos_x - (beam_x + tile_size);
-assign sprite_x_postcount =
-	!beam_x_left_of_rbound  ? 5'h0 :
-	!beam_x_right_of_lbound ? tile_size : chosen_sprite_pos_x - beam_x;
-assign sprite_active = sprite_intersects_y && |{sprite_x_precount, sprite_x_postcount};
-assign sprite_shift_seek_target = {tile_size - sprite_x_postcount} << pixel_log_size;
+assign sprite_active = sprite_intersects_y && beam_x_left_of_rbound;
+
+assign sprite_x_count = beam_x_left_of_rbound ?
+	chosen_sprite_pos_x - beam_x : {W_COORD{1'b0}};
+
+assign sprite_shift_seek_target = beam_x_right_of_lbound ?
+	{tile_size - sprite_x_count[4:0]} << pixel_log_size : 5'h0;
 
 assign sprite_ack = sprite_req_gnt;
 
@@ -110,7 +110,7 @@ always @ (posedge clk or negedge rst_n)
 	if (!rst_n)
 		sprite_bus_gnt_reg <= {N_SPRITE{1'b0}};
 	else if (bus_rdy || ~|sprite_bus_gnt_reg)
-		sprite_bus_gnt_reg <= sprite_bus_gnt_comb;
+		sprite_bus_gnt_reg <= sprite_bus_gnt_comb & ~sprite_bus_rdy;
 
 wire [7:0] bus_chosen_tile;
 wire [4:0] bus_chosen_postcount;

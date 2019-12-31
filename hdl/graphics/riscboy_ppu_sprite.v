@@ -11,14 +11,14 @@ module riscboy_ppu_sprite #(
 	input  wire                  flush,
 	input  wire                  en,
 
+	input  wire                  cfg_tilesize,
 	input  wire [2:0]            cfg_pixel_mode,
 	input  wire [3:0]            cfg_palette_offs,
 
 	output wire                  agu_req,
 	input  wire                  agu_ack,
 	input  wire                  agu_active,
-	input  wire [W_COORD-1:0]    agu_x_precount,
-	input  wire [4:0]            agu_x_postcount,
+	input  wire [W_COORD-1:0]    agu_x_count,
 	input  wire [W_SHIFTCTR-1:0] agu_shift_seek_target,
 
 	output wire                  bus_vld,
@@ -38,6 +38,8 @@ reg                  need_agu_resp;
 reg [W_SHIFTCTR-1:0] shift_seek_target;
 reg                  active_this_scanline;
 
+assign agu_req = en && need_agu_resp;
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		need_agu_resp <= 1'b0;
@@ -52,28 +54,20 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-assign agu_req = en && need_agu_resp;
-
-// Precount: how many pixels remaining until the sprite region begins.
-// Postcount: how many pixels until it ends, once it has begun.
-reg [W_COORD-1:0] x_precount;
-reg [4:0]         x_postcount;
+reg [W_COORD-1:0] x_count;
+wire msbs_set = |x_count[W_COORD-1:5];
+wire pivot_set = cfg_tilesize ? x_count[4] : x_count[3];
+wire lsbs_set = |{x_count[3] && cfg_tilesize, x_count[2:0]};
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		x_precount <= {W_COORD{1'b0}};
-		x_postcount <= {5{1'b0}};
+		x_count <= {W_COORD{1'b0}};
 	end else if (agu_ack) begin
-		x_precount <= agu_x_precount;
-		x_postcount <= agu_x_postcount;		
+		x_count <= agu_x_count;
 	end else if (out_vld && out_rdy) begin
-		if (|x_precount)
-			x_precount <= x_precount - 1'b1;
-		else if (|x_postcount)
-			x_postcount <= x_postcount - 1'b1;
+		x_count <= x_count - (msbs_set || pivot_set || lsbs_set);
 	end
 end
-
 
 // ----------------------------------------------------------------------------
 // Pixel streamer
@@ -111,9 +105,13 @@ riscboy_ppu_pixel_streamer #(
 	.out_rdy           (pixel_rdy)
 );
 
-wire beam_outside_sprite = ~|x_postcount || |x_precount;
+
+wire beam_outside_sprite =
+	msbs_set || (pivot_set && lsbs_set) || // to left
+	!(msbs_set || pivot_set || lsbs_set);  // to right
+
 assign out_vld = !en || (!need_agu_resp && !flush && (
-	beam_outside_sprite || pixel_vld || !active_this_scanline
+	beam_outside_sprite || !active_this_scanline || pixel_vld
 ));
 assign pixel_rdy = out_rdy && !beam_outside_sprite;
 
@@ -130,8 +128,8 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-assign bus_vld = bus_dphase_dirty || (pixel_load_req && |x_postcount && active_this_scanline && !need_agu_resp);
+assign bus_vld = bus_dphase_dirty || (pixel_load_req && !beam_outside_sprite && active_this_scanline && !need_agu_resp); // FIXME better not to wait so long before loading. This is a hack to avoid masking bus_postcount.
 assign pixel_load_ack = bus_rdy && !bus_dphase_dirty;
-assign bus_postcount = x_postcount;
+assign bus_postcount = x_count[4:0];
 
 endmodule
