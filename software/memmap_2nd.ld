@@ -200,6 +200,10 @@ SECTIONS
   . = ALIGN(32 / 8);
   __bss_end = .;
   _end = .; PROVIDE (end = .);
+  .noload (NOLOAD):
+  {
+    *(.noload .noload.*)
+  }
   . = DATA_SEGMENT_END (.);
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }

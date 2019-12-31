@@ -6,8 +6,10 @@
 #include "gpio.h"
 #include "pwm.h"
 
-uint16_t __attribute__ ((aligned (131072))) tileset[65536];
-uint8_t __attribute__ ((aligned (256))) tilemap[256];
+// Don't put the tile assets in .bss, so that we don't have to sit and watch
+// them be cleared in the simulator. We're about to fully initialise them anyway.
+uint16_t __attribute__ ((section (".noload"))) __attribute__ ((aligned (131072))) tileset[65536];
+uint8_t  __attribute__ ((section (".noload"))) __attribute__ ((aligned (256)))    tilemap[256];
 
 void render_frame()
 {
