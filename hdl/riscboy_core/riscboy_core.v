@@ -199,36 +199,6 @@ wire               ppu_apbs_pslverr;
 //  Masters
 // =============================================================================
 
-//`define DUMP_MEM
-
-`ifdef DUMP_MEM
-
-// To assist debugging on FPGA, this module just dumps out memory via BMPC
-
-memdump #(
-	.ADDR_START (32'h20080000),
-	.ADDR_STOP (32'h20080000 + 8192)
-) inst_revive_cpu (
-	.clk             (clk_sys),
-	.rst_n           (rst_n),
-	.ahblm_hready    (proc0_hready),
-	.ahblm_hresp     (proc0_hresp),
-	.ahblm_haddr     (proc0_haddr),
-	.ahblm_hwrite    (proc0_hwrite),
-	.ahblm_htrans    (proc0_htrans),
-	.ahblm_hsize     (proc0_hsize),
-	.ahblm_hburst    (proc0_hburst),
-	.ahblm_hprot     (proc0_hprot),
-	.ahblm_hmastlock (proc0_hmastlock),
-	.ahblm_hwdata    (proc0_hwdata),
-	.ahblm_hrdata    (proc0_hrdata),
-
-	.serial_out      (uart_tx)
-);
-
-
-`else
-
 hazard5_cpu #(
 	.RESET_VECTOR    (CPU_RESET_VECTOR)
 ) inst_revive_cpu (
@@ -250,8 +220,6 @@ hazard5_cpu #(
 		uart_irq
 	} | tbman_irq_force)
 );
-
-`endif
 
 riscboy_ppu #(
 	.PXFIFO_DEPTH (8)
@@ -498,11 +466,7 @@ uart_mini #(
 	.apbs_pready  (uart_pready),
 	.apbs_pslverr (uart_pslverr),
 	.rx           (uart_rx),
-`ifdef DUMP_MEM
-	.tx(),
-`else
 	.tx           (uart_tx),
-`endif
 	.irq          (uart_irq),
 	.dreq         ()
 );
