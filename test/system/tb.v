@@ -26,6 +26,11 @@ wire                    sram_we_n;
 wire                    sram_oe_n;
 wire [1:0]              sram_byte_n;
 
+wire                    lcd_cs;
+wire                    lcd_dc;
+wire                    lcd_sck;
+wire                    lcd_mosi;
+
 assign (pull0, pull1) pads = {N_PADS{1'b1}}; // stop getting Xs in processor when checking IOs
 
 // ============================================================================
@@ -44,6 +49,11 @@ riscboy_core #(
 	.padout      (padout),
 	.padoe       (padoe),
 	.padin       (padin),
+
+	.lcd_cs      (lcd_cs),
+	.lcd_dc      (lcd_dc),
+	.lcd_sck     (lcd_sck),
+	.lcd_mosi    (lcd_mosi),
 
 	.sram_addr   (sram_addr),
 	.sram_dq     (sram_dq),
@@ -97,10 +107,11 @@ sram_async #(
 );
 
 // ============================================================================
-// Bus Monitoring
+// Monitoring
 // ============================================================================
 
 localparam MONITOR_BUS = 0;
+localparam MONITOR_LCD = 1;
 
 localparam W_ADDR = 32;
 localparam W_DATA = 32;
@@ -143,6 +154,29 @@ always @ (posedge clk_sys or negedge rst_n) begin
 			$display("%t PROC0: WRITE <%h>%s: %h", $time, dph_addr, size_str, proc0_hwdata);
 		if (dph_act_r)
 			$display("%t PROC0: READ  <%h>%s: %h", $time, dph_addr, size_str, proc0_hrdata);
+	end
+end
+
+localparam LCD_DATSIZE = 16;
+
+initial if (MONITOR_LCD) begin: monitor_lcd
+	integer fd;
+	integer shift_count = 0;
+	reg [LCD_DATSIZE-1:0] sreg = 0;
+	fd = $fopen("lcd_dump.hex", "wb");
+	while (1) begin
+		@ (posedge lcd_sck or posedge lcd_cs);
+		if (lcd_cs) begin
+			shift_count = 0;
+		end else if (lcd_dc) begin
+			sreg = {sreg[LCD_DATSIZE-2:0], lcd_mosi};
+			shift_count = shift_count + 1;
+			if (shift_count >= LCD_DATSIZE) begin
+				shift_count = 0;
+				$fdisplay(fd, "%h", sreg);
+				$fflush(fd);
+			end
+		end
 	end
 end
 
