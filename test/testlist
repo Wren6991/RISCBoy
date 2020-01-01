@@ -130,6 +130,7 @@ system TEST=float_tiny
 system TEST=uart_tx
 system TEST=uart_loopback
 system TEST=spi_smoke
+system TEST=sprite_smoke
 #system TEST=memtest_basic # FIXME can't run this now that we execute code from the memory it tests!
 system TEST=gpio
 system TEST=test_ecall

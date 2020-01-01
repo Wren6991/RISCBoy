@@ -163,7 +163,7 @@ initial if (MONITOR_LCD) begin: monitor_lcd
 	integer fd;
 	integer shift_count = 0;
 	reg [LCD_DATSIZE-1:0] sreg = 0;
-	fd = $fopen("lcd_dump.hex", "wb");
+	fd = $fopen("../lcd_dump.hex", "wb");
 	while (1) begin
 		@ (posedge lcd_sck or posedge lcd_cs);
 		if (lcd_cs) begin

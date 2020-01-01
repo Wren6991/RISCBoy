@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+import sys
+
+# Need to account for RGB555 -> RGB565
+sprite_img = list(((i & 0x7fe0) << 1) | (i & 0x1f) for i in range(256))
+
+SCREEN_WIDTH = 320
+PAD = [0] * SCREEN_WIDTH
+
+expected = []
+
+for i in range(16):
+	expected.extend((sprite_img[(i + 1) * 16 - i : (i + 1) * 16] + PAD)[:SCREEN_WIDTH])
+
+for i in range(17):
+	expected.extend((PAD + sprite_img[0 : 16 - i])[-SCREEN_WIDTH:])
+
+actual = list(int(x, 16) for x in open("lcd_dump.hex"))
+
+if len(actual) != len(expected):
+	print("Bad length, expected {}, got {}".format(len(expected), len(actual)))
+	sys.exit(0)
+
+for i, (a, e) in enumerate(zip(actual, expected)):
+	if a != e:
+		print("Mismatch at pixel {}, expected {:04h}, got {:04h}".format(i, e, a))
+		sys.exit(0)
+
+print("Test PASSED.")
