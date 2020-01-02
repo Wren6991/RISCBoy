@@ -30,8 +30,8 @@ int main()
 	mm_ppu->bg[0].tmbase = (uint32_t)map_test_zelda_mini;
 	mm_ppu->bg[0].csr =
 		(1u << PPU_BG0_CSR_EN_LSB) |
-		(9u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
-		(8u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 512 px high
+		(6u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
+		(5u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 512 px high
 		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
 		(PPU_PIXMODE_PAL8 << PPU_BG0_CSR_PIXMODE_LSB);
 

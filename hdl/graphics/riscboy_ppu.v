@@ -64,10 +64,13 @@ parameter N_LAYERS = 2;
 // Should be locals but ISIM bug etc etc:
 parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
 parameter W_LCDCTRL_SHAMT = $clog2(W_LCD_PIXDATA + 1);
-parameter W_LOG_COORD = $clog2(W_PLAYFIELD_COORD);
+parameter W_PFSIZE = $clog2(W_PLAYFIELD_COORD - 4);
 parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1;
 parameter W_SHIFTCTR = $clog2(W_DATA);
 
+// Note: these are localparams because, if they are changed, the regblock must
+// be regenerated. Otherwise your sprites and tiles can't be configured by the
+// processor!
 localparam N_BACKGROUND = 2;
 localparam N_SPRITE = 4;
 
@@ -106,8 +109,8 @@ wire [N_BACKGROUND-1:0]                   bg_csr_en;
 wire [N_BACKGROUND*W_PIXMODE-1:0]         bg_csr_pixmode;
 wire [N_BACKGROUND-1:0]                   bg_csr_transparency;
 wire [N_BACKGROUND-1:0]                   bg_csr_tilesize;
-wire [N_BACKGROUND*W_LOG_COORD-1:0]       bg_csr_pfwidth;
-wire [N_BACKGROUND*W_LOG_COORD-1:0]       bg_csr_pfheight;
+wire [N_BACKGROUND*W_PFSIZE-1:0]          bg_csr_pfwidth;
+wire [N_BACKGROUND*W_PFSIZE-1:0]          bg_csr_pfheight;
 wire [N_BACKGROUND*4-1:0]                 bg_csr_paloffs;
 wire [N_BACKGROUND-1:0]                   bg_flush;
 wire [N_BACKGROUND*W_PLAYFIELD_COORD-1:0] bg_scroll_y;
@@ -391,8 +394,8 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 
 		.cfg_scroll_x       (bg_scroll_x[bg * W_PLAYFIELD_COORD +: W_PLAYFIELD_COORD]),
 		.cfg_scroll_y       (bg_scroll_y[bg * W_PLAYFIELD_COORD +: W_PLAYFIELD_COORD]),
-		.cfg_log_w          (bg_csr_pfwidth[bg * 4 +: 4]),
-		.cfg_log_h          (bg_csr_pfheight[bg * 4 +: 4]),
+		.cfg_log_w          (bg_csr_pfwidth[bg * W_PFSIZE +: W_PFSIZE]),
+		.cfg_log_h          (bg_csr_pfheight[bg * W_PFSIZE +: W_PFSIZE]),
 		.cfg_tileset_base   ({bg_tsbase[bg * 24 +: 24], 8'h0}),
 		.cfg_tilemap_base   ({bg_tmbase[bg * 24 +: 24], 8'h0}),
 		.cfg_tile_size      (bg_csr_tilesize[bg]),

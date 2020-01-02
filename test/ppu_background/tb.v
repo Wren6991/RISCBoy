@@ -131,8 +131,8 @@ initial begin: stimulus
 	bus_data = 0;
 	cfg_scroll_x = 0;
 	cfg_scroll_y = 0;
-	cfg_log_w = 6;
-	cfg_log_h = 6;
+	cfg_log_w = 3;
+	cfg_log_h = 3;
 	cfg_tileset_base = TILESET_OFFS;
 	cfg_tilemap_base = TILEMAP_OFFS;
 	cfg_tile_size = 0;
@@ -164,8 +164,8 @@ initial begin: stimulus
 
 	out_rdy <= 1'b1;
 	en <= 1;
-	cfg_log_w <= 5;
-	cfg_log_h <= 5;
+	cfg_log_w <= 2;
+	cfg_log_h <= 2;
 	cfg_scroll_x <= 0;
 	cfg_scroll_y <= 0;
 

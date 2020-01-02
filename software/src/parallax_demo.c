@@ -31,8 +31,8 @@ int main()
 	mm_ppu->bg[0].tmbase = (uint32_t)tilemap_background;
 	mm_ppu->bg[0].csr =
 		(1u << PPU_BG0_CSR_EN_LSB) |
-		(8u << PPU_BG0_CSR_PFWIDTH_LSB) | // 512 px wide
-		(7u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
+		(5u << PPU_BG0_CSR_PFWIDTH_LSB) | // 512 px wide
+		(4u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
 		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
 		(1u << PPU_BG0_CSR_TRANSPARENCY_LSB) |
 		(PPU_PIXMODE_ARGB1555 << PPU_BG0_CSR_PIXMODE_LSB);
@@ -41,8 +41,8 @@ int main()
 	mm_ppu->bg[1].tmbase = (uint32_t)tilemap_foreground;
 	mm_ppu->bg[1].csr =
 		(1u << PPU_BG0_CSR_EN_LSB) |
-		(9u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
-		(7u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
+		(6u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
+		(4u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
 		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
 		(1u << PPU_BG0_CSR_TRANSPARENCY_LSB) |
 		(PPU_PIXMODE_ARGB1555 << PPU_BG0_CSR_PIXMODE_LSB);

@@ -55,8 +55,8 @@ int main()
 	mm_ppu->bg[0].tsbase = (uint32_t)tileset;
 	mm_ppu->bg[0].csr =
 		(1u << PPU_BG0_CSR_EN_LSB) |
-		(7u << PPU_BG0_CSR_PFWIDTH_LSB) |  // 256 px wide
-		(7u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
+		(4u << PPU_BG0_CSR_PFWIDTH_LSB) |  // 256 px wide
+		(4u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
 		(1u << PPU_BG0_CSR_TILESIZE_LSB);  // 16x16 pixel tiles
 
 	unsigned int scroll_x = 0;

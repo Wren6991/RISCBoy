@@ -146,15 +146,15 @@
 #define PPU_BG0_CSR_TILESIZE_BITS 1
 #define PPU_BG0_CSR_TILESIZE_MASK 0x20
 // Field: BG0_CSR_PFWIDTH  Access: WO
-// Playfield width is 2 ** (PFWIDTH + 1) pixels.
+// Playfield width is 2 ** (PFWIDTH + 4) pixels.
 #define PPU_BG0_CSR_PFWIDTH_LSB  6
-#define PPU_BG0_CSR_PFWIDTH_BITS 4
-#define PPU_BG0_CSR_PFWIDTH_MASK 0x3c0
+#define PPU_BG0_CSR_PFWIDTH_BITS 3
+#define PPU_BG0_CSR_PFWIDTH_MASK 0x1c0
 // Field: BG0_CSR_PFHEIGHT  Access: WO
-// Playfield height is 2 ** (PFHEIGHT + 1) pixels.
+// Playfield height is 2 ** (PFHEIGHT + 4) pixels.
 #define PPU_BG0_CSR_PFHEIGHT_LSB  10
-#define PPU_BG0_CSR_PFHEIGHT_BITS 4
-#define PPU_BG0_CSR_PFHEIGHT_MASK 0x3c00
+#define PPU_BG0_CSR_PFHEIGHT_BITS 3
+#define PPU_BG0_CSR_PFHEIGHT_MASK 0x1c00
 // Field: BG0_CSR_PALOFFS  Access: WO
 // Offset ORed into upper 4 bits of palette index in paletted pixel modes.
 #define PPU_BG0_CSR_PALOFFS_LSB  16
@@ -223,15 +223,15 @@
 #define PPU_BG1_CSR_TILESIZE_BITS 1
 #define PPU_BG1_CSR_TILESIZE_MASK 0x20
 // Field: BG1_CSR_PFWIDTH  Access: WO
-// Playfield width is 2 ** (PFWIDTH + 1) pixels.
+// Playfield width is 2 ** (PFWIDTH + 4) pixels.
 #define PPU_BG1_CSR_PFWIDTH_LSB  6
-#define PPU_BG1_CSR_PFWIDTH_BITS 4
-#define PPU_BG1_CSR_PFWIDTH_MASK 0x3c0
+#define PPU_BG1_CSR_PFWIDTH_BITS 3
+#define PPU_BG1_CSR_PFWIDTH_MASK 0x1c0
 // Field: BG1_CSR_PFHEIGHT  Access: WO
-// Playfield height is 2 ** (PFHEIGHT + 1) pixels.
+// Playfield height is 2 ** (PFHEIGHT + 4) pixels.
 #define PPU_BG1_CSR_PFHEIGHT_LSB  10
-#define PPU_BG1_CSR_PFHEIGHT_BITS 4
-#define PPU_BG1_CSR_PFHEIGHT_MASK 0x3c00
+#define PPU_BG1_CSR_PFHEIGHT_BITS 3
+#define PPU_BG1_CSR_PFHEIGHT_MASK 0x1c00
 // Field: BG1_CSR_PALOFFS  Access: WO
 // Offset ORed into upper 4 bits of palette index in paletted pixel modes.
 #define PPU_BG1_CSR_PALOFFS_LSB  16

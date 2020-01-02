@@ -245,10 +245,6 @@
          <obj_property name="ElementShortName">shift_ctr_carryout</obj_property>
          <obj_property name="ObjectShortName">shift_ctr_carryout</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/streamer/shift_increment" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">shift_increment[4:0]</obj_property>
-         <obj_property name="ObjectShortName">shift_increment[4:0]</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb/dut/streamer/pixel_log_size" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">pixel_log_size[2:0]</obj_property>
          <obj_property name="ObjectShortName">pixel_log_size[2:0]</obj_property>
@@ -261,9 +257,13 @@
          <obj_property name="ElementShortName">shift_en</obj_property>
          <obj_property name="ObjectShortName">shift_en</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb/dut/streamer/shamt_dec" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">shamt_dec[4:0]</obj_property>
+         <obj_property name="ObjectShortName">shamt_dec[4:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb/dut/streamer/shamt" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">shamt[4:0]</obj_property>
-         <obj_property name="ObjectShortName">shamt[4:0]</obj_property>
+         <obj_property name="ElementShortName">shamt[2:0]</obj_property>
+         <obj_property name="ObjectShortName">shamt[2:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/streamer/shift_seek_target" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">shift_seek_target[4:0]</obj_property>
@@ -309,8 +309,8 @@
          <obj_property name="ObjectShortName">din_vld</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/streamer/gearbox_u/shamt" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">shamt[4:0]</obj_property>
-         <obj_property name="ObjectShortName">shamt[4:0]</obj_property>
+         <obj_property name="ElementShortName">shamt[2:0]</obj_property>
+         <obj_property name="ObjectShortName">shamt[2:0]</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/streamer/gearbox_u/dout" type="array" db_ref_id="1">
@@ -321,11 +321,6 @@
       <wvobject fp_name="/tb/dut/streamer/gearbox_u/sreg" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">sreg[31:0]</obj_property>
          <obj_property name="ObjectShortName">sreg[31:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/streamer/gearbox_u/sreg_shifted" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">sreg_shifted[31:0]</obj_property>
-         <obj_property name="ObjectShortName">sreg_shifted[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
    </wvobject>
@@ -346,11 +341,6 @@
    <wvobject fp_name="group88" type="group">
       <obj_property name="label">Constants</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb/dut/W_COORD" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">W_COORD[31:0]</obj_property>
-         <obj_property name="ObjectShortName">W_COORD[31:0]</obj_property>
-         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb/dut/W_OUTDATA" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">W_OUTDATA[31:0]</obj_property>
          <obj_property name="ObjectShortName">W_OUTDATA[31:0]</obj_property>

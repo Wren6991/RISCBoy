@@ -24,7 +24,7 @@ module riscboy_ppu_background #(
 	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),
-	parameter W_LOG_COORD = $clog2(W_PLAYFIELD_COORD),
+	parameter W_LOG_COORD = $clog2(W_PLAYFIELD_COORD - 4),
 	parameter BUS_SIZE_MAX = $clog2(W_DATA) - 3
 ) (
 	input  wire                         clk,
@@ -67,8 +67,8 @@ module riscboy_ppu_background #(
 reg [W_PLAYFIELD_COORD-1:0] u;
 reg [W_PLAYFIELD_COORD-1:0] v;
 
-wire [W_PLAYFIELD_COORD-1:0] w_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 1'b0} << cfg_log_w);
-wire [W_PLAYFIELD_COORD-1:0] h_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 1'b0} << cfg_log_h);
+wire [W_PLAYFIELD_COORD-1:0] w_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 4'h0} << cfg_log_w);
+wire [W_PLAYFIELD_COORD-1:0] h_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 4'h0} << cfg_log_h);
 
 wire [W_PLAYFIELD_COORD-1:0] u_flushval = (beam_x + cfg_scroll_x) & w_mask;
 wire [W_PLAYFIELD_COORD-1:0] v_flushval = (beam_y + cfg_scroll_y) & h_mask;
@@ -168,8 +168,8 @@ end
 // Address generation
 
 // Safe to ignore cases where tileset is less than one tile wide...
-wire [W_LOG_COORD-1:0] log_playfield_width_tiles = cfg_log_w + 1'b1 - tile_log_size;
-
+parameter W_LOG_TCOORD = $clog2(W_PLAYFIELD_COORD - 3); // smallest tile is 8px
+wire [W_LOG_TCOORD-1:0] log_playfield_width_tiles = cfg_log_w + !cfg_tile_size;
 
 wire [W_ADDR-1:0] idx_of_tile_in_tilemap = (u >> tile_log_size) | ({{W_ADDR-W_PLAYFIELD_COORD{1'b0}}, v >> tile_log_size} << log_playfield_width_tiles);
 

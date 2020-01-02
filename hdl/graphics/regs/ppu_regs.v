@@ -38,8 +38,8 @@ module ppu_regs (
 	output reg [2:0] bg0_csr_pixmode_o,
 	output reg  bg0_csr_transparency_o,
 	output reg  bg0_csr_tilesize_o,
-	output reg [3:0] bg0_csr_pfwidth_o,
-	output reg [3:0] bg0_csr_pfheight_o,
+	output reg [2:0] bg0_csr_pfwidth_o,
+	output reg [2:0] bg0_csr_pfheight_o,
 	output reg [3:0] bg0_csr_paloffs_o,
 	output reg [9:0] bg0_scroll_y_o,
 	output reg [9:0] bg0_scroll_x_o,
@@ -49,8 +49,8 @@ module ppu_regs (
 	output reg [2:0] bg1_csr_pixmode_o,
 	output reg  bg1_csr_transparency_o,
 	output reg  bg1_csr_tilesize_o,
-	output reg [3:0] bg1_csr_pfwidth_o,
-	output reg [3:0] bg1_csr_pfheight_o,
+	output reg [2:0] bg1_csr_pfwidth_o,
+	output reg [2:0] bg1_csr_pfheight_o,
 	output reg [3:0] bg1_csr_paloffs_o,
 	output reg [9:0] bg1_scroll_y_o,
 	output reg [9:0] bg1_scroll_x_o,
@@ -122,8 +122,8 @@ module ppu_regs (
 	output wire [5:0] concat_bg_pixmode_o,
 	output wire [1:0] concat_bg_transparency_o,
 	output wire [1:0] concat_bg_tilesize_o,
-	output wire [7:0] concat_bg_pfwidth_o,
-	output wire [7:0] concat_bg_pfheight_o,
+	output wire [5:0] concat_bg_pfwidth_o,
+	output wire [5:0] concat_bg_pfheight_o,
 	output wire [7:0] concat_bg_paloffs_o,
 	output wire [19:0] concat_bg_scroll_y_o,
 	output wire [19:0] concat_bg_scroll_x_o,
@@ -299,19 +299,19 @@ wire  bg0_csr_transparency_wdata = wdata[4];
 wire  bg0_csr_transparency_rdata;
 wire  bg0_csr_tilesize_wdata = wdata[5];
 wire  bg0_csr_tilesize_rdata;
-wire [3:0] bg0_csr_pfwidth_wdata = wdata[9:6];
-wire [3:0] bg0_csr_pfwidth_rdata;
-wire [3:0] bg0_csr_pfheight_wdata = wdata[13:10];
-wire [3:0] bg0_csr_pfheight_rdata;
+wire [2:0] bg0_csr_pfwidth_wdata = wdata[8:6];
+wire [2:0] bg0_csr_pfwidth_rdata;
+wire [2:0] bg0_csr_pfheight_wdata = wdata[12:10];
+wire [2:0] bg0_csr_pfheight_rdata;
 wire [3:0] bg0_csr_paloffs_wdata = wdata[19:16];
 wire [3:0] bg0_csr_paloffs_rdata;
-wire [31:0] __bg0_csr_rdata = {12'h0, bg0_csr_paloffs_rdata, 2'h0, bg0_csr_pfheight_rdata, bg0_csr_pfwidth_rdata, bg0_csr_tilesize_rdata, bg0_csr_transparency_rdata, bg0_csr_pixmode_rdata, bg0_csr_en_rdata};
+wire [31:0] __bg0_csr_rdata = {12'h0, bg0_csr_paloffs_rdata, 3'h0, bg0_csr_pfheight_rdata, 1'h0, bg0_csr_pfwidth_rdata, bg0_csr_tilesize_rdata, bg0_csr_transparency_rdata, bg0_csr_pixmode_rdata, bg0_csr_en_rdata};
 assign bg0_csr_en_rdata = 1'h0;
 assign bg0_csr_pixmode_rdata = 3'h0;
 assign bg0_csr_transparency_rdata = 1'h0;
 assign bg0_csr_tilesize_rdata = 1'h0;
-assign bg0_csr_pfwidth_rdata = 4'h0;
-assign bg0_csr_pfheight_rdata = 4'h0;
+assign bg0_csr_pfwidth_rdata = 3'h0;
+assign bg0_csr_pfheight_rdata = 3'h0;
 assign bg0_csr_paloffs_rdata = 4'h0;
 
 wire [9:0] bg0_scroll_y_wdata = wdata[25:16];
@@ -340,19 +340,19 @@ wire  bg1_csr_transparency_wdata = wdata[4];
 wire  bg1_csr_transparency_rdata;
 wire  bg1_csr_tilesize_wdata = wdata[5];
 wire  bg1_csr_tilesize_rdata;
-wire [3:0] bg1_csr_pfwidth_wdata = wdata[9:6];
-wire [3:0] bg1_csr_pfwidth_rdata;
-wire [3:0] bg1_csr_pfheight_wdata = wdata[13:10];
-wire [3:0] bg1_csr_pfheight_rdata;
+wire [2:0] bg1_csr_pfwidth_wdata = wdata[8:6];
+wire [2:0] bg1_csr_pfwidth_rdata;
+wire [2:0] bg1_csr_pfheight_wdata = wdata[12:10];
+wire [2:0] bg1_csr_pfheight_rdata;
 wire [3:0] bg1_csr_paloffs_wdata = wdata[19:16];
 wire [3:0] bg1_csr_paloffs_rdata;
-wire [31:0] __bg1_csr_rdata = {12'h0, bg1_csr_paloffs_rdata, 2'h0, bg1_csr_pfheight_rdata, bg1_csr_pfwidth_rdata, bg1_csr_tilesize_rdata, bg1_csr_transparency_rdata, bg1_csr_pixmode_rdata, bg1_csr_en_rdata};
+wire [31:0] __bg1_csr_rdata = {12'h0, bg1_csr_paloffs_rdata, 3'h0, bg1_csr_pfheight_rdata, 1'h0, bg1_csr_pfwidth_rdata, bg1_csr_tilesize_rdata, bg1_csr_transparency_rdata, bg1_csr_pixmode_rdata, bg1_csr_en_rdata};
 assign bg1_csr_en_rdata = 1'h0;
 assign bg1_csr_pixmode_rdata = 3'h0;
 assign bg1_csr_transparency_rdata = 1'h0;
 assign bg1_csr_tilesize_rdata = 1'h0;
-assign bg1_csr_pfwidth_rdata = 4'h0;
-assign bg1_csr_pfheight_rdata = 4'h0;
+assign bg1_csr_pfwidth_rdata = 3'h0;
+assign bg1_csr_pfheight_rdata = 3'h0;
 assign bg1_csr_paloffs_rdata = 4'h0;
 
 wire [9:0] bg1_scroll_y_wdata = wdata[25:16];
@@ -659,8 +659,8 @@ always @ (posedge clk or negedge rst_n) begin
 		bg0_csr_pixmode_o <= 3'h0;
 		bg0_csr_transparency_o <= 1'h0;
 		bg0_csr_tilesize_o <= 1'h0;
-		bg0_csr_pfwidth_o <= 4'h0;
-		bg0_csr_pfheight_o <= 4'h0;
+		bg0_csr_pfwidth_o <= 3'h0;
+		bg0_csr_pfheight_o <= 3'h0;
 		bg0_csr_paloffs_o <= 4'h0;
 		bg0_scroll_y_o <= 10'h0;
 		bg0_scroll_x_o <= 10'h0;
@@ -670,8 +670,8 @@ always @ (posedge clk or negedge rst_n) begin
 		bg1_csr_pixmode_o <= 3'h0;
 		bg1_csr_transparency_o <= 1'h0;
 		bg1_csr_tilesize_o <= 1'h0;
-		bg1_csr_pfwidth_o <= 4'h0;
-		bg1_csr_pfheight_o <= 4'h0;
+		bg1_csr_pfwidth_o <= 3'h0;
+		bg1_csr_pfheight_o <= 3'h0;
 		bg1_csr_paloffs_o <= 4'h0;
 		bg1_scroll_y_o <= 10'h0;
 		bg1_scroll_x_o <= 10'h0;
