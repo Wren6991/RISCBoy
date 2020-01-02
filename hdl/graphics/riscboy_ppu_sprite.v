@@ -19,6 +19,7 @@ module riscboy_ppu_sprite #(
 	input  wire                  agu_ack,
 	input  wire                  agu_active,
 	input  wire [W_COORD-1:0]    agu_x_count,
+	input  wire                  agu_must_seek,
 	input  wire [W_SHIFTCTR-1:0] agu_shift_seek_target,
 
 	output wire                  bus_vld,
@@ -89,7 +90,7 @@ riscboy_ppu_pixel_streamer #(
 	.rst_n             (rst_n),
 
 	.flush             (stream_flush),
-	.flush_unaligned   (|agu_shift_seek_target),
+	.flush_unaligned   (agu_must_seek),
 
 	.shift_seek_target (shift_seek_target),
 	.pixel_mode        (cfg_pixel_mode),

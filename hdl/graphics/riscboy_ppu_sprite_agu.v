@@ -1,7 +1,7 @@
 module riscboy_ppu_sprite_agu #(
 	parameter W_DATA = 32,
 	parameter W_ADDR = 32,
-	parameter W_COORD = 10,
+	parameter W_COORD = 9,
 	parameter N_SPRITE = 8,
 	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
@@ -24,6 +24,7 @@ module riscboy_ppu_sprite_agu #(
 	output wire [N_SPRITE-1:0]          sprite_ack,
 	output wire                         sprite_active,
 	output wire [W_COORD-1:0]           sprite_x_count,
+	output wire                         sprite_must_seek,
 	output wire [W_SHIFTCTR-1:0]        sprite_shift_seek_target,
 
 	input  wire [N_SPRITE-1:0]          sprite_bus_vld,
@@ -79,6 +80,9 @@ wire [4:0] tile_size = cfg_sprite_tilesize ? 5'd16 : 5'd8;
 wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(cfg_sprite_pixmode);
 
 wire sprite_intersects_y = beam_y < chosen_sprite_pos_y && beam_y + tile_size >= chosen_sprite_pos_y;
+// or perhaps (requires spec change):
+// wire sprite_intersects_y = !({beam_y - chosen_sprite_pos_y} & {{W_COORD-4{1'b1}}, cfg_sprite_tilesize, 3'h0});
+
 wire beam_x_right_of_lbound = beam_x + tile_size >= chosen_sprite_pos_x;
 wire beam_x_left_of_rbound = beam_x < chosen_sprite_pos_x;
 assign sprite_active = sprite_intersects_y && beam_x_left_of_rbound;
@@ -86,8 +90,8 @@ assign sprite_active = sprite_intersects_y && beam_x_left_of_rbound;
 assign sprite_x_count = beam_x_left_of_rbound ?
 	chosen_sprite_pos_x - beam_x : {W_COORD{1'b0}};
 
-assign sprite_shift_seek_target = beam_x_right_of_lbound ?
-	{tile_size - sprite_x_count[4:0]} << pixel_log_size : 5'h0;
+assign sprite_must_seek = beam_x_right_of_lbound;
+assign sprite_shift_seek_target = {tile_size - sprite_x_count[4:0]} << pixel_log_size;
 
 assign sprite_ack = sprite_req_gnt;
 

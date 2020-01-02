@@ -418,6 +418,7 @@ wire [N_SPRITE-1:0]       sprite_agu_req;
 wire [N_SPRITE-1:0]       sprite_agu_ack;
 wire                      sprite_agu_active;
 wire [W_SCREEN_COORD-1:0] sprite_agu_x_count;
+wire                      sprite_agu_must_seek;
 wire [W_SHIFTCTR-1:0]     sprite_agu_shift_seek_target;
 
 wire                      sagu_bus_vld;
@@ -454,6 +455,7 @@ riscboy_ppu_sprite_agu #(
 	.sprite_ack               (sprite_agu_ack),
 	.sprite_active            (sprite_agu_active),
 	.sprite_x_count           (sprite_agu_x_count),
+	.sprite_must_seek         (sprite_agu_must_seek),
 	.sprite_shift_seek_target (sprite_agu_shift_seek_target),
 
 	.sprite_bus_vld           (sprite_bus_vld),
@@ -488,6 +490,7 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
 		.agu_ack               (sprite_agu_ack[sp]),
 		.agu_active            (sprite_agu_active),
 		.agu_x_count           (sprite_agu_x_count),
+		.agu_must_seek         (sprite_agu_must_seek),
 		.agu_shift_seek_target (sprite_agu_shift_seek_target),
 
 		.bus_vld               (sprite_bus_vld[sp]),
