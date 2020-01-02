@@ -86,7 +86,7 @@ A paletted pixel is transparent if:
 	\item Transparency is enabled for that pixel source
 \end{itemize}
 
-So at e.g. 1 bit per pixel, it is possible to have either 2 colours, or 1 colour plus transparency. It is important that the transparency of a pixel is known as early as possible: this enables the PPU to perform layer composition before palette lookup, so only one palette lookup per {\it screen} pixel is required.
+So at e.g. 1 bit per pixel, it is possible to have either 2 colours, or 1 colour plus transparency. It is important that the transparency of a pixel is known as early as possible: this enables the PPU to perform layer composition before palette lookup, so only one palette lookup per {\it screen} pixel is required. Note that transparency is always enabled for sprites: the alpha bit is always valid for ARGB formats, and index 0 is always transparent for paletted.
 
 
 \subsection{Palettes}
@@ -103,16 +103,14 @@ Each background, and each sprite, can be individually assigned a layer number in
 
 \begin{itemize}
 	\item If there are no input pixels, output the display background colour.
-	\item Else output the pixel with the lowest layer number
+	\item Else output the pixel with the highest layer number
 	\item If there are multiple pixels on the same layer:
 	\begin{itemize}
 		\item Sprites beat backgrounds
-		\item Lower-numbered sprites beat higher-numbered
-		\item Lower-numbered backgrounds beat higher-numbered
+		\item Higher-numbered backgrounds beat lower-numbered
+		\item Higher-numbered sprites beat lower-numbered
 	\end{itemize}
 \end{itemize}
-
-Layer number can be thought of as depth into the screen. X is positive to the right, and Y is positive downward, so in a right-handed coordinate system, Z would be positive into the screen.
 
 \subsection{Backgrounds}
 
@@ -169,7 +167,27 @@ This tilemapping process allows detailed images to be displayed with a minimal m
 
 \subsection{Sprites}
 
-Sprites are small images which can be displayed at arbitrary screen coordinates; for example, the player character.
+Sprites are individual image tiles which can be displayed at arbitrary screen coordinates, and move freely. A player character could be represented by a sprite, and changing the image on successive frames can breathe life into it through animation. Some settings are global for all sprites:
+
+\begin{itemize}
+	\item Pointer to tileset
+	\item Pixel format of tileset
+	\item Tile size
+\end{itemize}
+
+Others are configured per-sprite:
+
+\begin{itemize}
+	\item Which tile from tileset to display
+	\item Offset into palette table, for paletted modes
+	\item On-screen position
+\end{itemize}
+
+A sprite position of $(0, 0)$ is just off screen, to the top left. A sprite position of $(1, 1)$ is one pixel below and to the right of this: the bottom right pixel of the sprite tile is exposed at the top left screen pixel. Increasing the $x$ continues to advance the sprite rightward, until it fully exits the screen to the right. Likewise, the $y$ coordinate advances the sprite downward and then across the bottom edge of the screen.
+
+Transparency is always enabled for sprites. For ARGB pixel formats, $A=0$ always indicates transparency, and for paletted formats, an index of 0 is always transparent. See figure \ref{diagram:pixformat} for the specifics of these pixel formats.
+
+Like backgrounds, the sprite control registers can be written at any point, and the effect will be complete and immediate: the same sprite can even be reused multiple times on a single scanline, defeating the low hardware sprite count. This includes sprite coordinates to the left of the current raster beam position, by the same mechanism as fixed sprites crossing the left screen edge.
 
 \subsection{Pixel Gearboxes}
 
@@ -211,7 +229,7 @@ Based on the above observation about naturally-aligned boundaries, there is a ve
 	\item The weight of this bit is equal to the copy stride of the gearbox for this cycle
 \end{itemize}
 
-I.e. \verb|shamt = ctr_next & ~ctr|. In figure \ref{diagram:pixel_gearbox_8} the counter values would be 0b00000, 0b01000, 0b10000, 0b11000, hence the strides are 8, 16, 8.
+I.e. \verb|shamt = ctr_next & ~ctr|. In figure \ref{diagram:pixel_gearbox_8} the counter values would be 0b00000, 0b01000, 0b10000, 0b11000, hence the strides are 8, 16, 8. Another useful invariant is that this bit is the most significant bit of the XOR, i.e. \verb|shamt = priority_select(ctr_next ^ ctr)|.
 
 Note that this control scheme also allows rapid (log-time) seeking to arbitrary offsets, by adding first the MSB of the offset to the counter, then the next bit, and so on. This maintains the invariant that we are aligned to a shift-sized boundary, since we have sorted our shifts in descending size order.
 
