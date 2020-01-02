@@ -72,7 +72,7 @@ parameter W_SHIFTCTR = $clog2(W_DATA);
 // be regenerated. Otherwise your sprites and tiles can't be configured by the
 // processor!
 localparam N_BACKGROUND = 2;
-localparam N_SPRITE = 4;
+localparam N_SPRITE = 8;
 
 // ----------------------------------------------------------------------------
 // Reset synchronisers and regblock
@@ -286,7 +286,7 @@ endgenerate
 // Reverse connections. Lowest blender request wins tie break, and we want:
 // - Sprites beat backgrounds
 // - Higher-numbered backgrounds win
-// A consequence of this is that higher-numbered sprites win.
+// - Higher-numbered sprites win.
 genvar g;
 generate
 for (g = 0; g < N_SPRITE + N_BACKGROUND; g = g + 1) begin: blend_input_hookup

@@ -191,9 +191,11 @@ initial begin: stimulus
 			$display("Output data mismatch");
 			$finish;
 		end
+		beam_x <= beam_x + 1;
 		@ (posedge clk);
 		if (i % 64 == 63) begin
 			beam_y <= beam_y + 1;
+			beam_x <= 0;
 			flush <= 1;
 			@ (posedge clk);
 			flush <= 0;

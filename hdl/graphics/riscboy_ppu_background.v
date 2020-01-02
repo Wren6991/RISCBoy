@@ -64,26 +64,13 @@ module riscboy_ppu_background #(
 // Coordinate handling
 
 // Pixel's location in the background coordinate system
-reg [W_PLAYFIELD_COORD-1:0] u;
-reg [W_PLAYFIELD_COORD-1:0] v;
+
 
 wire [W_PLAYFIELD_COORD-1:0] w_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 4'h0} << cfg_log_w);
 wire [W_PLAYFIELD_COORD-1:0] h_mask = ~({{W_PLAYFIELD_COORD{1'b1}}, 4'h0} << cfg_log_h);
 
-wire [W_PLAYFIELD_COORD-1:0] u_flushval = (beam_x + cfg_scroll_x) & w_mask;
-wire [W_PLAYFIELD_COORD-1:0] v_flushval = (beam_y + cfg_scroll_y) & h_mask;
-
-always @ (posedge clk) begin
-	if (!rst_n) begin
-		u <= {W_PLAYFIELD_COORD{1'b0}};
-		v <= {W_PLAYFIELD_COORD{1'b0}};
-	end else if (flush) begin
-		u <= u_flushval;
-		v <= v_flushval;
-	end else if (out_vld && out_rdy) begin
-		u <= (u + 1'b1) & w_mask;
-	end
-end
+wire [W_PLAYFIELD_COORD-1:0] u = (beam_x + cfg_scroll_x) & w_mask;
+wire [W_PLAYFIELD_COORD-1:0] v = (beam_y + cfg_scroll_y) & h_mask;
 
 wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(cfg_pixel_mode);
 
@@ -98,7 +85,7 @@ localparam W_PIX_MAX = W_OUTDATA + 1;
 reg tile_empty;
 
 wire [W_SHIFTCTR-1:0] shift_seek_target = u[W_SHIFTCTR-1:0] << pixel_log_size;
-wire                  shifter_flush_unaligned = |{u_flushval[W_SHIFTCTR-1:0] << pixel_log_size};
+wire                  shifter_flush_unaligned = |{u[W_SHIFTCTR-1:0] << pixel_log_size};
 wire                  pixel_load_req;
 wire [W_PIX_MAX-1:0]  pixel_data;
 wire                  pixel_alpha;
@@ -149,7 +136,7 @@ always @ (posedge clk or negedge rst_n) begin
 		tile_pixctr <= {LOG_W_TILE_MAX{1'b0}};
 	end else if (flush) begin
 		tile_empty <= 1'b1;
-		tile_pixctr <= u_flushval[LOG_W_TILE_MAX-1:0] & {cfg_tile_size, {LOG_W_TILE_MAX-1{1'b1}}};
+		tile_pixctr <= u[LOG_W_TILE_MAX-1:0] & {cfg_tile_size, {LOG_W_TILE_MAX-1{1'b1}}};
 	end else if (tile_empty) begin
 		if (tile_load_rdy) begin
 			tile <= bus_data[W_TILENUM-1:0];
