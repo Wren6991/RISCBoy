@@ -83,7 +83,7 @@ Once the toolchain is in place, run
 ```
 $ . sourceme
 $ cd synth
-$ make bit
+$ make -f HX8k-EVN.mk bit
 ```
 
-to generate an FPGA image.
+to generate an FPGA image suitable for Lattice HX8k evaluation board.
