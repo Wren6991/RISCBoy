@@ -84,8 +84,8 @@ int main()
 		{
 			idle_count = 0;
 		}
-		if (idle_count >= IDLE_PERIOD)
-			scroll_x += SPEED;
+		// if (idle_count >= IDLE_PERIOD)
+		// 	scroll_x += SPEED;
 
 		mm_ppu->bg[0].scroll = 
 			((scroll_x << PPU_BG0_SCROLL_X_LSB) & PPU_BG0_SCROLL_X_MASK) |

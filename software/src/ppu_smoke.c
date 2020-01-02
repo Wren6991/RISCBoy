@@ -8,8 +8,8 @@
 
 // Don't put the tile assets in .bss, so that we don't have to sit and watch
 // them be cleared in the simulator. We're about to fully initialise them anyway.
-uint16_t __attribute__ ((section (".noload"))) __attribute__ ((aligned (131072))) tileset[65536];
-uint8_t  __attribute__ ((section (".noload"))) __attribute__ ((aligned (256)))    tilemap[256];
+uint16_t __attribute__ ((section (".noload"), aligned (131072))) tileset[65536];
+uint8_t  __attribute__ ((section (".noload"), aligned (256)))    tilemap[256];
 
 void render_frame()
 {
@@ -17,8 +17,8 @@ void render_frame()
 	lcd_force_dc_cs(1, 1);
 	st7789_start_pixels();
 
-	*PPU_CSR = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
-	while (*PPU_CSR & PPU_CSR_RUNNING_MASK)
+	mm_ppu->csr = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
+	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
 		;
 }
 
@@ -31,8 +31,8 @@ int main()
 	if (!tbman_running_in_sim())
 		lcd_init(ili9341_init_seq);
 
-	*PPU_DISPSIZE = (319 << PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
-	*PPU_DEFAULT_BG_COLOUR = COLOUR_RED | COLOUR_BLUE; // magenta
+	mm_ppu->dispsize = (319 << PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
+	mm_ppu->default_bg_colour = COLOUR_RED | COLOUR_BLUE; // magenta
 
 	for (int i = 0; i < 256; ++i)
 		tilemap[i] = i;
@@ -51,9 +51,9 @@ int main()
 		}
 	}
 
-	*PPU_BG0_TMBASE = (uint32_t)tilemap;
-	*PPU_BG0_TSBASE = (uint32_t)tileset;
-	*PPU_BG0_CSR =
+	mm_ppu->bg[0].tmbase = (uint32_t)tilemap;
+	mm_ppu->bg[0].tsbase = (uint32_t)tileset;
+	mm_ppu->bg[0].csr =
 		(1u << PPU_BG0_CSR_EN_LSB) |
 		(7u << PPU_BG0_CSR_PFWIDTH_LSB) |  // 256 px wide
 		(7u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 256 px high
@@ -78,7 +78,7 @@ int main()
 				--scroll_y;
 			else
 				++scroll_y;
-		*PPU_BG0_SCROLL =
+		mm_ppu->bg[0].scroll =
 			(scroll_x & PPU_BG0_SCROLL_X_MASK) |
 			((scroll_y << PPU_BG0_SCROLL_Y_LSB) & PPU_BG0_SCROLL_Y_MASK);
 	}
