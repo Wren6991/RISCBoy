@@ -87,3 +87,22 @@ $ make -f HX8k-EVN.mk bit
 ```
 
 to generate an FPGA image suitable for Lattice HX8k evaluation board.
+
+Directory Structure
+-------------------
+
+- `board`: KiCad files for main RISCBoy PCB and other small boards used during development
+- `doc`: LaTeX source and diagrams for documentation, and the most recently built PDF
+- `hdl`: The Verilog source for RISCBoy gateware.
+	- `busfabric`: AHB-lite crossbar and APB peripheral fabric
+	- `graphics`: Source for the pixel processing unit
+	- `hazard5`: Source for the RISC-V processor. This is completely self-contained.
+	- `mem`: Memory controllers, and inference/injection wrappers and models for the memories themselves
+	- `peris`: Small peripherals such as UART, SPI, PWM
+	- `riscboy_core`: Structural module to instantiate and connect the components that comprise RISCBoy
+	- `riscboy_fpga`: Top-level wrappers for a few different FPGAs and boards: connect up IOs, provide clock and reset
+- `reference`: a few PDFs for standards used in RISCBoy, e.g. the RISC-V instruction set
+- `scripts`: Junk that I can't put anywhere else
+- `software`: Loose collection of C files that are used for system-level tests. Not really a useful software tree yet.
+- `synth`: Working directory for running whole-system synthesis. Top-level makefiles, pin constraint files.
+- `test`: Regression tests. Some are Verilog testbenches, others are software testcases that run on simulations of the processor or the full system.
