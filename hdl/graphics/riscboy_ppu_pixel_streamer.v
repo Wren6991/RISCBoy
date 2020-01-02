@@ -47,44 +47,35 @@ module riscboy_ppu_pixel_streamer #(
 
 `include "riscboy_ppu_const.vh"
 
+wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(pixel_mode);
+wire [4:0] pixel_size_bits = 5'h1 << pixel_log_size;
+
 wire [W_PIX_MAX-1:0]  shift_out;
 reg  [W_SHIFTCTR-1:0] shift_ctr;
 wire [W_SHIFTCTR-1:0] shift_ctr_next;
 wire                  shift_ctr_carryout;
-wire [W_SHIFTCTR-1:0] shift_increment;
-assign {shift_ctr_carryout, shift_ctr_next} = shift_ctr + shift_increment;
+assign {shift_ctr_carryout, shift_ctr_next} = shift_ctr + pixel_size_bits;
 
-wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(pixel_mode);
-wire [4:0] pixel_size_bits = 5'h1 << pixel_log_size;
-
-// Seek: rapid log-time shift through the bus data when getting back into
+// "Seek": rapid log-time shift through the bus data when getting back into
 // steady state after flush.
+// To seek, we shift by the highest bit-weight first, to maintain the
+// invariant that total shift count is aligned on a boundary of next shift
+// amount. Do this by shifting a 1-bit mask from left to right of ctr.
+// Can then load the target into the ctr when done.
 reg                   shift_empty;
 reg                   shift_seeking;
 
+wire [W_SHIFTCTR-1:0] seek_shamt = shift_seek_target & shift_ctr;
+wire seek_end = shift_ctr[0];
+
+wire [W_SHIFTCTR-1:0] shamt_dec = shift_seeking ? seek_shamt : shift_ctr_next & ~shift_ctr;
+wire                  shift_en = (shift_seeking && |seek_shamt) || (out_vld && out_rdy);
 wire [W_SHAMT-1:0]    shamt;
-wire                  shift_en = (shift_seeking && !shift_empty) || (out_vld && out_rdy);
-
-// To seek, we shift by the highest bit-weight first, to maintain the
-// invariant that total shift count is aligned on a boundary of next shift
-// amount
-wire [W_SHIFTCTR-1:0] seek_shamt;
-wire seek_end = (shift_ctr | seek_shamt) == shift_seek_target;
-
-onehot_priority #(
-	.W_INPUT(W_SHIFTCTR),
-	.HIGHEST_WINS (1)
-) seek_order_u (
-	.in  (shift_ctr ^ shift_seek_target),
-	.out (seek_shamt)
-);
-
-assign shift_increment = shift_seeking ? seek_shamt : pixel_size_bits;
 
 onehot_encoder #(
 	.W_INPUT(W_SHIFTCTR)
 ) shamt_encoder (
-	.in  (shift_ctr_next & ~shift_ctr),
+	.in  (shamt_dec),
 	.out (shamt)
 );
 
@@ -107,17 +98,22 @@ always @ (posedge clk or negedge rst_n) begin
 		shift_seeking <= 1'b0;
 		shift_empty <= 1'b1;
 	end else if (flush) begin
-		shift_ctr <= {W_SHIFTCTR{1'b0}};
+		shift_ctr <= {flush_unaligned, {W_SHIFTCTR-1{1'b0}}};
 		shift_seeking <= flush_unaligned;
 		shift_empty <= 1'b1;
-	end else if (!shift_empty) begin
+	end else if (shift_empty) begin
+		shift_empty <= !load_ack;
+	end else if (shift_seeking) begin
+		shift_seeking <= !seek_end;
+		if (seek_end)
+			shift_ctr <= shift_seek_target;
+		else
+			shift_ctr <= shift_ctr >> 1;
+	end else begin
 		shift_empty <= shift_en && shift_ctr_carryout;
 		if (shift_en) begin
-			shift_seeking <= shift_seeking && !seek_end;
 			shift_ctr <= shift_ctr_next;
 		end
-	end else begin
-		shift_empty <= !load_ack;
 	end
 end
 
