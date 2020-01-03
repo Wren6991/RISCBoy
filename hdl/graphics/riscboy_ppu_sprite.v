@@ -56,7 +56,7 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 reg [W_COORD-1:0] x_count;
-wire msbs_set = |x_count[W_COORD-1:5];
+wire msbs_set = |{x_count[W_COORD-1:5], x_count[4] && !cfg_tilesize};
 wire pivot_set = cfg_tilesize ? x_count[4] : x_count[3];
 wire lsbs_set = |{x_count[3] && cfg_tilesize, x_count[2:0]};
 
