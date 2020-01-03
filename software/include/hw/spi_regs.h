@@ -24,37 +24,37 @@
 
 // Control and status register
 
-// Field CSR_CSAUTO
+// Field: CSR_CSAUTO  Access: RW
 // If 1, CS pin is driven automatically (low during data transfer, else high)
 #define SPI_CSR_CSAUTO_LSB  9
 #define SPI_CSR_CSAUTO_BITS 1
 #define SPI_CSR_CSAUTO_MASK 0x200
-// Field CSR_CS
+// Field: CSR_CS  Access: RW
 // If automatic CS is disabled, use this bit to control CS signal.
 #define SPI_CSR_CS_LSB  8
 #define SPI_CSR_CS_BITS 1
 #define SPI_CSR_CS_MASK 0x100
-// Field CSR_LOOPBACK
+// Field: CSR_LOOPBACK  Access: RW
 // If 1, connect MOSI to MISO internally, for debugging purposes
 #define SPI_CSR_LOOPBACK_LSB  5
 #define SPI_CSR_LOOPBACK_BITS 1
 #define SPI_CSR_LOOPBACK_MASK 0x20
-// Field CSR_READ_EN
+// Field: CSR_READ_EN  Access: RW
 // If 0, the received data will not be pushed to RX FIFO. (Transmit only)
 #define SPI_CSR_READ_EN_LSB  4
 #define SPI_CSR_READ_EN_BITS 1
 #define SPI_CSR_READ_EN_MASK 0x10
-// Field CSR_CPOL
+// Field: CSR_CPOL  Access: RW
 // If 0, SCLK low when idle. If 1, high when idle.
 #define SPI_CSR_CPOL_LSB  3
 #define SPI_CSR_CPOL_BITS 1
 #define SPI_CSR_CPOL_MASK 0x8
-// Field CSR_CPHA
+// Field: CSR_CPHA  Access: RW
 // If 0, data captured on leading edge of SCLK pulse. If 1, trailing edge.
 #define SPI_CSR_CPHA_LSB  2
 #define SPI_CSR_CPHA_BITS 1
 #define SPI_CSR_CPHA_MASK 0x4
-// Field CSR_BUSY
+// Field: CSR_BUSY  Access: ROV
 // A transfer is in progress
 #define SPI_CSR_BUSY_LSB  0
 #define SPI_CSR_BUSY_BITS 1
@@ -66,7 +66,7 @@
 
 // Clock divider register
 
-// Field DIV
+// Field: DIV  Access: RW
 #define SPI_DIV_LSB  0
 #define SPI_DIV_BITS 6
 #define SPI_DIV_MASK 0x3f
@@ -77,39 +77,39 @@
 
 // FIFO status register
 
-// Field FSTAT_TXLEVEL
+// Field: FSTAT_TXLEVEL  Access: ROV
 #define SPI_FSTAT_TXLEVEL_LSB  0
 #define SPI_FSTAT_TXLEVEL_BITS 8
 #define SPI_FSTAT_TXLEVEL_MASK 0xff
-// Field FSTAT_TXFULL
+// Field: FSTAT_TXFULL  Access: ROV
 #define SPI_FSTAT_TXFULL_LSB  8
 #define SPI_FSTAT_TXFULL_BITS 1
 #define SPI_FSTAT_TXFULL_MASK 0x100
-// Field FSTAT_TXEMPTY
+// Field: FSTAT_TXEMPTY  Access: ROV
 #define SPI_FSTAT_TXEMPTY_LSB  9
 #define SPI_FSTAT_TXEMPTY_BITS 1
 #define SPI_FSTAT_TXEMPTY_MASK 0x200
-// Field FSTAT_TXOVER
+// Field: FSTAT_TXOVER  Access: W1C
 #define SPI_FSTAT_TXOVER_LSB  10
 #define SPI_FSTAT_TXOVER_BITS 1
 #define SPI_FSTAT_TXOVER_MASK 0x400
-// Field FSTAT_RXLEVEL
+// Field: FSTAT_RXLEVEL  Access: ROV
 #define SPI_FSTAT_RXLEVEL_LSB  16
 #define SPI_FSTAT_RXLEVEL_BITS 8
 #define SPI_FSTAT_RXLEVEL_MASK 0xff0000
-// Field FSTAT_RXFULL
+// Field: FSTAT_RXFULL  Access: ROV
 #define SPI_FSTAT_RXFULL_LSB  24
 #define SPI_FSTAT_RXFULL_BITS 1
 #define SPI_FSTAT_RXFULL_MASK 0x1000000
-// Field FSTAT_RXEMPTY
+// Field: FSTAT_RXEMPTY  Access: ROV
 #define SPI_FSTAT_RXEMPTY_LSB  25
 #define SPI_FSTAT_RXEMPTY_BITS 1
 #define SPI_FSTAT_RXEMPTY_MASK 0x2000000
-// Field FSTAT_RXOVER
+// Field: FSTAT_RXOVER  Access: W1C
 #define SPI_FSTAT_RXOVER_LSB  26
 #define SPI_FSTAT_RXOVER_BITS 1
 #define SPI_FSTAT_RXOVER_MASK 0x4000000
-// Field FSTAT_RXUNDER
+// Field: FSTAT_RXUNDER  Access: W1C
 #define SPI_FSTAT_RXUNDER_LSB  27
 #define SPI_FSTAT_RXUNDER_BITS 1
 #define SPI_FSTAT_RXUNDER_MASK 0x8000000
@@ -120,7 +120,7 @@
 
 // TX data FIFO
 
-// Field TX
+// Field: TX  Access: WF
 #define SPI_TX_LSB  0
 #define SPI_TX_BITS 8
 #define SPI_TX_MASK 0xff
@@ -131,7 +131,7 @@
 
 // RX data FIFO
 
-// Field RX
+// Field: RX  Access: RF
 #define SPI_RX_LSB  0
 #define SPI_RX_BITS 8
 #define SPI_RX_MASK 0xff

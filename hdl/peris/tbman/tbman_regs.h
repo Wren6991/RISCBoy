@@ -24,7 +24,7 @@
 
 // Write a byte here to print to sim console
 
-// Field PRINT
+// Field: PRINT  Access: WF
 #define TBMAN_PRINT_LSB  0
 #define TBMAN_PRINT_BITS 8
 #define TBMAN_PRINT_MASK 0xff
@@ -35,7 +35,7 @@
 
 // Write a uint32 here to print it (handy for quickly dumping memory etc.)
 
-// Field PUTINT
+// Field: PUTINT  Access: WF
 #define TBMAN_PUTINT_LSB  0
 #define TBMAN_PUTINT_BITS 32
 #define TBMAN_PUTINT_MASK 0xffffffff
@@ -46,7 +46,7 @@
 
 // Write simulation exit condition here
 
-// Field EXIT
+// Field: EXIT  Access: WF
 #define TBMAN_EXIT_LSB  0
 #define TBMAN_EXIT_BITS 32
 #define TBMAN_EXIT_MASK 0xffffffff
@@ -57,11 +57,11 @@
 
 // The values of some Verilog defines (e.g. whether this is a simulation)
 
-// Field DEFINES_SIM
+// Field: DEFINES_SIM  Access: ROV
 #define TBMAN_DEFINES_SIM_LSB  0
 #define TBMAN_DEFINES_SIM_BITS 1
 #define TBMAN_DEFINES_SIM_MASK 0x1
-// Field DEFINES_FPGA
+// Field: DEFINES_FPGA  Access: ROV
 #define TBMAN_DEFINES_FPGA_LSB  1
 #define TBMAN_DEFINES_FPGA_BITS 1
 #define TBMAN_DEFINES_FPGA_MASK 0x2
@@ -72,7 +72,7 @@
 
 // Force IRQ to be high, at system level
 
-// Field IRQ_FORCE
+// Field: IRQ_FORCE  Access: RW
 #define TBMAN_IRQ_FORCE_LSB  0
 #define TBMAN_IRQ_FORCE_BITS 16
 #define TBMAN_IRQ_FORCE_MASK 0xffff

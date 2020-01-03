@@ -277,6 +277,8 @@ class VerilogWriter(RegBlockVisitor):
 		v.header.append("")
 		v.header.append("module {}_regs (".format(rb.name))
 		v.ports.extend(["input wire clk", "input wire rst_n",])
+		addr_mask = (1 << 2 + ceil(log2(len(rb.regs)))) - 1
+		addr_mask = addr_mask & (-1 << ceil(log2(rb.w_data / 8)))
 		if rb.bus == "apb":
 			v.ports.append("")
 			v.ports.append("// APB Port")
@@ -293,7 +295,7 @@ class VerilogWriter(RegBlockVisitor):
 			v.decls.append("reg {} rdata;".format(width2str(rb.w_data)))
 			v.decls.append("wire wen = apbs_psel && apbs_penable && apbs_pwrite;")
 			v.decls.append("wire ren = apbs_psel && apbs_penable && !apbs_pwrite;")
-			v.decls.append("wire {} addr = apbs_paddr & {}'h{};".format(width2str(rb.w_addr), rb.w_addr, hex((1 << 2 + ceil(log2(len(rb.regs)))) - 1)[2:]))
+			v.decls.append("wire {} addr = apbs_paddr & {}'h{:x};".format(width2str(rb.w_addr), rb.w_addr, addr_mask))
 			v.decls.append("assign apbs_prdata = rdata;")
 			v.decls.append("assign apbs_pready = 1'b1;")
 			v.decls.append("assign apbs_pslverr = 1'b0;")
