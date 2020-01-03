@@ -125,28 +125,23 @@ assign out_pixdata = pixel_data[0 +: W_OUTDATA];
 // Tile bookkeeping
 
 reg [W_TILENUM-1:0] tile;
-reg [LOG_W_TILE_MAX-1:0] tile_pixctr;
-
+wire at_tile_end = (u[LOG_W_TILE_MAX-1:0] | {!cfg_tile_size, {LOG_W_TILE_MAX-1{1'b0}}})  == {LOG_W_TILE_MAX{1'b1}};
 wire tile_load_rdy;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		tile_empty <= 1'b1;
 		tile <= {W_TILENUM{1'b0}};
-		tile_pixctr <= {LOG_W_TILE_MAX{1'b0}};
 	end else if (flush) begin
 		tile_empty <= 1'b1;
-		tile_pixctr <= u[LOG_W_TILE_MAX-1:0] & {cfg_tile_size, {LOG_W_TILE_MAX-1{1'b1}}};
 	end else if (tile_empty) begin
 		if (tile_load_rdy) begin
 			tile <= bus_data[W_TILENUM-1:0];
 			tile_empty <= 1'b0;
 		end
 	end else if (out_vld && out_rdy) begin
-		tile_pixctr <= tile_pixctr + 1'b1;
-		if (tile_pixctr == {cfg_tile_size, {LOG_W_TILE_MAX-1{1'b1}}}) begin
+		if (at_tile_end) begin
 			tile_empty <= 1'b1;
-			tile_pixctr <= {LOG_W_TILE_MAX{1'b0}};
 		end
 	end
 end
