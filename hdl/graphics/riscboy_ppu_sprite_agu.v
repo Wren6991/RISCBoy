@@ -83,12 +83,15 @@ wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(cfg_sprite_pixmode);
 wire [W_COORD-1:0] y_diff = chosen_sprite_pos_y - (beam_y + 1'b1);
 wire sprite_intersects_y = !(y_diff & {{W_COORD-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
 
-wire beam_x_right_of_lbound = beam_x + tile_size >= chosen_sprite_pos_x;
-wire beam_x_left_of_rbound = beam_x < chosen_sprite_pos_x;
+// Extra bit for X result, so that we can figure out which side of the sprite beam is on, as well as whether it intersects
+wire [W_COORD:0] x_diff = chosen_sprite_pos_x - beam_x;
+wire beam_x_right_of_lbound = !(x_diff & {{W_COORD-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
+wire beam_x_left_of_rbound = !(x_diff[W_COORD] || ~|x_diff);
+
 assign sprite_active = sprite_intersects_y && beam_x_left_of_rbound;
 
 assign sprite_x_count = beam_x_left_of_rbound ?
-	chosen_sprite_pos_x - beam_x : {W_COORD{1'b0}};
+	x_diff[W_COORD-1:0] : {W_COORD{1'b0}};
 
 assign sprite_must_seek = beam_x_right_of_lbound;
 assign sprite_shift_seek_target = {tile_size - sprite_x_count[4:0]} << pixel_log_size;
