@@ -34,9 +34,10 @@ parameter W_FLEVEL = $clog2(FIFO_DEPTH + 1);
 parameter W_OVER = $clog2(OVERSAMPLE);
 
 // 10 bits with 8x oversample will get us from a 72 MHz sysclk
-// to a little below 9600 baud. Who cares about slower speeds
+// to a little below 9600 baud. Who cares about slower speeds?
+// 4 fractional bits is enough to nail a 115200 baud rate at 36 MHz.
 localparam W_DIV_INT = 10;
-localparam W_DIV_FRAC = 8;
+localparam W_DIV_FRAC = 4;
 
 wire rst_n_sync;
 

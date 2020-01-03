@@ -19,7 +19,7 @@ static inline void uart_enable(bool en)
 	*UART_CSR = *UART_CSR & ~UART_CSR_EN_MASK | (!!en << UART_CSR_EN_LSB);
 }
 
-// 16.8 fixed point format.
+// 10.4 fixed point format.
 // Encodes number of clock cycles per clock enable.
 // Each baud period is 16 clock enables (default modparam)
 static inline void uart_clkdiv(uint32_t div)
@@ -28,7 +28,7 @@ static inline void uart_clkdiv(uint32_t div)
 }
 
 // Use constant arguments:
-#define uart_clkdiv_baud(clk_mhz, baud) uart_clkdiv((uint32_t)((clk_mhz) * 1e6 * (256.0 / 8.0) / (float)(baud)))
+#define uart_clkdiv_baud(clk_mhz, baud) uart_clkdiv((uint32_t)((clk_mhz) * 1e6 * (16.0 / 8.0) / (float)(baud)))
 
 static inline bool uart_tx_full()
 {

@@ -4,7 +4,7 @@ addr: 16
 data: 32
 params:
   W_DIV_INT: 10
-  W_DIV_FRAC: 8
+  W_DIV_FRAC: 4
 regs:
   - name: csr
     info: Control and status register
@@ -18,8 +18,8 @@ regs:
   - name: div
     info: Clock divider control fields
     bits:
-      - {b: [W_DIV_INT + W_DIV_FRAC - 1, W_DIV_FRAC], name: int, access: rw, rst: 0x1}
-      - {b: [W_DIV_FRAC - 1, 0], name: frac, access: rw}
+      - {b: [W_DIV_INT + W_DIV_FRAC - 1, W_DIV_FRAC], name: int, access: wo, rst: 0x1}
+      - {b: [W_DIV_FRAC - 1, 0], name: frac, access: wo}
   - name: fstat
     info: FIFO status register
     bits:

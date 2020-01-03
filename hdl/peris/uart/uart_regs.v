@@ -30,7 +30,7 @@ module uart_regs (
 	output reg  csr_rxie_o,
 	output reg  csr_loopback_o,
 	output reg [9:0] div_int_o,
-	output reg [7:0] div_frac_o,
+	output reg [3:0] div_frac_o,
 	input wire [7:0] fstat_txlevel_i,
 	input wire  fstat_txfull_i,
 	input wire  fstat_txempty_i,
@@ -91,13 +91,13 @@ assign csr_txie_rdata = csr_txie_o;
 assign csr_rxie_rdata = csr_rxie_o;
 assign csr_loopback_rdata = csr_loopback_o;
 
-wire [9:0] div_int_wdata = wdata[17:8];
+wire [9:0] div_int_wdata = wdata[13:4];
 wire [9:0] div_int_rdata;
-wire [7:0] div_frac_wdata = wdata[7:0];
-wire [7:0] div_frac_rdata;
-wire [31:0] __div_rdata = {14'h0, div_int_rdata, div_frac_rdata};
-assign div_int_rdata = div_int_o;
-assign div_frac_rdata = div_frac_o;
+wire [3:0] div_frac_wdata = wdata[3:0];
+wire [3:0] div_frac_rdata;
+wire [31:0] __div_rdata = {18'h0, div_int_rdata, div_frac_rdata};
+assign div_int_rdata = 10'h1;
+assign div_frac_rdata = 4'h0;
 
 wire [7:0] fstat_txlevel_wdata = wdata[7:0];
 wire [7:0] fstat_txlevel_rdata;
@@ -166,7 +166,7 @@ always @ (posedge clk or negedge rst_n) begin
 		csr_rxie_o <= 1'h0;
 		csr_loopback_o <= 1'h0;
 		div_int_o <= 10'h1;
-		div_frac_o <= 8'h0;
+		div_frac_o <= 4'h0;
 		fstat_txover <= 1'h0;
 		fstat_txunder <= 1'h0;
 		fstat_rxover <= 1'h0;
