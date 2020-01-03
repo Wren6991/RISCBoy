@@ -58,9 +58,16 @@ tbman_regs inst_tbman_regs
 	.exit_wen       (exit_wen),
 	.defines_sim_i  (defines_sim),
 	.defines_fpga_i (defines_fpga),
+`ifdef SIM
 	.irq_force_o    (irq_force)
+`else
+	.irq_force_o    (/* unused */)
+`endif
 );
 
+`ifndef SIM
+assign irq_force = 16'h0;
+`endif
 
 // Testbench only: sim print and sim exit
 
