@@ -79,9 +79,9 @@ onehot_mux #(
 wire [4:0] tile_size = cfg_sprite_tilesize ? 5'd16 : 5'd8;
 wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(cfg_sprite_pixmode);
 
-wire sprite_intersects_y = beam_y < chosen_sprite_pos_y && beam_y + tile_size >= chosen_sprite_pos_y;
-// or perhaps (requires spec change):
-// wire sprite_intersects_y = !({beam_y - chosen_sprite_pos_y} & {{W_COORD-4{1'b1}}, cfg_sprite_tilesize, 3'h0});
+// wire sprite_intersects_y = beam_y < chosen_sprite_pos_y && beam_y + tile_size >= chosen_sprite_pos_y;
+wire [W_COORD-1:0] y_diff = chosen_sprite_pos_y - (beam_y + 1'b1);
+wire sprite_intersects_y = !(y_diff & {{W_COORD-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
 
 wire beam_x_right_of_lbound = beam_x + tile_size >= chosen_sprite_pos_x;
 wire beam_x_left_of_rbound = beam_x < chosen_sprite_pos_x;
