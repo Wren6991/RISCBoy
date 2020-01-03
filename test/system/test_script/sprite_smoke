@@ -24,7 +24,7 @@ if len(actual) != len(expected):
 
 for i, (a, e) in enumerate(zip(actual, expected)):
 	if a != e:
-		print("Mismatch at pixel {}, expected {:04h}, got {:04h}".format(i, e, a))
+		print("Mismatch at pixel {}, expected {:04x}, got {:04x}".format(i, e, a))
 		sys.exit(0)
 
 print("Test PASSED.")
