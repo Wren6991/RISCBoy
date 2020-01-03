@@ -107,7 +107,7 @@ module ppu_regs (
 	output reg  lcd_csr_lcd_cs_o,
 	output reg  lcd_csr_lcd_dc_o,
 	input wire  lcd_csr_tx_busy_i,
-	output reg [4:0] lcd_csr_lcd_shiftcnt_o,
+	output reg  lcd_csr_lcd_shiftcnt_o,
 	input wire  ints_vsync_i,
 	output reg  ints_vsync_o,
 	output reg ints_vsync_wen,
@@ -555,9 +555,9 @@ wire  lcd_csr_lcd_dc_wdata = wdata[9];
 wire  lcd_csr_lcd_dc_rdata;
 wire  lcd_csr_tx_busy_wdata = wdata[10];
 wire  lcd_csr_tx_busy_rdata;
-wire [4:0] lcd_csr_lcd_shiftcnt_wdata = wdata[20:16];
-wire [4:0] lcd_csr_lcd_shiftcnt_rdata;
-wire [31:0] __lcd_csr_rdata = {11'h0, lcd_csr_lcd_shiftcnt_rdata, 5'h0, lcd_csr_tx_busy_rdata, lcd_csr_lcd_dc_rdata, lcd_csr_lcd_cs_rdata, lcd_csr_pxfifo_level_rdata, lcd_csr_pxfifo_full_rdata, lcd_csr_pxfifo_empty_rdata};
+wire  lcd_csr_lcd_shiftcnt_wdata = wdata[16];
+wire  lcd_csr_lcd_shiftcnt_rdata;
+wire [31:0] __lcd_csr_rdata = {15'h0, lcd_csr_lcd_shiftcnt_rdata, 5'h0, lcd_csr_tx_busy_rdata, lcd_csr_lcd_dc_rdata, lcd_csr_lcd_cs_rdata, lcd_csr_pxfifo_level_rdata, lcd_csr_pxfifo_full_rdata, lcd_csr_pxfifo_empty_rdata};
 assign lcd_csr_pxfifo_empty_rdata = lcd_csr_pxfifo_empty_i;
 assign lcd_csr_pxfifo_full_rdata = lcd_csr_pxfifo_full_i;
 assign lcd_csr_pxfifo_level_rdata = lcd_csr_pxfifo_level_i;
@@ -722,7 +722,7 @@ always @ (posedge clk or negedge rst_n) begin
 		sp7_pos_y_o <= 9'h0;
 		lcd_csr_lcd_cs_o <= 1'h1;
 		lcd_csr_lcd_dc_o <= 1'h0;
-		lcd_csr_lcd_shiftcnt_o <= 5'h0;
+		lcd_csr_lcd_shiftcnt_o <= 1'h0;
 		inte_vsync_o <= 1'h0;
 		inte_hsync_o <= 1'h0;
 		wstrobe_bg_flush[0] <= 1'b0;

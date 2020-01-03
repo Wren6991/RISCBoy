@@ -63,7 +63,6 @@ localparam W_PLAYFIELD_COORD = 10;
 parameter N_LAYERS = 2;
 // Should be locals but ISIM bug etc etc:
 parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
-parameter W_LCDCTRL_SHAMT = $clog2(W_LCD_PIXDATA + 1);
 parameter W_PFSIZE = $clog2(W_PLAYFIELD_COORD - 4);
 parameter W_LAYERSEL = N_LAYERS > 1 ? $clog2(N_LAYERS) : 1;
 parameter W_SHIFTCTR = $clog2(W_DATA);
@@ -136,7 +135,7 @@ wire                                      pxfifo_wfull;
 wire                                      pxfifo_wempty;
 wire [W_PXFIFO_LEVEL-1:0]                 pxfifo_wlevel;
 
-wire [W_LCDCTRL_SHAMT-1:0]                lcdctrl_shamt;
+wire                                      lcdctrl_shamt;
 wire                                      lcdctrl_busy;
 
 ppu_regs regs (
@@ -510,7 +509,7 @@ endgenerate
 // LCD shifter and clock crossing
 
 wire                       lcdctrl_busy_clklcd;
-wire [W_LCDCTRL_SHAMT-1:0] lcdctrl_shamt_clklcd;
+wire                       lcdctrl_shamt_clklcd;
 
 wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = pxfifo_direct_wen ? pxfifo_direct_wdata :
 	{pmap_out_pixdata[14:5], 1'b0, pmap_out_pixdata[4:0]};
@@ -531,7 +530,7 @@ sync_1bit sync_lcd_busy (
 // It should be ok to use simple 2FF sync here because software maintains
 // guarantee that this only changes when PPU + shifter are idle
 
-sync_1bit sync_lcd_shamt [W_LCDCTRL_SHAMT-1:0] (
+sync_1bit sync_lcd_shamt (
 	.clk   (clk_lcd),
 	.rst_n (rst_n_lcd),
 	.i     (lcdctrl_shamt),

@@ -78,9 +78,10 @@ static inline void lcd_force_dc_cs(bool dc, bool cs)
 
 static inline void lcd_set_shift_width(uint8_t width)
 {
-	*PPU_LCD_CSR = *PPU_LCD_CSR
-		& ~PPU_LCD_CSR_LCD_SHIFTCNT_MASK
-		| ((width << PPU_LCD_CSR_LCD_SHIFTCNT_LSB) & PPU_LCD_CSR_LCD_SHIFTCNT_MASK);
+	if (width == 16)
+		mm_ppu->lcd_csr |= PPU_LCD_CSR_LCD_SHIFTCNT_MASK;
+	else
+		mm_ppu->lcd_csr &= ~PPU_LCD_CSR_LCD_SHIFTCNT_MASK;
 }
 
 static inline void lcd_put_hword(uint16_t pixdata)

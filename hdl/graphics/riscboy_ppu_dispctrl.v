@@ -33,7 +33,7 @@ module riscboy_ppu_dispctrl #(
 	input  wire [W_DATA-1:0]  pxfifo_rdata,
 	// How many bits to shift from this pxfifo word before moving on. Generally
 	// either 8 or W_DATA:
-	input  wire [W_SHAMT-1:0] pxfifo_shiftcount,
+	input  wire               pxfifo_shiftcount,
 
     // Goes low when the output shifter completely empties
     // Software uses this flag in conjunction with pxfifo empty to check
@@ -54,12 +54,13 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		shift <= {W_DATA{1'b0}};
 		shift_ctr <= {W_SHAMT{1'b0}};
-	end else if (pxfifo_vld && pxfifo_rdy) begin
-		shift <= pxfifo_rdata;
-		shift_ctr <= pxfifo_shiftcount;
 	end else begin
 		shift_ctr <= shift_ctr - |shift_ctr;
 		shift <= shift << 1;
+		if (pxfifo_vld && pxfifo_rdy) begin
+			shift <= pxfifo_rdata;
+			shift_ctr[W_SHAMT-1:W_SHAMT-2] <= {pxfifo_shiftcount, !pxfifo_shiftcount};
+		end
 	end
 end
 

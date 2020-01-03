@@ -674,9 +674,10 @@
 #define PPU_LCD_CSR_TX_BUSY_BITS 1
 #define PPU_LCD_CSR_TX_BUSY_MASK 0x400
 // Field: LCD_CSR_LCD_SHIFTCNT  Access: RW
+// 1 for 16-bit, 0 for 8-bit
 #define PPU_LCD_CSR_LCD_SHIFTCNT_LSB  16
-#define PPU_LCD_CSR_LCD_SHIFTCNT_BITS 5
-#define PPU_LCD_CSR_LCD_SHIFTCNT_MASK 0x1f0000
+#define PPU_LCD_CSR_LCD_SHIFTCNT_BITS 1
+#define PPU_LCD_CSR_LCD_SHIFTCNT_MASK 0x10000
 
 /*******************************************************************************
 *                                     INTS                                     *
