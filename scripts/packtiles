@@ -53,14 +53,22 @@ if __name__ == "__main__":
 	if format_is_paletted:
 		ncolours_max = 1 << int(args.format[1:])
 		ncolours_actual = min(ncolours_max, len(img.getcolors()))
-		img = img.quantize(ncolours_max)
-		palette = img.getpalette()
+		pimg = img.quantize(ncolours_max)
+		palette = pimg.getpalette()
+		# TODO haven't found a sane way to make PIL map transparency to palette
+		if image_is_transparent:
+			for x in range(img.width):
+				for y in range(img.height):
+					if not (img.getpixel((x, y))[3] & 0x80):
+						pimg.putpixel((x, y), 255)
+
 		with open(args.output + ".pal", "wb") as pfile:
 			if image_is_transparent:
 				pfile.write(bytes(2))
 			pfile.write(bytes(bytes_from_bitstream_le(
 				format_pixel("argb1555", False, palette[i:i+3]) for i in range(0, ncolours_actual * 3, 3)
 			)))
+		img = pimg
 
 	for y in range(0, img.height - (tilesize - 1), tilesize):
 		for x in range(0, img.width - (tilesize - 1), tilesize):
