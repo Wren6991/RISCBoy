@@ -15,4 +15,4 @@ clean:
 	rm -f $(APPNAME)_flash.bin
 
 prog: all
-	uartprog -s 0x22000 -wvr $(APPNAME)_flash.bin
+	uartprog -s 0x22000 -wr $(APPNAME)_flash.bin
