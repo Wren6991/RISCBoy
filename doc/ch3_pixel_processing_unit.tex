@@ -249,51 +249,45 @@ Poker instructions reside in main system memory. Instructions are documented bel
 \bitbox{8}{{\tt WAIT}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
 \end{bytefield}
 
-Suspend execution, resuming immediately before pixel ({\tt x}, {\tt y}). For example {\tt WAIT 0, 0} will halt Poker execution until the start of the next frame. The Poker should generally spend most of its time in a suspended state, as it blocks pixel data fetches while it is executing.
+Suspend execution, resuming immediately before pixel ({\tt x}, {\tt y}). For example {\tt WAIT 0, 0} will halt Poker execution until the start of the next frame. Setting {\tt x} or {\tt y} to the all-ones bit pattern means "don't care": {\tt WAIT 0, -1} will wait until the first pixel of the next scanline.
 
-Setting {\tt x} or {\tt y} to the all-ones bit pattern means "any". For example, the Poker may scan a block of sprite configuration at the start of every line, or change background colour at a certain point on every scanline.
+Any pixels before ({\tt x}, {\tt y}) are unaffected by any changes the Poker may make. Once the Poker finishes poking, and goes back into the {\tt WAIT} state, all pixels after this point (inclusive of ({\tt x}, {\tt y})) take the new values into account.
 
-Any pixels before ({\tt x}, {\tt y}) are unaffected by any changes the Poker may make. Once the Poker finishes poking, and goes back into the {\tt WAIT} state, all pixels after this point (inclusive of ({\tt x}, {\tt y}) take the new values into account.
-
-\subsubsection*{POKE}
+\subsubsection*{JUMP}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-\bitheader{0,15,24,31} \\
-\bitbox{8}{{\tt POKE}} \bitbox{8}{{\tt count}} \bitbox{16}{{\tt addr}} \\
-\bitheader{0, 31} \\
-\bitbox{32}{{\tt data}} \\
-\end{bytefield}
-
-Write {\tt data} into the PPU's configuration address space, starting at {\tt addr}. The {\tt data} payload is ${\tt count}+ 1$ words in size. Absolutely any state can be modified, but beware that each pixel engine (sprite or background) will perform a reload when relevant config is written to.
-
-For example, a background may have its tileset {\tt POKE}d at a certain point in each scanline, if there is a menu on the side of the screen which uses a font tilemap to draw text.
-
-Some {\tt POKE}s are more expensive than others: it is possible to change the vertical scroll for every single pixel along a scanline, and this will produce the expected image. However, scrolling the screen invalidates the state of all sprites and backgrounds, which may cause slowdown if done too often.
-
-Note that the Poker's program counter is mapped into the configuration address space; {\tt POKE} can be used to perform jumps.
-
-\subsubsection*{SPRITE}
-
-\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-\bitheader{0,7,8,15,16,23,24,31} \\
-\bitbox{8}{{\tt SPRITE}} \bitbox{8}{count} \bitbox{8}{{\tt start}} \bitbox{8}{{\tt end}} \\
+\bitheader{0,11,12,23,24,31} \\
+\bitbox{8}{{\tt JUMP}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
 \bitheader{0, 31} \\
 \bitbox{32}{{\tt addr}} \\
 \end{bytefield}
 
-Scan through {\tt count} sprite configuration words starting at {\tt addr} and assign them to sprites in range {\tt start}...{\tt end} if they intersect the current scanline. Disable remaining sprites. Stop scanning if {\tt end} is reached. If the display has a horizontal blanking period, this is the ideal time to perform {\tt SPRITE} scanning. This instruction is implemented with hardware already present in the PPU, so presents little extra cost.
+If the current raster position matches ({\tt x}, {\tt y}), then jump to address {\tt addr}. Otherwise, fall through to the next instruction. The match condition for ({\tt x}, {\tt y}) is the same as for {\tt WAIT}: all-ones will match any position on that axis.
 
-This mechanism is similar to GameBoy OAM search. The effect is that the user can define a large number of virtual sprites -- more than are available in hardware -- and the PPU can draw all of these, as long as the number of sprites on one scanline is not greater than the hardware sprite count.
+This allows loops and switches to be programmed. For example, setting the same horizontal pattern of sprite configurations for the next $n$ scanlines before falling through to a different group of sprites (a loop), but setting a different background colour for each scanline to get a sky gradient effect (a switch).
 
-Alternatively, sprite allocation can be performed by software, and the sprites updated using a {\tt POKE} instruction. The {\tt POKE} approach is more flexible, and makes it easier to multiplex hard sprites within a single scanline.
-
-\subsubsection*{SKIP}
+\subsubsection*{POKE}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-\bitheader{24,31} \\
-\bitbox{8}{{\tt SKIP}} \bitbox{24}{TBD} \\
+\bitheader{0,11,24,31} \\
+\bitbox{8}{{\tt POKE}} \bitbox{12}{ } \bitbox{12}{{\tt addr}} \\
+\bitheader{0, 31} \\
+\bitbox{32}{{\tt data}} \\
 \end{bytefield}
 
-Skip the following instruction, if the beam has reached some point. Full details TBD. It might be better to provide a conditional jump with a target, because not all of our instructions are the same length (especially {\tt POKE})
+Write {\tt data} to address {\tt addr} in the PPU's configuration address space. Absolutely any state can be modified, at any time, and from the current pixel onward the PPU will behave as though the new configuration had always been in effect.
 
-This allows Poker loops to be programmed, and makes the wait wildcard values much more useful.
+This functionality is not free: sprites and backgrounds need to flush their internal state when poked, and fetch fresh tile and pixel data before they start producing pixels again. Overenthusiastic {\tt POKE}ing may eventually underflow the pixel FIFO. For a serial LCD this will result in a small increase in frame time; for a VGA or DPI display, potentially lost pixels.
+
+Sprites and tiles will attempt to fetch data immediately after being poked, to minimise downtime. They must arbitrate with the Poker and each other for access to the bus. The priority order is (winner first):
+
+\begin{itemize}
+	\item Poker
+	\item Backgrounds, lowest first
+	\item Sprites, lowest first
+\end{itemize}
+
+The Poker generates 32 bit bus accesses, with an idle cycle between each (as AHB-lite is pipelined, but the Poker is not). 32 bit reads over a 16 bit bus take two cycles, so during Poker execution there is one bus cycle in three available for sprite and tile refill.
+
+Suppose you want to draw a menu on one side of the screen, but you have already used up all your background layers to render the game world. In this case you would {\tt POKE} a background tileset and tilemap at the same point on each scanline, so that the left half of the screen shows the game world, and the right half of the screen shows some bitmap font. You would also {\tt POKE} the sprites to disable them, so that they don't draw over the menu. The PPU is paused while the Poker is running, so all of these changes take effect between pixel {\tt x} of the most recent {\tt WAIT} instruction, and pixel $\mathtt{x} + 1$.
+
