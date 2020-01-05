@@ -20,7 +20,7 @@ module riscboy_ppu_background #(
 	parameter W_PLAYFIELD_COORD = 10,
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
-	parameter W_DATA = 32,
+	parameter W_DATA = 16,
 	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),

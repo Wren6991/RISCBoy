@@ -17,36 +17,37 @@
 
  module riscboy_ppu #(
 	parameter PXFIFO_DEPTH = 8,
-	parameter W_DATA = 32,
-	parameter W_ADDR = 32,
-	parameter ADDR_MASK = {W_ADDR{1'b1}}
+	parameter W_HADDR = 32,
+	parameter W_HDATA = 32,
+	parameter W_DATA = 16,
+	parameter ADDR_MASK = {W_HADDR{1'b1}}
 ) (
 	input  wire              clk_ppu,
 	input  wire              clk_lcd,
 	input  wire              rst_n,
 
 	// AHB-lite master port
-	output wire [W_ADDR-1:0] ahblm_haddr,
-	output wire              ahblm_hwrite,
-	output wire [1:0]        ahblm_htrans,
-	output wire [2:0]        ahblm_hsize,
-	output wire [2:0]        ahblm_hburst,
-	output wire [3:0]        ahblm_hprot,
-	output wire              ahblm_hmastlock,
-	input  wire              ahblm_hready,
-	input  wire              ahblm_hresp,
-	output wire [W_DATA-1:0] ahblm_hwdata,
-	input  wire [W_DATA-1:0] ahblm_hrdata,
+	output wire [W_HADDR-1:0] ahblm_haddr,
+	output wire               ahblm_hwrite,
+	output wire [1:0]         ahblm_htrans,
+	output wire [2:0]         ahblm_hsize,
+	output wire [2:0]         ahblm_hburst,
+	output wire [3:0]         ahblm_hprot,
+	output wire               ahblm_hmastlock,
+	input  wire               ahblm_hready,
+	input  wire               ahblm_hresp,
+	output wire [W_HDATA-1:0] ahblm_hwdata,
+	input  wire [W_HDATA-1:0] ahblm_hrdata,
 
 	// APB slave port
-	input  wire              apbs_psel,
-	input  wire              apbs_penable,
-	input  wire              apbs_pwrite,
-	input  wire [15:0]       apbs_paddr,
-	input  wire [W_DATA-1:0] apbs_pwdata,
-	output wire [W_DATA-1:0] apbs_prdata,
-	output wire              apbs_pready,
-	output wire              apbs_pslverr,
+	input  wire               apbs_psel,
+	input  wire               apbs_penable,
+	input  wire               apbs_pwrite,
+	input  wire [15:0]        apbs_paddr,
+	input  wire [W_HDATA-1:0] apbs_pwdata,
+	output wire [W_HDATA-1:0] apbs_prdata,
+	output wire               apbs_pready,
+	output wire               apbs_pslverr,
 
 	output wire              lcd_cs,
 	output wire              lcd_dc,
@@ -362,11 +363,11 @@ riscboy_ppu_palette_mapper #(
 // ----------------------------------------------------------------------------
 // Backgrounds
 
-wire              bg_bus_vld  [0:N_BACKGROUND-1];
-wire [W_ADDR-1:0] bg_bus_addr [0:N_BACKGROUND-1];
-wire [1:0]        bg_bus_size [0:N_BACKGROUND-1];
-wire [W_DATA-1:0] bg_bus_data [0:N_BACKGROUND-1];
-wire              bg_bus_rdy  [0:N_BACKGROUND-1];
+wire               bg_bus_vld  [0:N_BACKGROUND-1];
+wire [W_HADDR-1:0] bg_bus_addr [0:N_BACKGROUND-1];
+wire [1:0]         bg_bus_size [0:N_BACKGROUND-1];
+wire [W_HDATA-1:0] bg_bus_data [0:N_BACKGROUND-1];
+wire               bg_bus_rdy  [0:N_BACKGROUND-1];
 
 generate
 for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
@@ -374,7 +375,7 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 		.W_SCREEN_COORD    (W_SCREEN_COORD),
 		.W_PLAYFIELD_COORD (W_PLAYFIELD_COORD),
 		.W_OUTDATA         (W_PIXDATA),
-		.W_ADDR            (W_ADDR),
+		.W_ADDR            (W_HADDR),
 		.W_DATA            (W_DATA),
 		.ADDR_MASK         (ADDR_MASK)
 	) bg (
@@ -389,7 +390,7 @@ for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 		.bus_addr           (bg_bus_addr[bg]),
 		.bus_size           (bg_bus_size[bg]),
 		.bus_rdy            (bg_bus_rdy[bg]),
-		.bus_data           (bg_bus_data[bg]),
+		.bus_data           (bg_bus_data[bg][W_DATA-1:0]),
 
 		.cfg_scroll_x       (bg_scroll_x[bg * W_PLAYFIELD_COORD +: W_PLAYFIELD_COORD]),
 		.cfg_scroll_y       (bg_scroll_y[bg * W_PLAYFIELD_COORD +: W_PLAYFIELD_COORD]),
@@ -421,9 +422,9 @@ wire                      sprite_agu_must_seek;
 wire [W_SHIFTCTR-1:0]     sprite_agu_shift_seek_target;
 
 wire                      sagu_bus_vld;
-wire [W_ADDR-1:0]         sagu_bus_addr;
+wire [W_HADDR-1:0]        sagu_bus_addr;
 wire [1:0]                sagu_bus_size;
-wire [W_DATA-1:0]         sagu_bus_data;
+wire [W_HDATA-1:0]        sagu_bus_data;
 wire                      sagu_bus_rdy;
 
 wire [N_SPRITE-1:0]       sprite_bus_vld;
@@ -433,7 +434,7 @@ wire [W_DATA-1:0]         sprite_bus_data;
 
 riscboy_ppu_sprite_agu #(
 	.W_DATA    (W_DATA),
-	.W_ADDR    (W_ADDR),
+	.W_ADDR    (W_HADDR),
 	.ADDR_MASK (ADDR_MASK),
 	.W_COORD   (W_SCREEN_COORD),
 	.N_SPRITE  (N_SPRITE)
@@ -466,7 +467,7 @@ riscboy_ppu_sprite_agu #(
 	.bus_addr                 (sagu_bus_addr),
 	.bus_size                 (sagu_bus_size),
 	.bus_rdy                  (sagu_bus_rdy),
-	.bus_data                 (sagu_bus_data)
+	.bus_data                 (sagu_bus_data[W_DATA-1:0])
 );
 
 generate
@@ -538,8 +539,8 @@ sync_1bit sync_lcd_shamt (
 );
 
 async_fifo #(
-	.W_DATA(W_LCD_PIXDATA),
-	.W_ADDR(W_PXFIFO_LEVEL - 1)
+	.W_DATA (W_LCD_PIXDATA),
+	.W_ADDR (W_PXFIFO_LEVEL - 1)
 ) inst_async_fifo (
 	.wclk   (clk_ppu),
 	.wrst_n (rst_n_ppu),
@@ -580,36 +581,36 @@ riscboy_ppu_dispctrl #(
 
 localparam N_BUS_REQ = N_BACKGROUND + 1;
 
-wire [N_BUS_REQ-1:0]        bus_req_vld;
-wire [N_BUS_REQ*W_ADDR-1:0] bus_req_addr;
-wire [N_BUS_REQ*2-1:0]      bus_req_size;
-wire [N_BUS_REQ-1:0]        bus_req_rdy;
-wire [N_BUS_REQ*W_DATA-1:0] bus_req_data;
+wire [N_BUS_REQ-1:0]         bus_req_vld;
+wire [N_BUS_REQ*W_HADDR-1:0] bus_req_addr;
+wire [N_BUS_REQ*2-1:0]       bus_req_size;
+wire [N_BUS_REQ-1:0]         bus_req_rdy;
+wire [N_BUS_REQ*W_HDATA-1:0] bus_req_data;
 
 genvar req;
 generate
 for (req = 0; req < N_BUS_REQ; req = req + 1) begin: bus_req_hookup
 	if (req < N_BACKGROUND) begin
-		assign bus_req_vld [req]                    = bg_bus_vld[req];
-		assign bus_req_addr[req * W_ADDR +: W_ADDR] = bg_bus_addr[req];
-		assign bus_req_size[req * 2 +: 2]           = bg_bus_size[req];
-		assign bg_bus_rdy  [req]                    = bus_req_rdy[req];
-		assign bg_bus_data [req]                    = bus_req_data[req * W_DATA +: W_DATA];
+		assign bus_req_vld [req]                      = bg_bus_vld[req];
+		assign bus_req_addr[req * W_HADDR +: W_HADDR] = bg_bus_addr[req];
+		assign bus_req_size[req * 2 +: 2]             = bg_bus_size[req];
+		assign bg_bus_rdy  [req]                      = bus_req_rdy[req];
+		assign bg_bus_data [req]                      = bus_req_data[req * W_HDATA +: W_HDATA];
 	end else begin
-		assign bus_req_vld [req]                    = sagu_bus_vld;
-		assign bus_req_addr[req * W_ADDR +: W_ADDR] = sagu_bus_addr;
-		assign bus_req_size[req * 2 +: 2]           = sagu_bus_size;
-		assign sagu_bus_rdy                         = bus_req_rdy[req];
-		assign sagu_bus_data                        = bus_req_data[req * W_DATA +: W_DATA];
+		assign bus_req_vld [req]                      = sagu_bus_vld;
+		assign bus_req_addr[req * W_HADDR +: W_HADDR] = sagu_bus_addr;
+		assign bus_req_size[req * 2 +: 2]             = sagu_bus_size;
+		assign sagu_bus_rdy                           = bus_req_rdy[req];
+		assign sagu_bus_data                          = bus_req_data[req * W_HDATA +: W_HDATA];
 	end
 end
 endgenerate
 
 riscboy_ppu_busmaster #(
 	.N_REQ     (N_BACKGROUND + 1),
-	.W_ADDR    (W_ADDR),
+	.W_ADDR    (W_HADDR),
 	.ADDR_MASK (ADDR_MASK),
-	.W_DATA    (W_DATA)
+	.W_DATA    (W_HDATA)
 ) inst_riscboy_ppu_busmaster (
 	.clk             (clk_ppu),
 	.rst_n           (rst_n_ppu),

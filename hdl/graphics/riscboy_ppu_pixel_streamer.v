@@ -19,7 +19,7 @@
 // if just flushed, and streaming data out at some width.
 
 module riscboy_ppu_pixel_streamer #(
-	parameter W_DATA = 32,
+	parameter W_DATA = 16,
 	parameter W_PIX_MAX = 16,
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA),

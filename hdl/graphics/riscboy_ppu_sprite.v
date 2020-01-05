@@ -1,7 +1,7 @@
 module riscboy_ppu_sprite #(
-	parameter W_DATA = 32,
+	parameter W_DATA = 16,
 	parameter W_OUTDATA = 15,
-	parameter W_COORD = 10,
+	parameter W_COORD = 9,
 	// Driven parameters:
 	parameter W_SHIFTCTR = $clog2(W_DATA)
 ) (
