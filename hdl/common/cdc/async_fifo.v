@@ -66,6 +66,8 @@ wire [W_ADDR:0] rptr_gry_r;
 wire [W_ADDR:0] rptr_gry_w;
 wire [W_ADDR:0] rptr_w;
 
+wire [W_ADDR:0] rptr_r_next;
+
 // rptr_w and wptr_r are expensive (Gray-decoded), so avoid them for full/empty calculations
 // For full, due to symmetries in Gray code, we check that 2 MSBs differ and all others are equal
 assign wempty = wptr_gry_w == rptr_gry_w;
@@ -94,27 +96,29 @@ always @ (posedge rclk)
 gray_counter #(
 	.W_CTR (W_ADDR + 1)
 ) gray_counter_w (
-	.clk       (wclk),
-	.rst_n     (wrst_n),
-	.en        (push_actual),
-	.clr       (1'b0),
-	.count_bin (wptr_w),
-	.count_gry (wptr_gry_w)
+	.clk            (wclk),
+	.rst_n          (wrst_n),
+	.en             (push_actual),
+	.clr            (1'b0),
+	.count_bin      (wptr_w),
+	.count_bin_next (/* unused */),
+	.count_gry      (wptr_gry_w)
 );
 
 gray_counter #(
 	.W_CTR (W_ADDR + 1)
 ) gray_counter_r (
-	.clk       (rclk),
-	.rst_n     (rrst_n),
-	.en        (pop_actual),
-	.clr       (1'b0),
-	.count_bin (rptr_r),
-	.count_gry (rptr_gry_r)
+	.clk            (rclk),
+	.rst_n          (rrst_n),
+	.en             (pop_actual),
+	.clr            (1'b0),
+	.count_bin      (rptr_r),
+	.count_bin_next (rptr_r_next),
+	.count_gry      (rptr_gry_r)
 );
 
 sync_1bit #(
-	.N_STAGES (SYNC_STAGES)
+	.N_STAGES (SYNC_STAGES + 1)
 ) sync_wptr [W_ADDR:0] (
 	.clk   (rclk),
 	.rst_n (rrst_n),
@@ -152,15 +156,13 @@ localparam MEM_DEPTH = 1 << W_ADDR;
 reg [W_DATA-1:0] mem [0:MEM_DEPTH-1];
 
 wire [W_ADDR-1:0] memptr_w = wptr_w[W_ADDR-1:0];
-wire [W_ADDR-1:0] memptr_r = rptr_r[W_ADDR-1:0];
+wire [W_ADDR-1:0] memptr_r = pop_actual ? rptr_r_next[W_ADDR-1:0] : rptr_r[W_ADDR-1:0];
 
 always @ (posedge wclk)
 	if (push_actual)
 		mem[memptr_w] <= wdata;
 
-// TODO this won't be inferred as BRAMs on iCE40
-// However even making this read port synchronous does not seem to trigger BRAM
-// inference, so needs closer investigation. Flops ok for now
-always @ (*) rdata = mem[memptr_r];
+always @ (posedge rclk)
+	rdata <= mem[memptr_r];
 
 endmodule

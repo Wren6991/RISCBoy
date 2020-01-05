@@ -26,6 +26,7 @@ module gray_counter #(
 	input  wire             en,
 	input  wire             clr,
 	output wire [W_CTR-1:0] count_bin,
+	output wire [W_CTR-1:0] count_bin_next,
 	output wire [W_CTR-1:0] count_gry
 );
 
@@ -35,7 +36,7 @@ reg [W_CTR-1:0] ctr_bin;
 assign count_bin = ctr_bin;
 assign count_gry = ctr_gry;
 
-wire [W_CTR-1:0] ctr_bin_next = ctr_bin + 1'b1;
+assign count_bin_next = ctr_bin + 1'b1;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -45,8 +46,8 @@ always @ (posedge clk or negedge rst_n) begin
 		ctr_bin <= {W_CTR{1'b0}};
 		ctr_gry <= {W_CTR{1'b0}};
 	end else if (en) begin
-		ctr_bin <= ctr_bin_next;
-		ctr_gry <= ctr_bin_next ^ (ctr_bin_next >> 1);
+		ctr_bin <= count_bin_next;
+		ctr_gry <= count_bin_next ^ (count_bin_next >> 1);
 	end
 end
 
