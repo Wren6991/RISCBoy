@@ -7,6 +7,7 @@ file riscboy_ppu_palette_ram.v
 file riscboy_ppu_palette_mapper.v
 file riscboy_ppu_pixel_gearbox.v
 file riscboy_ppu_pixel_streamer.v
+file riscboy_ppu_poker.v
 file riscboy_ppu_raster_counter.v
 file riscboy_ppu_sprite.v
 file riscboy_ppu_sprite_agu.v

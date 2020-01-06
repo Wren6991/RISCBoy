@@ -17,6 +17,8 @@ struct ppu_hw {
 	io_rw_32 dispsize;
 	io_rw_32 default_bg_colour;
 	io_rw_32 beam;
+	io_rw_32 poker_pc;
+	io_rw_32 poker_scratch;
 	struct ppu_bg_hw {
 		io_rw_32 csr;
 		io_rw_32 scroll;

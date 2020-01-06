@@ -16,36 +16,38 @@
 #define PPU_DISPSIZE_OFFS 4
 #define PPU_DEFAULT_BG_COLOUR_OFFS 8
 #define PPU_BEAM_OFFS 12
-#define PPU_BG0_CSR_OFFS 16
-#define PPU_BG0_SCROLL_OFFS 20
-#define PPU_BG0_TSBASE_OFFS 24
-#define PPU_BG0_TMBASE_OFFS 28
-#define PPU_BG1_CSR_OFFS 32
-#define PPU_BG1_SCROLL_OFFS 36
-#define PPU_BG1_TSBASE_OFFS 40
-#define PPU_BG1_TMBASE_OFFS 44
-#define PPU_SP_CSR_OFFS 48
-#define PPU_SP_TSBASE_OFFS 52
-#define PPU_SP0_CSR_OFFS 56
-#define PPU_SP0_POS_OFFS 60
-#define PPU_SP1_CSR_OFFS 64
-#define PPU_SP1_POS_OFFS 68
-#define PPU_SP2_CSR_OFFS 72
-#define PPU_SP2_POS_OFFS 76
-#define PPU_SP3_CSR_OFFS 80
-#define PPU_SP3_POS_OFFS 84
-#define PPU_SP4_CSR_OFFS 88
-#define PPU_SP4_POS_OFFS 92
-#define PPU_SP5_CSR_OFFS 96
-#define PPU_SP5_POS_OFFS 100
-#define PPU_SP6_CSR_OFFS 104
-#define PPU_SP6_POS_OFFS 108
-#define PPU_SP7_CSR_OFFS 112
-#define PPU_SP7_POS_OFFS 116
-#define PPU_LCD_PXFIFO_OFFS 120
-#define PPU_LCD_CSR_OFFS 124
-#define PPU_INTS_OFFS 128
-#define PPU_INTE_OFFS 132
+#define PPU_POKER_PC_OFFS 16
+#define PPU_POKER_SCRATCH_OFFS 20
+#define PPU_BG0_CSR_OFFS 24
+#define PPU_BG0_SCROLL_OFFS 28
+#define PPU_BG0_TSBASE_OFFS 32
+#define PPU_BG0_TMBASE_OFFS 36
+#define PPU_BG1_CSR_OFFS 40
+#define PPU_BG1_SCROLL_OFFS 44
+#define PPU_BG1_TSBASE_OFFS 48
+#define PPU_BG1_TMBASE_OFFS 52
+#define PPU_SP_CSR_OFFS 56
+#define PPU_SP_TSBASE_OFFS 60
+#define PPU_SP0_CSR_OFFS 64
+#define PPU_SP0_POS_OFFS 68
+#define PPU_SP1_CSR_OFFS 72
+#define PPU_SP1_POS_OFFS 76
+#define PPU_SP2_CSR_OFFS 80
+#define PPU_SP2_POS_OFFS 84
+#define PPU_SP3_CSR_OFFS 88
+#define PPU_SP3_POS_OFFS 92
+#define PPU_SP4_CSR_OFFS 96
+#define PPU_SP4_POS_OFFS 100
+#define PPU_SP5_CSR_OFFS 104
+#define PPU_SP5_POS_OFFS 108
+#define PPU_SP6_CSR_OFFS 112
+#define PPU_SP6_POS_OFFS 116
+#define PPU_SP7_CSR_OFFS 120
+#define PPU_SP7_POS_OFFS 124
+#define PPU_LCD_PXFIFO_OFFS 128
+#define PPU_LCD_CSR_OFFS 132
+#define PPU_INTS_OFFS 136
+#define PPU_INTE_OFFS 140
 
 /*******************************************************************************
 *                                     CSR                                      *
@@ -78,6 +80,12 @@
 #define PPU_CSR_HALT_VSYNC_LSB  4
 #define PPU_CSR_HALT_VSYNC_BITS 1
 #define PPU_CSR_HALT_VSYNC_MASK 0x10
+// Field: CSR_POKER_EN  Access: RW
+// Enable the Poker. While Poker is running, PPU will not produce pixels unless
+// Poker is in a WAIT state.
+#define PPU_CSR_POKER_EN_LSB  8
+#define PPU_CSR_POKER_EN_BITS 1
+#define PPU_CSR_POKER_EN_MASK 0x100
 
 /*******************************************************************************
 *                                   DISPSIZE                                   *
@@ -120,6 +128,28 @@
 #define PPU_BEAM_Y_LSB  16
 #define PPU_BEAM_Y_BITS 9
 #define PPU_BEAM_Y_MASK 0x1ff0000
+
+/*******************************************************************************
+*                                   POKER_PC                                   *
+*******************************************************************************/
+
+// Write to Poker program counter
+
+// Field: POKER_PC  Access: WF
+#define PPU_POKER_PC_LSB  0
+#define PPU_POKER_PC_BITS 32
+#define PPU_POKER_PC_MASK 0xffffffff
+
+/*******************************************************************************
+*                                POKER_SCRATCH                                 *
+*******************************************************************************/
+
+// Scratch register -- can be written to by poker and read by processor
+
+// Field: POKER_SCRATCH  Access: RW
+#define PPU_POKER_SCRATCH_LSB  0
+#define PPU_POKER_SCRATCH_BITS 8
+#define PPU_POKER_SCRATCH_MASK 0xff
 
 /*******************************************************************************
 *                                   BG0_CSR                                    *

@@ -16,6 +16,7 @@ regs:
       - {b: 2, name: running, access: rov, info: "Reads as 1 if PPU is running, otherwise 0"}
       - {b: 3, name: halt_hsync, access: rw, info: "If 1, the PPU will halt automatically after completing a scanline"}
       - {b: 4, name: halt_vsync, access: rw, info: "If 1, the PPU will halt automatically after completing a frame"}
+      - {b: 8, name: poker_en, access: rw, info: "Enable the Poker. While Poker is running, PPU will not produce pixels unless Poker is in a WAIT state."}
   - name: dispsize
     info: Configure display dimensions. Actual width is W + 1, height is H + 1
     bits:
@@ -30,6 +31,14 @@ regs:
     bits:
       - {b: [W_SCREEN_COORD - 1, 0],  name: x, access: rov}
       - {b: [16 + W_SCREEN_COORD - 1, 16], name: y, access: rov}
+  - name: poker_pc
+    info: Write to Poker program counter
+    bits:
+      - {b: [31, 0], access: wf}
+  - name: poker_scratch
+    info: Scratch register -- can be written to by poker and read by processor
+    bits:
+      - {b: [7, 0], access: rw}
   - generate: |
       for bg in range(N_BACKGROUND):
         _('- name: bg{}_csr'.format(bg))

@@ -20,7 +20,7 @@
 	parameter W_HADDR = 32,
 	parameter W_HDATA = 32,
 	parameter W_DATA = 16,
-	parameter ADDR_MASK = {W_HADDR{1'b1}}
+	parameter ADDR_MASK = 32'h200fffff
 ) (
 	input  wire              clk_ppu,
 	input  wire              clk_lcd,
@@ -74,8 +74,6 @@ parameter W_SHIFTCTR = $clog2(W_DATA);
 localparam N_BACKGROUND = 2;
 localparam N_SPRITE = 8;
 
-// ----------------------------------------------------------------------------
-// Reset synchronisers and regblock
 
 wire rst_n_ppu;
 wire rst_n_lcd;
@@ -92,13 +90,43 @@ reset_sync sync_rst_lcd (
 	.rst_n_out (rst_n_lcd)
 );
 
+// ----------------------------------------------------------------------------
+// Regblock
+
+
+wire                                      poker_poke_vld;
+wire [11:0]                               poker_poke_addr;
+wire [W_HDATA-1:0]                        poker_poke_data;
+
+wire                                      regblock_psel;
+wire                                      regblock_penable;
+wire                                      regblock_pwrite;
+wire [15:0]                               regblock_paddr;
+wire [W_HDATA-1:0]                        regblock_pwdata;
+wire                                      regblock_pready;
+
+// What we are doing here is not APB-compliant from the regblock's point of
+// view, but that is ok in these circumstances -- we are just trying to
+// interface to the regblock, whose design we control
+assign regblock_psel = apbs_psel || poker_poke_vld;
+assign regblock_penable = apbs_penable || poker_poke_vld;
+assign regblock_pwrite = apbs_pwrite || poker_poke_vld;
+assign regblock_paddr = poker_poke_vld ? {4'h0, poker_poke_addr} : apbs_paddr;
+assign regblock_pwdata = poker_poke_vld ? poker_poke_data : apbs_pwdata;
+assign apbs_pready = regblock_pready && !poker_poke_vld;
+
+
 wire                                      csr_run;
 wire                                      csr_halt;
 wire                                      csr_running;
 wire                                      csr_halt_hsync;
 wire                                      csr_halt_vsync;
+wire                                      csr_poker_en;
 
 wire [W_PIXDATA-1:0]                      default_bg_colour;
+
+wire [W_HADDR-1:0]                        poker_pc_wdata;
+wire                                      poker_pc_wen;
 
 wire [W_SCREEN_COORD-1:0]                 raster_w;
 wire [W_SCREEN_COORD-1:0]                 raster_h;
@@ -143,13 +171,13 @@ ppu_regs regs (
 	.clk                       (clk_ppu),
 	.rst_n                     (rst_n_ppu),
 
-	.apbs_psel                 (apbs_psel && !apbs_paddr[11]), // FIXME terrible hack to map PRAM write port
-	.apbs_penable              (apbs_penable),
-	.apbs_pwrite               (apbs_pwrite),
-	.apbs_paddr                (apbs_paddr),
-	.apbs_pwdata               (apbs_pwdata),
+	.apbs_psel                 (regblock_psel && !regblock_paddr[11]), // FIXME terrible hack to map PRAM write port
+	.apbs_penable              (regblock_penable),
+	.apbs_pwrite               (regblock_pwrite),
+	.apbs_paddr                (regblock_paddr),
+	.apbs_pwdata               (regblock_pwdata),
 	.apbs_prdata               (apbs_prdata),
-	.apbs_pready               (apbs_pready),
+	.apbs_pready               (regblock_pready),
 	.apbs_pslverr              (apbs_pslverr),
 
 	.csr_run_o                 (csr_run),
@@ -157,6 +185,7 @@ ppu_regs regs (
 	.csr_running_i             (csr_running),
 	.csr_halt_hsync_o          (csr_halt_hsync),
 	.csr_halt_vsync_o          (csr_halt_vsync),
+	.csr_poker_en_o            (csr_poker_en),
 
 	.default_bg_colour_o       (default_bg_colour),
 
@@ -164,6 +193,10 @@ ppu_regs regs (
 	.dispsize_h_o              (raster_h),
 	.beam_x_i                  (raster_x),
 	.beam_y_i                  (raster_y),
+
+	.poker_pc_o                (poker_pc_wdata),
+	.poker_pc_wen              (poker_pc_wen),
+	.poker_scratch_o           (/* unused */), // scratch exists purely to be written by poker and read back by processor
 
 	.concat_bg_en_o            (bg_csr_en),
 	.concat_bg_pixmode_o       (bg_csr_pixmode),
@@ -202,6 +235,48 @@ ppu_regs regs (
 );
 
 // ----------------------------------------------------------------------------
+// Poker
+
+wire               raster_count_advance;
+wire               poker_halt_req;
+
+wire               poker_bus_vld;
+wire [W_HADDR-1:0] poker_bus_addr;
+wire [1:0]         poker_bus_size;
+wire [W_HDATA-1:0] poker_bus_data;
+wire               poker_bus_rdy;
+
+riscboy_ppu_poker #(
+	.W_HADDR   (W_HADDR),
+	.W_HDATA   (W_HDATA),
+	.ADDR_MASK (ADDR_MASK),
+	.W_COORD   (W_SCREEN_COORD)
+) inst_riscboy_ppu_poker (
+	.clk           (clk_ppu),
+	.rst_n         (rst_n_ppu),
+	.en            (csr_poker_en),
+
+	.beam_x        (raster_x),
+	.beam_y        (raster_y),
+	.beam_adv      (raster_count_advance),
+	.beam_halt_req (poker_halt_req),
+
+	.bus_vld       (poker_bus_vld),
+	.bus_addr      (poker_bus_addr),
+	.bus_size      (poker_bus_size),
+	.bus_rdy       (poker_bus_rdy),
+	.bus_data      (poker_bus_data),
+
+	.poke_vld      (poker_poke_vld),
+	.poke_addr     (poker_poke_addr),
+	.poke_data     (poker_poke_data),
+
+	.pc_wdata      (poker_pc_wdata),
+	.pc_wen        (poker_pc_wen)
+);
+
+
+// ----------------------------------------------------------------------------
 // Blender and raster counter
 
 wire hsync;
@@ -220,8 +295,6 @@ always @ (posedge clk_ppu or negedge rst_n_ppu) begin
 		ppu_running_reg <= (ppu_running || csr_run) && !csr_halt;
 	end
 end
-
-wire raster_count_advance;
 
 riscboy_ppu_raster_counter #(
 	.W_COORD (W_SCREEN_COORD)
@@ -336,8 +409,8 @@ wire                  pmap_out_vld;
 wire                  pmap_out_rdy = !pxfifo_wfull;
 wire [W_PIXDATA-1:0]  pmap_out_pixdata;
 
-assign blend_out_rdy = pmap_in_rdy && ppu_running;
-wire pmap_in_vld = blend_out_vld && ppu_running;
+assign blend_out_rdy = pmap_in_rdy && ppu_running && !poker_halt_req;
+wire pmap_in_vld = blend_out_vld && ppu_running && !poker_halt_req;
 
 riscboy_ppu_palette_mapper #(
 	.W_PIXDATA     (W_PIXDATA),
@@ -579,7 +652,7 @@ riscboy_ppu_dispctrl #(
 // ----------------------------------------------------------------------------
 // AHB-lite busmaster
 
-localparam N_BUS_REQ = N_BACKGROUND + 1;
+localparam N_BUS_REQ = N_BACKGROUND + 1 + 1;
 
 wire [N_BUS_REQ-1:0]         bus_req_vld;
 wire [N_BUS_REQ*W_HADDR-1:0] bus_req_addr;
@@ -590,12 +663,18 @@ wire [N_BUS_REQ*W_HDATA-1:0] bus_req_data;
 genvar req;
 generate
 for (req = 0; req < N_BUS_REQ; req = req + 1) begin: bus_req_hookup
-	if (req < N_BACKGROUND) begin
-		assign bus_req_vld [req]                      = bg_bus_vld[req];
-		assign bus_req_addr[req * W_HADDR +: W_HADDR] = bg_bus_addr[req];
-		assign bus_req_size[req * 2 +: 2]             = bg_bus_size[req];
-		assign bg_bus_rdy  [req]                      = bus_req_rdy[req];
-		assign bg_bus_data [req]                      = bus_req_data[req * W_HDATA +: W_HDATA];
+	if (req < 1) begin
+		assign bus_req_vld [req]                      = poker_bus_vld;
+		assign bus_req_addr[req * W_HADDR +: W_HADDR] = poker_bus_addr;
+		assign bus_req_size[req * 2 +: 2]             = poker_bus_size;
+		assign poker_bus_rdy                          = bus_req_rdy[req];
+		assign poker_bus_data                         = bus_req_data[req * W_HDATA +: W_HDATA];
+	end else if (req < N_BACKGROUND + 1) begin
+		assign bus_req_vld [req]                      = bg_bus_vld[req - 1];
+		assign bus_req_addr[req * W_HADDR +: W_HADDR] = bg_bus_addr[req - 1];
+		assign bus_req_size[req * 2 +: 2]             = bg_bus_size[req - 1];
+		assign bg_bus_rdy  [req - 1]                  = bus_req_rdy[req];
+		assign bg_bus_data [req - 1]                  = bus_req_data[req * W_HDATA +: W_HDATA];
 	end else begin
 		assign bus_req_vld [req]                      = sagu_bus_vld;
 		assign bus_req_addr[req * W_HADDR +: W_HADDR] = sagu_bus_addr;
@@ -607,7 +686,7 @@ end
 endgenerate
 
 riscboy_ppu_busmaster #(
-	.N_REQ     (N_BACKGROUND + 1),
+	.N_REQ     (N_BUS_REQ),
 	.W_ADDR    (W_HADDR),
 	.ADDR_MASK (ADDR_MASK),
 	.W_DATA    (W_HDATA)

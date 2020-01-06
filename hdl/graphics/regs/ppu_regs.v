@@ -29,11 +29,15 @@ module ppu_regs (
 	input wire  csr_running_i,
 	output reg  csr_halt_hsync_o,
 	output reg  csr_halt_vsync_o,
+	output reg  csr_poker_en_o,
 	output reg [8:0] dispsize_w_o,
 	output reg [8:0] dispsize_h_o,
 	output reg [14:0] default_bg_colour_o,
 	input wire [8:0] beam_x_i,
 	input wire [8:0] beam_y_i,
+	output reg [31:0] poker_pc_o,
+	output reg poker_pc_wen,
+	output reg [7:0] poker_scratch_o,
 	output reg  bg0_csr_en_o,
 	output reg [2:0] bg0_csr_pixmode_o,
 	output reg  bg0_csr_transparency_o,
@@ -153,36 +157,38 @@ localparam ADDR_CSR = 0;
 localparam ADDR_DISPSIZE = 4;
 localparam ADDR_DEFAULT_BG_COLOUR = 8;
 localparam ADDR_BEAM = 12;
-localparam ADDR_BG0_CSR = 16;
-localparam ADDR_BG0_SCROLL = 20;
-localparam ADDR_BG0_TSBASE = 24;
-localparam ADDR_BG0_TMBASE = 28;
-localparam ADDR_BG1_CSR = 32;
-localparam ADDR_BG1_SCROLL = 36;
-localparam ADDR_BG1_TSBASE = 40;
-localparam ADDR_BG1_TMBASE = 44;
-localparam ADDR_SP_CSR = 48;
-localparam ADDR_SP_TSBASE = 52;
-localparam ADDR_SP0_CSR = 56;
-localparam ADDR_SP0_POS = 60;
-localparam ADDR_SP1_CSR = 64;
-localparam ADDR_SP1_POS = 68;
-localparam ADDR_SP2_CSR = 72;
-localparam ADDR_SP2_POS = 76;
-localparam ADDR_SP3_CSR = 80;
-localparam ADDR_SP3_POS = 84;
-localparam ADDR_SP4_CSR = 88;
-localparam ADDR_SP4_POS = 92;
-localparam ADDR_SP5_CSR = 96;
-localparam ADDR_SP5_POS = 100;
-localparam ADDR_SP6_CSR = 104;
-localparam ADDR_SP6_POS = 108;
-localparam ADDR_SP7_CSR = 112;
-localparam ADDR_SP7_POS = 116;
-localparam ADDR_LCD_PXFIFO = 120;
-localparam ADDR_LCD_CSR = 124;
-localparam ADDR_INTS = 128;
-localparam ADDR_INTE = 132;
+localparam ADDR_POKER_PC = 16;
+localparam ADDR_POKER_SCRATCH = 20;
+localparam ADDR_BG0_CSR = 24;
+localparam ADDR_BG0_SCROLL = 28;
+localparam ADDR_BG0_TSBASE = 32;
+localparam ADDR_BG0_TMBASE = 36;
+localparam ADDR_BG1_CSR = 40;
+localparam ADDR_BG1_SCROLL = 44;
+localparam ADDR_BG1_TSBASE = 48;
+localparam ADDR_BG1_TMBASE = 52;
+localparam ADDR_SP_CSR = 56;
+localparam ADDR_SP_TSBASE = 60;
+localparam ADDR_SP0_CSR = 64;
+localparam ADDR_SP0_POS = 68;
+localparam ADDR_SP1_CSR = 72;
+localparam ADDR_SP1_POS = 76;
+localparam ADDR_SP2_CSR = 80;
+localparam ADDR_SP2_POS = 84;
+localparam ADDR_SP3_CSR = 88;
+localparam ADDR_SP3_POS = 92;
+localparam ADDR_SP4_CSR = 96;
+localparam ADDR_SP4_POS = 100;
+localparam ADDR_SP5_CSR = 104;
+localparam ADDR_SP5_POS = 108;
+localparam ADDR_SP6_CSR = 112;
+localparam ADDR_SP6_POS = 116;
+localparam ADDR_SP7_CSR = 120;
+localparam ADDR_SP7_POS = 124;
+localparam ADDR_LCD_PXFIFO = 128;
+localparam ADDR_LCD_CSR = 132;
+localparam ADDR_INTS = 136;
+localparam ADDR_INTE = 140;
 
 wire __csr_wen = wen && addr == ADDR_CSR;
 wire __csr_ren = ren && addr == ADDR_CSR;
@@ -192,6 +198,10 @@ wire __default_bg_colour_wen = wen && addr == ADDR_DEFAULT_BG_COLOUR;
 wire __default_bg_colour_ren = ren && addr == ADDR_DEFAULT_BG_COLOUR;
 wire __beam_wen = wen && addr == ADDR_BEAM;
 wire __beam_ren = ren && addr == ADDR_BEAM;
+wire __poker_pc_wen = wen && addr == ADDR_POKER_PC;
+wire __poker_pc_ren = ren && addr == ADDR_POKER_PC;
+wire __poker_scratch_wen = wen && addr == ADDR_POKER_SCRATCH;
+wire __poker_scratch_ren = ren && addr == ADDR_POKER_SCRATCH;
 wire __bg0_csr_wen = wen && addr == ADDR_BG0_CSR;
 wire __bg0_csr_ren = ren && addr == ADDR_BG0_CSR;
 wire __bg0_scroll_wen = wen && addr == ADDR_BG0_SCROLL;
@@ -263,12 +273,15 @@ wire  csr_halt_hsync_wdata = wdata[3];
 wire  csr_halt_hsync_rdata;
 wire  csr_halt_vsync_wdata = wdata[4];
 wire  csr_halt_vsync_rdata;
-wire [31:0] __csr_rdata = {27'h0, csr_halt_vsync_rdata, csr_halt_hsync_rdata, csr_running_rdata, csr_halt_rdata, csr_run_rdata};
+wire  csr_poker_en_wdata = wdata[8];
+wire  csr_poker_en_rdata;
+wire [31:0] __csr_rdata = {23'h0, csr_poker_en_rdata, 3'h0, csr_halt_vsync_rdata, csr_halt_hsync_rdata, csr_running_rdata, csr_halt_rdata, csr_run_rdata};
 assign csr_run_rdata = 1'h0;
 assign csr_halt_rdata = 1'h0;
 assign csr_running_rdata = csr_running_i;
 assign csr_halt_hsync_rdata = csr_halt_hsync_o;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
+assign csr_poker_en_rdata = csr_poker_en_o;
 
 wire [8:0] dispsize_w_wdata = wdata[8:0];
 wire [8:0] dispsize_w_rdata;
@@ -290,6 +303,16 @@ wire [8:0] beam_y_rdata;
 wire [31:0] __beam_rdata = {7'h0, beam_y_rdata, 7'h0, beam_x_rdata};
 assign beam_x_rdata = beam_x_i;
 assign beam_y_rdata = beam_y_i;
+
+wire [31:0] poker_pc_wdata = wdata[31:0];
+wire [31:0] poker_pc_rdata;
+wire [31:0] __poker_pc_rdata = {poker_pc_rdata};
+assign poker_pc_rdata = 32'h0;
+
+wire [7:0] poker_scratch_wdata = wdata[7:0];
+wire [7:0] poker_scratch_rdata;
+wire [31:0] __poker_scratch_rdata = {24'h0, poker_scratch_rdata};
+assign poker_scratch_rdata = poker_scratch_o;
 
 wire  bg0_csr_en_wdata = wdata[0];
 wire  bg0_csr_en_rdata;
@@ -604,6 +627,8 @@ always @ (*) begin
 		ADDR_DISPSIZE: rdata = __dispsize_rdata;
 		ADDR_DEFAULT_BG_COLOUR: rdata = __default_bg_colour_rdata;
 		ADDR_BEAM: rdata = __beam_rdata;
+		ADDR_POKER_PC: rdata = __poker_pc_rdata;
+		ADDR_POKER_SCRATCH: rdata = __poker_scratch_rdata;
 		ADDR_BG0_CSR: rdata = __bg0_csr_rdata;
 		ADDR_BG0_SCROLL: rdata = __bg0_scroll_rdata;
 		ADDR_BG0_TSBASE: rdata = __bg0_tsbase_rdata;
@@ -638,6 +663,8 @@ always @ (*) begin
 	endcase
 	csr_run_o = csr_run_wdata & {1{__csr_wen}};
 	csr_halt_o = csr_halt_wdata & {1{__csr_wen}};
+	poker_pc_wen = __poker_pc_wen;
+	poker_pc_o = poker_pc_wdata;
 	lcd_pxfifo_wen = __lcd_pxfifo_wen;
 	lcd_pxfifo_o = lcd_pxfifo_wdata;
 	ints_vsync_wen = __ints_wen;
@@ -652,9 +679,11 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		csr_halt_hsync_o <= 1'h0;
 		csr_halt_vsync_o <= 1'h0;
+		csr_poker_en_o <= 1'h0;
 		dispsize_w_o <= 9'h0;
 		dispsize_h_o <= 9'h0;
 		default_bg_colour_o <= 15'h0;
+		poker_scratch_o <= 8'h0;
 		bg0_csr_en_o <= 1'h0;
 		bg0_csr_pixmode_o <= 3'h0;
 		bg0_csr_transparency_o <= 1'h0;
@@ -741,12 +770,16 @@ always @ (posedge clk or negedge rst_n) begin
 			csr_halt_hsync_o <= csr_halt_hsync_wdata;
 		if (__csr_wen)
 			csr_halt_vsync_o <= csr_halt_vsync_wdata;
+		if (__csr_wen)
+			csr_poker_en_o <= csr_poker_en_wdata;
 		if (__dispsize_wen)
 			dispsize_w_o <= dispsize_w_wdata;
 		if (__dispsize_wen)
 			dispsize_h_o <= dispsize_h_wdata;
 		if (__default_bg_colour_wen)
 			default_bg_colour_o <= default_bg_colour_wdata;
+		if (__poker_scratch_wen)
+			poker_scratch_o <= poker_scratch_wdata;
 		if (__bg0_csr_wen)
 			bg0_csr_en_o <= bg0_csr_en_wdata;
 		if (__bg0_csr_wen)
