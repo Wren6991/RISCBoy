@@ -3,8 +3,7 @@ TOP=riscboy_fpga
 BUILD=mini
 ifeq ($(BUILD),full)
     DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_ecp5evn.f
-    #BOOTAPP=riscboy_bootloader # useless because SPI flash not connected
-    BOOTAPP=blinky
+   	BOOTAPP=riscboy_bootloader
 else
     DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_ecp5evn_mini.f
     BOOTAPP=blinky
@@ -21,7 +20,7 @@ include $(SCRIPTS)/synth_ecp5.mk
 romfiles::
 	@echo ">>> Bootcode"
 	@echo
-	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS=-Os
+	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS="-Os -DFORCE_SRAM0_SIZE=262144"
 	cp $(SOFTWARE)/build/$(BOOTAPP)8.hex bootram_init8.hex
 	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
 

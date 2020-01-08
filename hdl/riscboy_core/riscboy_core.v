@@ -24,6 +24,7 @@ module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
 	parameter CPU_RESET_VECTOR = 32'h200800c0,
 	parameter W_SRAM0_ADDR = 18,
+	parameter SRAM0_INTERNAL = 0,
 	parameter N_PADS = 23 // Let this default
 ) (
 	input wire                     clk_sys,
@@ -368,33 +369,66 @@ apb_splitter #(
 // Second stage is loaded into here by the initial bootloader.
 // Vast majority of code and data for games will be here.
 
-ahb_async_sram_halfwidth #(
-	.W_DATA(W_DATA),
-	.W_ADDR(W_ADDR),
-	.DEPTH(1 << W_SRAM0_ADDR)
-) sram0_ctrl (
-	.clk               (clk_sys),
-	.rst_n             (rst_n),
-	.ahbls_hready_resp (sram0_hready_resp),
-	.ahbls_hready      (sram0_hready),
-	.ahbls_hresp       (sram0_hresp),
-	.ahbls_haddr       (sram0_haddr),
-	.ahbls_hwrite      (sram0_hwrite),
-	.ahbls_htrans      (sram0_htrans),
-	.ahbls_hsize       (sram0_hsize),
-	.ahbls_hburst      (sram0_hburst),
-	.ahbls_hprot       (sram0_hprot),
-	.ahbls_hmastlock   (sram0_hmastlock),
-	.ahbls_hwdata      (sram0_hwdata),
-	.ahbls_hrdata      (sram0_hrdata),
+generate
+if (!SRAM0_INTERNAL) begin: has_sram0_ctrl
+	ahb_async_sram_halfwidth #(
+		.W_DATA(W_DATA),
+		.W_ADDR(W_ADDR),
+		.DEPTH(1 << W_SRAM0_ADDR)
+	) sram0_ctrl (
+		.clk               (clk_sys),
+		.rst_n             (rst_n),
+		.ahbls_hready_resp (sram0_hready_resp),
+		.ahbls_hready      (sram0_hready),
+		.ahbls_hresp       (sram0_hresp),
+		.ahbls_haddr       (sram0_haddr),
+		.ahbls_hwrite      (sram0_hwrite),
+		.ahbls_htrans      (sram0_htrans),
+		.ahbls_hsize       (sram0_hsize),
+		.ahbls_hburst      (sram0_hburst),
+		.ahbls_hprot       (sram0_hprot),
+		.ahbls_hmastlock   (sram0_hmastlock),
+		.ahbls_hwdata      (sram0_hwdata),
+		.ahbls_hrdata      (sram0_hrdata),
 
-	.sram_addr         (sram_addr),
-	.sram_dq           (sram_dq),
-	.sram_ce_n         (sram_ce_n),
-	.sram_we_n         (sram_we_n),
-	.sram_oe_n         (sram_oe_n),
-	.sram_byte_n       (sram_byte_n)
-);
+		.sram_addr         (sram_addr),
+		.sram_dq           (sram_dq),
+		.sram_ce_n         (sram_ce_n),
+		.sram_we_n         (sram_we_n),
+		.sram_oe_n         (sram_oe_n),
+		.sram_byte_n       (sram_byte_n)
+	);
+end else begin: has_internal_sram0
+	// For ECP5 evaluation board, we can have a large internal RAM instead
+	ahb_sync_sram #(
+		.W_DATA(W_DATA),
+		.W_ADDR(W_ADDR),
+		.DEPTH(1 << W_SRAM0_ADDR)
+	) sram0 (
+		.clk               (clk_sys),
+		.rst_n             (rst_n),
+
+		.ahbls_hready_resp (sram0_hready_resp),
+		.ahbls_hready      (sram0_hready),
+		.ahbls_hresp       (sram0_hresp),
+		.ahbls_haddr       (sram0_haddr),
+		.ahbls_hwrite      (sram0_hwrite),
+		.ahbls_htrans      (sram0_htrans),
+		.ahbls_hsize       (sram0_hsize),
+		.ahbls_hburst      (sram0_hburst),
+		.ahbls_hprot       (sram0_hprot),
+		.ahbls_hmastlock   (sram0_hmastlock),
+		.ahbls_hwdata      (sram0_hwdata),
+		.ahbls_hrdata      (sram0_hrdata)
+	);
+
+	assign sram_addr = {W_SRAM0_ADDR{1'b0}};
+	assign sram_ce_n = 1'b0;
+	assign sram_we_n = 1'b0;
+	assign sram_oe_n = 1'b0;
+	assign sram_byte_n = 2'h0;
+end
+endgenerate
 
 // SRAM 1: internal synchronous SRAM.
 // Used for first-stage bootcode, and thereafter for processor stack

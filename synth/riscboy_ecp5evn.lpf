@@ -1,4 +1,3 @@
-
 LOCATE COMP "clk_osc" SITE "A10";
 IOBUF PORT "clk_osc" IO_TYPE=LVCMOS33;
 
@@ -22,3 +21,29 @@ IOBUF PORT "led[4]" IO_TYPE=LVCMOS25;
 IOBUF PORT "led[5]" IO_TYPE=LVCMOS25;
 IOBUF PORT "led[6]" IO_TYPE=LVCMOS25;
 IOBUF PORT "led[7]" IO_TYPE=LVCMOS25;
+
+# Lower Versa header, four IOs to the upper-left
+LOCATE COMP "lcd_cs"   SITE "D15";
+LOCATE COMP "lcd_dc"   SITE "C15";
+LOCATE COMP "lcd_sclk" SITE "B20";
+LOCATE COMP "lcd_mosi" SITE "E11";
+IOBUF PORT  "lcd_cs"   IO_TYPE=LVCMOS25;
+IOBUF PORT  "lcd_dc"   IO_TYPE=LVCMOS25;
+IOBUF PORT  "lcd_sclk" IO_TYPE=LVCMOS25;
+IOBUF PORT  "lcd_mosi" IO_TYPE=LVCMOS25;
+
+# Next four IOs along (TODO try connecting to onboard flash)
+LOCATE COMP "flash_miso" SITE "C12";
+LOCATE COMP "flash_mosi" SITE "E12";
+LOCATE COMP "flash_sclk" SITE "D13";
+LOCATE COMP "flash_cs"   SITE "A14";
+IOBUF PORT  "flash_miso" IO_TYPE=LVCMOS25;
+IOBUF PORT  "flash_mosi" IO_TYPE=LVCMOS25;
+IOBUF PORT  "flash_sclk" IO_TYPE=LVCMOS25;
+IOBUF PORT  "flash_cs"   IO_TYPE=LVCMOS25;
+
+# Next two IOs along (TODO connect to FT2232H)
+LOCATE COMP "uart_tx" SITE "B10";
+LOCATE COMP "uart_rx" SITE "A9";
+IOBUF PORT  "uart_tx" IO_TYPE=LVCMOS25;
+IOBUF PORT  "uart_rx" IO_TYPE=LVCMOS25;

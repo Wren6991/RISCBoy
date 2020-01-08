@@ -3,8 +3,20 @@
 module riscboy_fpga (
 	input wire                     clk_osc,
 
-	output wire [7:0]              led
+	output wire [7:0]              led,
 
+	inout wire                     uart_tx,
+	inout wire                     uart_rx,
+
+	inout wire                     flash_miso,
+	inout wire                     flash_mosi,
+	inout wire                     flash_sclk,
+	inout wire                     flash_cs,
+
+	output wire                    lcd_cs,
+	output wire                    lcd_dc,
+	output wire                    lcd_sclk,
+	output wire                    lcd_mosi
 );
 
 `include "gpio_pinmap.vh"
@@ -34,7 +46,9 @@ wire [N_PADS-1:0] padoe;
 wire [N_PADS-1:0] padin;
 
 riscboy_core #(
-	.BOOTRAM_PRELOAD ("bootram_init32.hex")
+	.BOOTRAM_PRELOAD ("bootram_init32.hex"),
+	.W_SRAM0_ADDR    (16), // 2**16 words = 256 kB
+	.SRAM0_INTERNAL  (1)   // Instantiate a second internal SRAM bank, rather than external async SRAM controller
 ) core (
 	.clk_sys     (clk_sys),
 	.clk_lcd     (clk_lcd),
@@ -47,10 +61,10 @@ riscboy_core #(
 	.sram_oe_n   (/* unused */),
 	.sram_byte_n (/* unused */),
 
-	.lcd_cs      (/* unused */),
-	.lcd_dc      (/* unused */),
-	.lcd_sck     (/* unused */),
-	.lcd_mosi    (/* unused */),
+	.lcd_cs      (lcd_cs),
+	.lcd_dc      (lcd_dc),
+	.lcd_sck     (lcd_sclk),
+	.lcd_mosi    (lcd_mosi),
 
 	.padout      (padout),
 	.padoe       (padoe),
@@ -59,7 +73,29 @@ riscboy_core #(
 
 // GPIO
 // TODO hook up UART, SPI etc
-assign led = ~padout[7:0];
-assign padin = 0;
+tristate_io pads [5:0] (
+	.out ({padout[PIN_UART_TX], padout[PIN_UART_RX], padout[PIN_FLASH_MISO], padout[PIN_FLASH_MOSI], padout[PIN_FLASH_SCLK], padout[PIN_FLASH_CS]}),
+	.oe  ({padoe [PIN_UART_TX], padoe [PIN_UART_RX], padoe [PIN_FLASH_MISO], padoe [PIN_FLASH_MOSI], padoe [PIN_FLASH_SCLK], padoe [PIN_FLASH_CS]}),
+	.in  ({padin [PIN_UART_TX], padin [PIN_UART_RX], padin [PIN_FLASH_MISO], padin [PIN_FLASH_MOSI], padin [PIN_FLASH_SCLK], padin [PIN_FLASH_CS]}),
+	.pad ({uart_tx, uart_rx, flash_miso, flash_mosi, flash_sclk, flash_cs})
+);
+
+wire blink;
+
+blinky #(
+	.CLK_HZ   (12_000_000),
+	.BLINK_HZ (1)
+) blinky_u (
+	.clk   (clk_osc),
+	.blink (blink)
+);
+
+assign led = {
+	!padout[PIN_UART_TX],
+	!padin[PIN_UART_RX],
+	4'hf,
+	blink,
+	padout[PIN_LED] && padoe[PIN_LED]
+};
 
 endmodule

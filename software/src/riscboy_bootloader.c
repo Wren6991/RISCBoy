@@ -9,7 +9,14 @@
 #define SPI_CLK_MHZ 6
 #define HOST_TIMEOUT_MS 100
 
+#ifndef STAGE2_OFFS
 #define STAGE2_OFFS 0x22000
+#endif
+
+#ifdef FORCE_SRAM0_SIZE
+#undef SRAM0_SIZE
+#define SRAM0_SIZE FORCE_SRAM0_SIZE
+#endif
 
 const char *splash =
 "\n"
