@@ -1,0 +1,1 @@
+include $(SCRIPTS)/sim.mk

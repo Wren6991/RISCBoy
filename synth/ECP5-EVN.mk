@@ -1,6 +1,14 @@
 CHIPNAME=riscboy_ecp5evn
-DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_ecp5evn.f
-BOOTAPP=riscboy_bootloader
+TOP=riscboy_fpga
+BUILD=mini
+ifeq ($(BUILD),full)
+    DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_ecp5evn.f
+    #BOOTAPP=riscboy_bootloader # useless because SPI flash not connected
+    BOOTAPP=blinky
+else
+    DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_ecp5evn_mini.f
+    BOOTAPP=blinky
+endif
 
 SYNTH_OPT=-retime
 
@@ -20,6 +28,7 @@ romfiles::
 clean::
 	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) clean
 	rm -f bootram_init*.hex
+	rm -f prog.log
 
 prog: bit
-	iceprog $(CHIPNAME).bin
+	openocd -f $(TRELLIS)/misc/openocd/ecp5-evn.cfg -c "transport select jtag; init; svf $(CHIPNAME).svf; exit" 2>&1 | tee prog.log | tail

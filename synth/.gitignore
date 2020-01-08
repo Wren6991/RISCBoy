@@ -5,3 +5,5 @@ srcs.mk
 *.bin
 *.json
 *.log
+*.config
+*.svf

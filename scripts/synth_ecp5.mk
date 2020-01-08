@@ -1,5 +1,7 @@
 YOSYS=yosys
 NEXTPNR=nextpnr-ecp5
+TRELLIS?=/usr/share/trellis
+
 CHIPNAME?=chip
 DEVICE?=um5g-85k
 PACKAGE?=CABGA381
@@ -51,9 +53,9 @@ $(CHIPNAME).config: $(CHIPNAME).json $(CHIPNAME).lpf
 $(CHIPNAME).bin: $(CHIPNAME).config
 	@echo ">>> Generate Bitstream"
 	@echo
-	ecppack --svf $(CHIPNAME).svcf $< $@
+	ecppack --svf $(CHIPNAME).svf $< $@
 
-$(CHIPNAME).svcf: $(CHIPNAME).bin
+$(CHIPNAME).svf: $(CHIPNAME).bin
 
 clean::
 	rm -f $(CHIPNAME).json $(CHIPNAME).asc $(CHIPNAME).bin $(CHIPNAME)_synth.v

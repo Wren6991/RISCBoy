@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="14" />
+   <wvobject fp_name="/tb/led" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">led[7:0]</obj_property>
+      <obj_property name="ObjectShortName">led[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/clk_sys" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_sys</obj_property>
+      <obj_property name="ObjectShortName">clk_sys</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hready</obj_property>
+      <obj_property name="ObjectShortName">proc0_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hresp</obj_property>
+      <obj_property name="ObjectShortName">proc0_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hwrite</obj_property>
+      <obj_property name="ObjectShortName">proc0_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_htrans[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_hsize[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hburst" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hburst[2:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_hburst[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hprot" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hprot[3:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_hprot[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hmastlock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hmastlock</obj_property>
+      <obj_property name="ObjectShortName">proc0_hmastlock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/proc0_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">proc0_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">proc0_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
