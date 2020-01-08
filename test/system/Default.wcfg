@@ -977,8 +977,8 @@
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/inst_uart_mini/div_frac" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">div_frac[7:0]</obj_property>
-         <obj_property name="ObjectShortName">div_frac[7:0]</obj_property>
+         <obj_property name="ElementShortName">div_frac[3:0]</obj_property>
+         <obj_property name="ObjectShortName">div_frac[3:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb/dut/inst_uart_mini/irq" type="logic" db_ref_id="1">
@@ -1044,42 +1044,42 @@
             <obj_property name="label">Bus control block</obj_property>
             <obj_property name="DisplayName">label</obj_property>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_vld" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_vld[2:0]</obj_property>
-               <obj_property name="ObjectShortName">req_vld[2:0]</obj_property>
+               <obj_property name="ElementShortName">req_vld[3:0]</obj_property>
+               <obj_property name="ObjectShortName">req_vld[3:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_filtered" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_filtered[2:0]</obj_property>
-               <obj_property name="ObjectShortName">req_filtered[2:0]</obj_property>
+               <obj_property name="ElementShortName">req_filtered[3:0]</obj_property>
+               <obj_property name="ObjectShortName">req_filtered[3:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_rdy" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_rdy[2:0]</obj_property>
-               <obj_property name="ObjectShortName">req_rdy[2:0]</obj_property>
+               <obj_property name="ElementShortName">req_rdy[3:0]</obj_property>
+               <obj_property name="ObjectShortName">req_rdy[3:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_addr" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_addr[95:0]</obj_property>
-               <obj_property name="ObjectShortName">req_addr[95:0]</obj_property>
+               <obj_property name="ElementShortName">req_addr[127:0]</obj_property>
+               <obj_property name="ObjectShortName">req_addr[127:0]</obj_property>
                <obj_property name="Radix">HEXRADIX</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_size" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_size[5:0]</obj_property>
-               <obj_property name="ObjectShortName">req_size[5:0]</obj_property>
+               <obj_property name="ElementShortName">req_size[7:0]</obj_property>
+               <obj_property name="ObjectShortName">req_size[7:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_data" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_data[95:0]</obj_property>
-               <obj_property name="ObjectShortName">req_data[95:0]</obj_property>
+               <obj_property name="ElementShortName">req_data[127:0]</obj_property>
+               <obj_property name="ObjectShortName">req_data[127:0]</obj_property>
                <obj_property name="Radix">HEXRADIX</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_aph" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">grant_aph[2:0]</obj_property>
-               <obj_property name="ObjectShortName">grant_aph[2:0]</obj_property>
+               <obj_property name="ElementShortName">grant_aph[3:0]</obj_property>
+               <obj_property name="ObjectShortName">grant_aph[3:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_dph" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">grant_dph[2:0]</obj_property>
-               <obj_property name="ObjectShortName">grant_dph[2:0]</obj_property>
+               <obj_property name="ElementShortName">grant_dph[3:0]</obj_property>
+               <obj_property name="ObjectShortName">grant_dph[3:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/grant_aph_comb" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">grant_aph_comb[2:0]</obj_property>
-               <obj_property name="ObjectShortName">grant_aph_comb[2:0]</obj_property>
+               <obj_property name="ElementShortName">grant_aph_comb[3:0]</obj_property>
+               <obj_property name="ObjectShortName">grant_aph_comb[3:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_busmaster/req_addr_muxed" type="array" db_ref_id="1">
                <obj_property name="ElementShortName">req_addr_muxed[31:0]</obj_property>
@@ -1165,29 +1165,29 @@
             <obj_property name="label">Blender</obj_property>
             <obj_property name="DisplayName">label</obj_property>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_vld" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_vld[3:0]</obj_property>
-               <obj_property name="ObjectShortName">req_vld[3:0]</obj_property>
+               <obj_property name="ElementShortName">req_vld[9:0]</obj_property>
+               <obj_property name="ObjectShortName">req_vld[9:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_rdy" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_rdy[3:0]</obj_property>
-               <obj_property name="ObjectShortName">req_rdy[3:0]</obj_property>
+               <obj_property name="ElementShortName">req_rdy[9:0]</obj_property>
+               <obj_property name="ObjectShortName">req_rdy[9:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_alpha" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_alpha[3:0]</obj_property>
-               <obj_property name="ObjectShortName">req_alpha[3:0]</obj_property>
+               <obj_property name="ElementShortName">req_alpha[9:0]</obj_property>
+               <obj_property name="ObjectShortName">req_alpha[9:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_pixdata" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_pixdata[59:0]</obj_property>
-               <obj_property name="ObjectShortName">req_pixdata[59:0]</obj_property>
+               <obj_property name="ElementShortName">req_pixdata[149:0]</obj_property>
+               <obj_property name="ObjectShortName">req_pixdata[149:0]</obj_property>
                <obj_property name="Radix">HEXRADIX</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_mode" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_mode[11:0]</obj_property>
-               <obj_property name="ObjectShortName">req_mode[11:0]</obj_property>
+               <obj_property name="ElementShortName">req_mode[29:0]</obj_property>
+               <obj_property name="ObjectShortName">req_mode[29:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/req_layer" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">req_layer[3:0]</obj_property>
-               <obj_property name="ObjectShortName">req_layer[3:0]</obj_property>
+               <obj_property name="ElementShortName">req_layer[9:0]</obj_property>
+               <obj_property name="ObjectShortName">req_layer[9:0]</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/default_bg_colour" type="array" db_ref_id="1">
                <obj_property name="ElementShortName">default_bg_colour[14:0]</obj_property>
@@ -1212,8 +1212,8 @@
                <obj_property name="ObjectShortName">out_paletted</obj_property>
             </wvobject>
             <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_blender/reqdata" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">reqdata[89:0]</obj_property>
-               <obj_property name="ObjectShortName">reqdata[89:0]</obj_property>
+               <obj_property name="ElementShortName">reqdata[197:0]</obj_property>
+               <obj_property name="ObjectShortName">reqdata[197:0]</obj_property>
                <obj_property name="Radix">HEXRADIX</obj_property>
             </wvobject>
          </wvobject>
@@ -1281,39 +1281,29 @@
             <obj_property name="ObjectShortName">bg_blend_layer[0:1,0:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_vld" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sp_blend_vld[0:1]</obj_property>
-            <obj_property name="ObjectShortName">sp_blend_vld[0:1]</obj_property>
+            <obj_property name="ElementShortName">sp_blend_vld[0:7]</obj_property>
+            <obj_property name="ObjectShortName">sp_blend_vld[0:7]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_rdy" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sp_blend_rdy[0:1]</obj_property>
-            <obj_property name="ObjectShortName">sp_blend_rdy[0:1]</obj_property>
+            <obj_property name="ElementShortName">sp_blend_rdy[0:7]</obj_property>
+            <obj_property name="ObjectShortName">sp_blend_rdy[0:7]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_alpha" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sp_blend_alpha[0:1]</obj_property>
-            <obj_property name="ObjectShortName">sp_blend_alpha[0:1]</obj_property>
+            <obj_property name="ElementShortName">sp_blend_alpha[0:7]</obj_property>
+            <obj_property name="ObjectShortName">sp_blend_alpha[0:7]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_pixdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sp_blend_pixdata[0:1,14:0]</obj_property>
-            <obj_property name="ObjectShortName">sp_blend_pixdata[0:1,14:0]</obj_property>
+            <obj_property name="ElementShortName">sp_blend_pixdata[0:7,14:0]</obj_property>
+            <obj_property name="ObjectShortName">sp_blend_pixdata[0:7,14:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
-            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_pixdata[0]" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">[0,14:0]</obj_property>
-               <obj_property name="ObjectShortName">sp_blend_pixdata[0,14:0]</obj_property>
-               <obj_property name="Radix">HEXRADIX</obj_property>
-            </wvobject>
-            <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_pixdata[1]" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">[1,14:0]</obj_property>
-               <obj_property name="ObjectShortName">sp_blend_pixdata[1,14:0]</obj_property>
-               <obj_property name="Radix">HEXRADIX</obj_property>
-            </wvobject>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_mode" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sp_blend_mode[0:1,2:0]</obj_property>
-            <obj_property name="ObjectShortName">sp_blend_mode[0:1,2:0]</obj_property>
+            <obj_property name="ElementShortName">sp_blend_mode[0:7,2:0]</obj_property>
+            <obj_property name="ObjectShortName">sp_blend_mode[0:7,2:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sp_blend_layer" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sp_blend_layer[0:1,0:0]</obj_property>
-            <obj_property name="ObjectShortName">sp_blend_layer[0:1,0:0]</obj_property>
+            <obj_property name="ElementShortName">sp_blend_layer[0:7,0:0]</obj_property>
+            <obj_property name="ObjectShortName">sp_blend_layer[0:7,0:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/blend_out_vld" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">blend_out_vld</obj_property>
@@ -1347,18 +1337,18 @@
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/cfg_sprite_pos_x" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">cfg_sprite_pos_x[17:0]</obj_property>
-            <obj_property name="ObjectShortName">cfg_sprite_pos_x[17:0]</obj_property>
+            <obj_property name="ElementShortName">cfg_sprite_pos_x[71:0]</obj_property>
+            <obj_property name="ObjectShortName">cfg_sprite_pos_x[71:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/cfg_sprite_pos_y" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">cfg_sprite_pos_y[17:0]</obj_property>
-            <obj_property name="ObjectShortName">cfg_sprite_pos_y[17:0]</obj_property>
+            <obj_property name="ElementShortName">cfg_sprite_pos_y[71:0]</obj_property>
+            <obj_property name="ObjectShortName">cfg_sprite_pos_y[71:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/cfg_sprite_tile" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">cfg_sprite_tile[15:0]</obj_property>
-            <obj_property name="ObjectShortName">cfg_sprite_tile[15:0]</obj_property>
+            <obj_property name="ElementShortName">cfg_sprite_tile[63:0]</obj_property>
+            <obj_property name="ObjectShortName">cfg_sprite_tile[63:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/cfg_sprite_pixmode" type="array" db_ref_id="1">
@@ -1371,37 +1361,37 @@
             <obj_property name="ObjectShortName">cfg_sprite_tilesize</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_req" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_req[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_req[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_req[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_req[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_ack" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_ack[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_ack[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_ack[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_ack[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_active" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">sprite_active</obj_property>
             <obj_property name="ObjectShortName">sprite_active</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_shift_seek_target" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_shift_seek_target[4:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_shift_seek_target[4:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_shift_seek_target[3:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_shift_seek_target[3:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_vld" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_vld[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_vld[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_vld[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_vld[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_rdy" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_rdy[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_rdy[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_rdy[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_rdy[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_postcount" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_postcount[9:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_postcount[9:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_postcount[39:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_postcount[39:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_data" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_data[31:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_data[31:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_data[15:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_data[15:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/bus_vld" type="logic" db_ref_id="1">
@@ -1422,13 +1412,13 @@
             <obj_property name="ObjectShortName">bus_rdy</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/bus_data" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">bus_data[31:0]</obj_property>
-            <obj_property name="ObjectShortName">bus_data[31:0]</obj_property>
+            <obj_property name="ElementShortName">bus_data[15:0]</obj_property>
+            <obj_property name="ObjectShortName">bus_data[15:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_req_gnt" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_req_gnt[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_req_gnt[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_req_gnt[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_req_gnt[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/chosen_sprite_pos_x" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">chosen_sprite_pos_x[8:0]</obj_property>
@@ -1459,12 +1449,12 @@
             <obj_property name="ObjectShortName">beam_x_left_of_rbound</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_gnt_comb" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_gnt_comb[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_gnt_comb[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_gnt_comb[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_gnt_comb[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_gnt" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_gnt[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_gnt[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_gnt[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_gnt[7:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/bus_chosen_tile" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">bus_chosen_tile[7:0]</obj_property>
@@ -1494,8 +1484,8 @@
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/sprite_agu/sprite_bus_gnt_reg" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">sprite_bus_gnt_reg[1:0]</obj_property>
-            <obj_property name="ObjectShortName">sprite_bus_gnt_reg[1:0]</obj_property>
+            <obj_property name="ElementShortName">sprite_bus_gnt_reg[7:0]</obj_property>
+            <obj_property name="ObjectShortName">sprite_bus_gnt_reg[7:0]</obj_property>
          </wvobject>
       </wvobject>
       <wvobject fp_name="group793" type="group">
@@ -1540,8 +1530,8 @@
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/\sprite_instantiate[0].sp /agu_shift_seek_target" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">agu_shift_seek_target[4:0]</obj_property>
-            <obj_property name="ObjectShortName">agu_shift_seek_target[4:0]</obj_property>
+            <obj_property name="ElementShortName">agu_shift_seek_target[3:0]</obj_property>
+            <obj_property name="ObjectShortName">agu_shift_seek_target[3:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/\sprite_instantiate[0].sp /bus_vld" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">bus_vld</obj_property>
@@ -1552,8 +1542,8 @@
             <obj_property name="ObjectShortName">bus_rdy</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/\sprite_instantiate[0].sp /bus_data" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">bus_data[31:0]</obj_property>
-            <obj_property name="ObjectShortName">bus_data[31:0]</obj_property>
+            <obj_property name="ElementShortName">bus_data[15:0]</obj_property>
+            <obj_property name="ObjectShortName">bus_data[15:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/\sprite_instantiate[0].sp /pixel_load_req" type="logic" db_ref_id="1">
@@ -1602,8 +1592,8 @@
             <obj_property name="ObjectShortName">need_agu_resp</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/\sprite_instantiate[0].sp /shift_seek_target" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">shift_seek_target[4:0]</obj_property>
-            <obj_property name="ObjectShortName">shift_seek_target[4:0]</obj_property>
+            <obj_property name="ElementShortName">shift_seek_target[3:0]</obj_property>
+            <obj_property name="ObjectShortName">shift_seek_target[3:0]</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/\sprite_instantiate[0].sp /active_this_scanline" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">active_this_scanline</obj_property>
@@ -3020,10 +3010,9 @@
       <wvobject fp_name="group343" type="group">
          <obj_property name="label">LCD Shifter</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">lcdctrl_shamt[4:0]</obj_property>
-            <obj_property name="ObjectShortName">lcdctrl_shamt[4:0]</obj_property>
-            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">lcdctrl_shamt</obj_property>
+            <obj_property name="ObjectShortName">lcdctrl_shamt</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">lcdctrl_busy</obj_property>
@@ -3033,10 +3022,90 @@
             <obj_property name="ElementShortName">lcdctrl_busy_clklcd</obj_property>
             <obj_property name="ObjectShortName">lcdctrl_busy_clklcd</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt_clklcd" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">lcdctrl_shamt_clklcd[4:0]</obj_property>
-            <obj_property name="ObjectShortName">lcdctrl_shamt_clklcd[4:0]</obj_property>
-            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt_clklcd" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">lcdctrl_shamt_clklcd</obj_property>
+            <obj_property name="ObjectShortName">lcdctrl_shamt_clklcd</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group745" type="group">
+         <obj_property name="label">Poker</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/en" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">en</obj_property>
+            <obj_property name="ObjectShortName">en</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/beam_x" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">beam_x[8:0]</obj_property>
+            <obj_property name="ObjectShortName">beam_x[8:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/beam_y" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">beam_y[8:0]</obj_property>
+            <obj_property name="ObjectShortName">beam_y[8:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/beam_adv" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">beam_adv</obj_property>
+            <obj_property name="ObjectShortName">beam_adv</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/beam_halt_req" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">beam_halt_req</obj_property>
+            <obj_property name="ObjectShortName">beam_halt_req</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/pc_wen" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">pc_wen</obj_property>
+            <obj_property name="ObjectShortName">pc_wen</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/pc" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">pc[31:0]</obj_property>
+            <obj_property name="ObjectShortName">pc[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/cir" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">cir[31:0]</obj_property>
+            <obj_property name="ObjectShortName">cir[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/state" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">state[2:0]</obj_property>
+            <obj_property name="ObjectShortName">state[2:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/coord_match" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">coord_match</obj_property>
+            <obj_property name="ObjectShortName">coord_match</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/bus_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">bus_vld</obj_property>
+            <obj_property name="ObjectShortName">bus_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/bus_rdy" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">bus_rdy</obj_property>
+            <obj_property name="ObjectShortName">bus_rdy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/bus_addr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">bus_addr[31:0]</obj_property>
+            <obj_property name="ObjectShortName">bus_addr[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/bus_data" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">bus_data[31:0]</obj_property>
+            <obj_property name="ObjectShortName">bus_data[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/poke_vld" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">poke_vld</obj_property>
+            <obj_property name="ObjectShortName">poke_vld</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/poke_addr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">poke_addr[11:0]</obj_property>
+            <obj_property name="ObjectShortName">poke_addr[11:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/inst_riscboy_ppu_poker/poke_data" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">poke_data[31:0]</obj_property>
+            <obj_property name="ObjectShortName">poke_data[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
       </wvobject>
       <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_cs" type="logic" db_ref_id="1">

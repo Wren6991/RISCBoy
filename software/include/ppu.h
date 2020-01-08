@@ -67,6 +67,10 @@ DECL_REG(PPU_BASE + PPU_LCD_CSR_OFFS, PPU_LCD_CSR);
 #define PPU_PIXMODE_PAL2     6u
 #define PPU_PIXMODE_PAL1     7u
 
+#define COLOUR_RED 0x7c00u
+#define COLOUR_GREEN 0x3e0u
+#define COLOUR_BLUE 0x1fu
+
 // FIXME this shouldn't be here
 volatile uint16_t *const PPU_PALETTE_RAM = (volatile uint16_t *const)(PPU_BASE + (1u << 11));
 
@@ -107,6 +111,30 @@ static inline void lcd_wait_idle()
 	uint32_t csr;
 	while (csr = *PPU_LCD_CSR, csr & PPU_LCD_CSR_TX_BUSY_MASK || !(csr & PPU_LCD_CSR_PXFIFO_EMPTY_MASK))
 		;
+}
+
+#define POKER_INSTR_WAIT (0x00u << 24)
+#define POKER_INSTR_JUMP (0x01u << 24)
+#define POKER_INSTR_POKE (0x02u << 24)
+
+static inline uint32_t* poker_wait(uint32_t *iptr, uint32_t x_match, uint32_t y_match)
+{
+	*iptr++ = POKER_INSTR_WAIT | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	return iptr;
+}
+
+static inline uint32_t* poker_jump(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
+{
+	*iptr++ = POKER_INSTR_JUMP | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	*iptr++ = target;
+	return iptr;
+}
+
+static inline uint32_t* poker_poke(uint32_t *iptr, intptr_t addr, uint32_t data)
+{
+	*iptr++ = POKER_INSTR_POKE | (addr & 0xfffu);
+	*iptr++ = data;
+	return iptr;
 }
 
 #endif // _PPU_H_
