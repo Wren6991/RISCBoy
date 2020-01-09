@@ -94,7 +94,7 @@ There is also highly experimental support (i.e. not my main dev platform) for EC
 $ make -f ECP5-EVN.mk BUILD=full bit
 ```
 
-This build replaces the external, 512 kiB, 16 bit wide SRAM of RISCBoy development hardware with an internal, 256 kiB, 32 bit wide synchronous memory, which Trellis builds out of ECP5 sysmem blocks. So far this has just run the bootloader and passed memory test on main memory -- more integration work required.
+This build replaces the external, 512 kiB, 16 bit wide SRAM of RISCBoy development hardware with an internal, 256 kiB, 32 bit wide synchronous memory, which Trellis builds out of ECP5 sysmem blocks.
 
 Directory Structure
 -------------------

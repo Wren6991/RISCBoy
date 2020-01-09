@@ -10,7 +10,7 @@ module riscboy_fpga (
 
 	inout wire                     flash_miso,
 	inout wire                     flash_mosi,
-	inout wire                     flash_sclk,
+	// inout wire                     flash_sclk, handled by USRMCLK primitive
 	inout wire                     flash_cs,
 
 	output wire                    lcd_cs,
@@ -23,10 +23,16 @@ module riscboy_fpga (
 
 // Clock + Reset resources
 
-wire clk_sys = clk_osc;
+wire clk_sys;
 wire clk_lcd = clk_sys;
 wire rst_n;
-wire pll_lock = 1'b1;
+wire pll_lock;
+
+pll_12_36 pll_sys (
+	.clock_in  (clk_osc),
+	.clock_out (clk_sys),
+	.locked    (pll_lock)
+);
 
 fpga_reset #(
 	.SHIFT (3),
@@ -73,27 +79,35 @@ riscboy_core #(
 
 // GPIO
 // TODO hook up UART, SPI etc
-tristate_io pads [5:0] (
-	.out ({padout[PIN_UART_TX], padout[PIN_UART_RX], padout[PIN_FLASH_MISO], padout[PIN_FLASH_MOSI], padout[PIN_FLASH_SCLK], padout[PIN_FLASH_CS]}),
-	.oe  ({padoe [PIN_UART_TX], padoe [PIN_UART_RX], padoe [PIN_FLASH_MISO], padoe [PIN_FLASH_MOSI], padoe [PIN_FLASH_SCLK], padoe [PIN_FLASH_CS]}),
-	.in  ({padin [PIN_UART_TX], padin [PIN_UART_RX], padin [PIN_FLASH_MISO], padin [PIN_FLASH_MOSI], padin [PIN_FLASH_SCLK], padin [PIN_FLASH_CS]}),
-	.pad ({uart_tx, uart_rx, flash_miso, flash_mosi, flash_sclk, flash_cs})
+tristate_io pads [4:0] (
+	.out ({padout[PIN_UART_TX], padout[PIN_UART_RX], padout[PIN_FLASH_MISO], padout[PIN_FLASH_MOSI], padout[PIN_FLASH_CS]}),
+	.oe  ({padoe [PIN_UART_TX], padoe [PIN_UART_RX], padoe [PIN_FLASH_MISO], padoe [PIN_FLASH_MOSI], padoe [PIN_FLASH_CS]}),
+	.in  ({padin [PIN_UART_TX], padin [PIN_UART_RX], padin [PIN_FLASH_MISO], padin [PIN_FLASH_MOSI], padin [PIN_FLASH_CS]}),
+	.pad ({uart_tx, uart_rx, flash_miso, flash_mosi, flash_cs})
+);
+
+
+// Lattice describes USRMCLKTS as an active-high output disable, i.e. active-low enable
+USRMCLK pad_sclk(
+	.USRMCLKI  (padout[PIN_FLASH_SCLK]),
+	.USRMCLKTS (!padoe[PIN_FLASH_SCLK])
 );
 
 wire blink;
 
 blinky #(
 	.CLK_HZ   (12_000_000),
-	.BLINK_HZ (1)
+	.BLINK_HZ (1),
+	.FANCY    (0)
 ) blinky_u (
 	.clk   (clk_osc),
 	.blink (blink)
 );
 
-assign led = {
+assign led = ~{
 	!padout[PIN_UART_TX],
 	!padin[PIN_UART_RX],
-	4'hf,
+	4'h0,
 	blink,
 	padout[PIN_LED] && padoe[PIN_LED]
 };
