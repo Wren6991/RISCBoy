@@ -53,9 +53,8 @@ localparam W_STATE      = 3;
 localparam S_RESET      = 3'd0; // avoid bus requests while reset asserted
 localparam S_FETCH      = 3'd1;
 localparam S_EXECUTE    = 3'd2;
-localparam S_WAIT_DELAY = 3'd3;
-localparam S_WAIT       = 3'd4;
-localparam S_POKE       = 3'd5;
+localparam S_WAIT       = 3'd3;
+localparam S_POKE       = 3'd4;
 
 wire fetch_rdy;
 
@@ -84,7 +83,8 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		S_EXECUTE: begin
 			if (instr_wait) begin
-				state <= S_WAIT_DELAY;
+				if (beam_adv)
+					state <= S_WAIT;
 			end else if (instr_jump) begin
 				if (!coord_match) begin
 					state <= S_FETCH;
@@ -106,10 +106,6 @@ always @ (posedge clk or negedge rst_n) begin
 			//synthesis translate_on
 			end
 		end
-		S_WAIT_DELAY: begin
-			if (beam_adv)
-				state <= S_WAIT;
-		end
 		S_WAIT: begin
 			if (coord_match) begin
 				state <= S_FETCH;
@@ -125,7 +121,7 @@ end
 // ----------------------------------------------------------------------------
 // Interfacing
 
-assign beam_halt_req = en && !(state == S_WAIT_DELAY || (state == S_WAIT && !coord_match));
+assign beam_halt_req = en && !(state == S_EXECUTE && instr_wait || (state == S_WAIT && !coord_match));
 
 assign poke_vld = state == S_POKE;
 assign poke_data = poke_data_reg;
