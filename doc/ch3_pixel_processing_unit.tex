@@ -253,19 +253,6 @@ Suspend execution, resuming immediately before pixel ({\tt x}, {\tt y}). For exa
 
 Any pixels before ({\tt x}, {\tt y}) are unaffected by any changes the Poker may make. Once the Poker finishes poking, and goes back into the {\tt WAIT} state, all pixels after this point (inclusive of ({\tt x}, {\tt y})) take the new values into account.
 
-\subsubsection*{JUMP}
-
-\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
-\bitheader{0,11,12,23,24,31} \\
-\bitbox{8}{{\tt JUMP}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
-\bitheader{0, 31} \\
-\bitbox{32}{{\tt addr}} \\
-\end{bytefield}
-
-If the current raster position matches ({\tt x}, {\tt y}), then jump to address {\tt addr}. Otherwise, fall through to the next instruction. The match condition for ({\tt x}, {\tt y}) is the same as for {\tt WAIT}: all-ones will match any position on that axis.
-
-This allows loops and switches to be programmed. For example, setting the same horizontal pattern of sprite configurations for the next $n$ scanlines before falling through to a different group of sprites (a loop), but setting a different background colour for each scanline to get a sky gradient effect (a switch).
-
 \subsubsection*{POKE}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
@@ -289,5 +276,26 @@ Sprites and tiles will attempt to fetch data immediately after being poked, to m
 
 The Poker generates 32 bit bus accesses, with an idle cycle between each (as AHB-lite is pipelined, but the Poker is not). 32 bit reads over a 16 bit bus take two cycles, so during Poker execution there is one bus cycle in three available for sprite and tile refill.
 
-Suppose you want to draw a menu on one side of the screen, but you have already used up all your background layers to render the game world. In this case you would {\tt POKE} a background tileset and tilemap at the same point on each scanline, so that the left half of the screen shows the game world, and the right half of the screen shows some bitmap font. You would also {\tt POKE} the sprites to disable them, so that they don't draw over the menu. The PPU is paused while the Poker is running, so all of these changes take effect between pixel {\tt x} of the most recent {\tt WAIT} instruction, and pixel $\mathtt{x} + 1$.
+\subsubsection*{BCEQ}
 
+\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+\bitheader{0,11,12,23,24,31} \\
+\bitbox{8}{{\tt BCEQ}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
+\bitheader{0, 31} \\
+\bitbox{32}{{\tt addr}} \\
+\end{bytefield}
+
+Branch if Coordinate Equal. If the current raster position matches ({\tt x}, {\tt y}), then jump to address {\tt addr}. Otherwise, fall through to the next instruction. The match condition for ({\tt x}, {\tt y}) is the same as for {\tt WAIT}: all-ones will match any position on that axis.
+
+This allows loops and switches to be programmed. For example, setting the same horizontal pattern of sprite configurations for the next $n$ scanlines before falling through to a different group of sprites (a loop), but setting a different background colour for each scanline to get a sky gradient effect (a switch).
+
+\subsubsection*{BCNE}
+
+\begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
+\bitheader{0,11,12,23,24,31} \\
+\bitbox{8}{{\tt BCNE}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
+\bitheader{0, 31} \\
+\bitbox{32}{{\tt addr}} \\
+\end{bytefield}
+
+Branch if Coordinate Not Equal. The same as {\tt BCEQ}, except the branch condition is inverted, i.e. jump if current raster position does {\it not} match ({\tt x}, {\tt y}). This is more convenient for common idioms such as loop-until-match.
