@@ -114,19 +114,13 @@ static inline void lcd_wait_idle()
 }
 
 #define POKER_INSTR_WAIT (0x00u << 24)
-#define POKER_INSTR_JUMP (0x01u << 24)
-#define POKER_INSTR_POKE (0x02u << 24)
+#define POKER_INSTR_POKE (0x01u << 24)
+#define POKER_INSTR_BCEQ (0x02u << 24)
+#define POKER_INSTR_BCNE (0x03u << 24)
 
 static inline uint32_t* poker_wait(uint32_t *iptr, uint32_t x_match, uint32_t y_match)
 {
 	*iptr++ = POKER_INSTR_WAIT | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
-	return iptr;
-}
-
-static inline uint32_t* poker_jump(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
-{
-	*iptr++ = POKER_INSTR_JUMP | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
-	*iptr++ = target;
 	return iptr;
 }
 
@@ -135,6 +129,25 @@ static inline uint32_t* poker_poke(uint32_t *iptr, intptr_t addr, uint32_t data)
 	*iptr++ = POKER_INSTR_POKE | (addr & 0xfffu);
 	*iptr++ = data;
 	return iptr;
+}
+
+static inline uint32_t* poker_bceq(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
+{
+	*iptr++ = POKER_INSTR_BCEQ | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	*iptr++ = target;
+	return iptr;
+}
+
+static inline uint32_t* poker_bcne(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
+{
+	*iptr++ = POKER_INSTR_BCNE | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	*iptr++ = target;
+	return iptr;
+}
+
+static inline uint32_t* poker_jump(uint32_t *iptr, intptr_t target)
+{
+	return poker_bceq(iptr, -1, -1, target);
 }
 
 #endif // _PPU_H_

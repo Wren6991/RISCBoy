@@ -246,7 +246,7 @@ Poker instructions reside in main system memory. Instructions are documented bel
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,11,12,23,24,31} \\
-\bitbox{8}{{\tt WAIT}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
+\bitbox{8}{{\tt 0x00}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
 \end{bytefield}
 
 Suspend execution, resuming immediately before pixel ({\tt x}, {\tt y}). For example {\tt WAIT 0, 0} will halt Poker execution until the start of the next frame. Setting {\tt x} or {\tt y} to the all-ones bit pattern means "don't care": {\tt WAIT 0, -1} will wait until the first pixel of the next scanline.
@@ -257,7 +257,7 @@ Any pixels before ({\tt x}, {\tt y}) are unaffected by any changes the Poker may
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,11,24,31} \\
-\bitbox{8}{{\tt POKE}} \bitbox{12}{ } \bitbox{12}{{\tt addr}} \\
+\bitbox{8}{{\tt 0x01}} \bitbox{12}{ } \bitbox{12}{{\tt addr}} \\
 \bitheader{0, 31} \\
 \bitbox{32}{{\tt data}} \\
 \end{bytefield}
@@ -280,7 +280,7 @@ The Poker generates 32 bit bus accesses, with an idle cycle between each (as AHB
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,11,12,23,24,31} \\
-\bitbox{8}{{\tt BCEQ}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
+\bitbox{8}{{\tt 0x02}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
 \bitheader{0, 31} \\
 \bitbox{32}{{\tt addr}} \\
 \end{bytefield}
@@ -293,7 +293,7 @@ This allows loops and switches to be programmed. For example, setting the same h
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,11,12,23,24,31} \\
-\bitbox{8}{{\tt BCNE}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
+\bitbox{8}{{\tt 0x03}} \bitbox{12}{{\tt x}} \bitbox{12}{{\tt y}} \\
 \bitheader{0, 31} \\
 \bitbox{32}{{\tt addr}} \\
 \end{bytefield}

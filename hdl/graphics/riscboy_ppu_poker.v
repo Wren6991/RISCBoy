@@ -42,8 +42,9 @@ wire coord_match =
 	(&instr_coord_y || instr_coord_y[W_COORD-1:0] == beam_y);
 
 wire instr_wait = instr_opcode == 8'h0;
-wire instr_jump = instr_opcode == 8'h1;
-wire instr_poke = instr_opcode == 8'h2;
+wire instr_poke = instr_opcode == 8'h1;
+wire instr_jump = instr_opcode == 8'h2 || instr_opcode == 8'h3;
+wire branch_taken = coord_match ^ instr_opcode[0];
 
 
 // ----------------------------------------------------------------------------
@@ -86,7 +87,7 @@ always @ (posedge clk or negedge rst_n) begin
 				if (beam_adv)
 					state <= S_WAIT;
 			end else if (instr_jump) begin
-				if (!coord_match) begin
+				if (!branch_taken) begin
 					state <= S_FETCH;
 					pc <= pc_incr;
 				end else if (fetch_rdy) begin
@@ -150,7 +151,7 @@ assign bus_addr = pc;
 assign bus_vld = bus_hold || en && (
 	state == S_FETCH ||
 	state == S_EXECUTE && instr_poke ||
-	state == S_EXECUTE && instr_jump && coord_match
+	state == S_EXECUTE && instr_jump && branch_taken
 );
 assign fetch_rdy = bus_rdy && !bus_dphase_dirty;
 

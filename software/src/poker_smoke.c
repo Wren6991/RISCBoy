@@ -31,7 +31,7 @@ int main()
 	iptr = poker_poke(iptr, offsetof(struct ppu_hw, default_bg_colour), COLOUR_BLUE);
 	iptr = poker_wait(iptr, 120, -1);
 	iptr = poker_poke(iptr, offsetof(struct ppu_hw, default_bg_colour), COLOUR_BLUE | COLOUR_RED);
-	iptr = poker_jump(iptr, -1, -1, (intptr_t)poker_program);
+	iptr = poker_jump(iptr, (intptr_t)poker_program);
 
 	mm_ppu->poker_pc = (uint32_t)entry_point;
 	mm_ppu->csr |= PPU_CSR_POKER_EN_MASK;

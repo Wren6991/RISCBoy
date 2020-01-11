@@ -5,12 +5,15 @@
 .section .vectors
 
 .macro VEC name:req
-.align 2
+.p2align 2
 j \name
 .endm
 
 // ----------------------------------------------------------------------------
 // Vector table
+// Hazard5 requires 4k alignment of mtvec
+
+.p2align 12
 .vector_table:
 
 // Exceptions
@@ -75,6 +78,9 @@ j \name
 // ----------------------------------------------------------------------------
 // Reset handler
 
+.option push
+.option norelax
+
 .reset_handler:
 	li sp, SRAM1_BASE + SRAM1_SIZE
 	la t0, .vector_table
@@ -82,6 +88,7 @@ j \name
 	jal _start
 	j .halt
 
+.option pop
 
 // ----------------------------------------------------------------------------
 // Weak handler/ISR symbols

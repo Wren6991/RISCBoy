@@ -6,10 +6,6 @@
 #include "gpio.h"
 #include "pwm.h"
 
-#define COLOUR_RED 0x7c00u
-#define COLOUR_GREEN 0x3e0u
-#define COLOUR_BLUE 0x1fu
-
 #define SCREEN_WIDTH 320u
 #define SCREEN_HEIGHT 240u
 
