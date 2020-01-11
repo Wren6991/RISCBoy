@@ -146,7 +146,6 @@ wire [N_BACKGROUND*W_PLAYFIELD_COORD-1:0] bg_scroll_x;
 wire [N_BACKGROUND*24-1:0]                bg_tsbase;
 wire [N_BACKGROUND*24-1:0]                bg_tmbase;
 
-wire [N_SPRITE-1:0]                       sprite_en;
 wire [N_SPRITE*8-1:0]                     sprite_tile;
 wire [N_SPRITE*4-1:0]                     sprite_paloffs;
 wire [N_SPRITE*W_SCREEN_COORD-1:0]        sprite_pos_x;
@@ -210,7 +209,6 @@ ppu_regs regs (
 	.concat_bg_tsbase_o        (bg_tsbase),
 	.concat_bg_tmbase_o        (bg_tmbase),
 
-	.concat_sp_en_o            (sprite_en),
 	.concat_sp_tile_o          (sprite_tile),
 	.concat_sp_paloffs_o       (sprite_paloffs),
 	.concat_sp_pos_x_o         (sprite_pos_x),
@@ -553,7 +551,7 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
 		.clk                   (clk_ppu),
 		.rst_n                 (rst_n_ppu),
 		.flush                 (hsync || sprite_flush[sp] || sprite_flush_all),
-		.en                    (sprite_en[sp]),
+		.en                    (1'b1), // Removed for now to free up register space; move offscreen to disable
 
 		.cfg_tilesize          (sprite_tilesize),
 		.cfg_pixel_mode        (sprite_pixmode),

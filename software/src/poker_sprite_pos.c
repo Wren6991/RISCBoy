@@ -47,10 +47,7 @@ int main()
 		(PPU_PIXMODE_ARGB1555 << PPU_SP_CSR_PIXMODE_LSB) |
 		(1u << PPU_SP_CSR_TILESIZE_LSB);
 	mm_ppu->sp_tsbase = (uint32_t)sprite;
-	mm_ppu->sp[0].csr =
-		(1u << PPU_SP0_CSR_EN_LSB) |
-		(0u << PPU_SP0_CSR_TILE_LSB);
-	mm_ppu->sp[0].pos = 0;
+	mm_ppu->sp[0] = 0;
 
 	while (true)
 	{
@@ -63,11 +60,11 @@ int main()
 		for (unsigned i = 0; i < 16; ++i)
 		{
 			iptr = poker_wait(iptr, 2 * i + 1, -1);
-			iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0].pos), (16u << PPU_SP0_POS_Y_LSB) | (16u + i + 1u));
+			iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (16u << PPU_SP0_Y_LSB) | (16u + i + 1u));
 		}
 		iptr = poker_wait(iptr, 0, -1);
 		uint32_t *entry_point = iptr;
-		iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0].pos), (16u << PPU_SP0_POS_Y_LSB) | 16u);
+		iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (16u << PPU_SP0_Y_LSB) | 16u);
 		iptr = poker_bceq(iptr, -1, -1, (intptr_t)poker_prog);
 
 		mm_ppu->poker_pc = (intptr_t)entry_point;
@@ -81,11 +78,11 @@ int main()
 		for (unsigned int i = 0; i < 16; ++i)
 		{
 			iptr = poker_wait(iptr, 32 + i + 1, -1);
-			iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0].pos), ((32u + i + 1) << PPU_SP0_POS_Y_LSB) | 48u);
+			iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), ((32u + i + 1) << PPU_SP0_Y_LSB) | 48u);
 		}
 		iptr = poker_wait(iptr, 0, -1);
 		entry_point = iptr;
-		iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0].pos), (32u << PPU_SP0_POS_Y_LSB) | 48u);
+		iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (32u << PPU_SP0_Y_LSB) | 48u);
 		iptr = poker_jump(iptr, (intptr_t)poker_prog);
 
 		mm_ppu->poker_pc = (intptr_t)entry_point;
@@ -101,7 +98,7 @@ int main()
 		}
 		else
 		{
-			mm_ppu->sp[0].pos = (SCREEN_WIDTH / 2 + 4) | ((SCREEN_HEIGHT / 2 + 4) << PPU_SP0_POS_Y_LSB);
+			mm_ppu->sp[0] = (SCREEN_WIDTH / 2 + 4) | ((SCREEN_HEIGHT / 2 + 4) << PPU_SP0_Y_LSB);
 			render_frame();		
 		}
 	}

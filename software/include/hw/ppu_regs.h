@@ -28,26 +28,18 @@
 #define PPU_BG1_TMBASE_OFFS 52
 #define PPU_SP_CSR_OFFS 56
 #define PPU_SP_TSBASE_OFFS 60
-#define PPU_SP0_CSR_OFFS 64
-#define PPU_SP0_POS_OFFS 68
-#define PPU_SP1_CSR_OFFS 72
-#define PPU_SP1_POS_OFFS 76
-#define PPU_SP2_CSR_OFFS 80
-#define PPU_SP2_POS_OFFS 84
-#define PPU_SP3_CSR_OFFS 88
-#define PPU_SP3_POS_OFFS 92
-#define PPU_SP4_CSR_OFFS 96
-#define PPU_SP4_POS_OFFS 100
-#define PPU_SP5_CSR_OFFS 104
-#define PPU_SP5_POS_OFFS 108
-#define PPU_SP6_CSR_OFFS 112
-#define PPU_SP6_POS_OFFS 116
-#define PPU_SP7_CSR_OFFS 120
-#define PPU_SP7_POS_OFFS 124
-#define PPU_LCD_PXFIFO_OFFS 128
-#define PPU_LCD_CSR_OFFS 132
-#define PPU_INTS_OFFS 136
-#define PPU_INTE_OFFS 140
+#define PPU_SP0_OFFS 64
+#define PPU_SP1_OFFS 68
+#define PPU_SP2_OFFS 72
+#define PPU_SP3_OFFS 76
+#define PPU_SP4_OFFS 80
+#define PPU_SP5_OFFS 84
+#define PPU_SP6_OFFS 88
+#define PPU_SP7_OFFS 92
+#define PPU_LCD_PXFIFO_OFFS 96
+#define PPU_LCD_CSR_OFFS 100
+#define PPU_INTS_OFFS 104
+#define PPU_INTE_OFFS 108
 
 /*******************************************************************************
 *                                     CSR                                      *
@@ -326,7 +318,9 @@
 *******************************************************************************/
 
 // Pointer to tileset used for sprite images. This can be shared with a
-// background, provided the pixel format and tile size are the same.
+// background, provided the pixel format and tile size are the same. Tileset
+// pointer must be aligned on tileset size, rounded up to power of two, or on a
+// 256 byte boundary -- whichever is larger.
 
 // Field: SP_TSBASE  Access: WO
 #define PPU_SP_TSBASE_LSB  8
@@ -334,332 +328,236 @@
 #define PPU_SP_TSBASE_MASK 0xffffff00
 
 /*******************************************************************************
-*                                   SP0_CSR                                    *
+*                                     SP0                                      *
 *******************************************************************************/
 
-// Control and status register for sprite 0
+// Control register for sprite 0
 
-// Field: SP0_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP0_CSR_EN_LSB  0
-#define PPU_SP0_CSR_EN_BITS 1
-#define PPU_SP0_CSR_EN_MASK 0x1
-// Field: SP0_CSR_TILE  Access: WO
+// Field: SP0_TILE  Access: WO
 // Select tile from sprite tilemap for this sprite
-#define PPU_SP0_CSR_TILE_LSB  8
-#define PPU_SP0_CSR_TILE_BITS 8
-#define PPU_SP0_CSR_TILE_MASK 0xff00
-// Field: SP0_CSR_PALOFFS  Access: WO
+#define PPU_SP0_TILE_LSB  24
+#define PPU_SP0_TILE_BITS 8
+#define PPU_SP0_TILE_MASK 0xff000000
+// Field: SP0_PALOFFS  Access: WO
 // Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP0_CSR_PALOFFS_LSB  16
-#define PPU_SP0_CSR_PALOFFS_BITS 4
-#define PPU_SP0_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP0_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 0
-
-// Field: SP0_POS_X  Access: WO
-// X position of sprite. The hardware adjusts this downward by one sprite width,
-// so a value of 0 means fully off left of screen.
-#define PPU_SP0_POS_X_LSB  0
-#define PPU_SP0_POS_X_BITS 9
-#define PPU_SP0_POS_X_MASK 0x1ff
-// Field: SP0_POS_Y  Access: WO
+#define PPU_SP0_PALOFFS_LSB  20
+#define PPU_SP0_PALOFFS_BITS 4
+#define PPU_SP0_PALOFFS_MASK 0xf00000
+// Field: SP0_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP0_POS_Y_LSB  16
-#define PPU_SP0_POS_Y_BITS 9
-#define PPU_SP0_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP1_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 1
-
-// Field: SP1_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP1_CSR_EN_LSB  0
-#define PPU_SP1_CSR_EN_BITS 1
-#define PPU_SP1_CSR_EN_MASK 0x1
-// Field: SP1_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP1_CSR_TILE_LSB  8
-#define PPU_SP1_CSR_TILE_BITS 8
-#define PPU_SP1_CSR_TILE_MASK 0xff00
-// Field: SP1_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP1_CSR_PALOFFS_LSB  16
-#define PPU_SP1_CSR_PALOFFS_BITS 4
-#define PPU_SP1_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP1_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 1
-
-// Field: SP1_POS_X  Access: WO
+#define PPU_SP0_Y_LSB  10
+#define PPU_SP0_Y_BITS 9
+#define PPU_SP0_Y_MASK 0x7fc00
+// Field: SP0_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP1_POS_X_LSB  0
-#define PPU_SP1_POS_X_BITS 9
-#define PPU_SP1_POS_X_MASK 0x1ff
-// Field: SP1_POS_Y  Access: WO
+#define PPU_SP0_X_LSB  0
+#define PPU_SP0_X_BITS 9
+#define PPU_SP0_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP1                                      *
+*******************************************************************************/
+
+// Control register for sprite 1
+
+// Field: SP1_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP1_TILE_LSB  24
+#define PPU_SP1_TILE_BITS 8
+#define PPU_SP1_TILE_MASK 0xff000000
+// Field: SP1_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP1_PALOFFS_LSB  20
+#define PPU_SP1_PALOFFS_BITS 4
+#define PPU_SP1_PALOFFS_MASK 0xf00000
+// Field: SP1_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP1_POS_Y_LSB  16
-#define PPU_SP1_POS_Y_BITS 9
-#define PPU_SP1_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP2_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 2
-
-// Field: SP2_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP2_CSR_EN_LSB  0
-#define PPU_SP2_CSR_EN_BITS 1
-#define PPU_SP2_CSR_EN_MASK 0x1
-// Field: SP2_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP2_CSR_TILE_LSB  8
-#define PPU_SP2_CSR_TILE_BITS 8
-#define PPU_SP2_CSR_TILE_MASK 0xff00
-// Field: SP2_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP2_CSR_PALOFFS_LSB  16
-#define PPU_SP2_CSR_PALOFFS_BITS 4
-#define PPU_SP2_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP2_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 2
-
-// Field: SP2_POS_X  Access: WO
+#define PPU_SP1_Y_LSB  10
+#define PPU_SP1_Y_BITS 9
+#define PPU_SP1_Y_MASK 0x7fc00
+// Field: SP1_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP2_POS_X_LSB  0
-#define PPU_SP2_POS_X_BITS 9
-#define PPU_SP2_POS_X_MASK 0x1ff
-// Field: SP2_POS_Y  Access: WO
+#define PPU_SP1_X_LSB  0
+#define PPU_SP1_X_BITS 9
+#define PPU_SP1_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP2                                      *
+*******************************************************************************/
+
+// Control register for sprite 2
+
+// Field: SP2_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP2_TILE_LSB  24
+#define PPU_SP2_TILE_BITS 8
+#define PPU_SP2_TILE_MASK 0xff000000
+// Field: SP2_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP2_PALOFFS_LSB  20
+#define PPU_SP2_PALOFFS_BITS 4
+#define PPU_SP2_PALOFFS_MASK 0xf00000
+// Field: SP2_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP2_POS_Y_LSB  16
-#define PPU_SP2_POS_Y_BITS 9
-#define PPU_SP2_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP3_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 3
-
-// Field: SP3_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP3_CSR_EN_LSB  0
-#define PPU_SP3_CSR_EN_BITS 1
-#define PPU_SP3_CSR_EN_MASK 0x1
-// Field: SP3_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP3_CSR_TILE_LSB  8
-#define PPU_SP3_CSR_TILE_BITS 8
-#define PPU_SP3_CSR_TILE_MASK 0xff00
-// Field: SP3_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP3_CSR_PALOFFS_LSB  16
-#define PPU_SP3_CSR_PALOFFS_BITS 4
-#define PPU_SP3_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP3_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 3
-
-// Field: SP3_POS_X  Access: WO
+#define PPU_SP2_Y_LSB  10
+#define PPU_SP2_Y_BITS 9
+#define PPU_SP2_Y_MASK 0x7fc00
+// Field: SP2_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP3_POS_X_LSB  0
-#define PPU_SP3_POS_X_BITS 9
-#define PPU_SP3_POS_X_MASK 0x1ff
-// Field: SP3_POS_Y  Access: WO
+#define PPU_SP2_X_LSB  0
+#define PPU_SP2_X_BITS 9
+#define PPU_SP2_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP3                                      *
+*******************************************************************************/
+
+// Control register for sprite 3
+
+// Field: SP3_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP3_TILE_LSB  24
+#define PPU_SP3_TILE_BITS 8
+#define PPU_SP3_TILE_MASK 0xff000000
+// Field: SP3_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP3_PALOFFS_LSB  20
+#define PPU_SP3_PALOFFS_BITS 4
+#define PPU_SP3_PALOFFS_MASK 0xf00000
+// Field: SP3_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP3_POS_Y_LSB  16
-#define PPU_SP3_POS_Y_BITS 9
-#define PPU_SP3_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP4_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 4
-
-// Field: SP4_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP4_CSR_EN_LSB  0
-#define PPU_SP4_CSR_EN_BITS 1
-#define PPU_SP4_CSR_EN_MASK 0x1
-// Field: SP4_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP4_CSR_TILE_LSB  8
-#define PPU_SP4_CSR_TILE_BITS 8
-#define PPU_SP4_CSR_TILE_MASK 0xff00
-// Field: SP4_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP4_CSR_PALOFFS_LSB  16
-#define PPU_SP4_CSR_PALOFFS_BITS 4
-#define PPU_SP4_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP4_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 4
-
-// Field: SP4_POS_X  Access: WO
+#define PPU_SP3_Y_LSB  10
+#define PPU_SP3_Y_BITS 9
+#define PPU_SP3_Y_MASK 0x7fc00
+// Field: SP3_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP4_POS_X_LSB  0
-#define PPU_SP4_POS_X_BITS 9
-#define PPU_SP4_POS_X_MASK 0x1ff
-// Field: SP4_POS_Y  Access: WO
+#define PPU_SP3_X_LSB  0
+#define PPU_SP3_X_BITS 9
+#define PPU_SP3_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP4                                      *
+*******************************************************************************/
+
+// Control register for sprite 4
+
+// Field: SP4_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP4_TILE_LSB  24
+#define PPU_SP4_TILE_BITS 8
+#define PPU_SP4_TILE_MASK 0xff000000
+// Field: SP4_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP4_PALOFFS_LSB  20
+#define PPU_SP4_PALOFFS_BITS 4
+#define PPU_SP4_PALOFFS_MASK 0xf00000
+// Field: SP4_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP4_POS_Y_LSB  16
-#define PPU_SP4_POS_Y_BITS 9
-#define PPU_SP4_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP5_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 5
-
-// Field: SP5_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP5_CSR_EN_LSB  0
-#define PPU_SP5_CSR_EN_BITS 1
-#define PPU_SP5_CSR_EN_MASK 0x1
-// Field: SP5_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP5_CSR_TILE_LSB  8
-#define PPU_SP5_CSR_TILE_BITS 8
-#define PPU_SP5_CSR_TILE_MASK 0xff00
-// Field: SP5_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP5_CSR_PALOFFS_LSB  16
-#define PPU_SP5_CSR_PALOFFS_BITS 4
-#define PPU_SP5_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP5_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 5
-
-// Field: SP5_POS_X  Access: WO
+#define PPU_SP4_Y_LSB  10
+#define PPU_SP4_Y_BITS 9
+#define PPU_SP4_Y_MASK 0x7fc00
+// Field: SP4_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP5_POS_X_LSB  0
-#define PPU_SP5_POS_X_BITS 9
-#define PPU_SP5_POS_X_MASK 0x1ff
-// Field: SP5_POS_Y  Access: WO
+#define PPU_SP4_X_LSB  0
+#define PPU_SP4_X_BITS 9
+#define PPU_SP4_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP5                                      *
+*******************************************************************************/
+
+// Control register for sprite 5
+
+// Field: SP5_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP5_TILE_LSB  24
+#define PPU_SP5_TILE_BITS 8
+#define PPU_SP5_TILE_MASK 0xff000000
+// Field: SP5_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP5_PALOFFS_LSB  20
+#define PPU_SP5_PALOFFS_BITS 4
+#define PPU_SP5_PALOFFS_MASK 0xf00000
+// Field: SP5_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP5_POS_Y_LSB  16
-#define PPU_SP5_POS_Y_BITS 9
-#define PPU_SP5_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP6_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 6
-
-// Field: SP6_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP6_CSR_EN_LSB  0
-#define PPU_SP6_CSR_EN_BITS 1
-#define PPU_SP6_CSR_EN_MASK 0x1
-// Field: SP6_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP6_CSR_TILE_LSB  8
-#define PPU_SP6_CSR_TILE_BITS 8
-#define PPU_SP6_CSR_TILE_MASK 0xff00
-// Field: SP6_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP6_CSR_PALOFFS_LSB  16
-#define PPU_SP6_CSR_PALOFFS_BITS 4
-#define PPU_SP6_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP6_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 6
-
-// Field: SP6_POS_X  Access: WO
+#define PPU_SP5_Y_LSB  10
+#define PPU_SP5_Y_BITS 9
+#define PPU_SP5_Y_MASK 0x7fc00
+// Field: SP5_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP6_POS_X_LSB  0
-#define PPU_SP6_POS_X_BITS 9
-#define PPU_SP6_POS_X_MASK 0x1ff
-// Field: SP6_POS_Y  Access: WO
+#define PPU_SP5_X_LSB  0
+#define PPU_SP5_X_BITS 9
+#define PPU_SP5_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP6                                      *
+*******************************************************************************/
+
+// Control register for sprite 6
+
+// Field: SP6_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP6_TILE_LSB  24
+#define PPU_SP6_TILE_BITS 8
+#define PPU_SP6_TILE_MASK 0xff000000
+// Field: SP6_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP6_PALOFFS_LSB  20
+#define PPU_SP6_PALOFFS_BITS 4
+#define PPU_SP6_PALOFFS_MASK 0xf00000
+// Field: SP6_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP6_POS_Y_LSB  16
-#define PPU_SP6_POS_Y_BITS 9
-#define PPU_SP6_POS_Y_MASK 0x1ff0000
-
-/*******************************************************************************
-*                                   SP7_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for sprite 7
-
-// Field: SP7_CSR_EN  Access: WO
-// If not enabled, sprite becomes fully transparent
-#define PPU_SP7_CSR_EN_LSB  0
-#define PPU_SP7_CSR_EN_BITS 1
-#define PPU_SP7_CSR_EN_MASK 0x1
-// Field: SP7_CSR_TILE  Access: WO
-// Select tile from sprite tilemap for this sprite
-#define PPU_SP7_CSR_TILE_LSB  8
-#define PPU_SP7_CSR_TILE_BITS 8
-#define PPU_SP7_CSR_TILE_MASK 0xff00
-// Field: SP7_CSR_PALOFFS  Access: WO
-// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
-#define PPU_SP7_CSR_PALOFFS_LSB  16
-#define PPU_SP7_CSR_PALOFFS_BITS 4
-#define PPU_SP7_CSR_PALOFFS_MASK 0xf0000
-
-/*******************************************************************************
-*                                   SP7_POS                                    *
-*******************************************************************************/
-
-// Position of sprite 7
-
-// Field: SP7_POS_X  Access: WO
+#define PPU_SP6_Y_LSB  10
+#define PPU_SP6_Y_BITS 9
+#define PPU_SP6_Y_MASK 0x7fc00
+// Field: SP6_X  Access: WO
 // X position of sprite. The hardware adjusts this downward by one sprite width,
 // so a value of 0 means fully off left of screen.
-#define PPU_SP7_POS_X_LSB  0
-#define PPU_SP7_POS_X_BITS 9
-#define PPU_SP7_POS_X_MASK 0x1ff
-// Field: SP7_POS_Y  Access: WO
+#define PPU_SP6_X_LSB  0
+#define PPU_SP6_X_BITS 9
+#define PPU_SP6_X_MASK 0x1ff
+
+/*******************************************************************************
+*                                     SP7                                      *
+*******************************************************************************/
+
+// Control register for sprite 7
+
+// Field: SP7_TILE  Access: WO
+// Select tile from sprite tilemap for this sprite
+#define PPU_SP7_TILE_LSB  24
+#define PPU_SP7_TILE_BITS 8
+#define PPU_SP7_TILE_MASK 0xff000000
+// Field: SP7_PALOFFS  Access: WO
+// Offset ORed into bits [7:4] of palette index if SP_CSR_PIXMODE is paletted
+#define PPU_SP7_PALOFFS_LSB  20
+#define PPU_SP7_PALOFFS_BITS 4
+#define PPU_SP7_PALOFFS_MASK 0xf00000
+// Field: SP7_Y  Access: WO
 // Y position of sprite. The hardware adjusts this downward by one sprite
 // height, so a value of 0 means fully above screen.
-#define PPU_SP7_POS_Y_LSB  16
-#define PPU_SP7_POS_Y_BITS 9
-#define PPU_SP7_POS_Y_MASK 0x1ff0000
+#define PPU_SP7_Y_LSB  10
+#define PPU_SP7_Y_BITS 9
+#define PPU_SP7_Y_MASK 0x7fc00
+// Field: SP7_X  Access: WO
+// X position of sprite. The hardware adjusts this downward by one sprite width,
+// so a value of 0 means fully off left of screen.
+#define PPU_SP7_X_LSB  0
+#define PPU_SP7_X_BITS 9
+#define PPU_SP7_X_MASK 0x1ff
 
 /*******************************************************************************
 *                                  LCD_PXFIFO                                  *

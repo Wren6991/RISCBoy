@@ -27,10 +27,7 @@ struct ppu_hw {
 	} bg[N_PPU_BACKGROUNDS];
 	io_rw_32 sp_csr;
 	io_rw_32 sp_tsbase;
-	struct ppu_sp_hw {
-		io_rw_32 csr;
-		io_rw_32 pos;
-	} sp[N_PPU_SPRITES];
+	io_rw_32 sp[N_PPU_SPRITES];
 	io_rw_32 pxfifo;
 	io_rw_32 lcd_csr;
 };
@@ -54,8 +51,6 @@ DECL_REG(PPU_BASE + PPU_BG1_TMBASE_OFFS, PPU_BG1_TMBASE);
 
 DECL_REG(PPU_BASE + PPU_SP_CSR_OFFS, PPU_SP_CSR);
 DECL_REG(PPU_BASE + PPU_SP_TSBASE_OFFS, PPU_SP_TMBASE);
-DECL_REG(PPU_BASE + PPU_SP0_CSR_OFFS, PPU_SP0_CSR);
-DECL_REG(PPU_BASE + PPU_SP0_POS_OFFS, PPU_SP0_POS);
 
 DECL_REG(PPU_BASE + PPU_LCD_PXFIFO_OFFS, PPU_LCD_PXFIFO);
 DECL_REG(PPU_BASE + PPU_LCD_CSR_OFFS, PPU_LCD_CSR);

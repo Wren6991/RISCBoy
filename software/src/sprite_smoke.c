@@ -44,10 +44,8 @@ int main()
 		(PPU_PIXMODE_ARGB1555 << PPU_SP_CSR_PIXMODE_LSB) |
 		(1u << PPU_SP_CSR_TILESIZE_LSB);
 	mm_ppu->sp_tsbase = (uint32_t)sprite;
-	mm_ppu->sp[0].csr =
-		(1u << PPU_SP0_CSR_EN_LSB) |
-		(0u << PPU_SP0_CSR_TILE_LSB);
-	mm_ppu->sp[0].pos = 0;
+
+	mm_ppu->sp[0] = 0;
 
 	while (true)
 	{
@@ -56,12 +54,12 @@ int main()
 		st7789_start_pixels();
 		for (unsigned i = 0; i < 16; ++i)
 		{
-			mm_ppu->sp[0].pos = i | (16 << PPU_SP0_POS_Y_LSB);
+			mm_ppu->sp[0] = i | (16 << PPU_SP0_Y_LSB);
 			render_scanline();
 		}
 		for (unsigned i = 0; i <= 16; ++i)
 		{
-			mm_ppu->sp[0].pos = (SCREEN_WIDTH + i) | ((i + 32) << PPU_SP0_POS_Y_LSB);
+			mm_ppu->sp[0] = (SCREEN_WIDTH + i) | ((i + 32) << PPU_SP0_Y_LSB);
 			render_scanline();
 		}
 		if (tbman_running_in_sim())
@@ -71,7 +69,7 @@ int main()
 		}
 		else
 		{
-			mm_ppu->sp[0].pos = (SCREEN_WIDTH / 2 + 4) | ((SCREEN_HEIGHT / 2 + 4) << PPU_SP0_POS_Y_LSB);
+			mm_ppu->sp[0] = (SCREEN_WIDTH / 2 + 4) | ((SCREEN_HEIGHT / 2 + 4) << PPU_SP0_Y_LSB);
 			render_frame();		
 		}
 	}

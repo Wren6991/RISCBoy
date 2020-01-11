@@ -119,12 +119,10 @@ void render(const game_state_t *state)
 		uint8_t basetile = 102 + (ch->dir << 2) + ch->anim_frame;
 		for (int tile = 0; tile < ch->spdata.ntiles; ++tile)
 		{
-			mm_ppu->sp[sp].csr =
-				(1u << PPU_SP0_CSR_EN_LSB) |
-				((basetile + tile * ch->spdata.tilestride) << PPU_SP0_CSR_TILE_LSB);
-			mm_ppu->sp[sp].pos =
-				(((uint32_t)pos_x)	           << PPU_SP0_POS_X_LSB) |
-				(((uint32_t)pos_y + 16 * tile) << PPU_SP0_POS_Y_LSB);
+			mm_ppu->sp[sp] =
+				((basetile + tile * ch->spdata.tilestride) << PPU_SP0_TILE_LSB) |
+				(((uint32_t)pos_x)	                       << PPU_SP0_X_LSB) |
+				(((uint32_t)pos_y + 16 * tile)             << PPU_SP0_Y_LSB);
 			++sp;
 			if (sp >= N_PPU_SPRITES)
 				break;
@@ -134,7 +132,7 @@ void render(const game_state_t *state)
 	}
 	// Deactivate remaining hardware sprites
 	while (sp < N_PPU_SPRITES)
-		mm_ppu->sp[sp++].csr = 0;
+		mm_ppu->sp[sp++] = 0;
 
 	lcd_wait_idle();
 	lcd_force_dc_cs(1, 1);

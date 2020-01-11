@@ -53,12 +53,10 @@ int main()
 		sprite_ypos[i] = 25u * (1 + i);
 		sprite_xdir[i] = true;
 
-		mm_ppu->sp[i].csr =
-			(1u << PPU_SP0_CSR_EN_LSB) |
-			(38u << PPU_SP0_CSR_TILE_LSB);
-		mm_ppu->sp[i].pos =
-			(((uint32_t)sprite_xpos[i])	<< PPU_SP0_POS_X_LSB) |
-			(((uint32_t)sprite_ypos[i])	<< PPU_SP0_POS_Y_LSB);
+		mm_ppu->sp[i] =
+			(38u << PPU_SP0_TILE_LSB) |
+			(((uint32_t)sprite_xpos[i])	<< PPU_SP0_X_LSB) |
+			(((uint32_t)sprite_ypos[i])	<< PPU_SP0_Y_LSB);
 	}
 
 	unsigned int scroll_x = 0, scroll_y = 0, idle_count = 0;
@@ -109,9 +107,10 @@ int main()
 					sprite_xpos[i] = x_min;
 					sprite_xdir[i] = !sprite_xdir[i];
 				}
-				mm_ppu->sp[i].pos =
-					(((uint32_t)sprite_xpos[i])	<< PPU_SP0_POS_X_LSB) |
-					(((uint32_t)sprite_ypos[i])	<< PPU_SP0_POS_Y_LSB);
+				mm_ppu->sp[i] =
+					(38u << PPU_SP0_TILE_LSB) |
+					(((uint32_t)sprite_xpos[i])	<< PPU_SP0_X_LSB) |
+					(((uint32_t)sprite_ypos[i])	<< PPU_SP0_Y_LSB);
 			}
 		}
 		render_frame();
