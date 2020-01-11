@@ -1,9 +1,6 @@
 LOCATE COMP "clk_osc" SITE "A10";
 IOBUF PORT "clk_osc" IO_TYPE=LVCMOS33;
 
-#LOCATE COMP "btn" SITE "P4";
-#IOBUF PORT "btn" IO_TYPE=LVCMOS33;
-
 LOCATE COMP "led[0]" SITE "A13";
 LOCATE COMP "led[1]" SITE "A12";
 LOCATE COMP "led[2]" SITE "B19";
@@ -22,30 +19,3 @@ IOBUF PORT "led[4]" IO_TYPE=LVCMOS33;
 IOBUF PORT "led[5]" IO_TYPE=LVCMOS33;
 IOBUF PORT "led[6]" IO_TYPE=LVCMOS33;
 IOBUF PORT "led[7]" IO_TYPE=LVCMOS33;
-
-# Lower Versa header (J39), four IOs to the upper-left
-LOCATE COMP "lcd_cs"   SITE "D15";
-LOCATE COMP "lcd_dc"   SITE "C15";
-LOCATE COMP "lcd_sclk" SITE "B20";
-LOCATE COMP "lcd_mosi" SITE "E11";
-IOBUF PORT  "lcd_cs"   IO_TYPE=LVCMOS33;
-IOBUF PORT  "lcd_dc"   IO_TYPE=LVCMOS33;
-IOBUF PORT  "lcd_sclk" IO_TYPE=LVCMOS33;
-IOBUF PORT  "lcd_mosi" IO_TYPE=LVCMOS33;
-
-# Flash interface is powered from VCCIO8 -- 3V3 by default
-LOCATE COMP "flash_miso" SITE "V2";
-LOCATE COMP "flash_mosi" SITE "W2";
-# LOCATE COMP "flash_sclk" SITE "U3"; handled by USRMCLK primitive
-LOCATE COMP "flash_cs"   SITE "R2";
-IOBUF PORT  "flash_miso" IO_TYPE=LVCMOS33;
-IOBUF PORT  "flash_mosi" IO_TYPE=LVCMOS33;
-# IOBUF PORT  "flash_sclk" IO_TYPE=LVCMOS33; 
-IOBUF PORT  "flash_cs"   IO_TYPE=LVCMOS33;
-
-# Note the labels in reference schematic denote TX/RX from the FT2232H's point
-# of view, not the ECP5
-LOCATE COMP "uart_tx" SITE "P3";
-LOCATE COMP "uart_rx" SITE "P2";
-IOBUF PORT  "uart_tx" IO_TYPE=LVCMOS33;
-IOBUF PORT  "uart_rx" IO_TYPE=LVCMOS33;

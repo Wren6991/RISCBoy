@@ -16,17 +16,8 @@ PACKAGE=CABGA381
 
 include $(SCRIPTS)/synth_ecp5.mk
 
-# romfiles is a prerequisite for synth
-romfiles::
-	@echo ">>> Bootcode"
-	@echo
-	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS="-Os -DFORCE_SRAM0_SIZE=262144"
-	cp $(SOFTWARE)/build/$(BOOTAPP)8.hex bootram_init8.hex
-	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
 
 clean::
-	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) clean
-	rm -f bootram_init*.hex
 	rm -f prog.log
 
 prog: bit
