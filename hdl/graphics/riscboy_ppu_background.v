@@ -16,7 +16,8 @@
  *********************************************************************/
 
 module riscboy_ppu_background #(
-	parameter W_SCREEN_COORD = 9,
+	parameter W_SCREEN_COORD_X = 9,
+	parameter W_SCREEN_COORD_Y = 9,
 	parameter W_PLAYFIELD_COORD = 10,
 	parameter W_OUTDATA = 15,
 	parameter W_ADDR = 32,
@@ -33,8 +34,8 @@ module riscboy_ppu_background #(
 	input  wire                         en,
 	input  wire                         flush,
 
-	input  wire [W_SCREEN_COORD-1:0]    beam_x,
-	input  wire [W_SCREEN_COORD-1:0]    beam_y,
+	input  wire [W_SCREEN_COORD_X-1:0]  beam_x,
+	input  wire [W_SCREEN_COORD_Y-1:0]  beam_y,
 
 	output wire                         bus_vld,
 	output wire [W_ADDR-1:0]            bus_addr,
@@ -87,6 +88,7 @@ reg tile_empty;
 wire [W_SHIFTCTR-1:0] shift_seek_target = u[W_SHIFTCTR-1:0] << pixel_log_size;
 wire                  shifter_flush_unaligned = |{u[W_SHIFTCTR-1:0] << pixel_log_size};
 wire                  pixel_load_req;
+wire                  pixel_load_rdy;
 wire [W_PIX_MAX-1:0]  pixel_data;
 wire                  pixel_alpha;
 wire                  pixel_vld;

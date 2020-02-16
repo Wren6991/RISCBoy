@@ -2,29 +2,30 @@
  	parameter W_HADDR = 32,
  	parameter W_HDATA = 32, // Do not modify
 	parameter ADDR_MASK = 32'h200fffff,
- 	parameter W_COORD = 9
+ 	parameter W_COORD_X = 9,
+ 	parameter W_COORD_Y = 8
 ) (
-	input  wire               clk,
-	input  wire               rst_n,
-	input  wire               en,
+	input  wire                 clk,
+	input  wire                 rst_n,
+	input  wire                 en,
 
-	input  wire [W_COORD-1:0] beam_x,
-	input  wire [W_COORD-1:0] beam_y,
-	input  wire               beam_adv,
-	output wire               beam_halt_req,
+	input  wire [W_COORD_X-1:0] beam_x,
+	input  wire [W_COORD_Y-1:0] beam_y,
+	input  wire                 beam_adv,
+	output wire                 beam_halt_req,
 
-	output wire               bus_vld,
-	output wire [W_HADDR-1:0] bus_addr,
-	output wire [1:0]         bus_size,
-	input  wire               bus_rdy,
-	input  wire [W_HDATA-1:0] bus_data,
+	output wire                 bus_vld,
+	output wire [W_HADDR-1:0]   bus_addr,
+	output wire [1:0]           bus_size,
+	input  wire                 bus_rdy,
+	input  wire [W_HDATA-1:0]   bus_data,
 
-	output wire               poke_vld,
-	output wire [11:0]        poke_addr,
-	output wire [W_HDATA-1:0] poke_data,
+	output wire                 poke_vld,
+	output wire [11:0]          poke_addr,
+	output wire [W_HDATA-1:0]   poke_data,
 
-	input  wire [W_HADDR-1:0] pc_wdata,
-	input  wire               pc_wen
+	input  wire [W_HADDR-1:0]   pc_wdata,
+	input  wire                 pc_wen
 );
 
 reg [W_HADDR-1:0] pc;
@@ -38,8 +39,8 @@ wire [11:0] instr_coord_y = cir[11:0];
 wire [W_HADDR-1:0] pc_incr = ((pc & ADDR_MASK) + 3'h4) & ADDR_MASK;
 
 wire coord_match =
-	(&instr_coord_x || instr_coord_x[W_COORD-1:0] == beam_x) &&
-	(&instr_coord_y || instr_coord_y[W_COORD-1:0] == beam_y);
+	(&instr_coord_x || instr_coord_x[W_COORD_X-1:0] == beam_x) &&
+	(&instr_coord_y || instr_coord_y[W_COORD_Y-1:0] == beam_y);
 
 wire instr_wait = instr_opcode == 8'h0;
 wire instr_poke = instr_opcode == 8'h1;

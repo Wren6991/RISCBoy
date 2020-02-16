@@ -31,10 +31,10 @@ module ppu_regs (
 	output reg  csr_halt_vsync_o,
 	output reg  csr_poker_en_o,
 	output reg [8:0] dispsize_w_o,
-	output reg [8:0] dispsize_h_o,
+	output reg [7:0] dispsize_h_o,
 	output reg [14:0] default_bg_colour_o,
 	input wire [8:0] beam_x_i,
-	input wire [8:0] beam_y_i,
+	input wire [7:0] beam_y_i,
 	output reg [31:0] poker_pc_o,
 	output reg poker_pc_wen,
 	output reg [7:0] poker_scratch_o,
@@ -65,35 +65,35 @@ module ppu_regs (
 	output reg [23:0] sp_tsbase_o,
 	output reg [7:0] sp0_tile_o,
 	output reg [3:0] sp0_paloffs_o,
-	output reg [8:0] sp0_y_o,
+	output reg [7:0] sp0_y_o,
 	output reg [8:0] sp0_x_o,
 	output reg [7:0] sp1_tile_o,
 	output reg [3:0] sp1_paloffs_o,
-	output reg [8:0] sp1_y_o,
+	output reg [7:0] sp1_y_o,
 	output reg [8:0] sp1_x_o,
 	output reg [7:0] sp2_tile_o,
 	output reg [3:0] sp2_paloffs_o,
-	output reg [8:0] sp2_y_o,
+	output reg [7:0] sp2_y_o,
 	output reg [8:0] sp2_x_o,
 	output reg [7:0] sp3_tile_o,
 	output reg [3:0] sp3_paloffs_o,
-	output reg [8:0] sp3_y_o,
+	output reg [7:0] sp3_y_o,
 	output reg [8:0] sp3_x_o,
 	output reg [7:0] sp4_tile_o,
 	output reg [3:0] sp4_paloffs_o,
-	output reg [8:0] sp4_y_o,
+	output reg [7:0] sp4_y_o,
 	output reg [8:0] sp4_x_o,
 	output reg [7:0] sp5_tile_o,
 	output reg [3:0] sp5_paloffs_o,
-	output reg [8:0] sp5_y_o,
+	output reg [7:0] sp5_y_o,
 	output reg [8:0] sp5_x_o,
 	output reg [7:0] sp6_tile_o,
 	output reg [3:0] sp6_paloffs_o,
-	output reg [8:0] sp6_y_o,
+	output reg [7:0] sp6_y_o,
 	output reg [8:0] sp6_x_o,
 	output reg [7:0] sp7_tile_o,
 	output reg [3:0] sp7_paloffs_o,
-	output reg [8:0] sp7_y_o,
+	output reg [7:0] sp7_y_o,
 	output reg [8:0] sp7_x_o,
 	output reg [15:0] lcd_pxfifo_o,
 	output reg lcd_pxfifo_wen,
@@ -127,7 +127,7 @@ module ppu_regs (
 	output wire [47:0] concat_bg_tmbase_o,
 	output wire [63:0] concat_sp_tile_o,
 	output wire [31:0] concat_sp_paloffs_o,
-	output wire [71:0] concat_sp_pos_y_o,
+	output wire [63:0] concat_sp_pos_y_o,
 	output wire [71:0] concat_sp_pos_x_o,
 	output reg wstrobe_sp_flush_all,
 	output reg [1:0] wstrobe_bg_flush,
@@ -252,11 +252,11 @@ assign csr_poker_en_rdata = csr_poker_en_o;
 
 wire [8:0] dispsize_w_wdata = wdata[8:0];
 wire [8:0] dispsize_w_rdata;
-wire [8:0] dispsize_h_wdata = wdata[24:16];
-wire [8:0] dispsize_h_rdata;
-wire [31:0] __dispsize_rdata = {7'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
+wire [7:0] dispsize_h_wdata = wdata[23:16];
+wire [7:0] dispsize_h_rdata;
+wire [31:0] __dispsize_rdata = {8'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
 assign dispsize_w_rdata = 9'h0;
-assign dispsize_h_rdata = 9'h0;
+assign dispsize_h_rdata = 8'h0;
 
 wire [14:0] default_bg_colour_wdata = wdata[14:0];
 wire [14:0] default_bg_colour_rdata;
@@ -265,9 +265,9 @@ assign default_bg_colour_rdata = 15'h0;
 
 wire [8:0] beam_x_wdata = wdata[8:0];
 wire [8:0] beam_x_rdata;
-wire [8:0] beam_y_wdata = wdata[24:16];
-wire [8:0] beam_y_rdata;
-wire [31:0] __beam_rdata = {7'h0, beam_y_rdata, 7'h0, beam_x_rdata};
+wire [7:0] beam_y_wdata = wdata[23:16];
+wire [7:0] beam_y_rdata;
+wire [31:0] __beam_rdata = {8'h0, beam_y_rdata, 7'h0, beam_x_rdata};
 assign beam_x_rdata = beam_x_i;
 assign beam_y_rdata = beam_y_i;
 
@@ -380,112 +380,112 @@ wire [7:0] sp0_tile_wdata = wdata[31:24];
 wire [7:0] sp0_tile_rdata;
 wire [3:0] sp0_paloffs_wdata = wdata[23:20];
 wire [3:0] sp0_paloffs_rdata;
-wire [8:0] sp0_y_wdata = wdata[18:10];
-wire [8:0] sp0_y_rdata;
+wire [7:0] sp0_y_wdata = wdata[17:10];
+wire [7:0] sp0_y_rdata;
 wire [8:0] sp0_x_wdata = wdata[8:0];
 wire [8:0] sp0_x_rdata;
-wire [31:0] __sp0_rdata = {sp0_tile_rdata, sp0_paloffs_rdata, 1'h0, sp0_y_rdata, 1'h0, sp0_x_rdata};
+wire [31:0] __sp0_rdata = {sp0_tile_rdata, sp0_paloffs_rdata, 2'h0, sp0_y_rdata, 1'h0, sp0_x_rdata};
 assign sp0_tile_rdata = 8'h0;
 assign sp0_paloffs_rdata = 4'h0;
-assign sp0_y_rdata = 9'h0;
+assign sp0_y_rdata = 8'h0;
 assign sp0_x_rdata = 9'h0;
 
 wire [7:0] sp1_tile_wdata = wdata[31:24];
 wire [7:0] sp1_tile_rdata;
 wire [3:0] sp1_paloffs_wdata = wdata[23:20];
 wire [3:0] sp1_paloffs_rdata;
-wire [8:0] sp1_y_wdata = wdata[18:10];
-wire [8:0] sp1_y_rdata;
+wire [7:0] sp1_y_wdata = wdata[17:10];
+wire [7:0] sp1_y_rdata;
 wire [8:0] sp1_x_wdata = wdata[8:0];
 wire [8:0] sp1_x_rdata;
-wire [31:0] __sp1_rdata = {sp1_tile_rdata, sp1_paloffs_rdata, 1'h0, sp1_y_rdata, 1'h0, sp1_x_rdata};
+wire [31:0] __sp1_rdata = {sp1_tile_rdata, sp1_paloffs_rdata, 2'h0, sp1_y_rdata, 1'h0, sp1_x_rdata};
 assign sp1_tile_rdata = 8'h0;
 assign sp1_paloffs_rdata = 4'h0;
-assign sp1_y_rdata = 9'h0;
+assign sp1_y_rdata = 8'h0;
 assign sp1_x_rdata = 9'h0;
 
 wire [7:0] sp2_tile_wdata = wdata[31:24];
 wire [7:0] sp2_tile_rdata;
 wire [3:0] sp2_paloffs_wdata = wdata[23:20];
 wire [3:0] sp2_paloffs_rdata;
-wire [8:0] sp2_y_wdata = wdata[18:10];
-wire [8:0] sp2_y_rdata;
+wire [7:0] sp2_y_wdata = wdata[17:10];
+wire [7:0] sp2_y_rdata;
 wire [8:0] sp2_x_wdata = wdata[8:0];
 wire [8:0] sp2_x_rdata;
-wire [31:0] __sp2_rdata = {sp2_tile_rdata, sp2_paloffs_rdata, 1'h0, sp2_y_rdata, 1'h0, sp2_x_rdata};
+wire [31:0] __sp2_rdata = {sp2_tile_rdata, sp2_paloffs_rdata, 2'h0, sp2_y_rdata, 1'h0, sp2_x_rdata};
 assign sp2_tile_rdata = 8'h0;
 assign sp2_paloffs_rdata = 4'h0;
-assign sp2_y_rdata = 9'h0;
+assign sp2_y_rdata = 8'h0;
 assign sp2_x_rdata = 9'h0;
 
 wire [7:0] sp3_tile_wdata = wdata[31:24];
 wire [7:0] sp3_tile_rdata;
 wire [3:0] sp3_paloffs_wdata = wdata[23:20];
 wire [3:0] sp3_paloffs_rdata;
-wire [8:0] sp3_y_wdata = wdata[18:10];
-wire [8:0] sp3_y_rdata;
+wire [7:0] sp3_y_wdata = wdata[17:10];
+wire [7:0] sp3_y_rdata;
 wire [8:0] sp3_x_wdata = wdata[8:0];
 wire [8:0] sp3_x_rdata;
-wire [31:0] __sp3_rdata = {sp3_tile_rdata, sp3_paloffs_rdata, 1'h0, sp3_y_rdata, 1'h0, sp3_x_rdata};
+wire [31:0] __sp3_rdata = {sp3_tile_rdata, sp3_paloffs_rdata, 2'h0, sp3_y_rdata, 1'h0, sp3_x_rdata};
 assign sp3_tile_rdata = 8'h0;
 assign sp3_paloffs_rdata = 4'h0;
-assign sp3_y_rdata = 9'h0;
+assign sp3_y_rdata = 8'h0;
 assign sp3_x_rdata = 9'h0;
 
 wire [7:0] sp4_tile_wdata = wdata[31:24];
 wire [7:0] sp4_tile_rdata;
 wire [3:0] sp4_paloffs_wdata = wdata[23:20];
 wire [3:0] sp4_paloffs_rdata;
-wire [8:0] sp4_y_wdata = wdata[18:10];
-wire [8:0] sp4_y_rdata;
+wire [7:0] sp4_y_wdata = wdata[17:10];
+wire [7:0] sp4_y_rdata;
 wire [8:0] sp4_x_wdata = wdata[8:0];
 wire [8:0] sp4_x_rdata;
-wire [31:0] __sp4_rdata = {sp4_tile_rdata, sp4_paloffs_rdata, 1'h0, sp4_y_rdata, 1'h0, sp4_x_rdata};
+wire [31:0] __sp4_rdata = {sp4_tile_rdata, sp4_paloffs_rdata, 2'h0, sp4_y_rdata, 1'h0, sp4_x_rdata};
 assign sp4_tile_rdata = 8'h0;
 assign sp4_paloffs_rdata = 4'h0;
-assign sp4_y_rdata = 9'h0;
+assign sp4_y_rdata = 8'h0;
 assign sp4_x_rdata = 9'h0;
 
 wire [7:0] sp5_tile_wdata = wdata[31:24];
 wire [7:0] sp5_tile_rdata;
 wire [3:0] sp5_paloffs_wdata = wdata[23:20];
 wire [3:0] sp5_paloffs_rdata;
-wire [8:0] sp5_y_wdata = wdata[18:10];
-wire [8:0] sp5_y_rdata;
+wire [7:0] sp5_y_wdata = wdata[17:10];
+wire [7:0] sp5_y_rdata;
 wire [8:0] sp5_x_wdata = wdata[8:0];
 wire [8:0] sp5_x_rdata;
-wire [31:0] __sp5_rdata = {sp5_tile_rdata, sp5_paloffs_rdata, 1'h0, sp5_y_rdata, 1'h0, sp5_x_rdata};
+wire [31:0] __sp5_rdata = {sp5_tile_rdata, sp5_paloffs_rdata, 2'h0, sp5_y_rdata, 1'h0, sp5_x_rdata};
 assign sp5_tile_rdata = 8'h0;
 assign sp5_paloffs_rdata = 4'h0;
-assign sp5_y_rdata = 9'h0;
+assign sp5_y_rdata = 8'h0;
 assign sp5_x_rdata = 9'h0;
 
 wire [7:0] sp6_tile_wdata = wdata[31:24];
 wire [7:0] sp6_tile_rdata;
 wire [3:0] sp6_paloffs_wdata = wdata[23:20];
 wire [3:0] sp6_paloffs_rdata;
-wire [8:0] sp6_y_wdata = wdata[18:10];
-wire [8:0] sp6_y_rdata;
+wire [7:0] sp6_y_wdata = wdata[17:10];
+wire [7:0] sp6_y_rdata;
 wire [8:0] sp6_x_wdata = wdata[8:0];
 wire [8:0] sp6_x_rdata;
-wire [31:0] __sp6_rdata = {sp6_tile_rdata, sp6_paloffs_rdata, 1'h0, sp6_y_rdata, 1'h0, sp6_x_rdata};
+wire [31:0] __sp6_rdata = {sp6_tile_rdata, sp6_paloffs_rdata, 2'h0, sp6_y_rdata, 1'h0, sp6_x_rdata};
 assign sp6_tile_rdata = 8'h0;
 assign sp6_paloffs_rdata = 4'h0;
-assign sp6_y_rdata = 9'h0;
+assign sp6_y_rdata = 8'h0;
 assign sp6_x_rdata = 9'h0;
 
 wire [7:0] sp7_tile_wdata = wdata[31:24];
 wire [7:0] sp7_tile_rdata;
 wire [3:0] sp7_paloffs_wdata = wdata[23:20];
 wire [3:0] sp7_paloffs_rdata;
-wire [8:0] sp7_y_wdata = wdata[18:10];
-wire [8:0] sp7_y_rdata;
+wire [7:0] sp7_y_wdata = wdata[17:10];
+wire [7:0] sp7_y_rdata;
 wire [8:0] sp7_x_wdata = wdata[8:0];
 wire [8:0] sp7_x_rdata;
-wire [31:0] __sp7_rdata = {sp7_tile_rdata, sp7_paloffs_rdata, 1'h0, sp7_y_rdata, 1'h0, sp7_x_rdata};
+wire [31:0] __sp7_rdata = {sp7_tile_rdata, sp7_paloffs_rdata, 2'h0, sp7_y_rdata, 1'h0, sp7_x_rdata};
 assign sp7_tile_rdata = 8'h0;
 assign sp7_paloffs_rdata = 4'h0;
-assign sp7_y_rdata = 9'h0;
+assign sp7_y_rdata = 8'h0;
 assign sp7_x_rdata = 9'h0;
 
 wire [15:0] lcd_pxfifo_wdata = wdata[15:0];
@@ -599,7 +599,7 @@ always @ (posedge clk or negedge rst_n) begin
 		csr_halt_vsync_o <= 1'h0;
 		csr_poker_en_o <= 1'h0;
 		dispsize_w_o <= 9'h0;
-		dispsize_h_o <= 9'h0;
+		dispsize_h_o <= 8'h0;
 		default_bg_colour_o <= 15'h0;
 		poker_scratch_o <= 8'h0;
 		bg0_csr_en_o <= 1'h0;
@@ -629,35 +629,35 @@ always @ (posedge clk or negedge rst_n) begin
 		sp_tsbase_o <= 24'h0;
 		sp0_tile_o <= 8'h0;
 		sp0_paloffs_o <= 4'h0;
-		sp0_y_o <= 9'h0;
+		sp0_y_o <= 8'h0;
 		sp0_x_o <= 9'h0;
 		sp1_tile_o <= 8'h0;
 		sp1_paloffs_o <= 4'h0;
-		sp1_y_o <= 9'h0;
+		sp1_y_o <= 8'h0;
 		sp1_x_o <= 9'h0;
 		sp2_tile_o <= 8'h0;
 		sp2_paloffs_o <= 4'h0;
-		sp2_y_o <= 9'h0;
+		sp2_y_o <= 8'h0;
 		sp2_x_o <= 9'h0;
 		sp3_tile_o <= 8'h0;
 		sp3_paloffs_o <= 4'h0;
-		sp3_y_o <= 9'h0;
+		sp3_y_o <= 8'h0;
 		sp3_x_o <= 9'h0;
 		sp4_tile_o <= 8'h0;
 		sp4_paloffs_o <= 4'h0;
-		sp4_y_o <= 9'h0;
+		sp4_y_o <= 8'h0;
 		sp4_x_o <= 9'h0;
 		sp5_tile_o <= 8'h0;
 		sp5_paloffs_o <= 4'h0;
-		sp5_y_o <= 9'h0;
+		sp5_y_o <= 8'h0;
 		sp5_x_o <= 9'h0;
 		sp6_tile_o <= 8'h0;
 		sp6_paloffs_o <= 4'h0;
-		sp6_y_o <= 9'h0;
+		sp6_y_o <= 8'h0;
 		sp6_x_o <= 9'h0;
 		sp7_tile_o <= 8'h0;
 		sp7_paloffs_o <= 4'h0;
-		sp7_y_o <= 9'h0;
+		sp7_y_o <= 8'h0;
 		sp7_x_o <= 9'h0;
 		lcd_csr_lcd_cs_o <= 1'h1;
 		lcd_csr_lcd_dc_o <= 1'h0;

@@ -59,7 +59,8 @@
 
 localparam W_PIXDATA = 15;
 localparam W_LCD_PIXDATA = 16;
-localparam W_SCREEN_COORD = 9;
+localparam W_SCREEN_COORD_X = 9;
+localparam W_SCREEN_COORD_Y = 8;
 localparam W_PLAYFIELD_COORD = 10;
 parameter N_LAYERS = 2;
 // Should be locals but ISIM bug etc etc:
@@ -128,10 +129,10 @@ wire [W_PIXDATA-1:0]                      default_bg_colour;
 wire [W_HADDR-1:0]                        poker_pc_wdata;
 wire                                      poker_pc_wen;
 
-wire [W_SCREEN_COORD-1:0]                 raster_w;
-wire [W_SCREEN_COORD-1:0]                 raster_h;
-wire [W_SCREEN_COORD-1:0]                 raster_x;
-wire [W_SCREEN_COORD-1:0]                 raster_y;
+wire [W_SCREEN_COORD_X-1:0]               raster_w;
+wire [W_SCREEN_COORD_Y-1:0]               raster_h;
+wire [W_SCREEN_COORD_X-1:0]               raster_x;
+wire [W_SCREEN_COORD_Y-1:0]               raster_y;
 
 wire [N_BACKGROUND-1:0]                   bg_csr_en;
 wire [N_BACKGROUND*W_PIXMODE-1:0]         bg_csr_pixmode;
@@ -148,8 +149,8 @@ wire [N_BACKGROUND*24-1:0]                bg_tmbase;
 
 wire [N_SPRITE*8-1:0]                     sprite_tile;
 wire [N_SPRITE*4-1:0]                     sprite_paloffs;
-wire [N_SPRITE*W_SCREEN_COORD-1:0]        sprite_pos_x;
-wire [N_SPRITE*W_SCREEN_COORD-1:0]        sprite_pos_y;
+wire [N_SPRITE*W_SCREEN_COORD_X-1:0]      sprite_pos_x;
+wire [N_SPRITE*W_SCREEN_COORD_Y-1:0]      sprite_pos_y;
 wire [N_SPRITE-1:0]                       sprite_flush;
 wire                                      sprite_flush_all;
 wire [23:0]                               sprite_tsbase;
@@ -248,7 +249,8 @@ riscboy_ppu_poker #(
 	.W_HADDR   (W_HADDR),
 	.W_HDATA   (W_HDATA),
 	.ADDR_MASK (ADDR_MASK),
-	.W_COORD   (W_SCREEN_COORD)
+	.W_COORD_X (W_SCREEN_COORD_X),
+	.W_COORD_Y (W_SCREEN_COORD_Y)
 ) inst_riscboy_ppu_poker (
 	.clk           (clk_ppu),
 	.rst_n         (rst_n_ppu),
@@ -295,12 +297,13 @@ always @ (posedge clk_ppu or negedge rst_n_ppu) begin
 end
 
 riscboy_ppu_raster_counter #(
-	.W_COORD (W_SCREEN_COORD)
+	.W_COORD_X (W_SCREEN_COORD_X),
+	.W_COORD_Y (W_SCREEN_COORD_Y)
 ) raster_counter_u (
 	.clk         (clk_ppu),
 	.rst_n       (rst_n_ppu),
 	.en          (raster_count_advance),
-	.clr         (1'b0), // FIXME
+	.clr         (1'b0), // TODO is this needed
 	.w           (raster_w),
 	.h           (raster_h),
 	.x           (raster_x),
@@ -443,7 +446,8 @@ wire               bg_bus_rdy  [0:N_BACKGROUND-1];
 generate
 for (bg = 0; bg < N_BACKGROUND; bg = bg + 1) begin: bg_instantiate
 	riscboy_ppu_background #(
-		.W_SCREEN_COORD    (W_SCREEN_COORD),
+		.W_SCREEN_COORD_X  (W_SCREEN_COORD_X),
+		.W_SCREEN_COORD_Y  (W_SCREEN_COORD_Y),
 		.W_PLAYFIELD_COORD (W_PLAYFIELD_COORD),
 		.W_OUTDATA         (W_PIXDATA),
 		.W_ADDR            (W_HADDR),
@@ -485,29 +489,30 @@ endgenerate
 // ----------------------------------------------------------------------------
 // Sprites and sprite AGU
 
-wire [N_SPRITE-1:0]       sprite_agu_req;
-wire [N_SPRITE-1:0]       sprite_agu_ack;
-wire                      sprite_agu_active;
-wire [W_SCREEN_COORD-1:0] sprite_agu_x_count;
-wire                      sprite_agu_must_seek;
-wire [W_SHIFTCTR-1:0]     sprite_agu_shift_seek_target;
+wire [N_SPRITE-1:0]         sprite_agu_req;
+wire [N_SPRITE-1:0]         sprite_agu_ack;
+wire                        sprite_agu_active;
+wire [W_SCREEN_COORD_X-1:0] sprite_agu_x_count;
+wire                        sprite_agu_must_seek;
+wire [W_SHIFTCTR-1:0]       sprite_agu_shift_seek_target;
 
-wire                      sagu_bus_vld;
-wire [W_HADDR-1:0]        sagu_bus_addr;
-wire [1:0]                sagu_bus_size;
-wire [W_HDATA-1:0]        sagu_bus_data;
-wire                      sagu_bus_rdy;
+wire                        sagu_bus_vld;
+wire [W_HADDR-1:0]          sagu_bus_addr;
+wire [1:0]                  sagu_bus_size;
+wire [W_HDATA-1:0]          sagu_bus_data;
+wire                        sagu_bus_rdy;
 
-wire [N_SPRITE-1:0]       sprite_bus_vld;
-wire [N_SPRITE-1:0]       sprite_bus_rdy;
-wire [N_SPRITE*5-1:0]     sprite_bus_postcount;
-wire [W_DATA-1:0]         sprite_bus_data;
+wire [N_SPRITE-1:0]         sprite_bus_vld;
+wire [N_SPRITE-1:0]         sprite_bus_rdy;
+wire [N_SPRITE*5-1:0]       sprite_bus_postcount;
+wire [W_DATA-1:0]           sprite_bus_data;
 
 riscboy_ppu_sprite_agu #(
 	.W_DATA    (W_DATA),
 	.W_ADDR    (W_HADDR),
 	.ADDR_MASK (ADDR_MASK),
-	.W_COORD   (W_SCREEN_COORD),
+	.W_COORD_X (W_SCREEN_COORD_X),
+	.W_COORD_Y (W_SCREEN_COORD_Y),
 	.N_SPRITE  (N_SPRITE)
 ) sprite_agu (
 	.clk                      (clk_ppu),
@@ -546,7 +551,7 @@ for (sp = 0; sp < N_SPRITE; sp = sp + 1) begin: sprite_instantiate
 	riscboy_ppu_sprite #(
 		.W_DATA    (W_DATA),
 		.W_OUTDATA (W_PIXDATA),
-		.W_COORD   (W_SCREEN_COORD)
+		.W_COORD   (W_SCREEN_COORD_X)
 	) sp (
 		.clk                   (clk_ppu),
 		.rst_n                 (rst_n_ppu),

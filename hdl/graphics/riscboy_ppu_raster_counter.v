@@ -16,35 +16,36 @@
  *********************************************************************/
 
  module riscboy_ppu_raster_counter #(
-	parameter W_COORD = 12
+	parameter W_COORD_X = 12,
+	parameter W_COORD_Y = 12
 ) (
-	input  wire               clk,
-	input  wire               rst_n,
+	input  wire                 clk,
+	input  wire                 rst_n,
 
-	input  wire               en,
-	input  wire               clr,
+	input  wire                 en,
+	input  wire                 clr,
 
-	input  wire [W_COORD-1:0] w,
-	input  wire [W_COORD-1:0] h,
-	output reg  [W_COORD-1:0] x,
-	output reg  [W_COORD-1:0] y,
+	input  wire [W_COORD_X-1:0] w,
+	input  wire [W_COORD_Y-1:0] h,
+	output reg  [W_COORD_X-1:0] x,
+	output reg  [W_COORD_Y-1:0] y,
 
-	output reg                start_row,
-	output reg                start_frame
+	output reg                  start_row,
+	output reg                  start_frame
 );
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		x <= {W_COORD{1'b0}};
-		y <= {W_COORD{1'b0}};
+		x <= {W_COORD_X{1'b0}};
+		y <= {W_COORD_Y{1'b0}};
 	end else if (clr) begin
-		x <= {W_COORD{1'b0}};
-		y <= {W_COORD{1'b0}};
+		x <= {W_COORD_X{1'b0}};
+		y <= {W_COORD_Y{1'b0}};
 	end else if (en) begin
 		if (x == w) begin
-			x <= {W_COORD{1'b0}};
+			x <= {W_COORD_X{1'b0}};
 			if (y == h)
-				y <= {W_COORD{1'b0}};
+				y <= {W_COORD_Y{1'b0}};
 			else
 				y <= y + 1'b1;
 		end else begin

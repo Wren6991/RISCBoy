@@ -1,7 +1,8 @@
 module riscboy_ppu_sprite_agu #(
 	parameter W_DATA = 32,
 	parameter W_ADDR = 32,
-	parameter W_COORD = 9,
+	parameter W_COORD_X = 9,
+	parameter W_COORD_Y = 8,
 	parameter N_SPRITE = 8,
 	parameter ADDR_MASK = {W_ADDR{1'b1}},
 	// Driven parameters:
@@ -10,33 +11,33 @@ module riscboy_ppu_sprite_agu #(
 	input  wire                         clk,
 	input  wire                         rst_n,
 
-	input  wire  [W_COORD-1:0]          beam_x,
-	input  wire  [W_COORD-1:0]          beam_y,
+	input  wire  [W_COORD_X-1:0]          beam_x,
+	input  wire  [W_COORD_Y-1:0]          beam_y,
 
-	input  wire  [N_SPRITE*W_COORD-1:0] cfg_sprite_pos_x,
-	input  wire  [N_SPRITE*W_COORD-1:0] cfg_sprite_pos_y,
-	input  wire  [N_SPRITE*8-1:0]       cfg_sprite_tile,
-	input  wire  [23:0]                 cfg_sprite_tsbase,
-	input  wire  [2:0]                  cfg_sprite_pixmode,
-	input  wire                         cfg_sprite_tilesize,
+	input  wire  [N_SPRITE*W_COORD_X-1:0] cfg_sprite_pos_x,
+	input  wire  [N_SPRITE*W_COORD_Y-1:0] cfg_sprite_pos_y,
+	input  wire  [N_SPRITE*8-1:0]         cfg_sprite_tile,
+	input  wire  [23:0]                   cfg_sprite_tsbase,
+	input  wire  [2:0]                    cfg_sprite_pixmode,
+	input  wire                           cfg_sprite_tilesize,
 
-	input  wire [N_SPRITE-1:0]          sprite_req,
-	output wire [N_SPRITE-1:0]          sprite_ack,
-	output wire                         sprite_active,
-	output wire [W_COORD-1:0]           sprite_x_count,
-	output wire                         sprite_must_seek,
-	output wire [W_SHIFTCTR-1:0]        sprite_shift_seek_target,
+	input  wire [N_SPRITE-1:0]            sprite_req,
+	output wire [N_SPRITE-1:0]            sprite_ack,
+	output wire                           sprite_active,
+	output wire [W_COORD_X-1:0]           sprite_x_count,
+	output wire                           sprite_must_seek,
+	output wire [W_SHIFTCTR-1:0]          sprite_shift_seek_target,
 
-	input  wire [N_SPRITE-1:0]          sprite_bus_vld,
-	output wire [N_SPRITE-1:0]          sprite_bus_rdy,
-	input  wire [N_SPRITE*5-1:0]        sprite_bus_postcount,
-	output wire [W_DATA-1:0]            sprite_bus_data,
+	input  wire [N_SPRITE-1:0]            sprite_bus_vld,
+	output wire [N_SPRITE-1:0]            sprite_bus_rdy,
+	input  wire [N_SPRITE*5-1:0]          sprite_bus_postcount,
+	output wire [W_DATA-1:0]              sprite_bus_data,
 
-	output wire                         bus_vld,
-	output wire [W_ADDR-1:0]            bus_addr,
-	output wire [1:0]                   bus_size,
-	input  wire                         bus_rdy,
-	input  wire [W_DATA-1:0]            bus_data
+	output wire                           bus_vld,
+	output wire [W_ADDR-1:0]              bus_addr,
+	output wire [1:0]                     bus_size,
+	input  wire                           bus_rdy,
+	input  wire [W_DATA-1:0]              bus_data
 );
 
 `include "riscboy_ppu_const.vh"
@@ -55,12 +56,12 @@ onehot_priority #(
  .out (sprite_req_gnt)
 );
 
-wire [W_COORD-1:0] chosen_sprite_pos_x;
-wire [W_COORD-1:0] chosen_sprite_pos_y;
+wire [W_COORD_X-1:0] chosen_sprite_pos_x;
+wire [W_COORD_Y-1:0] chosen_sprite_pos_y;
 
 onehot_mux #(
 	.N_INPUTS (N_SPRITE),
-	.W_INPUT  (W_COORD)
+	.W_INPUT  (W_COORD_X)
 ) mux_sprite_x (
 	.in  (cfg_sprite_pos_x),
 	.sel (sprite_req_gnt),
@@ -69,7 +70,7 @@ onehot_mux #(
 
 onehot_mux #(
 	.N_INPUTS (N_SPRITE),
-	.W_INPUT  (W_COORD)
+	.W_INPUT  (W_COORD_Y)
 ) mux_sprite_y (
 	.in  (cfg_sprite_pos_y),
 	.sel (sprite_req_gnt),
@@ -80,18 +81,18 @@ wire [4:0] tile_size = cfg_sprite_tilesize ? 5'd16 : 5'd8;
 wire [2:0] pixel_log_size = MODE_LOG_PIXSIZE(cfg_sprite_pixmode);
 
 // wire sprite_intersects_y = beam_y < chosen_sprite_pos_y && beam_y + tile_size >= chosen_sprite_pos_y;
-wire [W_COORD-1:0] y_diff = chosen_sprite_pos_y - (beam_y + 1'b1);
-wire sprite_intersects_y = !(y_diff & {{W_COORD-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
+wire [W_COORD_Y-1:0] y_diff = chosen_sprite_pos_y - (beam_y + 1'b1);
+wire sprite_intersects_y = !(y_diff & {{W_COORD_Y-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
 
 // Extra bit for X result, so that we can figure out which side of the sprite beam is on, as well as whether it intersects
-wire [W_COORD:0] x_diff = chosen_sprite_pos_x - beam_x;
-wire beam_x_right_of_lbound = !(x_diff & {{W_COORD-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
-wire beam_x_left_of_rbound = !(x_diff[W_COORD] || ~|x_diff);
+wire [W_COORD_X:0] x_diff = chosen_sprite_pos_x - beam_x;
+wire beam_x_right_of_lbound = !(x_diff & {{W_COORD_X-4{1'b1}}, !cfg_sprite_tilesize, 3'h0});
+wire beam_x_left_of_rbound = !(x_diff[W_COORD_X] || ~|x_diff);
 
 assign sprite_active = sprite_intersects_y && beam_x_left_of_rbound;
 
 assign sprite_x_count = beam_x_left_of_rbound ?
-	x_diff[W_COORD-1:0] : {W_COORD{1'b0}};
+	x_diff[W_COORD_X-1:0] : {W_COORD_X{1'b0}};
 
 assign sprite_must_seek = beam_x_right_of_lbound;
 assign sprite_shift_seek_target = {tile_size - sprite_x_count[4:0]} << pixel_log_size;
@@ -121,7 +122,7 @@ always @ (posedge clk or negedge rst_n)
 
 wire [7:0] bus_chosen_tile;
 wire [4:0] bus_chosen_postcount;
-wire [W_COORD-1:0] bus_chosen_pos_y;
+wire [W_COORD_Y-1:0] bus_chosen_pos_y;
 
 onehot_mux #(
 	.N_INPUTS (N_SPRITE),
@@ -143,7 +144,7 @@ onehot_mux #(
 
 onehot_mux #(
 	.N_INPUTS (N_SPRITE),
-	.W_INPUT  (W_COORD)
+	.W_INPUT  (W_COORD_Y)
 ) mux_bus_pos_y (
 	.in  (cfg_sprite_pos_y),
 	.sel (sprite_bus_gnt),
