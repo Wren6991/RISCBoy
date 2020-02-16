@@ -20,6 +20,9 @@ reg rvfm_x_valid, rvfm_m_valid;
 reg [31:0] rvfm_x_instr;
 reg [31:0] rvfm_m_instr;
 
+wire rvfm_x_trap = x_except_invalid_instr || x_except_breakpoint || x_except_load_misaligned || x_except_store_misaligned || x_except_ecall;
+reg rvfm_m_trap;
+
 reg        rvfi_valid_r;
 reg [31:0] rvfi_insn_r;
 reg        rvfi_trap_r;
@@ -32,14 +35,17 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		rvfm_x_valid <= 1'b0;
 		rvfm_m_valid <= 1'b0;
+		rvfm_m_trap <= 1'b0;
 		rvfi_valid_r <= 1'b0;
 		rvfi_trap_r <= 1'b0;
 		rvfi_insn_r <= 32'h0;
 	end else begin
 		if (!x_stall) begin
-			rvfm_m_valid <= rvfm_x_valid;
+			// Squash X instrs on IRQ entry -- these instructions will be reexecuted on return.
+			rvfm_m_valid <= rvfm_x_valid && !(x_trap_enter && x_trap_enter_rdy && !rvfm_x_trap);
 			rvfm_m_instr <= rvfm_x_instr;
 			rvfm_x_valid <= 1'b0;
+			rvfm_m_trap <= rvfm_x_trap;
 		end else if (!m_stall) begin
 			rvfm_m_valid <= 1'b0;
 		end
@@ -55,10 +61,7 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		rvfi_valid_r <= rvfm_m_valid && !m_stall;
 		rvfi_insn_r <= rvfm_m_instr;
-		rvfi_trap_r <=
-			xm_except_invalid_instr ||
-			xm_except_unaligned ||
-			m_except_bus_fault;
+		rvfi_trap_r <= rvfm_m_trap; // || m_except_bus_fault;
 	end
 end
 
@@ -82,6 +85,14 @@ reg        rvfm_dx_have_jumped;
 reg [31:0] rvfm_xm_pc;
 reg [31:0] rvfm_xm_pc_next;
 
+// Get a strange error from Yosys with $past() on this signal (possibly due to comb terms), so just flop it explicitly
+reg rvfm_past_df_cir_lock;
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		rvfm_past_df_cir_lock <= 1'b0;
+	else
+		rvfm_past_df_cir_lock <= df_cir_lock;
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		rvfm_dx_have_jumped <= 0;
@@ -89,7 +100,7 @@ always @ (posedge clk or negedge rst_n) begin
 		rvfm_xm_pc_next <= 0;
 	end else begin
 		if (!d_stall) begin
-			rvfm_dx_have_jumped <= d_jump_req && f_jump_now || $past(df_cir_lock);
+			rvfm_dx_have_jumped <= d_jump_req && f_jump_now || rvfm_past_df_cir_lock;
 		end
 		if (!x_stall) begin
 			rvfm_xm_pc <= dx_pc;
@@ -177,7 +188,7 @@ end
 wire [3:0] rvfm_mem_bytemask_dph = (
 	rvfm_hsize_dph == 3'h0 ? 4'h1 :
 	rvfm_hsize_dph == 3'h1 ? 4'h3 :
-	                    4'hf
+	                         4'hf
 	) << rvfm_haddr_dph[1:0];
 
 reg [31:0] rvfi_mem_addr_r;

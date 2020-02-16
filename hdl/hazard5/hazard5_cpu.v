@@ -436,6 +436,7 @@ wire   x_except_ecall         = dx_except == EXCEPT_ECALL;
 wire   x_except_breakpoint    = dx_except == EXCEPT_EBREAK;
 wire   x_except_invalid_instr = dx_except == EXCEPT_INSTR_ILLEGAL;
 assign x_trap_exit            = dx_except == EXCEPT_MRET;
+wire   x_trap_enter_rdy       = !(x_stall || m_jump_req);
 
 wire [W_DATA-1:0] x_csr_wdata = dx_csr_w_imm ?
 	{{W_DATA-5{1'b0}}, dx_rs1} : x_rs1_bypass;
@@ -466,7 +467,7 @@ hazard5_csr #(
 	// Trap signalling
 	.trap_addr               (x_trap_addr),
 	.trap_enter_vld          (x_trap_enter),
-	.trap_enter_rdy          (!(x_stall || m_jump_req)),
+	.trap_enter_rdy          (x_trap_enter_rdy),
 	.trap_exit               (x_trap_exit),
 	.mepc_in                 (dx_pc),
 	.mepc_out                (x_mepc),
