@@ -6,6 +6,8 @@
 #include "gpio.h"
 #include "pwm.h"
 
+#include <stddef.h>
+
 #define SCREEN_WIDTH 320u
 #define SCREEN_HEIGHT 240u
 
@@ -59,13 +61,13 @@ int main()
 		uint32_t *iptr = poker_prog;
 		for (unsigned i = 0; i < 16; ++i)
 		{
-			iptr = poker_wait(iptr, 2 * i + 1, -1);
-			iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (16u << PPU_SP0_Y_LSB) | (16u + i + 1u));
+			iptr += poker_wait(iptr, 2 * i + 1, -1);
+			iptr += poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (16u << PPU_SP0_Y_LSB) | (16u + i + 1u));
 		}
-		iptr = poker_wait(iptr, 0, -1);
+		iptr += poker_wait(iptr, 0, -1);
 		uint32_t *entry_point = iptr;
-		iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (16u << PPU_SP0_Y_LSB) | 16u);
-		iptr = poker_bceq(iptr, -1, -1, (intptr_t)poker_prog);
+		iptr += poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (16u << PPU_SP0_Y_LSB) | 16u);
+		iptr += poker_jump(iptr, (intptr_t)poker_prog);
 
 		mm_ppu->poker_pc = (intptr_t)entry_point;
 		mm_ppu->csr |= PPU_CSR_POKER_EN_MASK;
@@ -77,13 +79,13 @@ int main()
 		iptr = poker_prog;
 		for (unsigned int i = 0; i < 16; ++i)
 		{
-			iptr = poker_wait(iptr, 32 + i + 1, -1);
-			iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), ((32u + i + 1) << PPU_SP0_Y_LSB) | 48u);
+			iptr += poker_wait(iptr, 32 + i + 1, -1);
+			iptr += poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), ((32u + i + 1) << PPU_SP0_Y_LSB) | 48u);
 		}
-		iptr = poker_wait(iptr, 0, -1);
+		iptr += poker_wait(iptr, 0, -1);
 		entry_point = iptr;
-		iptr = poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (32u << PPU_SP0_Y_LSB) | 48u);
-		iptr = poker_jump(iptr, (intptr_t)poker_prog);
+		iptr += poker_poke(iptr, offsetof(struct ppu_hw, sp[0]), (32u << PPU_SP0_Y_LSB) | 48u);
+		iptr += poker_jump(iptr, (intptr_t)poker_prog);
 
 		mm_ppu->poker_pc = (intptr_t)entry_point;
 		mm_ppu->csr |= PPU_CSR_POKER_EN_MASK;

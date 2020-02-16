@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #include "addressmap.h"
 #include "hw/ppu_regs.h"
@@ -113,34 +114,34 @@ static inline void lcd_wait_idle()
 #define POKER_INSTR_BCEQ (0x02u << 24)
 #define POKER_INSTR_BCNE (0x03u << 24)
 
-static inline uint32_t* poker_wait(uint32_t *iptr, uint32_t x_match, uint32_t y_match)
+static inline size_t poker_wait(uint32_t *iptr, uint32_t x_match, uint32_t y_match)
 {
-	*iptr++ = POKER_INSTR_WAIT | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
-	return iptr;
+	iptr[0] = POKER_INSTR_WAIT | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	return 1;
 }
 
-static inline uint32_t* poker_poke(uint32_t *iptr, intptr_t addr, uint32_t data)
+static inline size_t poker_poke(uint32_t *iptr, intptr_t addr, uint32_t data)
 {
-	*iptr++ = POKER_INSTR_POKE | (addr & 0xfffu);
-	*iptr++ = data;
-	return iptr;
+	iptr[0] = POKER_INSTR_POKE | (addr & 0xfffu);
+	iptr[1] = data;
+	return 2;
 }
 
-static inline uint32_t* poker_bceq(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
+static inline size_t poker_bceq(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
 {
-	*iptr++ = POKER_INSTR_BCEQ | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
-	*iptr++ = target;
-	return iptr;
+	iptr[0] = POKER_INSTR_BCEQ | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	iptr[1] = target;
+	return 2;
 }
 
-static inline uint32_t* poker_bcne(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
+static inline size_t poker_bcne(uint32_t *iptr, uint32_t x_match, uint32_t y_match, intptr_t target)
 {
-	*iptr++ = POKER_INSTR_BCNE | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
-	*iptr++ = target;
-	return iptr;
+	iptr[0] = POKER_INSTR_BCNE | ((x_match & 0xfffu) << 12) | (y_match & 0xfffu);
+	iptr[1] = target;
+	return 2;
 }
 
-static inline uint32_t* poker_jump(uint32_t *iptr, intptr_t target)
+static inline size_t poker_jump(uint32_t *iptr, intptr_t target)
 {
 	return poker_bceq(iptr, -1, -1, target);
 }
