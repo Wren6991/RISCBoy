@@ -9,7 +9,7 @@ else
     BOOTAPP=blinky
 endif
 
-SYNTH_OPT=-retime
+SYNTH_OPT=-abc9
 
 DEVICE=um5g-85k
 PACKAGE=CABGA381

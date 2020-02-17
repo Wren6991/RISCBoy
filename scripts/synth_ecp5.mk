@@ -60,3 +60,22 @@ $(CHIPNAME).svf: $(CHIPNAME).bin
 clean::
 	rm -f $(CHIPNAME).json $(CHIPNAME).asc $(CHIPNAME).bin $(CHIPNAME)_synth.v
 	rm -f synth.log pnr.log
+
+# Code for trying n different pnr seeds and reporting results
+
+PNR_N_TRIES := 100
+PNR_TRY_LIST := $(shell seq $(PNR_N_TRIES))
+
+pnr_sweep: $(addprefix pnr_try,$(PNR_TRY_LIST))
+
+define make-sweep-target
+pnr_try$1: synth
+	@echo ">>> Starting sweep $1"
+	$(NEXTPNR) --seed $1 --placer sa --$(DEVICE) --package $(PACKAGE) --lpf $(CHIPNAME).lpf --json $(CHIPNAME).json --textcfg pnr_try$1.config $(PNR_OPT) --quiet --log pnr$1.log
+	@grep "Info: Max frequency for clock " pnr$1.log | tail -n 1
+endef
+
+$(foreach try,$(PNR_TRY_LIST),$(eval $(call make-sweep-target,$(try))))
+
+clean::
+	rm -f pnr_try*.asc pnr*.log
