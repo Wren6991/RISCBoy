@@ -3,8 +3,10 @@
 
 include $(SCRIPTS)/sim.mk
 
+MARCH=rv32ic
+
 ram_init32.hex: $(ASM_SRC)
-	riscv32-unknown-elf-gcc -c -march=rv32ic $(ASM_SRC) -o $(ASM_SRC).elf
+	riscv32-unknown-elf-gcc -c -march=$(MARCH) $(ASM_SRC) -o $(ASM_SRC).elf
 	riscv32-unknown-elf-objcopy -O verilog $(ASM_SRC).elf ram_init8.hex
 	$(SCRIPTS)/vhexwidth -w 32 ram_init8.hex -o ram_init32.hex
 
