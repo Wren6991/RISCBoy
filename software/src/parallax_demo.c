@@ -57,7 +57,7 @@ int main()
 		render_frame();
 		scroll_fg += 2;
 		scroll_bg += 1;
-		mm_ppu->bg[0].scroll = scroll_bg;
-		mm_ppu->bg[1].scroll = scroll_fg;
+		mm_ppu->bg[0].scroll = scroll_bg & PPU_BG0_SCROLL_X_MASK;
+		mm_ppu->bg[1].scroll = scroll_fg & PPU_BG0_SCROLL_X_MASK;
 	}
 }
