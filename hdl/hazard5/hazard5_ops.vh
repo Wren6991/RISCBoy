@@ -16,7 +16,7 @@ localparam ALUOP_XOR     = 4'h8;
 localparam ALUOP_SRL     = 4'h9;
 localparam ALUOP_SRA     = 4'ha;
 localparam ALUOP_SLL     = 4'hb;
-
+localparam ALUOP_MULDIV  = 4'hc;
 
 // Parameters to control ALU input muxes. Bypass mux paths are
 // controlled by X, so D has no parameters to choose these.
@@ -61,14 +61,14 @@ localparam EXCEPT_INSTR_ILLEGAL  = 3'h4;
 localparam EXCEPT_INSTR_MISALIGN = 3'h5;
 localparam EXCEPT_INSTR_FAULT    = 3'h6;
 
-// Operations for M extension
+// Operations for M extension (these are just instr[14:12])
 
-localparam W_M_OP      = 3;
+localparam W_MULOP     = 3;
 localparam M_OP_MUL    = 3'h0;
 localparam M_OP_MULH   = 3'h1;
 localparam M_OP_MULHSU = 3'h2;
 localparam M_OP_MULHU  = 3'h3;
 localparam M_OP_DIV    = 3'h4;
 localparam M_OP_DIVU   = 3'h5;
-localparam M_OP_MOD    = 3'h6;
-localparam M_OP_MODU   = 3'h7;
+localparam M_OP_REM    = 3'h6;
+localparam M_OP_REMU   = 3'h7;

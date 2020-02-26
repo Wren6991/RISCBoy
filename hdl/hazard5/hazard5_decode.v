@@ -17,6 +17,7 @@
 
 module hazard5_decode #(
 	parameter EXTENSION_C = 1,   // compressed instruction extension
+	parameter EXTENSION_M = 1,   // mul/div/mod instruction extension
 	parameter HAVE_CSR = 0,
 	parameter W_ADDR = 32,
 	parameter W_DATA = 32,
@@ -52,6 +53,7 @@ module hazard5_decode #(
 	output reg  [W_ALUSRC-1:0]  dx_alusrc_b,
 	output reg  [W_ALUOP-1:0]   dx_aluop,
 	output reg  [W_MEMOP-1:0]   dx_memop,
+	output reg  [W_MULOP-1:0]   dx_mulop,
 	output reg                  dx_csr_ren,
 	output reg                  dx_csr_wen,
 	output reg  [1:0]           dx_csr_wtype,
@@ -186,6 +188,7 @@ reg  [W_ALUSRC-1:0]  d_alusrc_a;
 reg  [W_ALUSRC-1:0]  d_alusrc_b;
 reg  [W_ALUOP-1:0]   d_aluop;
 reg  [W_MEMOP-1:0]   d_memop;
+reg  [W_MULOP-1:0]   d_mulop;
 reg  [W_BCOND-1:0]   d_branchcond;
 reg                  d_jump_is_regoffs;
 reg                  d_result_is_linkaddr;
@@ -208,6 +211,7 @@ always @ (*) begin
 	d_alusrc_b = ALUSRCB_RS2;
 	d_aluop = ALUOP_ADD;
 	d_memop = MEMOP_NONE;
+	d_mulop = M_OP_MUL;
 	d_csr_ren = 1'b0;
 	d_csr_wen = 1'b0;
 	d_csr_wtype = CSR_WTYPE_W;
@@ -256,6 +260,14 @@ always @ (*) begin
 	RV_SB:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SB;  d_rd = X0; end
 	RV_SH:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SH;  d_rd = X0; end
 	RV_SW:      begin d_aluop = ALUOP_ADD; d_imm = d_imm_s; d_alusrc_b = ALUSRCB_IMM; d_memop = MEMOP_SW;  d_rd = X0; end
+	RV_MUL:     if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_MUL;    end else begin d_invalid_32bit = 1'b1; end
+	RV_MULH:    if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_MULH;   end else begin d_invalid_32bit = 1'b1; end
+	RV_MULHSU:  if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_MULHSU; end else begin d_invalid_32bit = 1'b1; end
+	RV_MULHU:   if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_MULHU;  end else begin d_invalid_32bit = 1'b1; end
+	RV_DIV:     if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_DIV;    end else begin d_invalid_32bit = 1'b1; end
+	RV_DIVU:    if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_DIVU;   end else begin d_invalid_32bit = 1'b1; end
+	RV_REM:     if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_REM;    end else begin d_invalid_32bit = 1'b1; end
+	RV_REMU:    if (EXTENSION_M) begin d_aluop = ALUOP_MULDIV; d_mulop = M_OP_REMU;   end else begin d_invalid_32bit = 1'b1; end
 	RV_FENCE:   begin d_rd = X0; end  // NOP
 	RV_FENCE_I: begin d_rd = X0; end  // NOP // TODO: this should be jump to PC + 4. Evaluate the cost of doing this in decode (or find a way of doing it in X).
 	RV_CSRRW:   if (HAVE_CSR) begin d_imm = d_imm_i; d_csr_wen = 1'b1  ; d_csr_ren = |d_rd; d_csr_wtype = CSR_WTYPE_W; end else begin d_invalid_32bit = 1'b1; end
@@ -285,6 +297,7 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_alusrc_b <= ALUSRCB_RS2;
 		dx_aluop <= ALUOP_ADD;
 		dx_memop <= MEMOP_NONE;
+		dx_mulop <= M_OP_MUL;
 		dx_csr_ren <= 1'b0;
 		dx_csr_wen <= 1'b0;
 		dx_csr_wtype <= CSR_WTYPE_W;
@@ -303,11 +316,12 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_csr_ren    <= d_invalid ? 1'b0                 : d_csr_ren;
 		dx_csr_wen    <= d_invalid ? 1'b0                 : d_csr_wen;
 		dx_except     <= d_invalid ? EXCEPT_INSTR_ILLEGAL : d_except;
+		dx_aluop      <= d_invalid && EXTENSION_M ? ALUOP_ADD : d_aluop;
 
 		// These can't
 		dx_alusrc_a <= d_alusrc_a;
 		dx_alusrc_b <= d_alusrc_b;
-		dx_aluop <= d_aluop;
+		dx_mulop <= d_mulop;
 		dx_jump_is_regoffs <= d_jump_is_regoffs;
 		dx_result_is_linkaddr <= d_result_is_linkaddr;
 		dx_csr_wtype <= d_csr_wtype;
@@ -321,6 +335,9 @@ always @ (posedge clk or negedge rst_n) begin
 			dx_except <= EXCEPT_NONE;
 			dx_csr_ren <= 1'b0;
 			dx_csr_wen <= 1'b0;
+			// Don't start a multiply in a pipe bubble
+			if (EXTENSION_M)
+				dx_aluop <= ALUOP_ADD;
 			// Also need to clear rs1, rs2, due to a nasty sequence of events:
 			// Suppose we have a load, followed by a dependent branch, which is predicted taken
 			// - branch will stall in D until AHB master becomes free

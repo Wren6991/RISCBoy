@@ -20,6 +20,8 @@ module hazard5_cpu #(
 	parameter W_ADDR          = 32,   // Do not modify
 	parameter W_DATA          = 32,   // Do not modify
 	parameter EXTENSION_C     = 1,    // Support for compressed (variable-width) instructions
+	parameter EXTENSION_M     = 1,    // Support for hardware multiply/divide/modulo instructions
+	parameter MULDIV_UNROLL   = 1,    // Bits per clock for multiply/divide circuit, if present. Pow2.
 	parameter CSR_M_MANDATORY = 1,    // Bare minimum e.g. misa. Spec says must = 1, but I won't tell anyone
 	parameter CSR_M_TRAP      = 1,    // Include M-mode trap-handling CSRs
 	parameter CSR_COUNTER     = 0     // Include performance counters and relevant M-mode CSRs
@@ -247,6 +249,7 @@ wire [W_ALUSRC-1:0]  dx_alusrc_a;
 wire [W_ALUSRC-1:0]  dx_alusrc_b;
 wire [W_ALUOP-1:0]   dx_aluop;
 wire [W_MEMOP-1:0]   dx_memop;
+wire [W_MULOP-1:0]   dx_mulop;
 wire [W_BCOND-1:0]   dx_branchcond;
 wire [W_ADDR-1:0]    dx_jump_target;
 wire                 dx_jump_is_regoffs;
@@ -261,6 +264,7 @@ wire                 dx_csr_w_imm;
 
 hazard5_decode #(
 	.EXTENSION_C  (EXTENSION_C),
+	.EXTENSION_M  (EXTENSION_M),
 	.HAVE_CSR     (CSR_M_MANDATORY || CSR_M_TRAP || CSR_COUNTER),
 	.W_ADDR       (W_ADDR),
 	.W_DATA       (W_DATA),
@@ -354,9 +358,10 @@ wire [W_ADDR-1:0] x_jump_target =
 	                                              x_taken_jump_target;
 
 reg x_stall_raw;
+reg x_stall_muldiv;
 
 assign x_stall = m_stall ||
-	x_stall_raw || ahb_req_d && !(ahb_gnt_d && ahblm_hready);
+	x_stall_raw || x_stall_muldiv || ahb_req_d && !(ahb_gnt_d && ahblm_hready);
 
 // Load-use hazard detection
 always @ (*) begin
@@ -486,6 +491,66 @@ hazard5_csr #(
 	.instr_ret               (1'b0)  // TODO
 );
 
+// Multiply/divide
+
+wire [W_DATA-1:0] x_muldiv_result;
+
+generate
+if (EXTENSION_M) begin: has_muldiv
+	wire              x_muldiv_op_vld;
+	wire              x_muldiv_op_rdy;
+	wire              x_muldiv_result_vld;
+	wire [W_DATA-1:0] x_muldiv_result_h;
+	wire [W_DATA-1:0] x_muldiv_result_l;
+
+	reg x_muldiv_posted;
+	always @ (posedge clk or negedge rst_n)
+		if (!rst_n)
+			x_muldiv_posted <= 1'b0;
+		else
+			x_muldiv_posted <= (x_muldiv_posted || (x_muldiv_op_vld && x_muldiv_op_rdy)) && x_stall;
+
+	assign x_muldiv_op_vld = dx_aluop == ALUOP_MULDIV && !x_muldiv_posted;
+
+	hazard5_muldiv_seq #(
+		.XLEN   (W_DATA),
+		.UNROLL (MULDIV_UNROLL)
+	) muldiv (
+		.clk (clk),
+		.rst_n (rst_n),
+		.op (dx_mulop),
+		.op_vld (x_muldiv_op_vld),
+		.op_rdy (x_muldiv_op_rdy),
+		.op_kill (1'b0), // TODO kill on trap entry
+		.op_a (x_rs1_bypass),
+		.op_b (x_rs2_bypass),
+
+		.result_h (x_muldiv_result_h),
+		.result_l (x_muldiv_result_l),
+		.result_vld (x_muldiv_result_vld)
+	);
+
+	// TODO fusion of MULHx->MUL and DIVy->REMy sequences
+	wire x_muldiv_result_is_high =
+		dx_mulop == M_OP_MULH ||
+		dx_mulop == M_OP_MULHSU ||
+		dx_mulop == M_OP_MULHU ||
+		dx_mulop == M_OP_REM ||
+		dx_mulop == M_OP_REMU;
+	assign x_muldiv_result = x_muldiv_result_is_high ? x_muldiv_result_h : x_muldiv_result_l;
+
+	always @ (*) x_stall_muldiv = x_muldiv_op_vld || !x_muldiv_result_vld;
+
+end else begin: no_muldiv
+
+	assign x_muldiv_result = {W_DATA{1'b0}};
+	assign x_muldiv_result_vld = 1'b1;
+
+	always @ (*) x_stall_muldiv = 1'b0;
+
+end
+endgenerate
+
 // State machine and branch detection
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -525,9 +590,10 @@ end
 always @ (posedge clk)
 	if (!m_stall) begin
 		xm_result <=
-			dx_result_is_linkaddr ? dx_mispredict_addr :
-			dx_csr_ren            ? x_csr_rdata :
-			                        x_alu_result;
+			dx_result_is_linkaddr                   ? dx_mispredict_addr :
+			dx_csr_ren                              ? x_csr_rdata :
+			EXTENSION_M && dx_aluop == ALUOP_MULDIV ? x_muldiv_result :
+			                                          x_alu_result;
 		xm_store_data <= x_rs2_bypass;
 		xm_jump_target <= x_jump_target;
 	end

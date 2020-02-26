@@ -41,7 +41,7 @@ module hazard5_muldiv_seq #(
 	input  wire [XLEN-1:0]   op_a,
 	input  wire [XLEN-1:0]   op_b,
 
-	output wire [XLEN-1:0]   result_h, // mulh* or mod*
+	output wire [XLEN-1:0]   result_h, // mulh* or rem*
 	output wire [XLEN-1:0]   result_l, // mul   or div*
 	output wire              result_vld
 );
@@ -62,22 +62,22 @@ endgenerate
 // on the next cycle. This allows the same circuits to be reused for sign
 // adjustment before output (and helps input timing).
 
-reg [W_M_OP-1:0] op_r;
-reg [2*XLEN-1:0] accum;
-reg [XLEN-1:0]   op_b_r;
-reg              op_a_neg_r;
-reg              op_b_neg_r;
+reg [W_MULOP-1:0] op_r;
+reg [2*XLEN-1:0]  accum;
+reg [XLEN-1:0]    op_b_r;
+reg               op_a_neg_r;
+reg               op_b_neg_r;
 
 wire op_a_signed =
 	op_r == M_OP_MULH ||
 	op_r == M_OP_MULHSU ||
 	op_r == M_OP_DIV ||
-	op_r == M_OP_MOD;
+	op_r == M_OP_REM;
 
 wire op_b_signed =
 	op_r == M_OP_MULH ||
 	op_r == M_OP_DIV ||
-	op_r == M_OP_MOD;
+	op_r == M_OP_REM;
 
 wire op_a_neg = op_a_signed && accum[XLEN-1];
 wire op_b_neg = op_b_signed && op_b_r[XLEN-1];
@@ -139,7 +139,7 @@ always @ (posedge clk or negedge rst_n) begin
 		sign_preadj_done <= 1'b0;
 		sign_postadj_done <= 1'b0;
 		sign_postadj_carry <= 1'b0;
-		op_r <= {W_M_OP{1'b0}};
+		op_r <= {W_MULOP{1'b0}};
 		op_a_neg_r <= 1'b0;
 		op_b_neg_r <= 1'b0;
 		op_b_r <= {XLEN{1'b0}};

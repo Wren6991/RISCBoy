@@ -1,6 +1,7 @@
 file arith/hazard5_alu.v
 file arith/hazard5_shift_barrel.v
 file arith/hazard5_priority_encode.v
+file arith/hazard5_muldiv_seq.v
 file hazard5_frontend.v
 file hazard5_instr_decompress.v
 file hazard5_decode.v

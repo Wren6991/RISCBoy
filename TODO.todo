@@ -2,6 +2,11 @@ Processor:
   ✔ Add exceptions @done (20-02-25 23:57)
     ✘ CSR for unaligned info? @cancelled (20-02-25 23:57)
     ☐ Non-returning hardfault exception for e.g. exception during exception
+    ☐ Sweep up all the unhandled exception cases (e.g. proper speculation of bus faults through from instruction fetch)
+    ☐ Add and test timer IRQ
+  ☐ Check CSR compliance
+    ☐ Need to populate ID fields?
+    ☐ Instruction retire counter!
   ☐ Compliant debug support (must run with upstream openocd)
   ☐ Support for M extension
     ✔ Create divide/multiply circuit @done (20-02-26 00:00)
@@ -17,7 +22,7 @@ Processor:
   ☐ Iterate on decode synths to try and pack gates down
     Still an open issue. Have investigated the instruction decompressor and it's no larger than the crazy hand-Espresso'd one in SWeRV. Rest of decode potentially still has some savings in the non-RV-specific parts.
   ☐ Port more advanced/larger C testcases
-  ☐ Identify other sources of high gate count
+  ☐ Identify other sources of high gate count (general golfing)
 
 
 Graphics:
