@@ -201,7 +201,9 @@ wire               ppu_apbs_pslverr;
 // =============================================================================
 
 hazard5_cpu #(
-	.RESET_VECTOR    (CPU_RESET_VECTOR)
+	.RESET_VECTOR    (CPU_RESET_VECTOR),
+	.EXTENSION_C     (1),
+	.EXTENSION_M     (0) // No space!
 ) inst_revive_cpu (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),

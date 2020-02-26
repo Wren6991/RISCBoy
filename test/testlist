@@ -121,6 +121,18 @@ execution/riscv_compliance ARCH=rv32imc TEST=C-SW
 execution/riscv_compliance ARCH=rv32imc TEST=C-SWSP
 execution/riscv_compliance ARCH=rv32imc TEST=C-XOR
 
+# RV32IM tests (*do* use M extension)
+
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=DIV
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=DIVU
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=REM
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=REMU
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=MUL
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=MULH
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=MULHU
+execution/riscv_compliance ARCH=rv32im MARCH=rv32imc TEST=MULHSU
+
+
 # System-level software tests
 
 system TEST=helloworld
