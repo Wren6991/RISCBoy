@@ -1,109 +1,82 @@
 Processor:
-  ✔ Implement RVFI for use with riscv-formal @done (19-04-29 18:55)
-  ✔ Work through riscv-formal tests and fix all the bugs that crop up. Do a detailed writeup. @done (19-04-29 18:55)
+  ✔ Add exceptions @done (20-02-25 23:57)
+    ✘ CSR for unaligned info? @cancelled (20-02-25 23:57)
+    ☐ Non-returning hardfault exception for e.g. exception during exception
+  ☐ Compliant debug support (must run with upstream openocd)
+  ☐ Support for M extension
+    ✔ Create divide/multiply circuit @done (20-02-26 00:00)
+    ☐ Integrate into pipeline, pass compliance tests
+    ☐ Kill ongoing div/mul on IRQ raise
+    ☐ Fuse MULH/MUL and DIV/REM sequences
+  ☐ Support two-bus-master variant
+    ☐ Write separate top levels for 1mst and 2mst
+    ☐ Bring up compliance tests on 2mst
+    ☐ Bring up riscv-formal on 2mst
+    ☐ Yosys synth check for through-paths between the two busmasters
   ☐ Integrate riscv-formal into regressions, perhaps optionally.
-  ☐ Why does float printf still not work :D
-    Everything else I try seems to pass!
-    There are some questionable things in the code, e.g. performing a 
-    sh on some address, and an lw immediately afterward, which
-    causes Xs to get written to register file. Definitely needs investigation.
-  ✔ Fix this: @done (19-04-19 03:53)
-    Currently early jumps are performed whenever the CIR contains a valid JAL or backward branch. This interacts poorly with X's stall logic: if X is stalled AND the jump request goes through (jump requests can be accepted whilst hready is low; just goes into fetch counter and subsequent cycles perform normal fetch attempts from the now registered jump target) then the CIR will be clobbered. This is an issue for JALR, which will lose its side effects, and is particularly an issue for branch mispredicts.
-    Trying to hold off the jump requst using X's stall signal seems a no-go, because this is a function of hready, and we've just created a path from this to haddr etc.
-    A different solution is to somehow protect the CIR so that the instruction currently in D will eventually progress down the pipeline and have its intended side effect. Should use this same protection signal to gate the jump request. The frontend can still be fetching during this time, but the data will just stack up in the FIFO.
-    Note this also enables an optimisation floated a while back which saves a cycle when a load/store is followed by a branch/JAL: boost the priority of early jump accesses over load/store accesses. Jumps create a fetch bubble due to pipelined bus operation, but if the jump access occurs before that of a load/store occupying X, the load/store address phase will be aligned with the fetch bubble, and fill it. When this happens the jump is still sitting in D, but its jumpiness has been defused, and it will meekly follow the load/store down the pipeline to produce its secondary side effect.
-    -> Fixed by CIR locking mechanism.
-  ✔ Stick some traffic generation into the execution tb so that stall logic can be stressed a little. Separately re-run the compliance tests with this enabled. @done (19-04-19 03:54)
-  ✔ Factor out decode to separate module @done (18-11-30 08:31)
   ☐ Iterate on decode synths to try and pack gates down
     Still an open issue. Have investigated the instruction decompressor and it's no larger than the crazy hand-Espresso'd one in SWeRV. Rest of decode potentially still has some savings in the non-RV-specific parts.
-  ☐ Identify other sources of high gate count
-    ✔ ALU: shared adder for add sub, and LT/LTU changes this necessitates @done (18-11-30 08:31)
-    ✔ Is the jump target adder in X really necessary? For JALR we can use the ALU. For branches it's PC-relative, so could be computed in D (and we are probably already computing this.) @done (19-04-19 03:55)
-    Did this optimisation. It's not a *huge* win due to the extra muxes inserted, but still a win.
-  ☐ Add exceptions
-    ☐ CSR for unaligned info?
-    ☐ Non-returning hardfault exception for e.g. exception during exception
-  ☐ Consider adding debug
-  ☐ Consider hardware unaligned load/store support
-    (e.g. perform just byte accesses; just has to be better than software).
   ☐ Port more advanced/larger C testcases
-  ✘ Investigate negedge read for register file to improve timing @cancelled (19-04-29 18:57)
-    On hold at the moment; this is not on the critical path on iCE40.
-  ☐ Consider a generic extension interface which could also be used by M extension
-    Have some thinkings/scratchings in the documentation
-  ☐ Support for M extension, potentially trap for divides
-  ☐ Add CSR support, with parameters to disable. @low
-    Low priority. None of our software will care about CSRs,
-    except perhaps for some nonstandard exception info.
+  ☐ Identify other sources of high gate count
+
 
 Graphics:
-  ☐ Set target gate count
-  ☐ Set target features
-  ☐ Consider memory writeback for compositing multiple layers
-  ☐ Consider mode7-esque
-  ☐ Consider pixel modes
-  ☐ Design display interface: a FIFO to shove pixels into, and maybe expose a command interface (or maybe just bitbang this)
-  ☐ Bring up an ILI9341 display in bitbanged mode for proof of concept/future reference
 
 DMA:
-  ☐ Spec it!
+  ✘ Spec it! @cancelled (20-02-26 00:06)
+  Not going to have room for a DMA. Processor memcpy is reasonably fast. Realistically we are already bottlenecked on external SRAM.
 
 Other Chip:
-  ✔ Proper async SRAM controller @done (19-04-19 03:48)
-    After some thinking, this seems to break down into two parts;
-    ✔ A simple async sram controller where the SRAM width is the same as the data bus width @done (19-04-19 03:47)
-    ✘ A generic AHB-lite narrower that translates wide transactions on one bus into multiple transactions on another bus @cancelled (19-04-19 03:47)
-    Decided not to do this as 2:1 ratio has special properties (e.g. ability to double-pump reads) so not much use in a fully generic solution at the moment
-  ✔ Remove wait states from sync SRAM controller @done (19-04-19 03:48)
-  ☐ Support bursts in AHB-lite fabric
   ☐ More aggressive busfabric verification (UVM? Formal?)
-  ☐ Support partial crossbars in ahbl_crossbar
-  ☐ GPIO: multiple-pad peripheral inputs
-    (not totally critical for this project)
-  ✘ SD controller @cancelled (19-04-19 03:49)
-    Can be a simple SPI, or more sophisticated e.g. some kind of XIP with cache,
-    or manual paging into internal buffers which can then be random-accessed,
-    or protocol-oriented but with FIFO interface rather than internal buffers
-    (i.e. optimised for streaming into main memory)
-    update: removing SD card; want to keep board simple and low-BoM-cost. Will use a large (Q)SPI flash, and use sw bootloader on the FPGA to update this over UART shell, kind of like Arduino. Bitstream and user programs stored in same flash.
   ☐ Audio
     Initially, some FIFOs and simple PWM.
     Can then add e.g. interpolator and improved modulation. Not critical.
 
 PCB:
-  ✔ FPGA config: check whether it's feasible for ATXMega32a4u to stream from SD card to FPGA slave config port (minimal part count) @done (18-11-23 00:43)
-      Details: probably not. USB pins are shared with one of the SPIs,
-      so one of the interfaces would be bitbashed. iCE40 configuration guide
-      says the cfg slave needs to be clocked at 1...25 MHz "without interruption".
-      Decided to use a different micro: SAML22G18A. This has USB, and also has sufficient
-      program storage to hold the bitstream.
-  ✘ Find example code for SAML22G18A USB-UART bridge @cancelled (19-04-19 03:56)
-    Nah, just use a CP2102 USB-UART bridge. The SAML22G18A no longer makes much sense after removing the SD card, and the iCE40 slave config mode seems flakey in general; caused some issues during Rev A board bringup, never got BRAMs correctly initialised.
-  ✘ Write simple block-oriented SD read/write code for Atmel and expose this over USB @cancelled (19-04-19 03:57)
-  ✔ Hazard5 bootloader: load 2nd stage from SD card into memory and execute it @done (19-04-19 03:57)
-    Can read/write SPI flash through a UART shell ala Arduino, and then load code from flash into external SRAM, and execute it.
-  ✔ Initial PCB layout @done (18-11-30 08:32)
-  ✔ Final review of schematic + PCB before sending to iTead @done (18-11-30 20:02)
-    Found a couple of silkscreen issues, and a keepout issue under the SD card. Fixed and shipped :)
+  ☐ Suitable power domain crossing to allow CP2102 to be unpowered while RISCBoy is running from battery (sucks down many mA)
 
-CPU Synth Results:
-  This isn't a todo list, it's just for me to start keeping track. Results are cells (LUT4 + DFF + CARRY + BRAM). Number of iCE40 logic cells occupied should be lower due to colocation after place + route.
-  - acc080a: 2870 
-      Old frontend, as close to working as it got. Note that this checkout needs to be modified to get this result: RESET_REGS needs to be set to 0 on the register file, else it will be synthesised as discrete flops, which ~doubles the size of the processor.
-  - 0da3761: 2765
-      new frontend, nearly working
-  - 4e8c3bb: 2856
-      This commit fixed some AHB assumptions wrt the alignment of sub-word data on the databus. Seems to have added some extra muxing, although the difference is larger than I'd expect.
-  - a6ed35f: 2676
-      Write M result directly to register file; simplify bypass network as a result
-  - e7b46aa: 2681
-    Some minor fixes following porting some RISC-V compliance tests. These should have been fairly logic-neutral.
-  - 9744864: 2678
-    At this point, all the RV32IC-relevant compliance tests run, apart from knowingly unsupported i.e. CSR, unaligned load/store, ECALL/EBREAK. Most recent change was correct C.LUI to be sign-extended.
-  - 01916d8e: 2483
-    Following ALU optimisations and some smaller changes. Also a few percent faster.
-  - fdbf9033: 2504
-    After running riscv-formal, tweaked decode to make all reserved/NSE/illegal opcodes NOP + exception, which cost some LUTs.
-  - e7246d0: 2462
-    Realised the bitwise ops can be implemented at 1 LUT/bit total if they're pulled out of the ALU's main mux tree
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+ ✘ Support bursts in AHB-lite fabric @cancelled (20-02-26 00:07) @project(Other Chip)
+  Useful for later projects with caches + SDRAM, not for this one.
+ ✘ GPIO: multiple-pad peripheral inputs @cancelled (20-02-26 00:07) @project(Other Chip)
+  (not totally critical for this project)
+ ✔ Support partial crossbars in ahbl_crossbar @done (20-02-26 00:07) @project(Other Chip)
+ ✔ Bootloader supportingflash erase/program via UART @done (20-02-26 00:05) @project(PCB)
+ ✘ Consider hardware unaligned load/store support @cancelled (20-02-25 23:58) @project(Processor)
+  (e.g. perform just byte accesses; just has to be better than software).
+ ✘ Consider a generic extension interface which could also be used by M extension @cancelled (20-02-25 23:58) @project(Processor)
+  YAGNI
+ ✔ Add CSR support, with parameters to disable. @low @done (20-02-25 23:58) @project(Processor)
+ ✔ Why does float printf still not work :D @done (20-02-25 23:57) @project(Processor)
+  Everything else I try seems to pass!
+  There are some questionable things in the code, e.g. performing a 
+  sh on some address, and an lw immediately afterward, which
+  causes Xs to get written to register file. Definitely needs investigation.
+ ✘ Investigate negedge read for register file to improve timing @cancelled (19-04-29 18:57) @project(Processor)
+  On hold at the moment; this is not on the critical path on iCE40.
+ ✔ Work through riscv-formal tests and fix all the bugs that crop up. Do a detailed writeup. @done (19-04-29 18:55) @project(Processor)
+ ✔ Implement RVFI for use with riscv-formal @done (19-04-29 18:55) @project(Processor)
+ ✔ Is the jump target adder in X really necessary? For JALR we can use the ALU. For branches it's PC-relative, so could be computed in D (and we are probably already computing this.) @done (19-04-19 03:55) @project(Processor)
+  Did this optimisation. It's not a *huge* win due to the extra muxes inserted, but still a win.
+ ✔ Stick some traffic generation into the execution tb so that stall logic can be stressed a little. Separately re-run the compliance tests with this enabled. @done (19-04-19 03:54) @project(Processor)
+ ✔ Fix this: @done (19-04-19 03:53) @project(Processor)
+  Currently early jumps are performed whenever the CIR contains a valid JAL or backward branch. This interacts poorly with X's stall logic: if X is stalled AND the jump request goes through (jump requests can be accepted whilst hready is low; just goes into fetch counter and subsequent cycles perform normal fetch attempts from the now registered jump target) then the CIR will be clobbered. This is an issue for JALR, which will lose its side effects, and is particularly an issue for branch mispredicts.
+  Trying to hold off the jump requst using X's stall signal seems a no-go, because this is a function of hready, and we've just created a path from this to haddr etc.
+  A different solution is to somehow protect the CIR so that the instruction currently in D will eventually progress down the pipeline and have its intended side effect. Should use this same protection signal to gate the jump request. The frontend can still be fetching during this time, but the data will just stack up in the FIFO.
+  Note this also enables an optimisation floated a while back which saves a cycle when a load/store is followed by a branch/JAL: boost the priority of early jump accesses over load/store accesses. Jumps create a fetch bubble due to pipelined bus operation, but if the jump access occurs before that of a load/store occupying X, the load/store address phase will be aligned with the fetch bubble, and fill it. When this happens the jump is still sitting in D, but its jumpiness has been defused, and it will meekly follow the load/store down the pipeline to produce its secondary side effect.
+  Fixed by CIR locking mechanism.
+ ✘ SD controller @cancelled (19-04-19 03:49) @project(Other Chip)
+  Can be a simple SPI, or more sophisticated e.g. some kind of XIP with cache,
+  or manual paging into internal buffers which can then be random-accessed,
+  or protocol-oriented but with FIFO interface rather than internal buffers
+  (i.e. optimised for streaming into main memory)
+  update: removing SD card; want to keep board simple and low-BoM-cost. Will use a large (Q)SPI flash, and use sw bootloader on the FPGA to update this over UART shell, kind of like Arduino. Bitstream and user programs stored in same flash.
+ ✔ Remove wait states from sync SRAM controller @done (19-04-19 03:48) @project(Other Chip)
+ ✔ Proper async SRAM controller @done (19-04-19 03:48) @project(Other Chip)
+  After some thinking, this seems to break down into two parts;
+ ✘ A generic AHB-lite narrower that translates wide transactions on one bus into multiple transactions on another bus @cancelled (19-04-19 03:47) @project(Other Chip)
+  Decided not to do this as 2:1 ratio has special properties (e.g. ability to double-pump reads) so not much use in a fully generic solution at the moment
+ ✔ A simple async sram controller where the SRAM width is the same as the data bus width @done (19-04-19 03:47) @project(Other Chip)
+ ✔ Factor out decode to separate module @done (18-11-30 08:31) @project(Processor)
+ ✔ ALU: shared adder for add sub, and LT/LTU changes this necessitates @done (18-11-30 08:31) @project(Processor)
