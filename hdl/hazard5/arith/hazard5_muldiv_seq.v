@@ -136,8 +136,8 @@ localparam CTR_TOP = XLEN[W_CTR-1:0];
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		ctr <= {W_CTR{1'b0}};
-		sign_preadj_done <= 1'b0;
-		sign_postadj_done <= 1'b0;
+		sign_preadj_done <= 1'b1;
+		sign_postadj_done <= 1'b1;
 		sign_postadj_carry <= 1'b0;
 		op_r <= {W_MULOP{1'b0}};
 		op_a_neg_r <= 1'b0;
@@ -224,5 +224,52 @@ assign {accum_incr_h, accum_inv_h} =
 assign {result_h, result_l} = accum;
 assign op_rdy = ~|{ctr, accum_neg_l, accum_incr_h, accum_inv_h};
 assign result_vld = op_rdy;
+
+`ifdef FORMAL
+
+always @ (posedge clk) if ($past(!(op_vld && op_rdy))) assert(op_rdy);
+
+always @ (posedge clk) if (result_vld && $past(result_vld)) assert($stable({result_h, result_l}));
+
+always @ (posedge clk) assert(
+	result_vld || // TODO ugh
+	$past(result_vld, 1) ||
+	$past(result_vld, 2) ||
+	$past(result_vld, 3) ||
+	$past(result_vld, 4) ||
+	$past(result_vld, 5) ||
+	$past(result_vld, 6) ||
+	$past(result_vld, 7) ||
+	$past(result_vld, 8) ||
+	$past(result_vld, 9) ||
+	$past(result_vld, 10) ||
+	$past(result_vld, 11) ||
+	$past(result_vld, 12) ||
+	$past(result_vld, 13) ||
+	$past(result_vld, 14) ||
+	$past(result_vld, 15) ||
+	$past(result_vld, 16) ||
+	$past(result_vld, 17) ||
+	$past(result_vld, 18) ||
+	$past(result_vld, 19) ||
+	$past(result_vld, 20) ||
+	$past(result_vld, 21) ||
+	$past(result_vld, 22) ||
+	$past(result_vld, 23) ||
+	$past(result_vld, 24) ||
+	$past(result_vld, 25) ||
+	$past(result_vld, 26) ||
+	$past(result_vld, 27) ||
+	$past(result_vld, 28) ||
+	$past(result_vld, 29) ||
+	$past(result_vld, 30) ||
+	$past(result_vld, 31) ||
+	$past(result_vld, 33) ||
+	$past(result_vld, 34) ||
+	$past(result_vld, 35) ||
+	$past(result_vld, 36) ||
+	$past(result_vld, 37)
+);
+`endif
 
 endmodule
