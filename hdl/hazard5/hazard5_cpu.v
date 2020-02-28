@@ -299,6 +299,7 @@ hazard5_decode #(
 	.dx_alusrc_b           (dx_alusrc_b),
 	.dx_aluop              (dx_aluop),
 	.dx_memop              (dx_memop),
+	.dx_mulop              (dx_mulop),
 	.dx_csr_ren            (dx_csr_ren),
 	.dx_csr_wen            (dx_csr_wen),
 	.dx_csr_wtype          (dx_csr_wtype),
@@ -358,7 +359,7 @@ wire [W_ADDR-1:0] x_jump_target =
 	                                              x_taken_jump_target;
 
 reg x_stall_raw;
-reg x_stall_muldiv;
+wire x_stall_muldiv;
 
 assign x_stall = m_stall ||
 	x_stall_raw || x_stall_muldiv || ahb_req_d && !(ahb_gnt_d && ahblm_hready);
@@ -454,7 +455,7 @@ hazard5_csr #(
 	.CSR_M_TRAP      (CSR_M_TRAP),
 	.CSR_COUNTER     (CSR_COUNTER),
 	.EXTENSION_C     (EXTENSION_C),
-	.EXTENSION_M     (0)
+	.EXTENSION_M     (EXTENSION_M)
 ) inst_hazard5_csr (
 	.clk                     (clk),
 	.rst_n                   (rst_n),
@@ -510,7 +511,7 @@ if (EXTENSION_M) begin: has_muldiv
 		else
 			x_muldiv_posted <= (x_muldiv_posted || (x_muldiv_op_vld && x_muldiv_op_rdy)) && x_stall;
 
-	assign x_muldiv_op_vld = dx_aluop == ALUOP_MULDIV && !x_muldiv_posted;
+	assign x_muldiv_op_vld = dx_aluop == ALUOP_MULDIV && !x_muldiv_posted && !x_stall_raw;
 
 	hazard5_muldiv_seq #(
 		.XLEN   (W_DATA),
@@ -539,14 +540,18 @@ if (EXTENSION_M) begin: has_muldiv
 		dx_mulop == M_OP_REMU;
 	assign x_muldiv_result = x_muldiv_result_is_high ? x_muldiv_result_h : x_muldiv_result_l;
 
-	always @ (*) x_stall_muldiv = x_muldiv_op_vld || !x_muldiv_result_vld;
+	assign x_stall_muldiv = x_muldiv_op_vld || !x_muldiv_result_vld;
+
+`ifdef FORMAL
+	always @ (posedge clk) if (dx_aluop != ALUOP_MULDIV) assert(!x_stall_muldiv);
+`endif
 
 end else begin: no_muldiv
 
 	assign x_muldiv_result = {W_DATA{1'b0}};
 	assign x_muldiv_result_vld = 1'b1;
 
-	always @ (*) x_stall_muldiv = 1'b0;
+	assign x_stall_muldiv = 1'b0;
 
 end
 endgenerate
