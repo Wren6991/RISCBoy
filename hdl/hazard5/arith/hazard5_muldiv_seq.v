@@ -221,13 +221,51 @@ assign {accum_incr_h, accum_inv_h} =
 // ----------------------------------------------------------------------------
 // Outputs
 
-assign {result_h, result_l} = accum;
 assign op_rdy = ~|{ctr, accum_neg_l, accum_incr_h, accum_inv_h};
 assign result_vld = op_rdy;
 
+`ifndef RISCV_FORMAL_ALTOPS
+
+assign {result_h, result_l} = accum;
+
+`else
+
+// Provide arithmetically simpler alternative operations, to speed up formal checks
+always assert(XLEN == 32); // TODO may care about this one day
+
+reg [XLEN-1:0] fml_a_saved;
+reg [XLEN-1:0] fml_b_saved;
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		fml_a_saved <= {XLEN{1'b0}};
+		fml_b_saved <= {XLEN{1'b0}};
+	end else if (op_vld && op_rdy) begin
+		fml_a_saved <= op_a;
+		fml_b_saved <= op_b;
+	end
+end
+
+assign result_h =
+	op_r == M_OP_MULH   ? (fml_a_saved + fml_b_saved) ^ 32'hf6583fb7 :
+	op_r == M_OP_MULHSU ? (fml_a_saved - fml_b_saved) ^ 32'hecfbe137 :
+	op_r == M_OP_MULHU  ? (fml_a_saved + fml_b_saved) ^ 32'h949ce5e8 :
+	op_r == M_OP_REM    ? (fml_a_saved - fml_b_saved) ^ 32'h8da68fa5 :
+	op_r == M_OP_REMU   ? (fml_a_saved - fml_b_saved) ^ 32'h3138d0e1 : 32'hdeadbeef;
+
+assign result_l =
+	op_r == M_OP_MUL    ? (fml_a_saved + fml_b_saved) ^ 32'h5876063e :
+	op_r == M_OP_DIV    ? (fml_a_saved - fml_b_saved) ^ 32'h7f8529ec :
+	op_r == M_OP_DIVU   ? (fml_a_saved - fml_b_saved) ^ 32'h10e8fd70 : 32'hdeadbeef;
+
+`endif
+
+// ----------------------------------------------------------------------------
+// Interface properties
+
 `ifdef FORMAL
 
-always @ (posedge clk) if ($past(!(op_vld && op_rdy))) assert(op_rdy);
+always @ (posedge clk) if ($past(op_rdy && !op_vld)) assert(op_rdy);
 
 always @ (posedge clk) if (result_vld && $past(result_vld)) assert($stable({result_h, result_l}));
 
@@ -270,6 +308,7 @@ always @ (posedge clk) assert(
 	$past(result_vld, 36) ||
 	$past(result_vld, 37)
 );
+
 `endif
 
 endmodule
