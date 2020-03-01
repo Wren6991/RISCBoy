@@ -62,6 +62,11 @@ always @ (posedge clk or negedge rst_n) begin
 		rvfi_valid_r <= rvfm_m_valid && !m_stall;
 		rvfi_insn_r <= rvfm_m_instr;
 		rvfi_trap_r <= rvfm_m_trap; // || m_except_bus_fault;
+		// Sanity checks
+		if (dx_rd != 5'h0)
+			assert(rvfm_x_valid);
+		if (xm_rd != 5'h0)
+			assert(rvfm_m_valid);
 	end
 end
 
