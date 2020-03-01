@@ -306,6 +306,26 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_jump_is_regoffs <= 1'b0;
 		dx_result_is_linkaddr <= 1'b0;
 		dx_except <= EXCEPT_NONE;
+	end else if (flush_d_x || (d_stall && !x_stall)) begin
+		// Bubble insertion
+		dx_branchcond <= BCOND_NEVER;
+		dx_memop <= MEMOP_NONE;
+		dx_rd <= 5'h0;
+		dx_except <= EXCEPT_NONE;
+		dx_csr_ren <= 1'b0;
+		dx_csr_wen <= 1'b0;
+		// Don't start a multiply in a pipe bubble
+		if (EXTENSION_M)
+			dx_aluop <= ALUOP_ADD;
+		// Also need to clear rs1, rs2, due to a nasty sequence of events:
+		// Suppose we have a load, followed by a dependent branch, which is predicted taken
+		// - branch will stall in D until AHB master becomes free
+		// - on next cycle, prediction causes jump, and bubble is in X
+		// - if X gets branch's rs1, rs2, it will cause spurious RAW stall
+		// - on next cycle, branch will not progress into X due to RAW stall, but *will* be replaced in D due to jump
+		// - branch mispredict now cannot be corrected
+		dx_rs1 <= 5'h0;
+		dx_rs2 <= 5'h0;
 	end else if (!x_stall) begin
 		// These ones can have side effects
 		dx_rs1        <= d_invalid ? {W_REGADDR{1'b0}}    : d_rs1;
@@ -326,28 +346,6 @@ always @ (posedge clk or negedge rst_n) begin
 		dx_result_is_linkaddr <= d_result_is_linkaddr;
 		dx_csr_wtype <= d_csr_wtype;
 		dx_csr_w_imm <= d_csr_w_imm;
-
-		// Bubble insertion
-		if (d_stall || flush_d_x) begin
-			dx_branchcond <= BCOND_NEVER;
-			dx_memop <= MEMOP_NONE;
-			dx_rd <= 5'h0;
-			dx_except <= EXCEPT_NONE;
-			dx_csr_ren <= 1'b0;
-			dx_csr_wen <= 1'b0;
-			// Don't start a multiply in a pipe bubble
-			if (EXTENSION_M)
-				dx_aluop <= ALUOP_ADD;
-			// Also need to clear rs1, rs2, due to a nasty sequence of events:
-			// Suppose we have a load, followed by a dependent branch, which is predicted taken
-			// - branch will stall in D until AHB master becomes free
-			// - on next cycle, prediction causes jump, and bubble is in X
-			// - if X gets branch's rs1, rs2, it will cause spurious RAW stall
-			// - on next cycle, branch will not progress into X due to RAW stall, but *will* be replaced in D due to jump
-			// - branch mispredict now cannot be corrected
-			dx_rs1 <= 5'h0;
-			dx_rs2 <= 5'h0;
-		end
 	end
 end
 
