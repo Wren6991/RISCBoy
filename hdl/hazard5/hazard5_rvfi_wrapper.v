@@ -26,17 +26,24 @@ always @ (posedge clock)
 		assume(hready);
 
 // Handling of bus faults is not tested
-always assume(!hresp);
+// always assume(!hresp);
 
-`ifdef MEMIO_FAIRNESS
-always @ (posedge clock)
-	assume(|{
-		hready,
-		$past(hready, 1),
-		$past(hready, 2),
-		$past(hready, 3),
-		$past(hready, 4)
-	});
+`ifdef RISCV_FORMAL_FAIRNESS
+
+reg [7:0] bus_fairness_ctr;
+localparam MAX_STALL_LENGTH = 8;
+
+always @ (posedge clock) begin
+	if (reset)
+		bus_fairness_ctr <= 8'h0;
+	else if (hready)
+		bus_fairness_ctr <= 8'h0;
+	else
+		bus_fairness_ctr <= bus_fairness_ctr + ~&bus_fairness_ctr;
+
+	assume(bus_fairness_ctr <= MAX_STALL_LENGTH);
+end
+
 `endif
 
 // ----------------------------------------------------------------------------
@@ -44,8 +51,9 @@ always @ (posedge clock)
 // ----------------------------------------------------------------------------
 
 hazard5_cpu #(
-	.RESET_VECTOR(0),
-	.EXTENSION_C(1)
+	.RESET_VECTOR (0),
+	.EXTENSION_C  (1),
+	.EXTENSION_M  (1)
 ) dut (
 	.clk             (clock),
 	.rst_n           (!reset),

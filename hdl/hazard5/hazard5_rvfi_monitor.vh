@@ -75,7 +75,8 @@ always @ (posedge clk or negedge rst_n)
 		rvfm_retire_ctr <= rvfm_retire_ctr + 1;
 
 assign rvfi_mode = 2'h3; // M-mode only
-assign rvfi_intr = 1'b0; // TODO
+assign rvfi_intr = 1'b0; // TODO (seems riscv-formal ignores this right now anyway)
+assign rvfi_halt = 1'b0; // TODO
 
 // ----------------------------------------------------------------------------
 // PC and jump monitor
