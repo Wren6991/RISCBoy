@@ -441,8 +441,12 @@ end
 wire   x_except_ecall         = dx_except == EXCEPT_ECALL;
 wire   x_except_breakpoint    = dx_except == EXCEPT_EBREAK;
 wire   x_except_invalid_instr = dx_except == EXCEPT_INSTR_ILLEGAL;
-assign x_trap_exit            = dx_except == EXCEPT_MRET;
 wire   x_trap_enter_rdy       = !(x_stall || m_jump_req);
+assign x_trap_exit            = dx_except == EXCEPT_MRET && x_trap_enter_rdy;
+
+`ifdef FORMAL
+always @ (posedge clk) if (flush_d_x) assert(!x_trap_enter_rdy);
+`endif
 
 wire [W_DATA-1:0] x_csr_wdata = dx_csr_w_imm ?
 	{{W_DATA-5{1'b0}}, dx_rs1} : x_rs1_bypass;
@@ -465,11 +469,11 @@ hazard5_csr #(
 	.addr                    (dx_imm[11:0]),
 	.wdata                   (x_csr_wdata),
 	.wen_soon                (dx_csr_wen),
-	.wen                     (dx_csr_wen && !x_stall),
+	.wen                     (dx_csr_wen && !(x_stall || flush_d_x)),
 	.wtype                   (dx_csr_wtype),
 	.rdata                   (x_csr_rdata),
 	.ren_soon                (dx_csr_ren),
-	.ren                     (dx_csr_ren && !x_stall),
+	.ren                     (dx_csr_ren && !(x_stall || flush_d_x)),
 	// Trap signalling
 	.trap_addr               (x_trap_addr),
 	.trap_enter_vld          (x_trap_enter),
@@ -511,23 +515,25 @@ if (EXTENSION_M) begin: has_muldiv
 		else
 			x_muldiv_posted <= (x_muldiv_posted || (x_muldiv_op_vld && x_muldiv_op_rdy)) && x_stall;
 
-	assign x_muldiv_op_vld = dx_aluop == ALUOP_MULDIV && !x_muldiv_posted && !x_stall_raw;
+	wire x_muldiv_kill = flush_d_x || x_trap_enter; // TODO this takes an extra cycle to kill muldiv before trap entry
+	assign x_muldiv_op_vld = dx_aluop == ALUOP_MULDIV && !x_muldiv_posted
+		&& !x_stall_raw && !x_muldiv_kill;
 
 	hazard5_muldiv_seq #(
 		.XLEN   (W_DATA),
 		.UNROLL (MULDIV_UNROLL)
 	) muldiv (
-		.clk (clk),
-		.rst_n (rst_n),
-		.op (dx_mulop),
-		.op_vld (x_muldiv_op_vld),
-		.op_rdy (x_muldiv_op_rdy),
-		.op_kill (1'b0), // TODO kill on trap entry
-		.op_a (x_rs1_bypass),
-		.op_b (x_rs2_bypass),
+		.clk        (clk),
+		.rst_n      (rst_n),
+		.op         (dx_mulop),
+		.op_vld     (x_muldiv_op_vld),
+		.op_rdy     (x_muldiv_op_rdy),
+		.op_kill    (x_muldiv_kill),
+		.op_a       (x_rs1_bypass),
+		.op_b       (x_rs2_bypass),
 
-		.result_h (x_muldiv_result_h),
-		.result_l (x_muldiv_result_l),
+		.result_h   (x_muldiv_result_h),
+		.result_l   (x_muldiv_result_l),
 		.result_vld (x_muldiv_result_vld)
 	);
 
@@ -539,7 +545,6 @@ if (EXTENSION_M) begin: has_muldiv
 		dx_mulop == M_OP_REM ||
 		dx_mulop == M_OP_REMU;
 	assign x_muldiv_result = x_muldiv_result_is_high ? x_muldiv_result_h : x_muldiv_result_l;
-
 	assign x_stall_muldiv = x_muldiv_op_vld || !x_muldiv_result_vld;
 
 `ifdef FORMAL
