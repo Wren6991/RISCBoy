@@ -355,9 +355,19 @@ always @ (posedge clk) begin
 		dx_imm <= d_imm;
 		dx_jump_target <= d_jump_target;
 		dx_mispredict_addr <= pc_next;
-		// The target of a late jump must be propagated *immediately* to X PC, as mepc may
-		// sample X PC at any time due to IRQ, and must not capture misprediction.
-		dx_pc <= flush_d_x && f_jump_now ? f_jump_target : pc;
+		dx_pc <= pc;
+	end
+	if (flush_d_x) begin
+		// The target of a late jump must be propagated *immediately* to X PC, as
+		// mepc may sample X PC at any time due to IRQ, and must not capture
+		// misprediction.
+		// Also required for flush while X stalled (e.g. if a muldiv enters X while
+		// a 1 cycle bus stall holds off the jump request in M)
+		dx_pc <= f_jump_target;
+		`ifdef FORMAL
+		// This should only be caused by late jumps
+		assert(f_jump_now);
+		`endif
 	end
 end
 
