@@ -20,7 +20,7 @@ reg rvfm_x_valid, rvfm_m_valid;
 reg [31:0] rvfm_x_instr;
 reg [31:0] rvfm_m_instr;
 
-wire rvfm_x_trap = x_except_invalid_instr || x_except_breakpoint || x_except_load_misaligned || x_except_store_misaligned || x_except_ecall;
+wire rvfm_x_trap = x_trap_is_exception && x_trap_enter;
 reg rvfm_m_trap;
 
 reg        rvfi_valid_r;
