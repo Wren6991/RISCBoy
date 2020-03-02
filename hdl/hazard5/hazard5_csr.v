@@ -70,6 +70,7 @@ module hazard5_csr #(
 	output wire            trap_enter_vld,
 	input  wire            trap_enter_rdy,
 	input  wire            trap_exit,
+	output wire            trap_is_exception, // diagnostic
 	output wire [XLEN-1:0] mepc_in,
 	output wire [XLEN-1:0] mepc_out,
 
@@ -742,8 +743,27 @@ wire [11:0] mtvec_offs = (exception_req_any ?
 
 assign trap_addr = mtvec | mtvec_offs;
 assign trap_enter_vld = CSR_M_TRAP && (exception_req_any || irq_any);
+assign trap_is_exception = exception_req_any;
 
 assign mcause_irq_next = !exception_req_any;
 assign mcause_code_next = exception_req_any ? exception_req_num : irq_num;
+
+// ----------------------------------------------------------------------------
+
+`ifdef RISCV_FORMAL
+always @ (posedge clk) begin
+	// Something is screwed up if this happens
+	if ($past(trap_enter_vld && trap_enter_rdy))
+		assert(!wen);
+	// Don't do this
+	assert(!(trap_enter_vld && trap_enter_rdy && trap_exit));
+	// Should be impossible to get into the trap and exit it so quickly:
+	if (in_trap && !$past(in_trap))
+		assert(!trap_exit);
+	// Should be impossible to get to another mret so soon after exiting:
+	assert(!(trap_exit && $past(trap_exit)));
+end
+
+`endif
 
 endmodule

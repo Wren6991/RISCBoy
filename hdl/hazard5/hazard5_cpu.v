@@ -353,8 +353,8 @@ reg  [W_MEMOP-1:0]   xm_memop;
 // For JALR, the LSB of the result must be cleared by hardware
 wire [W_ADDR-1:0] x_taken_jump_target = dx_jump_is_regoffs ? x_alu_add & ~32'h1 : dx_jump_target;
 wire [W_ADDR-1:0] x_jump_target =
+	x_trap_exit                                 ? x_mepc             : // Note precedence -- it's possible to have enter && exit, but in this case enter_rdy is false.
 	x_trap_enter                                ? x_trap_addr        :
-	x_trap_exit                                 ? x_mepc             :
 	dx_imm[31] && dx_branchcond != BCOND_ALWAYS ? dx_mispredict_addr :
 	                                              x_taken_jump_target;
 
@@ -401,7 +401,7 @@ always @ (*) begin
 		MEMOP_SH:  ahb_hsize_d = HSIZE_HWORD;
 		default:   ahb_hsize_d = HSIZE_BYTE;
 	endcase
-	ahb_req_d = x_memop_vld && !x_stall_raw && !flush_d_x && !x_trap_enter;
+	ahb_req_d = x_memop_vld && !(x_stall_raw || flush_d_x || x_trap_enter);
 end
 
 // ALU operand muxes and bypass
@@ -441,11 +441,17 @@ end
 wire   x_except_ecall         = dx_except == EXCEPT_ECALL;
 wire   x_except_breakpoint    = dx_except == EXCEPT_EBREAK;
 wire   x_except_invalid_instr = dx_except == EXCEPT_INSTR_ILLEGAL;
-wire   x_trap_enter_rdy       = !(x_stall || m_jump_req);
-assign x_trap_exit            = dx_except == EXCEPT_MRET && x_trap_enter_rdy;
+assign x_trap_exit            = dx_except == EXCEPT_MRET && !(x_stall || m_jump_req);
+wire   x_trap_enter_rdy       = !(x_stall || m_jump_req || x_trap_exit);
+wire   x_trap_is_exception; // diagnostic
 
 `ifdef FORMAL
-always @ (posedge clk) if (flush_d_x) assert(!x_trap_enter_rdy);
+always @ (posedge clk) begin
+	if (flush_d_x)
+		assert(!x_trap_enter_rdy);
+	if (x_trap_exit)
+		assert(!ahb_req_d);
+end
 `endif
 
 wire [W_DATA-1:0] x_csr_wdata = dx_csr_w_imm ?
@@ -479,6 +485,7 @@ hazard5_csr #(
 	.trap_enter_vld          (x_trap_enter),
 	.trap_enter_rdy          (x_trap_enter_rdy),
 	.trap_exit               (x_trap_exit),
+	.trap_is_exception       (x_trap_is_exception),
 	.mepc_in                 (dx_pc),
 	.mepc_out                (x_mepc),
 	// IRQ and exception requests

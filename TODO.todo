@@ -10,14 +10,18 @@ Processor:
   ☐ Compliant debug support (must run with upstream openocd)
   ☐ Support for M extension
     ✔ Create divide/multiply circuit @done (20-02-26 00:00)
-    ☐ Integrate into pipeline, pass compliance tests
-    ☐ Kill ongoing div/mul on IRQ raise
+    ✔ Integrate into pipeline, pass compliance tests @done (20-02-28 21:05)
+    ✔ Kill ongoing div/mul on IRQ raise @done (20-03-02 00:45)
     ☐ Fuse MULH/MUL and DIV/REM sequences
+    ✔ Get riscv-formal M-extension checks passing with ALTOPS enabled @done (20-03-02 00:44)
+    ☐ Get all riscv-formal rv32imc checks passing with muldiv instantiated
+    ☐ Standalone formal test for mul/div results
   ☐ Support two-bus-master variant
     ☐ Write separate top levels for 1mst and 2mst
     ☐ Bring up compliance tests on 2mst
     ☐ Bring up riscv-formal on 2mst
     ☐ Yosys synth check for through-paths between the two busmasters
+  ☐ Bring up riscv-formal CSR checks
   ☐ Integrate riscv-formal into regressions, perhaps optionally.
   ☐ Iterate on decode synths to try and pack gates down
     Still an open issue. Have investigated the instruction decompressor and it's no larger than the crazy hand-Espresso'd one in SWeRV. Rest of decode potentially still has some savings in the non-RV-specific parts.
