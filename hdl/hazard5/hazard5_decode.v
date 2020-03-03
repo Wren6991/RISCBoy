@@ -94,8 +94,10 @@ assign df_cir_use =
 // Note that it is not possible to simply gate the jump request based on X stalling,
 // because X stall is a function of hready, and jump request feeds haddr htrans etc.
 
-
-wire assert_cir_lock = d_jump_req && f_jump_rdy && d_stall;
+// Note it is possible for d_jump_req and m_jump_req to be asserted
+// simultaneously, hence checking flush:
+wire jump_caused_by_d = d_jump_req && f_jump_rdy && !flush_d_x;
+wire assert_cir_lock = jump_caused_by_d && d_stall;
 wire deassert_cir_lock = !d_stall;
 reg cir_lock_prev;
 
@@ -115,10 +117,16 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		pc <= RESET_VECTOR;
 	end else begin
-		if ((f_jump_now && !assert_cir_lock) || (cir_lock_prev && deassert_cir_lock))
+		if ((f_jump_now && !assert_cir_lock) || (cir_lock_prev && deassert_cir_lock)) begin
 			pc <= f_jump_target;
-		else if (!d_stall && !df_cir_lock)
+`ifdef FORMAL
+			// Being cheeky above to save a 32 bit mux. Check that we never get an M target by mistake.
+			if (cir_lock_prev && deassert_cir_lock)
+				assert(f_jump_target == d_jump_target);
+`endif
+		end else if (!d_stall && !df_cir_lock) begin
 			pc <= pc_next;
+		end
 	end
 end
 
