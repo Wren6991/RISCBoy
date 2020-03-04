@@ -168,7 +168,7 @@ initial begin: stimulus
 		end
 	end
 
-	$display("DIVU + MODU");
+	$display("DIVU + REMU");
 
 
 	for (i = 0; i < TEST_SIZE; i = i + 1) begin
@@ -186,7 +186,7 @@ initial begin: stimulus
 		end
 	end
 
-	$display("DIV + MOD");
+	$display("DIV + REM");
 
 	for (i = 0; i < TEST_SIZE; i = i + 1) begin
 		a_tmp = $random;

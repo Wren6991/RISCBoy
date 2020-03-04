@@ -1,0 +1,73 @@
+[*]
+[*] GTKWave Analyzer v3.3.98 (w)1999-2019 BSI
+[*] Wed Mar  4 01:57:27 2020
+[*]
+[dumpfile] "/home/luke/proj/riscboy/test/hazard5_muldiv_seq_formal/tb.vcd"
+[dumpfile_mtime] "Wed Mar  4 01:53:50 2020"
+[dumpfile_size] 12010
+[savefile] "/home/luke/proj/riscboy/test/hazard5_muldiv_seq_formal/tb.gtkw"
+[timestart] 0
+[size] 1858 1403
+[pos] 651 -51
+*-4.473931 70 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb.
+[treeopen] tb.dut.
+[sst_width] 233
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 423
+@28
+tb.dut.clk
+tb.dut.rst_n
+@200
+-Ports
+@29
+[color] 1
+tb.dut.op_kill
+@28
+tb.dut.op_rdy
+tb.dut.op_vld
+@22
+tb.dut.op_a[31:0]
+tb.dut.op_b[31:0]
+tb.dut.result_h[31:0]
+tb.dut.result_l[31:0]
+@28
+tb.dut.result_vld
+@200
+-Internals
+@22
+tb.dut.accum[63:0]
+@28
+tb.dut.accum_incr_h
+tb.dut.accum_inv_h
+tb.dut.accum_neg_l
+@22
+tb.dut.accum_next[63:0]
+tb.dut.addend[63:0]
+tb.dut.addsub_tmp[63:0]
+tb.dut.ctr[5:0]
+@28
+tb.dut.do_postadj
+tb.dut.is_div
+tb.dut.neg_l_borrow
+tb.dut.op[2:0]
+tb.dut.op_a_neg
+tb.dut.op_a_neg_r
+tb.dut.op_a_signed
+tb.dut.op_b_neg
+tb.dut.op_b_neg_r
+@22
+tb.dut.op_b_r[31:0]
+@28
+tb.dut.op_b_signed
+tb.dut.op_r[2:0]
+tb.dut.op_signs_differ
+@22
+tb.dut.shift_tmp[63:0]
+@28
+tb.dut.sign_postadj_carry
+tb.dut.sign_postadj_done
+tb.dut.sign_preadj_done
+[pattern_trace] 1
+[pattern_trace] 0

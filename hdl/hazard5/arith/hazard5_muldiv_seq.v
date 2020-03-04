@@ -265,7 +265,7 @@ assign result_l =
 
 `ifdef FORMAL
 
-always @ (posedge clk) begin: properties
+always @ (posedge clk) if (rst_n && $past(rst_n)) begin: properties
 	integer i;
 	reg alive;
 
