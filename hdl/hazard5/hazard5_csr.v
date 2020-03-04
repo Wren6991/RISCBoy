@@ -752,6 +752,11 @@ assign mcause_code_next = exception_req_any ? exception_req_num : irq_num;
 
 `ifdef RISCV_FORMAL
 always @ (posedge clk) begin
+	// We disallow double exceptions -- this causes riscv-formal to complain that
+	// loads/stores don't trap inside of traps. Therefore assume this doesn't happen
+	if (in_trap)
+		assume(!(except_load_misaligned || except_store_misaligned));
+
 	// Something is screwed up if this happens
 	if ($past(trap_enter_vld && trap_enter_rdy))
 		assert(!wen);

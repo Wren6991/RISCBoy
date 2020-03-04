@@ -22,6 +22,7 @@ reg [31:0] rvfm_m_instr;
 
 wire rvfm_x_trap = x_trap_is_exception && x_trap_enter;
 reg rvfm_m_trap;
+reg rvfm_entered_intr;
 
 reg        rvfi_valid_r;
 reg [31:0] rvfi_insn_r;
@@ -36,6 +37,7 @@ always @ (posedge clk or negedge rst_n) begin
 		rvfm_x_valid <= 1'b0;
 		rvfm_m_valid <= 1'b0;
 		rvfm_m_trap <= 1'b0;
+		rvfm_entered_intr <= 1'b0;
 		rvfi_valid_r <= 1'b0;
 		rvfi_trap_r <= 1'b0;
 		rvfi_insn_r <= 32'h0;
@@ -61,7 +63,12 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		rvfi_valid_r <= rvfm_m_valid && !m_stall;
 		rvfi_insn_r <= rvfm_m_instr;
-		rvfi_trap_r <= rvfm_m_trap; // || m_except_bus_fault;
+		rvfi_trap_r <= rvfm_m_trap;
+
+		// Take note of M-jump in pipe bubble in between instruction retires:
+		rvfm_entered_intr <= (rvfm_entered_intr && !rvfi_valid)
+			|| (m_jump_req && f_jump_now && !rvfm_m_valid);
+
 		// Sanity checks
 		if (dx_rd != 5'h0)
 			assert(rvfm_x_valid);
@@ -80,7 +87,7 @@ always @ (posedge clk or negedge rst_n)
 		rvfm_retire_ctr <= rvfm_retire_ctr + 1;
 
 assign rvfi_mode = 2'h3; // M-mode only
-assign rvfi_intr = 1'b0; // TODO (seems riscv-formal ignores this right now anyway)
+assign rvfi_intr = rvfi_valid && rvfm_entered_intr;
 assign rvfi_halt = 1'b0; // TODO
 
 // ----------------------------------------------------------------------------
