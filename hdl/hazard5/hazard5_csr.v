@@ -462,7 +462,7 @@ always @ (*) begin
 		rdata = {XLEN{1'b0}};
 	end
 
-	MSTATUS: if (CSR_M_MANDATORY) begin
+	MSTATUS: if (CSR_M_MANDATORY || CSR_M_TRAP) begin
 		decode_match = 1'b1;
 		rdata = {
 			1'b0,    // Never any dirty state besides GPRs
@@ -490,7 +490,9 @@ always @ (*) begin
     // ------------------------------------------------------------------------
 	// Trap-handling CSRs
 
-	MSCRATCH: if (CSR_M_TRAP) begin
+	// TODO bit of a hack but this is a 32 bit synthesised register with
+	// set/clear/write/read, don't turn it on unless we really have to
+	MSCRATCH: if (CSR_M_TRAP && CSR_M_MANDATORY) begin
 		decode_match = 1'b1;
 		rdata = mscratch;
 	end
