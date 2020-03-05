@@ -17,14 +17,24 @@
 
 module hazard5_cpu #(
 	parameter RESET_VECTOR    = 32'h0,// Address of first instruction executed
-	parameter W_ADDR          = 32,   // Do not modify
-	parameter W_DATA          = 32,   // Do not modify
 	parameter EXTENSION_C     = 1,    // Support for compressed (variable-width) instructions
 	parameter EXTENSION_M     = 1,    // Support for hardware multiply/divide/modulo instructions
 	parameter MULDIV_UNROLL   = 1,    // Bits per clock for multiply/divide circuit, if present. Pow2.
+
 	parameter CSR_M_MANDATORY = 1,    // Bare minimum e.g. misa. Spec says must = 1, but I won't tell anyone
 	parameter CSR_M_TRAP      = 1,    // Include M-mode trap-handling CSRs
-	parameter CSR_COUNTER     = 0     // Include performance counters and relevant M-mode CSRs
+	parameter CSR_COUNTER     = 0,    // Include performance counters and relevant M-mode CSRs
+	parameter MTVEC_WMASK     = 32'hfffff000,
+	                                  // Save gates by making trap vector base partly fixed (legal, as it's WARL).
+	                                  // Note the entire vector table must always be aligned to its size, rounded
+	                                  // up to a power of two, so careful with the low-order bits.
+	parameter MTVEC_INIT      = 32'h00000000,
+	                                  // Initial value of trap vector base. Bits clear in MTVEC_WMASK will
+	                                  // never change from this initial value. Bits set in MTVEC_WMASK can
+	                                  // be written/set/cleared as normal.
+
+	parameter W_ADDR          = 32,   // Do not modify
+	parameter W_DATA          = 32    // Do not modify
 ) (
 	// Global signals
 	input wire               clk,
@@ -465,7 +475,9 @@ hazard5_csr #(
 	.CSR_M_TRAP      (CSR_M_TRAP),
 	.CSR_COUNTER     (CSR_COUNTER),
 	.EXTENSION_C     (EXTENSION_C),
-	.EXTENSION_M     (EXTENSION_M)
+	.EXTENSION_M     (EXTENSION_M),
+	.MTVEC_WMASK     (MTVEC_WMASK),
+	.MTVEC_INIT      (MTVEC_INIT)
 ) inst_hazard5_csr (
 	.clk                     (clk),
 	.rst_n                   (rst_n),
