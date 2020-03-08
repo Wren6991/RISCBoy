@@ -16,7 +16,7 @@ The design is written in synthesisable Verilog 2005, and is intended to fit onto
 
 More detailed information can be found in the [documentation](doc/riscboy_doc.pdf).
 
-Currently the processor supports the RV32IC instruction set, and passes the RISC-V compliance suite for these instructions, as well as the [riscv-formal](https://github.com/SymbioticEDA/riscv-formal) verification suite, and some of my own formal property checks for instruction frontend consistency and basic bus compliance. It also supports M-mode CSRs, exceptions, and a simple compliant extension for vectored external interrupts. Support for the M extension (multiply/divide) will arrive at some point.
+The processor supports the RV32IMC instruction set, and passes the RISC-V compliance suite for these instructions, as well as the [riscv-formal](https://github.com/SymbioticEDA/riscv-formal) verification suite, and some of my own formal property checks for instruction frontend consistency and basic bus compliance. It also supports M-mode CSRs, exceptions, and a simple compliant extension for vectored external interrupts.
 
 Building RV32IC Toolchain
 -------------------------
