@@ -23,8 +23,6 @@ Fundamentally we are fetching pixels from memory (over a 16 bit bus on RISCBoy),
 
 At any point in time the PPU is either rendering to one of the internal scanline buffers, or waiting for a buffer to be freed and passed back by the display interface hardware. The exact sequence of operations the PPU performs while rendering is defined by a program in memory, executed by the command processor. The instruction set is small, and specialised to the task at hand -- for example the {\tt SYNC} instruction marks the current scanline buffer as ready for display, and waits for a buffer be freed by the display hardware, and the {\tt FILL} instruction writes a constant-colour span to some $x$ range of pixels.
 
-The scanline buffers are implemented as 1-read 1-write memories, which allows the blending pipeline to easily achieve a 1 pixel per clock throughput, keeping the bottleneck on memory. This could also be implemented as a double-width 1RW memory, but not a compelling tradeoff on FPGA.
-
 Common memory access patterns (for nonpaletted pixels):
 
 \begin{itemize}
@@ -34,7 +32,7 @@ Common memory access patterns (for nonpaletted pixels):
 \end{itemize}
 
 
-The PPU makes no assumptions about display timing: for example, RISCBoy is currently equipped with a 320$\times$240 SPI LCD, which is driven continuously, with no horizontal or vertical blanking periods, as the SPI interface is the framerate bottleneck. The PPU continuously generates pixels at some rate which is hopefully higher than the display scan rate, and its timing is decoupled from the display via the pixel FIFO (as this is the narrowest point of the PPU, so the cheapest to buffer). The use of double-buffered scanlines means that an entire horizontal scan time is available for pixel generation, even if a horizontal blanking period is present (e.g. on VGA), in contrast to the true beam-racing used by the old PPU architecture.
+The PPU makes no assumptions about display timing: for example, RISCBoy is currently equipped with a 320$\times$240 SPI LCD, which is driven continuously, with no horizontal or vertical blanking periods, as the interface is severely limited in bandwidth. The asynchronous pixel FIFO allows the SPI serial clock to be decoupled from the system clock.
 
 \subsection{Pixel Formats}
 
@@ -83,6 +81,20 @@ Since PRAM contents is in ARGB1555 format, there is no special convention for in
 Although there is only a single hardware palette, 256 colours in size, {\tt TILE} and {\tt BLIT} commands can supply an offset, which is added to each paletted pixel before palette lookup. PRAM may be initialised with e.g. multiple 16-colour tables at different (potentially overlapping) locations, giving effectively independent palettes.
 
 PRAM can be written to (but not read) through the PPU's configuration interface.
+
+\subsection{Scanline Buffers}
+
+
+The scanline buffers are implemented as 1-read 1-write memories, which allows the blending pipeline to easily achieve a 1 pixel per clock throughput, keeping the bottleneck on the system bus. This could also be implemented as a double-width 1RW memory, but not a compelling tradeoff on FPGA.
+
+\begin{figure}[H]
+\centering
+\caption{PPU scanline buffer states}
+\label{diagram:ppu_buffer_states}
+\includegraphics[width=0.7\textwidth]{diagrams/ppu_buffer_states.pdf}
+\end{figure}
+
+On RISCBoy these are 15b$\times512$ memories, each composed of a pair of iCE40 4~kb block RAMs. This is sufficient to store one QVGA RGB555 scanline in each buffer. The blitter and display pass each other buffers through a pair of queues, one containing clean buffers for the blitter, and the other containing dirty buffers for the display. After reset, both buffers are in the clean queue.
 
 \subsection{Instruction Set}
 
@@ -205,11 +217,12 @@ Where
 
 This affine transform is described in detail in section \ref{section:affine_transform}. It allows a range of geometric manipulations of the source image. {\tt ABLIT} renders to the same square region as {\tt BLIT}, defined by the {\tt size}, {\tt x} and {\tt y} parameters, as well as the current {\tt CLIP} region. It is the {\it texture lookup} for each rendered pixel that differs.
 
+The {\tt a} components are signed 8.8 fixed point numbers, and {\tt b} components are unsigned 10.6 fixed point.
 \begin{itemize}
-	\item {\tt h}: half-size flag: indicate the texture is only half the size of the rasterized region in each axis. This allows e.g. a $32\times 32$~px texture to be rotated by \ang{45} and blitted to a $64\times64$~px region, so that it is not clipped.
+	\item {\tt h}: half-size flag: indicate the texture is only half the size of the rasterized region in each axis. This allows e.g. a $32\times 32$~px texture to be rotated, without scaling, by \ang{45} and blitted to a $64\times64$~px region, so that its corners are not clipped. The effect of the half-size flag when {\tt size} = 0 is undefined.
 	\item {\tt img} is a pointer to the source image, which is assumed to be word-aligned (hence the missing LSBs).
 	\item {\tt fmt} is the pixel format, as described in figure \ref{diagram:pixformat}. The values are: mode 0 ARGB1555, mode 1 P8, mode 2 P4, mode 3 P1.
-	\item {\tt size} defines the size of the source image: $\textup{width}=\textup{height}=2^{{\tt size} + 3}$, so square images from 8 to 1024 pixels are supported.
+	\item {\tt size} defines the size of both the source image and the blit target area: $\textup{width}=\textup{height}=2^{{\tt size} + 3}$, so square images from 8 to 1024 pixels are supported.
 	\item {\tt poff} is the palette offset. This is left-shifted by 5 and added to each paletted pixel, with wrap on overflow, before the pixel is looked up in the palette RAM.
 \end{itemize}
 
@@ -284,7 +297,7 @@ The origin of the screen is at the top left. $x$ coordinates increase to the rig
 \includegraphics[width=0.4\textwidth]{diagrams/ppu_coord_screen.pdf}
 \end{figure}
 
-When using a vector to refer to a screen-space coordinate, we will typically use the symbol $\vec{s}$, and call the components $\vec{s} = \begin{bmatrix} s_x & s_y \\ \end{bmatrix}^T$
+When using a vector to refer to a screen-space coordinate, we will typically use the symbol $\vec{s}$.
 
 \subsubsection*{Texture Coordinates}
 
@@ -311,7 +324,7 @@ This transformation may be simple, as in the case of the {\tt BLIT} command:
 \vec{u} = \vec{s} - \vec{s}_0
 \]
 
-Where $\vec{s}_0$ is the position the texture is being blitted to ({\tt x}, {\tt y} in the {\tt BLIT} instruction). The transformation may be more complex, as in the case of the {\tt ABLIT} command:
+Where $\vec{s}_0$ is the position the texture is being blitted to ({\tt x}, {\tt y} in the {\tt BLIT} instruction), $\vec{s}$ is the position of next pixel to be rendered on the screen, and $\vec{u}$ is the position in texture space which determines the colour of the screen pixel. The transformation may be more complex, as in the case of the {\tt ABLIT} command:
 
 \[
 \vec{u} = \vec{A}(\vec{s} - \vec{s}_0) + \vec{b}
@@ -319,7 +332,7 @@ Where $\vec{s}_0$ is the position the texture is being blitted to ({\tt x}, {\tt
 
 Where the matrix $\vec{A}$ and vector $\vec{b}$ are constants supplied by the {\tt ABLIT} instruction, permitting any combination of translation, rotation, scale and shear. Note the direction of the definition: this is a mapping {\it from} screen space {\it to} texture space. If you find it more intuitive to think about mapping the texture onto the screen, you must note that this is the {\it inverse} of the above mapping, and you have some linear algebra to do.
 
-Internally, the PPU represents $\vec{u}$-space coordinates as pairs of unsigned 0.18 fixed point numbers (a range of $0$ to $1023 + \frac{255}{256}$); the largest supported texture size is therefore $1024 \times 1024$~px.
+Internally, the PPU represents $\vec{u}$-space coordinates as pairs of unsigned 10.8 fixed point numbers (a range of $0$ to $1023 + \frac{255}{256}$); the largest supported texture size is therefore $1024 \times 1024$~px.
 
 As far as coordinates are concerned, there is no difference between e.g. a $512\times 512$~px texture and a $512\times 512$~px tiled background. The difference is that a texture's pixels are defined by a single large image ($512 \times 512$~px in this example), whereas the tiled area is defined by a number of small e.g. $16 \times 16$~px images called the {\it tileset}, and a 2D array of tile indices called the {\it tilemap} which defines which $16 \times 16$~px image should be at which $16 \times 16$~px region of $\vec{u}$-space.
 
@@ -360,8 +373,9 @@ Setting $\vec{A}$ to the identity matrix maps the screen-space unit vectors $\ve
 \includegraphics[width=0.8\textwidth]{diagrams/ppu_texture_ablit02.pdf}
 \end{figure}
 
-The horizontal axis in screen space ($\vec{e}_x$) has instead been mapped to the vertical axis in texture space ($\vec{e}_v$), and vice versa. Texture lookups have been reflected across the line $u=v$. We can perform a uniform scale by setting $\vec{A} = \lambda \vec{I}$, which maps the screen-space unit vectors onto {\it larger} vectors in texture space, so that texture samples of neighbouring screen pixels are further apart on the texture. E.g. take $\lambda=2$:
+The horizontal axis in screen space ($\vec{e}_x$) has instead been mapped to the vertical axis in texture space ($\vec{e}_v$), and vice versa. Texture lookups have been reflected across the line $u=v$.
 
+We can perform a uniform scale by setting $\vec{A} = \lambda \vec{I}$, which maps the screen-space unit vectors onto {\it larger} vectors in texture space, so that texture samples of neighbouring screen pixels are further apart on the texture. E.g. take $\lambda=2$:
 
 \begin{figure}[H]
 \centering
@@ -370,6 +384,34 @@ The horizontal axis in screen space ($\vec{e}_x$) has instead been mapped to the
 \includegraphics[width=0.8\textwidth]{diagrams/ppu_texture_ablit03.pdf}
 \end{figure}
 
+The $\vec{b}$ vector is used to translate texture lookups. It can be understood as the point in texture space to which the upper-left of the rasterised region is mapped, since at this point on the screen $\vec{s} = \vec{s}_0$, so $\vec{u} = \vec{A}(\vec{s}_0 - \vec{s}_0) + \vec{b} = \vec{b}$. For example, we could set $\vec{b} = \begin{bmatrix} -32 & -32 \\ \end{bmatrix}^T$, so that the sample corresponding to $\vec{s}_0$ is higher and further left in texture space:
+
+\begin{figure}[H]
+\centering
+\caption{PPU affine blit with uniform scale and translation}
+\label{diagram:ppu_texture_ablit04}
+\includegraphics[width=0.8\textwidth]{diagrams/ppu_texture_ablit04.pdf}
+\end{figure}
+
+Figure \ref{diagram:ppu_texture_ablit04} shows $\vec{b}$ plotted in texture space, and the resulting shift of the sampled texture as seen in the rasterised area. For a final example, the matrix
+
+\[
+\vec{A} = \begin{bmatrix}
+\cos\theta & -\sin\theta \\
+\sin\theta & \cos\theta \\
+\end{bmatrix}
+\]
+
+Defines, in our coordinate system, a clockwise rotation by $\theta$. Setting $\theta=45^{\circ}$, scaling by 2 and carefully choosing the $\vec{b}$ vector, we can make the texture appear to rotate {\it counterclockwise} about its centre in screen space.
+
+\begin{figure}[H]
+\centering
+\caption{PPU affine blit with rotation}
+\label{diagram:ppu_texture_ablit05}
+\includegraphics[width=0.8\textwidth]{diagrams/ppu_texture_ablit05.pdf}
+\end{figure}
+
+Note that, without a scale factor, the corners of the texture would be clipped to the rasterised region of the screen. It is quite inefficient to take a large texture and always show it in a scaled-down form; {\tt ABLIT}'s half-size flag reduces the texture size to half of the rasterised region, so a $64\times 64$~px {\tt ABLIT} would expect a $32\times 32$~px texture, which would occupy the upper-left quadrant of the rasterised region if $\vec{A}=\vec{I}$ and $\vec{b}=\vec{0}$. This could then be rotated without scaling, and provided it is appropriately translated, the corners of the texture would not be clipped.
 
 \subsection{Tiles}
 \label{section:tiles}
