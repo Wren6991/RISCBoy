@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="7" />
+   <wvobject fp_name="/tb/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="group14" type="group">
+      <obj_property name="label">Ports</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/start_affine" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">start_affine</obj_property>
+         <obj_property name="ObjectShortName">start_affine</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/start_simple" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">start_simple</obj_property>
+         <obj_property name="ObjectShortName">start_simple</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/raster_offs_x" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">raster_offs_x[9:0]</obj_property>
+         <obj_property name="ObjectShortName">raster_offs_x[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/raster_offs_y" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">raster_offs_y[9:0]</obj_property>
+         <obj_property name="ObjectShortName">raster_offs_y[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/aparam_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">aparam_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">aparam_data[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/aparam_vld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">aparam_vld</obj_property>
+         <obj_property name="ObjectShortName">aparam_vld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/aparam_rdy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">aparam_rdy</obj_property>
+         <obj_property name="ObjectShortName">aparam_rdy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/out_vld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">out_vld</obj_property>
+         <obj_property name="ObjectShortName">out_vld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/out_rdy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">out_rdy</obj_property>
+         <obj_property name="ObjectShortName">out_rdy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/out_u" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">out_u[9:0]</obj_property>
+         <obj_property name="ObjectShortName">out_u[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/out_v" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">out_v[9:0]</obj_property>
+         <obj_property name="ObjectShortName">out_v[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/state" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/mul_ctr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mul_ctr[3:0]</obj_property>
+      <obj_property name="ObjectShortName">mul_ctr[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="group22" type="group">
+      <obj_property name="label">U</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/u_phase_accum/op_a" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">op_a[17:0]</obj_property>
+         <obj_property name="ObjectShortName">op_a[17:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/u_phase_accum/op_b" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">op_b[17:0]</obj_property>
+         <obj_property name="ObjectShortName">op_b[17:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/u_phase_accum/accum_add_a" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">accum_add_a</obj_property>
+         <obj_property name="ObjectShortName">accum_add_a</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/u_phase_accum/accum_add_b" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">accum_add_b</obj_property>
+         <obj_property name="ObjectShortName">accum_add_b</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/u_phase_accum/accum" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">accum[17:0]</obj_property>
+         <obj_property name="ObjectShortName">accum[17:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group30" type="group">
+      <obj_property name="label">V</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/v_phase_accum/op_a" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">op_a[17:0]</obj_property>
+         <obj_property name="ObjectShortName">op_a[17:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/v_phase_accum/op_b" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">op_b[17:0]</obj_property>
+         <obj_property name="ObjectShortName">op_b[17:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/v_phase_accum/accum_add_a" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">accum_add_a</obj_property>
+         <obj_property name="ObjectShortName">accum_add_a</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/v_phase_accum/accum_add_b" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">accum_add_b</obj_property>
+         <obj_property name="ObjectShortName">accum_add_b</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/inst_riscboy_ppu_affine_coord_gen/v_phase_accum/accum" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">accum[17:0]</obj_property>
+         <obj_property name="ObjectShortName">accum[17:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
