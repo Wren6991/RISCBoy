@@ -1,0 +1,48 @@
+name: ppu
+bus: apb
+addr: 16
+data: 32
+params:
+  W_SCREEN_COORD_X: 9
+  W_SCREEN_COORD_Y: 8
+regs:
+  - name: csr
+    info: PPU control and status register
+    bits:
+      - {b: 0, name: run, access: sc, info: "Write 1 to start the PPU running. Self-clearing strobe"}
+      - {b: 2, name: running, access: rov, info: "Reads as 1 if PPU is running, otherwise 0"}
+      - {b: 3, name: halt_hsync, access: rw, info: "If 1, the PPU will halt automatically after completing a scanline"}
+      - {b: 4, name: halt_vsync, access: rw, info: "If 1, the PPU will halt automatically after completing a frame"}
+  - name: dispsize
+    info: Configure display dimensions. Actual width is W + 1, height is H + 1
+    bits:
+      - {b: [W_SCREEN_COORD_X - 1, 0],  name: w, access: wo}
+      - {b: [16 + W_SCREEN_COORD_Y - 1, 16], name: h, access: wo}
+  - name: cproc_pc
+    info: Write to command processor program counter. Must only be used when the PPU is idle.
+    bits:
+      - {b: [31, 0], access: wf}
+  - name: lcd_pxfifo
+    info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
+    bits:
+      - {b: [15, 0], access: wf}
+  - name: lcd_csr
+    info: Control and status register for the LCD interface
+    bits:
+      - {b: 0,        name: pxfifo_empty, access: rov}
+      - {b: 1,        name: pxfifo_full,  access: rov}
+      - {b: [7, 2],   name: pxfifo_level, access: rov}
+      - {b: 8,        name: lcd_cs,       access: rw, rst: 0x1}
+      - {b: 9,        name: lcd_dc,       access: rw}
+      - {b: 10,       name: tx_busy,      access: rov}
+      - {b: 16, name: lcd_shiftcnt,       access: rw, info: "1 for 16-bit, 0 for 8-bit"}
+  - name: ints
+    info: Status of interrupt sources. Each source is write-1-clear.
+    bits:
+      - {b: 0, name: vsync, access: w1c}
+      - {b: 1, name: hsync, access: w1c}
+  - name: inte
+    info: Interrupt enable mask
+    bits:
+      - {b: 0, name: vsync, access: rw}
+      - {b: 1, name: hsync, access: rw}

@@ -19,7 +19,6 @@
 // Clock, Reset and Power (CRaP)
 // which lives in the chip/fpga/testbench top level
 
-
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
 	parameter CPU_RESET_VECTOR = 32'h200800c0,
@@ -194,7 +193,7 @@ wire [W_DATA-1:0]  ppu_apbs_pwdata;
 wire               ppu_apbs_pready;
 wire [W_DATA-1:0]  ppu_apbs_prdata;
 wire               ppu_apbs_pslverr;
-
+wire               ppu_irq;
 
 // =============================================================================
 //  Masters
@@ -203,7 +202,13 @@ wire               ppu_apbs_pslverr;
 hazard5_cpu #(
 	.RESET_VECTOR    (CPU_RESET_VECTOR),
 	.EXTENSION_C     (1),
-	.EXTENSION_M     (0) // No space!
+	.EXTENSION_M     (1),
+	.MULDIV_UNROLL   (1),
+	.CSR_M_MANDATORY (0), // Not going to spend LUTs on a register telling me which architecture is implemented
+	.CSR_M_TRAP      (1), // Do need IRQs though
+	.CSR_COUNTER     (0), // 64 bit counters who do you think you are
+	.MTVEC_WMASK     (32'h00080000), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
+	.MTVEC_INIT      (32'h20000000)
 ) inst_revive_cpu (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
@@ -219,8 +224,9 @@ hazard5_cpu #(
 	.ahblm_hwdata    (proc0_hwdata),
 	.ahblm_hrdata    (proc0_hrdata),
 	.irq             ({
-		15'h0,
-		uart_irq
+		14'h0,
+		uart_irq,
+		ppu_irq
 	} | tbman_irq_force)
 );
 
@@ -230,6 +236,8 @@ riscboy_ppu #(
 	.clk_ppu         (clk_sys),
 	.clk_lcd         (clk_lcd),
 	.rst_n           (rst_n),
+
+	.irq             (ppu_irq),
 
 	.ahblm_hready    (ppu_hready),
 	.ahblm_hresp     (ppu_hresp),

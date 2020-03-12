@@ -379,7 +379,7 @@ class VerilogWriter(RegBlockVisitor):
 			v.ports.append("input wire {} {}_i".format(f.width_decl, fname))
 		if f.access in ["rov", "rf", "rwf"]:
 			v.decls.append("assign {}_rdata = {}_i;".format(fname, fname))
-		if f.access in ["wo", "rw", "wf", "rwf", "sc"]:
+		if f.access in ["wo", "rw", "wf", "rwf", "sc", "w1c"]:
 			v.ports.append("output reg {} {}_o".format(f.width_decl, fname))
 		if f.access in ["wf", "rwf"]:
 			v.ports.append("output reg {}_wen".format(fname))
@@ -399,6 +399,7 @@ class VerilogWriter(RegBlockVisitor):
 			v.decls.append("reg {} {};".format(f.width_decl, fname))
 			v.decls.append("assign {}_rdata = {};".format(fname, fname))
 			v.logic_clk.append("{0} <= ({0} && !(__{1}_wen && {0}_wdata)) || {0}_i;".format(fname, rname))
+			v.logic_comb.append("{0}_o = {0};".format(fname))
 		if f.access in ["sc"]:
 			v.logic_comb.append("{0}_o = {0}_wdata & {{{1}{{__{2}_wen}}}};".format(fname, f.width, rname))
 		if f.access in ["ro", "wo", "wf", "sc"]:
