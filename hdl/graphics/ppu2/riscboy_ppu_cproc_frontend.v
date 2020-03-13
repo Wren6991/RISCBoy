@@ -17,12 +17,14 @@
 
 // Instruction frontend for PPU command processor
 
-module riscboy_ppu_proc_frontend #(
+module riscboy_ppu_cproc_frontend #(
 	parameter W_ADDR = 32, // do not modify
 	parameter W_DATA = 32  // do not modify
 ) (
 	input  wire              clk,
 	input  wire              rst_n,
+
+	input  wire              ppu_running,
 
 	output wire              bus_addr_vld,
 	input  wire              bus_addr_rdy,
@@ -43,12 +45,12 @@ module riscboy_ppu_proc_frontend #(
 `ifdef FORMAL
 always @ (posedge clk) if (rst_n && $past(rst_n)) begin
 	// We must keep bus address asserted until it goes through (AHB-lite constraint)
-	if ($past(bus_addr_vld && !bus_addr_rdy)) begin
+	if (ppu_running && $past(bus_addr_vld && !bus_addr_rdy)) begin
 		assert(bus_addr_vld);
 		assert($stable(bus_addr));
 	end
 	// Require the same to be true of the jump request
-	if ($past(jump_target_vld && !jump_target_rdy)) begin
+	if (ppu_running && $past(jump_target_vld && !jump_target_rdy)) begin
 		assert(jump_target_vld);
 		assert($stable(jump_target));
 	end
@@ -62,14 +64,14 @@ reg [W_ADDR-1:0] pc;
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		pc <= {W_ADDR{1'b0}};
-	end else if (jump_target_vld && jump_target_rdy) begin
+	end else if (jump_target_vld && (jump_target_rdy || !ppu_running)) begin
 		pc <= jump_target & ADDR_MASK;
 	end else if (bus_addr_vld && bus_addr_rdy) begin
 		pc <= (pc & ADDR_MASK) + 3'h4;
 	end
 end
 
-wire instr_buf_flush = jump_target_vld && jump_target_rdy;
+wire instr_buf_flush = (jump_target_vld && jump_target_rdy) || !ppu_running;
 wire instr_buf_ren = instr_vld && instr_rdy;
 wire instr_buf_full;
 wire instr_buf_empty;

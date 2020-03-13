@@ -5,7 +5,7 @@
 Figure \ref{diagram:ppu_block} shows the high-level structure of the PPU. This is the second-generation architecture -- the previous version had a number of sprite and tile engines operating in parallel, with shared bus access. This was a mistake. Many of these units were idle much of the time, and they were stripped down to the minimum to meet strict area requirements; this in turn led to poor bus utilisation and a lack of flexibility. The second problem was partially solved by the Poker, but at the expense of high software complexity for common use cases (e.g. many sprites on screen). The high level goals of PPU2 are, in order of precedence:
 
 \begin{enumerate}
-\item Be memory bound at all times
+\item Always Be Fetching
 \item Avoid idle or duplicated base functional units (e.g. pixel unpacker) so that more expensive functions can be provided (e.g. random access to pixels)
 \item Be highly programmable, and allow features to be combined in interesting ways
 \item Serve the simple use cases (layered, tiled backgrounds with sprites) with minimum program complexity
@@ -159,9 +159,9 @@ Block image transfer: paste a square image (e.g. a sprite) over the current scan
 \bitheader{0,9,10,19,20,21,22,24,25,26,27,28,31} \\
 \bitbox{4}{{\tt 0x5}} \bitbox{2}{\reservedfield} \bitbox{1}{{\tt s}} \bitbox{3}{{\tt poff}} \bitbox{2}{\reservedfield} \bitbox{10}{{\tt yscroll}} \bitbox{10}{{\tt xscroll}} \\
 \bitheader{0,1,2, 31} \\
-\bitbox{30}{{\tt tileset}} \bitbox{2}{\tt fmt} \\
-\bitheader{0,1,2, 31} \\
 \bitbox{30}{{\tt tilemap}} \bitbox{2}{{\tt pfs}} \\
+\bitheader{0,1,2, 31} \\
+\bitbox{30}{{\tt tileset}} \bitbox{2}{\tt fmt} \\
 \end{bytefield}
 
 Render a tiled background span (see section \ref{section:tiles}).
@@ -187,13 +187,13 @@ Render a tiled background span (see section \ref{section:tiles}).
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,9,10,19,20,21,22,24,25,27,28,31} \\
-\bitbox{4}{{\tt 0x4}} \bitbox{3}{{\tt size}} \bitbox{3}{{\tt poff}} \bitbox{1}{\tt h} \bitbox{1}{\reservedfield} \bitbox{10}{{\tt y}} \bitbox{10}{{\tt x}} \\
+\bitbox{4}{{\tt 0x6}} \bitbox{3}{{\tt size}} \bitbox{3}{{\tt poff}} \bitbox{1}{\tt h} \bitbox{1}{\reservedfield} \bitbox{10}{{\tt y}} \bitbox{10}{{\tt x}} \\
+\bitheader{0,15,16, 31} \\
+\bitbox{16}{\tt b1} \bitbox{16}{\tt b0} \\
 \bitheader{0,15,16, 31} \\
 \bitbox{16}{\tt a01} \bitbox{16}{\tt a00} \\
 \bitheader{0,15,16, 31} \\
 \bitbox{16}{\tt a11} \bitbox{16}{\tt a10} \\
-\bitheader{0,15,16, 31} \\
-\bitbox{16}{\tt b1} \bitbox{16}{\tt b0} \\
 \bitheader{0,1,2, 31} \\
 \bitbox{30}{{\tt img}} \bitbox{2}{\tt fmt} \\
 \end{bytefield}
@@ -208,8 +208,8 @@ Like {\tt BLIT}, except screen coordinates are transformed before each pixel loo
 Where
 
 \begin{align*}
-\vec{u}   &= \begin{bmatrix}u & b \\ \end{bmatrix}^T & \textup{(texture coordinates)} \\
-\vec{s}   &= \begin{bmatrix}x & y \\ \end{bmatrix}^T & \textup{(screen coordinates)} \\
+\vec{u}   &= \begin{bmatrix}u & v \\ \end{bmatrix}^T & \textup{(texture coordinates)} \\
+\vec{s}   &= \begin{bmatrix}s_x & s_y \\ \end{bmatrix}^T & \textup{(screen coordinates)} \\
 \vec{s}_0 &= \begin{bmatrix}x & y \\ \end{bmatrix}^T & \textup{(blit target position {\tt x}, {\tt y})} \\
 \vec{A}   &= \begin{bmatrix}a_{00} & a_{01} \\ a_{10} & a_{11} \end{bmatrix} & \textup{(scale/rotate/shear matrix)} \\
 \vec{b}   &= \begin{bmatrix}b_0 & b_1 \\ \end{bmatrix}^T & \textup{(translation vector)} \\
@@ -230,19 +230,20 @@ The {\tt a} components are signed 8.8 fixed point numbers, and {\tt b} component
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,9,10,19,20,21,22,24,25,26,27,28,31} \\
-\bitbox{4}{{\tt 0x5}} \bitbox{2}{\reservedfield} \bitbox{1}{{\tt s}} \bitbox{3}{{\tt poff}} \bitbox{2}{\reservedfield} \bitbox{10}{{\tt yscroll}} \bitbox{10}{{\tt xscroll}} \\
+\bitbox{4}{{\tt 0x7}} \bitbox{2}{\reservedfield} \bitbox{1}{{\tt s}} \bitbox{3}{{\tt poff}} \bitbox{2}{\reservedfield} \bitbox{10}{{\tt yscroll}} \bitbox{10}{{\tt xscroll}} \\
+\bitheader{0,15,16, 31} \\
+\bitbox{16}{\tt b1} \bitbox{16}{\tt b0} \\
 \bitheader{0,15,16, 31} \\
 \bitbox{16}{\tt a01} \bitbox{16}{\tt a00} \\
 \bitheader{0,15,16, 31} \\
 \bitbox{16}{\tt a11} \bitbox{16}{\tt a10} \\
-\bitheader{0,15,16, 31} \\
-\bitbox{16}{\tt b1} \bitbox{16}{\tt b0} \\\bitheader{0,1,2, 31} \\
-\bitbox{30}{{\tt tileset}} \bitbox{2}{\tt fmt} \\
 \bitheader{0,1,2, 31} \\
 \bitbox{30}{{\tt tilemap}} \bitbox{2}{{\tt pfs}} \\
+\bitheader{0,1,2, 31} \\
+\bitbox{30}{{\tt tileset}} \bitbox{2}{\tt fmt} \\
 \end{bytefield}
 
-Like {\tt TILE} but affine transform applied before each tile and pixel lookup: $\vec{u} = \vec{A}(\vec{s} - \vec{s}_0) + \vec{b}$. As with {\tt TILE}, the entire {\tt CLIP} region is rendered to. $\vec{s}_0$ is the {\tt xscroll}, {\tt yscroll} offset, the same as {\tt TILE}. All in all, {\tt TILE} can be though of as a special case of {\tt ATILE} where $\vec{A}$ is the identity matrix and $\vec{b}$ is the zero vector.
+Like {\tt TILE} but affine transform applied before each tile and pixel lookup: $\vec{u} = \vec{A}(\vec{s} - \vec{s}_0) + \vec{b}$. As with {\tt TILE}, the entire {\tt CLIP} region is rendered to. $\vec{s}_0$ is the {\tt xscroll}, {\tt yscroll} offset, the same as {\tt TILE}. All in all, {\tt TILE} can be thought of as a simple case of {\tt ATILE}, where $\vec{A}$ is the identity matrix and $\vec{b}$ is the zero vector.
 
 \begin{itemize}
 	\item {\tt s} defines the size of the source image: $\textup{width}=\textup{height}=2^{{\tt s} + 3}$, so square images of $8\times 8$ or $16\times 16$ are supported.
