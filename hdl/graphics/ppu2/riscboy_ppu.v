@@ -375,7 +375,7 @@ riscboy_ppu_blender #(
 	.span_start    (span_start),
 	.span_x0       (span_x0),
 	.span_count    (span_count),
-	.span_done     (blender_span_done)
+	.span_done     (span_done)
 );
 
 // Scan out to pixel FIFO
@@ -387,6 +387,7 @@ reg [W_COORD_SX-1:0] scanout_x;
 
 wire [W_PIXDATA-2:0] pxfifo_scan_wdata = scanout_buf_last_read ? scanbuf_rdata1 : scanbuf_rdata0;
 wire scanout_done = scanbuf_ren && scanout_x == dispsize_w;
+assign scanbuf_raddr = scanout_x;
 assign scanbuf_ren = scanbuf_dirty[scanout_current_scanbuf] && (
 	pxfifo_wlevel < PXFIFO_DEPTH - 2 || !(pxfifo_wfull || pxfifo_scan_wen)
 );

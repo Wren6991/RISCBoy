@@ -89,7 +89,7 @@ always @ (*) begin
 	out_blank = in_blank && type != SPANTYPE_FILL;
 	out_data = 16'h0;
 	if (type == SPANTYPE_FILL) begin
-		out_data = fill_colour;
+		out_data = {1'b1, fill_colour};
 	end else case (pixmode)
 		PIXMODE_ARGB1555: out_data      = in_data;
 		PIXMODE_PAL8:     out_data[7:0] = in_data[8 * in_u_lsbs[0] +: 8]           + paloffs_shifted;

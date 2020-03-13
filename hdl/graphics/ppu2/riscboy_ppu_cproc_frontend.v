@@ -60,18 +60,18 @@ end
 localparam ADDR_MASK = 32'hffff_fffc;
 
 reg [W_ADDR-1:0] pc;
+wire jump_now = jump_target_vld && (jump_target_rdy || !ppu_running);
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		pc <= {W_ADDR{1'b0}};
-	end else if (jump_target_vld && (jump_target_rdy || !ppu_running)) begin
+	end else if (jump_now) begin
 		pc <= jump_target & ADDR_MASK;
 	end else if (bus_addr_vld && bus_addr_rdy) begin
 		pc <= (pc & ADDR_MASK) + 3'h4;
 	end
 end
 
-wire instr_buf_flush = (jump_target_vld && jump_target_rdy) || !ppu_running;
 wire instr_buf_ren = instr_vld && instr_rdy;
 wire instr_buf_full;
 wire instr_buf_empty;
@@ -87,7 +87,7 @@ skid_buffer #(
 	.rdata (instr),
 	.ren   (instr_buf_ren),
 
-	.flush (instr_buf_flush),
+	.flush (jump_now),
 
 	.full  (instr_buf_full),
 	.empty (instr_buf_empty),

@@ -130,7 +130,7 @@ always @ (posedge clk or negedge rst_n) begin
 		paloffs  <= {INSTR_PALOFFS_BITS{1'b0}};
 		tilesize <= 1'b0;
 		ablit_halfsize <= 1'b0;
-	end else if (instr_vld || !instr_rdy) case (state)
+	end else if (ppu_running && (instr_vld || !instr_rdy)) case (state)
 
 		S_EXECUTE: case (opcode)
 			OPCODE_SYNC: state <= S_SYNC_WAIT;
@@ -253,7 +253,7 @@ assign instr_rdy = !(
 	state == S_SPAN_WAIT ||
 	state == S_SYNC_WAIT ||
 	jump_target_vld && !jump_target_rdy
-);
+) && ppu_running;
 
 assign cgen_aparam_vld = instr_vld && (state == S_ABLIT_APARAM || state == S_ATILE_APARAM);
 assign cgen_aparam_data = instr;
@@ -276,6 +276,7 @@ assign span_type =
 	state == S_ATILE_TILESET ? SPANTYPE_ATILE : SPANTYPE_FILL;
 
 assign span_pixmode = state == S_EXECUTE ? PIXMODE_ARGB1555 : instr[INSTR_PIXMODE_LSB +: INSTR_PIXMODE_BITS];
+assign span_paloffs = paloffs;
 assign span_fill_colour = instr[14:0];
 assign span_texture_ptr = instr & INSTR_ADDR_MASK;
 assign span_tilemap_ptr = tmp_buf & INSTR_ADDR_MASK;
