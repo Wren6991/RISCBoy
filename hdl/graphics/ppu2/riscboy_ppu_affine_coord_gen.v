@@ -129,7 +129,7 @@ wire [W_COORD_FULL-1:0] accum_wdata_u = {
 };
 wire [W_COORD_FULL-1:0] accum_wdata_v = {
 	start_simple ? raster_offs_y : aparam_unpack_bv[W_COORD_FRAC +: W_COORD_INT],
-	aparam_unpack_bu[0 +: W_COORD_FRAC]
+	aparam_unpack_bv[0 +: W_COORD_FRAC]
 };
 
 wire op_shift     = state == S_MAT_MUL &&  |mul_ctr;

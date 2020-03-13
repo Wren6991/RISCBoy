@@ -264,6 +264,26 @@ initial begin
 		3, 3 
 	);
 
+	// As above, but set fractional bits on b component
+	test_affine_stream(
+		5, 7,
+		32'h0000_0020,
+		32'h0000_0080,
+		32'h0080_0000,
+		3, 3,
+		3, 3,
+		4, 3 
+	);
+	test_affine_stream(
+		5, 7,
+		32'h0020_0000,
+		32'h0000_0080,
+		32'h0080_0000,
+		2, 4,
+		3, 4,
+		3, 4 
+	);
+
 	// Large initial value
 	test_affine_stream(
 		1023, 1023,
