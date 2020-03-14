@@ -245,7 +245,7 @@ always @ (posedge clk or negedge rst_n) begin
 	endcase
 end
 
-assign hsync = instr_vld && instr_rdy && opcode == OPCODE_SYNC;
+assign hsync = instr_vld && instr_rdy && state == S_EXECUTE && opcode == OPCODE_SYNC;
 
 assign jump_taken = 1'b1; // TODO condition codes
 
