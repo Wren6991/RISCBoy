@@ -23,7 +23,7 @@ module riscboy_ppu_palette_mapper #(
 	input wire                     rst_n,
 
 	input wire                     in_vld,
-	input wire                     in_rdy,
+	output wire                    in_rdy,
 	input wire [W_PIXDATA-1:0]     in_data,
 	input wire                     in_paletted,
 
@@ -32,7 +32,7 @@ module riscboy_ppu_palette_mapper #(
 	input wire                     pram_wen,
 
 	output wire                    out_vld,
-	output wire                    out_rdy,
+	input  wire                    out_rdy,
 	output wire [W_PIXDATA-1:0]    out_data
 );
 
