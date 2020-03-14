@@ -228,7 +228,7 @@ always @ (posedge clk or negedge rst_n) begin
 			tmp_buf <= instr & INSTR_ADDR_MASK; // tilemap ptr
 			texsize <= INSTR_PF_SIZE(instr);
 		end
-		S_ATILE_TILEMAP: state <= S_SPAN_WAIT;
+		S_ATILE_TILESET: state <= S_SPAN_WAIT;
 		S_POKE_ADDR: begin
 			state <= S_POKE_DATA;
 			tmp_buf <= instr & INSTR_ADDR_MASK;
@@ -255,20 +255,60 @@ assign instr_rdy = !(
 	jump_target_vld && !jump_target_rdy
 ) && ppu_running;
 
-assign cgen_aparam_vld = instr_vld && (state == S_ABLIT_APARAM || state == S_ATILE_APARAM);
-assign cgen_aparam_data = instr;
-
 // ----------------------------------------------------------------------------
 // Intersection calculations and span setup
 
-assign skip_span = clip_x0 > clip_x1 || opcode != OPCODE_FILL; // TODO
+// Calculate intersection of test region with clip region. For BLIT/ABLIT,
+// also test against a high alias of the clip region, offset by (1 << INSTR_X_BITS),
+// to get correct wrapping behaviour. TODO this can result in two clip regions
+// passing; ideally we would draw both, but this mainly matters for systems
+// with bigger screens and more RAM :)
+//
+// Note intersections are decoded directly from the instruction word, so are
+// only valid in the EXECUTE state
 
-assign span_start =
-	state == S_EXECUTE && opcode == OPCODE_FILL && !skip_span ||
-	1'b0; // TODO
+function [INSTR_X_BITS:0] min; input [INSTR_X_BITS:0] a; input [INSTR_X_BITS:0] b; min = a < b ? a : b; endfunction
+function [INSTR_X_BITS:0] max; input [INSTR_X_BITS:0] a; input [INSTR_X_BITS:0] b; max = a > b ? a : b; endfunction
 
-assign span_x0 = clip_x0; // TODO
-assign span_count = clip_x1 - clip_x0; // TODO
+// TILE/ATILE/FILL use the whole scanline
+wire use_blit_region = opcode == OPCODE_BLIT || opcode == OPCODE_ABLIT;
+wire [INSTR_X_BITS:0] blit_size = 11'h8 << INSTR_BLIT_SIZE(instr);
+wire [INSTR_X_BITS:0] test_xl = use_blit_region ? {1'b0, instr[INSTR_X_LSB +: INSTR_X_BITS]} : {INSTR_X_BITS+1{1'b0}};
+wire [INSTR_X_BITS:0] test_xr = use_blit_region ? test_xl + blit_size : {{INSTR_X_BITS+1-W_COORD_SX{1'b0}}, {W_COORD_SX{1'b1}}};
+
+wire [INSTR_X_BITS:0] xl_clip_primary =   max(test_xl, clip_x0);
+wire [INSTR_X_BITS:0] xr_clip_primary =   min(test_xr, clip_x1);
+wire [INSTR_X_BITS:0] xl_clip_secondary = max(test_xl, {{INSTR_X_BITS+1-W_COORD_SX{1'b0}}, clip_x0} | {1'b1, {INSTR_X_BITS{1'b0}}});
+wire [INSTR_X_BITS:0] xr_clip_secondary = min(test_xr, {{INSTR_X_BITS+1-W_COORD_SX{1'b0}}, clip_x1} | {1'b1, {INSTR_X_BITS{1'b0}}});
+
+wire clip_pass_primary = xl_clip_primary < xr_clip_primary;
+wire clip_pass_secondary = xl_clip_secondary < xr_clip_secondary;
+wire [INSTR_Y_BITS:0] blit_y_offs = {{INSTR_Y_BITS+1-W_COORD_SY{1'b0}}, beam_y} - {1'b0, instr[INSTR_Y_LSB +: INSTR_Y_BITS]};
+wire blit_intersects_y = blit_y_offs < blit_size;
+
+assign skip_span = !(clip_pass_primary || clip_pass_secondary && use_blit_region)
+	&& !(use_blit_region && !blit_intersects_y);
+
+
+wire [W_COORD_SX-1:0] span_x0_comb = use_blit_region && clip_pass_secondary ? xl_clip_secondary : xl_clip_primary;
+wire [W_COORD_SX-1:0] span_count_comb = use_blit_region && clip_pass_secondary ?
+	xr_clip_secondary - xl_clip_secondary : xr_clip_primary - xl_clip_primary;
+
+reg [W_COORD_SX-1:0] span_x0_saved;
+reg [W_COORD_SX-1:0] span_count_saved;
+
+always @ (posedge clk or negedge rst_n) begin
+	 if (!rst_n) begin
+	 	span_x0_saved <= {W_COORD_SX{1'b0}};
+	 	span_count_saved <= {W_COORD_SX{1'b0}};
+	 end else if (state == S_EXECUTE && instr_vld && instr_rdy) begin
+	 	span_x0_saved <= span_x0_comb;
+	 	span_count_saved <= span_count_comb;
+	 end
+end
+
+assign span_x0 = state == S_EXECUTE ? span_x0_comb : span_x0_saved;
+assign span_count = state == S_EXECUTE ? span_count_comb : span_count_saved;
 assign span_type =
 	state == S_BLIT_IMG ? SPANTYPE_BLIT :
 	state == S_ABLIT_IMG ? SPANTYPE_ABLIT :
@@ -283,6 +323,25 @@ assign span_tilemap_ptr = tmp_buf & INSTR_ADDR_MASK;
 assign span_texsize = texsize;
 assign span_tilesize = tilesize;
 assign span_ablit_halfsize = ablit_halfsize;
+
+assign span_start = instr_vld && instr_rdy && (
+	state == S_EXECUTE && opcode == OPCODE_FILL && !skip_span ||
+	state == S_BLIT_IMG ||
+	state == S_ABLIT_IMG ||
+	state == S_TILE_TILESET ||
+	state == S_ATILE_TILESET
+);
+
+assign cgen_aparam_vld = instr_vld && (state == S_ABLIT_APARAM || state == S_ATILE_APARAM);
+assign cgen_aparam_data = instr;
+assign cgen_start_simple = state == S_EXECUTE && instr_vld && instr_rdy && (
+	opcode == OPCODE_BLIT || opcode == OPCODE_TILE
+);
+assign cgen_start_affine = state == S_EXECUTE && instr_vld && instr_rdy && (
+	opcode == OPCODE_ABLIT || opcode == OPCODE_ATILE
+);
+assign cgen_raster_offs_y = blit_y_offs[W_COORD_UV-1:0];
+assign cgen_raster_offs_x = span_x0_comb - instr[INSTR_X_LSB +: INSTR_X_BITS];
 
 // ----------------------------------------------------------------------------
 // Instruction frontend

@@ -16,6 +16,7 @@
  *********************************************************************/
 
 // Pixel processing unit, version 2
+`default_nettype none
 
 module riscboy_ppu #(
 	parameter PXFIFO_DEPTH = 8,
@@ -66,6 +67,7 @@ localparam W_LCD_PIXDATA = 16;
 localparam W_COORD_SX = 9;
 localparam W_COORD_SY = 8;
 localparam W_COORD_UV = 10;
+localparam W_COORD_FRAC = 8;
 // Should be locals but ISIM bug etc etc:
 parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
 
@@ -268,6 +270,94 @@ riscboy_ppu_cproc #(
 );
 
 // ----------------------------------------------------------------------------
+// Address generation
+
+wire [W_COORD_UV-1:0] cgen_out_u;
+wire [W_COORD_UV-1:0] cgen_out_v;
+wire                  cgen_out_vld;
+wire                  cgen_out_rdy_tile = 1'b0; // FIXME
+wire                  cgen_out_rdy_blit;
+wire                  cgen_out_rdy = cgen_out_rdy_tile || cgen_out_rdy_blit;
+
+`ifdef FORMAL
+always @ (posedge clk) if (rst_n) assert(!(cgen_out_rdy_tile && cgen_out_rdy_blit));
+`endif
+
+riscboy_ppu_affine_coord_gen #(
+	.W_COORD_INT  (W_COORD_UV),
+	.W_COORD_FRAC (W_COORD_FRAC),
+	.W_BUS_DATA   (W_HDATA)
+) cgen (
+	.clk           (clk_ppu),
+	.rst_n         (rst_n_ppu),
+	.start_affine  (cgen_start_affine),
+	.start_simple  (cgen_start_simple),
+	.raster_offs_x (cgen_raster_offs_x),
+	.raster_offs_y (cgen_raster_offs_y),
+	.aparam_data   (cgen_aparam_data),
+	.aparam_vld    (cgen_aparam_vld),
+	.aparam_rdy    (cgen_aparam_rdy),
+	.out_u         (cgen_out_u),
+	.out_v         (cgen_out_v),
+	.out_vld       (cgen_out_vld),
+	.out_rdy       (cgen_out_rdy)
+);
+
+wire                  pixel_bus_aph_vld;
+wire                  pixel_bus_aph_rdy;
+wire [W_HADDR-1:0]    pixel_bus_aph_addr;
+wire [1:0]            pixel_bus_aph_size;
+wire                  pixel_bus_dph_vld;
+wire [W_HDATA-1:0]    pixel_bus_dph_data;
+
+wire [3:0]            pinfo_u;
+wire                  pinfo_discard;
+wire                  pinfo_vld;
+wire                  pinfo_rdy;
+
+riscboy_ppu_pixel_agu #(
+	.W_COORD_SX  (W_COORD_SX),
+	.W_COORD_UV  (W_COORD_UV),
+	.W_SPAN_TYPE (W_SPANTYPE),
+	.W_ADDR      (W_HADDR)
+) pixel_agu (
+	.clk                 (clk_ppu),
+	.rst_n               (rst_n_ppu),
+
+	.bus_addr_vld        (pixel_bus_aph_vld),
+	.bus_addr_rdy        (pixel_bus_aph_rdy),
+	.bus_size            (pixel_bus_aph_size),
+	.bus_addr            (pixel_bus_aph_addr),
+
+	.span_start          (span_start),
+	.span_count          (span_count),
+	.span_type           (span_type),
+	.span_pixmode        (span_pixmode),
+	.span_texture_ptr    (span_texture_ptr),
+	.span_texsize        (span_texsize),
+	.span_tilesize       (span_tilesize),
+	.span_ablit_halfsize (span_ablit_halfsize),
+
+	.cgen_u              (cgen_out_u),
+	.cgen_v              (cgen_out_v),
+	.cgen_vld            (cgen_out_vld),
+	.cgen_rdy            (cgen_out_rdy_blit),
+
+	.tinfo_u             (/* TODO tinfo_u*/),
+	.tinfo_v             (/* TODO tinfo_v*/),
+	.tinfo_tilenum       (/* TODO tinfo_tilenum*/),
+	.tinfo_discard       (/* TODO tinfo_discard*/),
+	.tinfo_vld           (/* TODO tinfo_vld*/),
+	.tinfo_rdy           (/* TODO tinfo_rdy*/),
+
+	.pinfo_u             (pinfo_u),
+	.pinfo_discard       (pinfo_discard),
+	.pinfo_vld           (pinfo_vld),
+	.pinfo_rdy           (pinfo_rdy)
+);
+
+
+// ----------------------------------------------------------------------------
 // Pixel data unpack
 
 wire                  blender_in_vld;
@@ -282,10 +372,13 @@ riscboy_ppu_pixel_unpack #(
 	.clk              (clk_ppu),
 	.rst_n            (rst_n_ppu),
 
-	.in_vld           (1'b0), // TODO
-	.in_blank         (1'b0), // TODO
-	.in_data          (16'h0), // TODO
-	.in_u_lsbs        (4'h0), // TODO
+	.in_data          (pixel_bus_dph_data[W_PIXDATA-1:0]),
+	.in_vld           (pixel_bus_dph_vld),
+
+	.pinfo_u          (pinfo_u),
+	.pinfo_discard    (pinfo_discard),
+	.pinfo_vld        (pinfo_vld),
+	.pinfo_rdy        (pinfo_rdy),
 
 	.span_start       (span_start),
 	.span_x0          (span_x0),
@@ -501,7 +594,7 @@ riscboy_ppu_dispctrl #(
 // Busmaster
 
 riscboy_ppu_busmaster #(
-	.N_REQ     (1),
+	.N_REQ     (2),
 	.W_ADDR    (W_HADDR),
 	.W_DATA    (W_HDATA),
 	.ADDR_MASK (ADDR_MASK)
@@ -511,12 +604,12 @@ riscboy_ppu_busmaster #(
 	.ppu_running     (ppu_running),
 
 	// Lowest significance wins
-	.req_aph_vld     ({cproc_bus_aph_vld  }),
-	.req_aph_rdy     ({cproc_bus_aph_rdy  }),
-	.req_aph_addr    ({cproc_bus_aph_addr }),
-	.req_aph_size    ({cproc_bus_aph_size }),
-	.req_dph_vld     ({cproc_bus_dph_vld  }),
-	.req_dph_data    ({cproc_bus_dph_data }),
+	.req_aph_vld     ({pixel_bus_aph_vld  , cproc_bus_aph_vld  }),
+	.req_aph_rdy     ({pixel_bus_aph_rdy  , cproc_bus_aph_rdy  }),
+	.req_aph_addr    ({pixel_bus_aph_addr , cproc_bus_aph_addr }),
+	.req_aph_size    ({pixel_bus_aph_size , cproc_bus_aph_size }),
+	.req_dph_vld     ({pixel_bus_dph_vld  , cproc_bus_dph_vld  }),
+	.req_dph_data    ({pixel_bus_dph_data , cproc_bus_dph_data }),
 
 	.ahblm_haddr     (ahblm_haddr),
 	.ahblm_hwrite    (ahblm_hwrite),

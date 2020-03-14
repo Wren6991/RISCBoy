@@ -84,7 +84,7 @@ always @ (posedge clk)
 //synthesis translate_on
 
 
-`ifdef FORMAL
+`ifdef FORMAL_CHECK_FIFO
 initial assume(!rst_n);
 always @ (posedge clk) begin
 	assume(!(w_en && full && !r_en));

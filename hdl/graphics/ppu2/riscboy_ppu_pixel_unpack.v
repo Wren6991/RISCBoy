@@ -26,10 +26,15 @@ module riscboy_ppu_pixel_unpack #(
 	input wire                   clk,
 	input wire                   rst_n,
 
-	input wire                   in_vld,
-	input wire                   in_blank,
+	// Pixel data
 	input wire [W_DATA-1:0]      in_data,
-	input wire [3:0]             in_u_lsbs, // LSBs of u coordinate, for bit-picking operations
+	input wire                   in_vld,
+
+	// Pixel metadata
+	input wire [3:0]             pinfo_u,
+	input wire                   pinfo_discard,
+	input wire                   pinfo_vld,
+	output wire                  pinfo_rdy,
 
 	input wire                   span_start,
 	input wire [W_COORD_SX-1:0]  span_x0,
@@ -79,24 +84,30 @@ always @ (posedge clk or negedge rst_n) begin
 			if (~|x_remaining)
 				span_done <= 1'b1;
 		end
+`ifdef FORMAL
+		if (in_vld)
+			assert(pinfo_vld);
+`endif
 	end
 end
 
 wire [7:0] paloffs_shifted = {paloffs, 5'h0};
 
 always @ (*) begin
-	out_vld = !span_done && (type == SPANTYPE_FILL || in_vld);
-	out_blank = in_blank && type != SPANTYPE_FILL;
+	out_vld = !span_done && (type == SPANTYPE_FILL || in_vld || (pinfo_vld && pinfo_discard));
+	out_blank = pinfo_discard && type != SPANTYPE_FILL;
 	out_data = 16'h0;
 	if (type == SPANTYPE_FILL) begin
 		out_data = {1'b1, fill_colour};
 	end else case (pixmode)
 		PIXMODE_ARGB1555: out_data      = in_data;
-		PIXMODE_PAL8:     out_data[7:0] = in_data[8 * in_u_lsbs[0] +: 8]           + paloffs_shifted;
-		PIXMODE_PAL4:     out_data[7:0] = {4'h0, in_data[4 * in_u_lsbs[1:0] +: 4]} + paloffs_shifted;
-		PIXMODE_PAL1:     out_data[7:0] = {7'h0, in_data[in_u_lsbs[3:0]]}          + paloffs_shifted;
+		PIXMODE_PAL8:     out_data[7:0] = in_data[8 * pinfo_u[0] +: 8]           + paloffs_shifted;
+		PIXMODE_PAL4:     out_data[7:0] = {4'h0, in_data[4 * pinfo_u[1:0] +: 4]} + paloffs_shifted;
+		PIXMODE_PAL1:     out_data[7:0] = {7'h0, in_data[pinfo_u[3:0]]}          + paloffs_shifted;
 	endcase
 	out_paletted = MODE_IS_PALETTED(pixmode);
 end
+
+assign pinfo_rdy = (pinfo_vld && pinfo_discard) || in_vld;
 
 endmodule
