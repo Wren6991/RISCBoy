@@ -272,7 +272,7 @@ function [INSTR_X_BITS:0] max; input [INSTR_X_BITS:0] a; input [INSTR_X_BITS:0] 
 
 // TILE/ATILE/FILL use the whole scanline
 wire use_blit_region = opcode == OPCODE_BLIT || opcode == OPCODE_ABLIT;
-wire [INSTR_X_BITS:0] blit_size = 11'h8 << INSTR_BLIT_SIZE(instr);
+wire [INSTR_X_BITS:0] blit_size = (11'h8 << INSTR_BLIT_SIZE(instr)) - 11'h1; // Actually the distance between start and end, which is one less than count
 wire [INSTR_X_BITS:0] test_xl = use_blit_region ? {1'b0, instr[INSTR_X_LSB +: INSTR_X_BITS]} : {INSTR_X_BITS+1{1'b0}};
 wire [INSTR_X_BITS:0] test_xr = use_blit_region ? test_xl + blit_size : {{INSTR_X_BITS+1-W_COORD_SX{1'b0}}, {W_COORD_SX{1'b1}}};
 
@@ -283,11 +283,11 @@ wire [INSTR_X_BITS:0] xr_clip_secondary = min(test_xr, {{INSTR_X_BITS+1-W_COORD_
 
 wire clip_pass_primary = xl_clip_primary < xr_clip_primary;
 wire clip_pass_secondary = xl_clip_secondary < xr_clip_secondary;
-wire [INSTR_Y_BITS:0] blit_y_offs = {{INSTR_Y_BITS+1-W_COORD_SY{1'b0}}, beam_y} - {1'b0, instr[INSTR_Y_LSB +: INSTR_Y_BITS]};
+wire [INSTR_Y_BITS:0] blit_y_offs = {1'b0, {{INSTR_Y_BITS-W_COORD_SY{1'b0}}, beam_y} - instr[INSTR_Y_LSB +: INSTR_Y_BITS]};
 wire blit_intersects_y = blit_y_offs < blit_size;
 
-assign skip_span = !(clip_pass_primary || clip_pass_secondary && use_blit_region)
-	&& !(use_blit_region && !blit_intersects_y);
+wire skip_span_comb = (!clip_pass_primary && !(clip_pass_secondary || !use_blit_region))
+	|| (use_blit_region && !blit_intersects_y);
 
 
 wire [W_COORD_SX-1:0] span_x0_comb = use_blit_region && clip_pass_secondary ? xl_clip_secondary : xl_clip_primary;
@@ -296,19 +296,24 @@ wire [W_COORD_SX-1:0] span_count_comb = use_blit_region && clip_pass_secondary ?
 
 reg [W_COORD_SX-1:0] span_x0_saved;
 reg [W_COORD_SX-1:0] span_count_saved;
+reg                  skip_span_saved;
 
 always @ (posedge clk or negedge rst_n) begin
-	 if (!rst_n) begin
-	 	span_x0_saved <= {W_COORD_SX{1'b0}};
-	 	span_count_saved <= {W_COORD_SX{1'b0}};
-	 end else if (state == S_EXECUTE && instr_vld && instr_rdy) begin
-	 	span_x0_saved <= span_x0_comb;
-	 	span_count_saved <= span_count_comb;
-	 end
+	if (!rst_n) begin
+		span_x0_saved <= {W_COORD_SX{1'b0}};
+		span_count_saved <= {W_COORD_SX{1'b0}};
+		skip_span_saved <= 1'b1;
+	end else if (state == S_EXECUTE && instr_vld && instr_rdy) begin
+		span_x0_saved <= span_x0_comb;
+		span_count_saved <= span_count_comb;
+		skip_span_saved <= skip_span_saved <= skip_span_comb;
+	end
 end
 
 assign span_x0 = state == S_EXECUTE ? span_x0_comb : span_x0_saved;
 assign span_count = state == S_EXECUTE ? span_count_comb : span_count_saved;
+assign skip_span = state == S_EXECUTE ? skip_span_comb : skip_span_saved;
+
 assign span_type =
 	state == S_BLIT_IMG ? SPANTYPE_BLIT :
 	state == S_ABLIT_IMG ? SPANTYPE_ABLIT :

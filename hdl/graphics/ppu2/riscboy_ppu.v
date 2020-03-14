@@ -337,6 +337,7 @@ riscboy_ppu_pixel_agu #(
 	.span_texsize        (span_texsize),
 	.span_tilesize       (span_tilesize),
 	.span_ablit_halfsize (span_ablit_halfsize),
+	.span_done           (/* unused */),
 
 	.cgen_u              (cgen_out_u),
 	.cgen_v              (cgen_out_v),

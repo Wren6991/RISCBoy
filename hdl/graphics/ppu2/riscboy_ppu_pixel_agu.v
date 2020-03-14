@@ -113,7 +113,7 @@ wire [W_ADDR-1:0] blit_addr_offs = {blit_pixel_offs_in_texture, 1'b0} >> 3'h4 - 
 
 wire [W_ADDR-1:0] tile_addr_offs = 0; // FIXME !!!!!!!!!!!!
 
-wire blit_out_of_bounds = |{cgen_u & ordinate_mask, cgen_v & ordinate_mask};
+wire blit_out_of_bounds = |{cgen_u & ~ordinate_mask, cgen_v & ~ordinate_mask};
 
 // Always halfword-sized, halfword-aligned
 assign bus_addr = (texture_ptr + (blit_mode ? blit_addr_offs : tile_addr_offs)) & 32'hffff_fffe;
@@ -122,8 +122,10 @@ assign bus_addr_vld = blit_mode ?
 	!(span_done || pinfo_fifo_full || blit_out_of_bounds || !cgen_vld) :
 	1'b0; // FIXME tiles
 
-assign issue_pixel = bus_addr_vld && bus_addr_rdy ||
-	blit_mode && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full; // TODO tinfo discard
+assign issue_pixel = !span_done && (
+	bus_addr_vld && bus_addr_rdy ||
+	blit_mode && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full
+); // TODO tinfo discard
 
 assign cgen_rdy = issue_pixel && blit_mode;
 
