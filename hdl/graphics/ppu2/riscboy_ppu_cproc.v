@@ -286,8 +286,9 @@ wire clip_pass_secondary = xl_clip_secondary < xr_clip_secondary;
 wire [INSTR_Y_BITS:0] blit_y_offs = {1'b0, {{INSTR_Y_BITS-W_COORD_SY{1'b0}}, beam_y} - instr[INSTR_Y_LSB +: INSTR_Y_BITS]};
 wire blit_intersects_y = blit_y_offs < blit_size;
 
-wire skip_span_comb = (!clip_pass_primary && !(clip_pass_secondary || !use_blit_region))
-	|| (use_blit_region && !blit_intersects_y);
+wire skip_span_comb =
+	!(clip_pass_primary || (clip_pass_secondary && use_blit_region)) // Skip if X intersect fails
+	|| (use_blit_region && !blit_intersects_y);                      // Skip if Y intersect fails
 
 
 wire [W_COORD_SX-1:0] span_x0_comb = use_blit_region && clip_pass_secondary ? xl_clip_secondary : xl_clip_primary;
