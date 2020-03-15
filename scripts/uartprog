@@ -17,6 +17,9 @@ PAGESIZE   = 2 ** 8
 SECTORSIZE = 2 ** 12
 BLOCKSIZE  = 2 ** 16
 
+SRAM_LOAD_ADDR = 0x2 << 28
+SRAM_EXEC_ADDR = SRAM_LOAD_ADDR + 0xc0
+
 class ProtocolError(Exception):
 	pass
 
@@ -31,6 +34,8 @@ class CMD:
 	ERASE_SECTOR = 'E'.encode()
 	ERASE_BLOCK  = 'B'.encode()
 	BOOT_2ND     = '2'.encode()
+	LOAD_MEM     = 'l'.encode()
+	EXEC_MEM     = 'x'.encode()
 	ACK          = ':'.encode()
 
 def reset_shell(port):
@@ -47,6 +52,7 @@ def reset_shell(port):
 def check_ack(port):
 	resp = port.read()
 	if len(resp) == 0 or resp != CMD.ACK:
+		print("Got '{!r}'".format(resp))
 		raise ProtocolError()
 
 def write_buf(port, data, check=True):
@@ -133,6 +139,22 @@ def run_2nd_stage(port):
 	port.write(CMD.BOOT_2ND)
 	check_ack(port)
 
+def load_mem(port, data):
+	set_addr(port, 0xb00000 | SRAM_LOAD_ADDR)
+	port.write(CMD.LOAD_MEM + bytes([
+		(len(data) >> 16) & 0xff,
+		(len(data) >>  8) & 0xff,
+		(len(data) >>  0) & 0xff
+	]))
+	check_ack(port)
+	port.write(data) # yup
+	check_ack(port)
+
+def exec_mem(port):
+	set_addr(port, 0xb00000 | SRAM_EXEC_ADDR)
+	port.write(CMD.EXEC_MEM)
+	check_ack(port)
+
 def any_int(x):
 	return int(x, 0)
 
@@ -147,6 +169,8 @@ if __name__ == "__main__":
 		help="Verify contents after programming (use with --write)")
 	parser.add_argument("--run", "-r", action="store_true",
 		help="Run code from flash after programming")
+	parser.add_argument("--execute", "-x", action="store_true",
+		help="Load code directly into SRAM and execute it. Not to be combined with -w,-v,-r")
 	parser.add_argument("--start", "-s", type=any_int, help="Base address to start read/write")
 	parser.add_argument("--len", "-l", type=any_int, help="Number of bytes to read, or override file length for write.")
 	args = parser.parse_args()
@@ -166,7 +190,9 @@ if __name__ == "__main__":
 		sys.exit("Run is only valid for a write operation")
 	if args.write and (args.start % PAGESIZE != 0):
 		sys.exit("Writes must be aligned on a {}-byte boundary.".format(PAGESIZE))
-	if args.write:
+	if args.execute and (args.write or args.verify or args.run or args.start or args.len):
+		sys.exit("--execute is not compatible with flash-related arguments")
+	if args.write or args.execute:
 		try:
 			filesize = os.stat(args.file).st_size
 			if args.len is None:
@@ -178,7 +204,7 @@ if __name__ == "__main__":
 			args.len = PAGESIZE
 
 	# Don't want to overwrite their image if they forget -w
-	if not args.write and args.file and os.path.exists(args.file):
+	if not (args.write or args.execute) and args.file and os.path.exists(args.file):
 		resp = ""
 		while not resp in ["y", "n"]:
 			resp = input("File '{}' exists. Overwrite? (y/n) ".format(args.file))
@@ -187,14 +213,17 @@ if __name__ == "__main__":
 			sys.exit(0)
 
 	# Summarise what we're about to do
-	print("{} {} bytes {} {}, starting at address 0x{:06x}".format(
-		"Writing" + (" and verifying" if args.verify else "") if args.write else "Reading",
-		args.len,
-		"from" if args.write else "to",
-		"stdout" if args.file is None else "file " + args.file,
-		args.start,
-		", and verifying" if args.verify else ""
-	))
+	if args.execute:
+		print("Loading {} bytes to SRAM and running".format(args.len))
+	else:
+		print("{} {} bytes {} {}, starting at address 0x{:06x}".format(
+			"Writing" + (" and verifying" if args.verify else "") if args.write else "Reading",
+			args.len,
+			"from" if args.write else "to",
+			"stdout" if args.file is None else "file " + args.file,
+			args.start,
+			", and verifying" if args.verify else ""
+		))
 
 	# And then do it
 	# need to allow for page erase, upward of 60 ms. (Uh, actually it seems to be much longer)
@@ -203,7 +232,12 @@ if __name__ == "__main__":
 	reset_shell(port)
 	print("")
 
-	if args.write:
+	if args.execute or args.write:
+		print("Loading...")
+		load_mem(port, open(args.file, "rb").read())
+		print("Load ok, running...")
+		exec_mem(port)
+	elif args.write:
 		data = open(args.file, "rb").read()
 		if len(data) > args.len:
 			data = data[:args.len]

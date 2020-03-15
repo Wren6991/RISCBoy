@@ -1,4 +1,4 @@
-#define CLK_SYS_MHZ 36
+ #define CLK_SYS_MHZ 36
 
 #include "delay.h"
 #include "gpio.h"
@@ -10,7 +10,7 @@
 #define HOST_TIMEOUT_MS 100
 
 #ifndef STAGE2_OFFS
-#define STAGE2_OFFS 0x22000
+#define STAGE2_OFFS 0x30000
 #endif
 
 #ifdef FORCE_SRAM0_SIZE
@@ -83,6 +83,9 @@ const char *splash =
 #define BOOT_2ND     '2' // No effect if addr isn't magic 0x123456
                          // (since this is a destructive thing to do if
                          // the device is partially programmed!)
+
+#define LOAD_MEM     'l' // These two are basically a hack while my flash is dead
+#define EXEC_MEM     'x' // but they give a nice fast build-program-run cycle
 
 #define TEST_MEM     'm'
 
@@ -350,6 +353,33 @@ void run_flash_shell()
 				if (addr == BOOT_2ND_MAGIC)
 					run_2nd_stage();
 				break;
+			case LOAD_MEM:
+			{
+				// Password on top nibble to avoid some nasty accidents
+				if (addr >> 20 != 0xb)
+					break;
+				addr &= SRAM0_SIZE - 1;
+				uint32_t len = 0;
+				for (int i = 0; i < 3; ++i)
+					len = (len << 8) | uart_get();
+				if (addr + len > SRAM0_SIZE)
+					break;
+				uint8_t *p = (uint8_t *)(SRAM0_BASE + addr);
+				uart_put(ACK);
+				while (len--)
+					*p++ = uart_get();
+				uart_put(ACK);
+				break;
+			}
+			case EXEC_MEM:
+			{
+				if (addr >> 20 != 0xb)
+					break;
+				uart_put(ACK);
+				// Scary but true
+				((void (*)())(SRAM0_BASE + (addr & SRAM0_SIZE - 1)))();
+				break;
+			}
 			case TEST_MEM:
 				uart_put(ACK);
 				test_mem();
