@@ -8,7 +8,10 @@ def bytes_from_bitstream_le(bitstream):
 	accum_size = 0
 	while True:
 		while accum_size < 8:
-			nbits, newdata = next(bitstream)
+			try:
+				nbits, newdata = next(bitstream)
+			except StopIteration:
+				return
 			accum = accum | (newdata << accum_size)
 			accum_size += nbits
 		while accum_size >= 8:
@@ -39,7 +42,7 @@ if __name__ == "__main__":
 	parser.add_argument("input", help="Input file name")
 	parser.add_argument("output", help="Output file name")
 	parser.add_argument("--tilesize", "-t", help="Tile size (pixels), default 8",
-		default="8", choices=["8", "16"])
+		default="8", choices=[str(2 ** i) for i in range(3, 11)])
 	parser.add_argument("--format", "-f", help="Output pixel format, default argb1555",
 		default="argb1555", choices=["argb1555", "argb1232", "p8", "p4", "p2", "p1"])
 	args = parser.parse_args()
