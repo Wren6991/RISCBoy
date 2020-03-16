@@ -25,8 +25,8 @@
 
 // Field: OUT  Access: RW
 #define GPIO_OUT_LSB  0
-#define GPIO_OUT_BITS 23
-#define GPIO_OUT_MASK 0x7fffff
+#define GPIO_OUT_BITS 25
+#define GPIO_OUT_MASK 0x1ffffff
 
 /*******************************************************************************
 *                                     DIR                                      *
@@ -36,8 +36,8 @@
 
 // Field: DIR  Access: RW
 #define GPIO_DIR_LSB  0
-#define GPIO_DIR_BITS 23
-#define GPIO_DIR_MASK 0x7fffff
+#define GPIO_DIR_BITS 25
+#define GPIO_DIR_MASK 0x1ffffff
 
 /*******************************************************************************
 *                                      IN                                      *
@@ -47,8 +47,8 @@
 
 // Field: IN  Access: ROV
 #define GPIO_IN_LSB  0
-#define GPIO_IN_BITS 23
-#define GPIO_IN_MASK 0x7fffff
+#define GPIO_IN_BITS 25
+#define GPIO_IN_MASK 0x1ffffff
 
 /*******************************************************************************
 *                                    FSEL0                                     *
@@ -148,5 +148,13 @@
 #define GPIO_FSEL0_P22_LSB  22
 #define GPIO_FSEL0_P22_BITS 1
 #define GPIO_FSEL0_P22_MASK 0x400000
+// Field: FSEL0_P23  Access: RW
+#define GPIO_FSEL0_P23_LSB  23
+#define GPIO_FSEL0_P23_BITS 1
+#define GPIO_FSEL0_P23_MASK 0x800000
+// Field: FSEL0_P24  Access: RW
+#define GPIO_FSEL0_P24_LSB  24
+#define GPIO_FSEL0_P24_BITS 1
+#define GPIO_FSEL0_P24_MASK 0x1000000
 
 #endif // _GPIO_REGS_H_

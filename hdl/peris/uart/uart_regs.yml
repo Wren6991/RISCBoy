@@ -14,7 +14,8 @@ regs:
       - {b: 1, name: busy, access: rov, info: UART TX is still sending data}
       - {b: 2, name: txie, access: rw, info: Enable TX FIFO interrupt}
       - {b: 3, name: rxie, access: rw, info: Enable RX FIFO interrupt}
-      - {b: 8, name: loopback, access: rw, info: Connect directly to TX internally (for testing).}
+      - {b: 4, name: ctsen, access: rw, info: Enable pausing of TX while CTS is not asserted}
+      - {b: 8, name: loopback, access: rw, info: "Connect TX -> RX and RTS -> CTS internally (for testing)."}
   - name: div
     info: Clock divider control fields
     bits:

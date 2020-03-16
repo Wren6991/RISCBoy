@@ -122,4 +122,9 @@ static inline void uart_init()
 	uart_enable(true);
 }
 
+static inline void uart_enable_cts(bool en)
+{
+	*UART_CSR = *UART_CSR & ~UART_CSR_CTSEN_MASK | (!!en << UART_CSR_CTSEN_LSB);
+}
+
 #endif // _UART_H_

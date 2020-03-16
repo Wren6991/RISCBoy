@@ -1,4 +1,4 @@
-// Simple UART for FPGABoy
+// Simple UART for RISCBoy
 
 // - APB slave interface
 // - 8 data bits, 1 stop bit, 1 start bit ONLY
@@ -25,6 +25,8 @@ module uart_mini #(
 
 	input wire rx,
 	output reg tx,
+	input wire cts,
+	output reg rts,
 
 	output wire irq,
 	output wire dreq
@@ -86,8 +88,11 @@ localparam TX_START = 1;
 // 2...9 are data states
 localparam TX_STOP = 10;
 
+wire cts_en;
 wire tx_busy = tx_state != TX_IDLE || !txfifo_empty;
-assign txfifo_ren = clk_en && !txfifo_empty && !tx_over_ctr &&
+wire cts_with_loop = csr_loopback ? rts : cts;
+wire hold_tx = txfifo_empty || (cts_en && cts_with_loop);
+assign txfifo_ren = clk_en && !hold_tx && !tx_over_ctr &&
 	(tx_state == TX_IDLE || tx_state == TX_STOP);
 
 always @ (posedge clk or negedge rst_n_sync) begin
@@ -109,7 +114,7 @@ always @ (posedge clk or negedge rst_n_sync) begin
 			tx_state <= tx_state + 1'b1;
 			case (tx_state)
 			TX_IDLE: begin
-				if (txfifo_empty) begin
+				if (hold_tx) begin
 					// Hold counter whilst idle, so we respond immediately
 					tx_over_ctr <= {W_OVER{1'b0}};
 					tx_state <= TX_IDLE;
@@ -123,7 +128,7 @@ always @ (posedge clk or negedge rst_n_sync) begin
 				tx <= tx_shifter[0];
 			end
 			TX_STOP: begin
-				if (txfifo_empty) begin
+				if (hold_tx) begin
 					tx_state <= TX_IDLE;
 					tx_over_ctr <= {W_OVER{1'b0}};
 				end else begin
@@ -224,6 +229,14 @@ always @ (posedge clk or negedge rst_n_sync) begin
 	end
 end
 
+always @ (posedge clk or negedge rst_n_sync) begin
+	if (!rst_n_sync) begin
+		rts <= 1'b1;
+	end else begin
+		rts <= rxfifo_level > FIFO_DEPTH - 2;
+	end
+end
+
 // =================================
 // FIFOs, Clock Divider and Regblock
 // =================================
@@ -290,6 +303,7 @@ uart_regs regs (
 	.csr_busy_i      (tx_busy),
 	.csr_txie_o      (csr_txie),
 	.csr_rxie_o      (csr_rxie),
+	.csr_ctsen_o     (cts_en),
 	.csr_loopback_o  (csr_loopback),
 	.div_int_o       (div_int),
 	.div_frac_o      (div_frac),

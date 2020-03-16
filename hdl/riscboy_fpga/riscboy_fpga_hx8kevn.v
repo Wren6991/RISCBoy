@@ -7,6 +7,8 @@ module riscboy_fpga (
 
 	inout wire                     uart_tx,
 	inout wire                     uart_rx,
+	inout wire                     uart_rts,
+	inout wire                     uart_cts,
 
 	inout wire                     dpad_u,
 	inout wire                     dpad_d,
@@ -108,6 +110,20 @@ tristate_io pad_uart_rx (
 	.oe  (padoe[PIN_UART_RX]),
 	.in  (padin[PIN_UART_RX]),
 	.pad (uart_rx)
+);
+
+tristate_io pad_uart_rts (
+	.out (padout[PIN_UART_RTS]),
+	.oe  (padoe[PIN_UART_RTS]),
+	.in  (padin[PIN_UART_RTS]),
+	.pad (uart_rts)
+);
+
+tristate_io pad_uart_cts (
+	.out (padout[PIN_UART_CTS]),
+	.oe  (padoe[PIN_UART_CTS]),
+	.in  (padin[PIN_UART_CTS]),
+	.pad (uart_cts)
 );
 
 tristate_io pad_flash_miso (

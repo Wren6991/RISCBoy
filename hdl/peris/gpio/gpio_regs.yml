@@ -3,7 +3,7 @@ bus: apb
 addr: 16
 data: 32
 params:
-  N_PADS: 23
+  N_PADS: 25
   W_FSEL: 1
 regs:
   - name: out
@@ -31,5 +31,5 @@ regs:
               regnum = regnum + 1
           lsb = W_DATA - remaining_bits
           remaining_bits -= W_FSEL
-          _("    - {{b: [{}, {}], name: p{}, access: rw}}".format(lsb + W_FSEL - 1, lsb, i))
+          _("    - {{b: [{}, {}], name: p{}, access: rw, concat: fsel}}".format(lsb + W_FSEL - 1, lsb, i))
 

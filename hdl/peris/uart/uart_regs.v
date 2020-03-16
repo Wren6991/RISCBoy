@@ -28,6 +28,7 @@ module uart_regs (
 	input wire  csr_busy_i,
 	output reg  csr_txie_o,
 	output reg  csr_rxie_o,
+	output reg  csr_ctsen_o,
 	output reg  csr_loopback_o,
 	output reg [9:0] div_int_o,
 	output reg [3:0] div_frac_o,
@@ -35,12 +36,16 @@ module uart_regs (
 	input wire  fstat_txfull_i,
 	input wire  fstat_txempty_i,
 	input wire  fstat_txover_i,
+	output reg  fstat_txover_o,
 	input wire  fstat_txunder_i,
+	output reg  fstat_txunder_o,
 	input wire [7:0] fstat_rxlevel_i,
 	input wire  fstat_rxfull_i,
 	input wire  fstat_rxempty_i,
 	input wire  fstat_rxover_i,
+	output reg  fstat_rxover_o,
 	input wire  fstat_rxunder_i,
+	output reg  fstat_rxunder_o,
 	output reg [7:0] tx_o,
 	output reg tx_wen,
 	input wire [7:0] rx_i,
@@ -82,13 +87,16 @@ wire  csr_txie_wdata = wdata[2];
 wire  csr_txie_rdata;
 wire  csr_rxie_wdata = wdata[3];
 wire  csr_rxie_rdata;
+wire  csr_ctsen_wdata = wdata[4];
+wire  csr_ctsen_rdata;
 wire  csr_loopback_wdata = wdata[8];
 wire  csr_loopback_rdata;
-wire [31:0] __csr_rdata = {23'h0, csr_loopback_rdata, 4'h0, csr_rxie_rdata, csr_txie_rdata, csr_busy_rdata, csr_en_rdata};
+wire [31:0] __csr_rdata = {23'h0, csr_loopback_rdata, 3'h0, csr_ctsen_rdata, csr_rxie_rdata, csr_txie_rdata, csr_busy_rdata, csr_en_rdata};
 assign csr_en_rdata = csr_en_o;
 assign csr_busy_rdata = csr_busy_i;
 assign csr_txie_rdata = csr_txie_o;
 assign csr_rxie_rdata = csr_rxie_o;
+assign csr_ctsen_rdata = csr_ctsen_o;
 assign csr_loopback_rdata = csr_loopback_o;
 
 wire [9:0] div_int_wdata = wdata[13:4];
@@ -154,6 +162,10 @@ always @ (*) begin
 		ADDR_RX: rdata = __rx_rdata;
 		default: rdata = 32'h0;
 	endcase
+	fstat_txover_o = fstat_txover;
+	fstat_txunder_o = fstat_txunder;
+	fstat_rxover_o = fstat_rxover;
+	fstat_rxunder_o = fstat_rxunder;
 	tx_wen = __tx_wen;
 	tx_o = tx_wdata;
 	rx_ren = __rx_ren;
@@ -164,6 +176,7 @@ always @ (posedge clk or negedge rst_n) begin
 		csr_en_o <= 1'h0;
 		csr_txie_o <= 1'h0;
 		csr_rxie_o <= 1'h0;
+		csr_ctsen_o <= 1'h0;
 		csr_loopback_o <= 1'h0;
 		div_int_o <= 10'h1;
 		div_frac_o <= 4'h0;
@@ -178,6 +191,8 @@ always @ (posedge clk or negedge rst_n) begin
 			csr_txie_o <= csr_txie_wdata;
 		if (__csr_wen)
 			csr_rxie_o <= csr_rxie_wdata;
+		if (__csr_wen)
+			csr_ctsen_o <= csr_ctsen_wdata;
 		if (__csr_wen)
 			csr_loopback_o <= csr_loopback_wdata;
 		if (__div_wen)

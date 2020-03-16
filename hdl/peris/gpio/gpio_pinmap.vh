@@ -1,4 +1,4 @@
-localparam N_GPIOS = 23;
+localparam N_GPIOS = 25;
 
 localparam PIN_LED        = 0;
 
@@ -27,3 +27,5 @@ localparam PIN_LCD_RST    = 20;
 
 localparam PIN_UART_RX    = 21;
 localparam PIN_UART_TX    = 22;
+localparam PIN_UART_CTS   = 23;
+localparam PIN_UART_RTS   = 24;

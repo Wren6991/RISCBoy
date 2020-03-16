@@ -2,7 +2,7 @@
 // APB master can bitbash, and control muxing of peripheral onto pad.
 
 module gpio #(
-	parameter N_PADS = 23
+	parameter N_PADS = 25
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -26,6 +26,8 @@ module gpio #(
 	input wire lcd_pwm,
 	input wire uart_tx,
 	output wire uart_rx,
+	input wire uart_rts,
+	output wire uart_cts,
 	input wire spi_sclk,
 	input wire spi_cs,
 	input wire spi_sdo,
@@ -47,7 +49,15 @@ reset_sync #(
 localparam W_FSEL = 1;
 localparam N_FSELS = 1 << W_FSEL;
 
+wire [W_FSEL*N_PADS-1:0] fsel_packed;
 wire [W_FSEL-1:0] fsel [0:N_PADS-1];
+
+genvar g;
+generate
+for (g = 0; g < N_PADS; g = g + 1) begin: fsel_unpack
+	assign fsel[g] = fsel_packed[g * W_FSEL +: W_FSEL];
+end
+endgenerate
 
 // Output muxing
 
@@ -62,6 +72,7 @@ always @ (*) begin: gpio_mux
 			padoe[i] = proc_oe[i];
 		end else case (i)
 			PIN_UART_TX    : begin padout[i] = uart_tx;  padoe[i] = 1'b1; end
+			PIN_UART_RTS   : begin padout[i] = uart_rts; padoe[i] = 1'b1; end
 			PIN_FLASH_CS   : begin padout[i] = spi_cs;   padoe[i] = 1'b1; end
 			PIN_FLASH_SCLK : begin padout[i] = spi_sclk; padoe[i] = 1'b1; end
 			PIN_FLASH_MOSI : begin padout[i] = spi_sdo;  padoe[i] = 1'b1; end
@@ -86,6 +97,7 @@ end
 // Input assignments (TODO: multi-source input muxing? When needed)
 
 assign uart_rx = padin_reg[PIN_UART_RX]; // UART isn't going to mind an extra clock of latency!
+assign uart_cts = padin_reg[PIN_UART_CTS];
 assign spi_sdi = padin[PIN_FLASH_MISO];  // SPI certainly will though
 
 // APB Regblock
@@ -105,29 +117,7 @@ gpio_regs inst_gpio_regs
 	.out_o         (proc_out),
 	.dir_o         (proc_oe),
 	.in_i          (padin_reg),
-	.fsel0_p0_o    (fsel[0 ]),
-	.fsel0_p1_o    (fsel[1 ]),
-	.fsel0_p2_o    (fsel[2 ]),
-	.fsel0_p3_o    (fsel[3 ]),
-	.fsel0_p4_o    (fsel[4 ]),
-	.fsel0_p5_o    (fsel[5 ]),
-	.fsel0_p6_o    (fsel[6 ]),
-	.fsel0_p7_o    (fsel[7 ]),
-	.fsel0_p8_o    (fsel[8 ]),
-	.fsel0_p9_o    (fsel[9 ]),
-	.fsel0_p10_o   (fsel[10]),
-	.fsel0_p11_o   (fsel[11]),
-	.fsel0_p12_o   (fsel[12]),
-	.fsel0_p13_o   (fsel[13]),
-	.fsel0_p14_o   (fsel[14]),
-	.fsel0_p15_o   (fsel[15]),
-	.fsel0_p16_o   (fsel[16]),
-	.fsel0_p17_o   (fsel[17]),
-	.fsel0_p18_o   (fsel[18]),
-	.fsel0_p19_o   (fsel[19]),
-	.fsel0_p20_o   (fsel[20]),
-	.fsel0_p21_o   (fsel[21]),
-	.fsel0_p22_o   (fsel[22])
+	.concat_fsel_o (fsel_packed)
 );
 
 endmodule

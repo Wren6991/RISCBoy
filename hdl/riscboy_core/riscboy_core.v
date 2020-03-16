@@ -24,7 +24,7 @@ module riscboy_core #(
 	parameter CPU_RESET_VECTOR = 32'h200800c0,
 	parameter W_SRAM0_ADDR = 18,
 	parameter SRAM0_INTERNAL = 0,
-	parameter N_PADS = 23 // Let this default
+	parameter N_PADS = 25 // Let this default
 ) (
 	input wire                     clk_sys,
 	input wire                     clk_lcd,
@@ -150,6 +150,8 @@ wire               uart_irq;
 
 wire               uart_tx;
 wire               uart_rx;
+wire               uart_cts;
+wire               uart_rts;
 
 wire [W_PADDR-1:0] spi_paddr;
 wire               spi_psel;
@@ -496,7 +498,7 @@ pwm_tiny inst_pwm_tiny (
 );
 
 uart_mini #(
-	.FIFO_DEPTH(2),
+	.FIFO_DEPTH(4),
 	.OVERSAMPLE(8)
 ) inst_uart_mini (
 	.clk          (clk_sys),
@@ -511,6 +513,8 @@ uart_mini #(
 	.apbs_pslverr (uart_pslverr),
 	.rx           (uart_rx),
 	.tx           (uart_tx),
+	.rts          (uart_rts),
+	.cts          (uart_cts),
 	.irq          (uart_irq),
 	.dreq         ()
 );
@@ -555,6 +559,8 @@ gpio #(
 	.lcd_pwm      (lcd_pwm),
 	.uart_tx      (uart_tx),
 	.uart_rx      (uart_rx),
+	.uart_rts     (uart_rts),
+	.uart_cts     (uart_cts),
 	.spi_cs       (spi_cs_n),
 	.spi_sclk     (spi_sclk),
 	.spi_sdo      (spi_sdo),

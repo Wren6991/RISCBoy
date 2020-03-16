@@ -44,8 +44,13 @@
 #define UART_CSR_RXIE_LSB  3
 #define UART_CSR_RXIE_BITS 1
 #define UART_CSR_RXIE_MASK 0x8
+// Field: CSR_CTSEN  Access: RW
+// Enable pausing of TX while CTS is not asserted
+#define UART_CSR_CTSEN_LSB  4
+#define UART_CSR_CTSEN_BITS 1
+#define UART_CSR_CTSEN_MASK 0x10
 // Field: CSR_LOOPBACK  Access: RW
-// Connect directly to TX internally (for testing).
+// Connect TX -> RX and RTS -> CTS internally (for testing).
 #define UART_CSR_LOOPBACK_LSB  8
 #define UART_CSR_LOOPBACK_BITS 1
 #define UART_CSR_LOOPBACK_MASK 0x100

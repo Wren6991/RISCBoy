@@ -19,7 +19,7 @@ DECL_REG(GPIO_BASE + GPIO_FSEL0_OFFS, GPIO_FSEL0);
 #define _GPIO_FSEL_MASK_PINNUM(x) GPIO_FSEL0_P##x##_MASK
 #define GPIO_FSEL_MASK_PIN(p) _GPIO_FSEL_MASK_PINNUM(p)
 
-#define N_GPIOS 23
+#define N_GPIOS 25
 
 #define PIN_LED         0
 
@@ -47,6 +47,8 @@ DECL_REG(GPIO_BASE + GPIO_FSEL0_OFFS, GPIO_FSEL0);
 #define PIN_LCD_RST     20
 #define PIN_UART_RX     21
 #define PIN_UART_TX     22
+#define PIN_UART_CTS    23
+#define PIN_UART_RTS    24
 
 static inline void gpio_out(uint32_t val)
 {
