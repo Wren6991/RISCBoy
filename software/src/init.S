@@ -85,6 +85,19 @@ j \name
 	li sp, SRAM1_BASE + SRAM1_SIZE
 	la t0, .vector_table
 	csrw mtvec, t0
+
+	la a0, __time_critical_start__
+	la a1, __time_critical_end__
+	la a2, __time_critical_init__
+	j 1f
+tc_init_loop:
+	lw a3, (a2)
+	sw a3, (a0)
+	addi a0, a0, 4
+	addi a2, a2, 4
+1:
+	blt a0, a1, tc_init_loop
+
 	jal _start
 	j .halt
 

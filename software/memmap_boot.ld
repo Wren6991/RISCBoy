@@ -195,11 +195,21 @@ SECTIONS
       pad the .data section.  */
    . = ALIGN(. != 0 ? 32 / 8 : 1);
   }
+
+  __time_critical_init__ = .;
+  __time_critical_start__ = .;
+  __time_critical_end__ = .;
+  .time_critical :
+  {
+    *(.time_critical .time_critical.*)
+  }
+
   . = ALIGN(32 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(32 / 8);
   _end = .; PROVIDE (end = .);
   . = DATA_SEGMENT_END (.);
+
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }

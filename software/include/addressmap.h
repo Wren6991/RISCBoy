@@ -19,4 +19,6 @@
 
 #define DECL_REG(addr, name) volatile uint32_t * const (name) = (volatile uint32_t*)(addr)
 
+#define __time_critical __attribute__((section(".time_critical")))
+
 #endif // _ADDRESSMAP_H_

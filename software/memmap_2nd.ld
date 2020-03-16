@@ -205,6 +205,14 @@ SECTIONS
     *(.noload .noload.*)
   }
   . = DATA_SEGMENT_END (.);
+  __time_critical_init__ = .;
+  .time_critical :
+  {
+    __time_critical_start__ = .;
+    *(.time_critical .time_critical.*)
+    __time_critical_end__ = .;
+  } > IRAM AT> RAM
+
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }
