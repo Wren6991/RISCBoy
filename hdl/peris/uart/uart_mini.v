@@ -8,7 +8,8 @@
 
 module uart_mini #(
 	parameter FIFO_DEPTH = 2, // must be power of 2, >= 2
-	parameter OVERSAMPLE = 8  // must be power of 2, >= 4
+	parameter OVERSAMPLE = 8, // must be power of 2, >= 4
+	parameter RTS_LEVEL  = FIFO_DEPTH - 2
 ) (
 	input wire clk,
 	input wire rst_n,
@@ -233,7 +234,7 @@ always @ (posedge clk or negedge rst_n_sync) begin
 	if (!rst_n_sync) begin
 		rts <= 1'b1;
 	end else begin
-		rts <= rxfifo_level > FIFO_DEPTH - 2;
+		rts <= rxfifo_level > RTS_LEVEL;
 	end
 end
 

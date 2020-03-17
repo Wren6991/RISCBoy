@@ -499,7 +499,8 @@ pwm_tiny inst_pwm_tiny (
 
 uart_mini #(
 	.FIFO_DEPTH(4),
-	.OVERSAMPLE(8)
+	.OVERSAMPLE(8),
+	.RTS_LEVEL(1)
 ) inst_uart_mini (
 	.clk          (clk_sys),
 	.rst_n        (rst_n),
