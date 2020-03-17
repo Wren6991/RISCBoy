@@ -458,7 +458,7 @@ riscboy_ppu_blender #(
 	.in_paletted   (blender_in_paletted),
 	.in_blank      (blender_in_blank),
 
-	.pram_waddr    (apbs_paddr[7:0]), // TODO this sucks
+	.pram_waddr    (apbs_paddr[8:1]), // TODO this sucks
 	.pram_wdata    (apbs_pwdata[W_PIXDATA-1:0]),
 	.pram_wen      (apbs_pwrite && apbs_penable && apbs_psel && apbs_paddr[11]),
 
