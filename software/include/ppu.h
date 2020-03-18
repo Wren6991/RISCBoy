@@ -148,7 +148,7 @@ static inline size_t cproc_blit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t 
 	return 2;
 }
 
-static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, uint8_t halfsize, int32_t *aparam, void *img)
+static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, uint8_t halfsize, const int32_t *aparam, void *img)
 {
 	*prog++ = PPU_CPROC_ABLIT | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((size & 0x7u) << 25) | ((poff & 0x7u) << 22) | (!!halfsize << 21);
 	*prog++ = (((uint32_t)aparam[2] >> 10) & 0x0000ffffu) | (((uint32_t)aparam[5] << 6) & 0xffff0000u);
