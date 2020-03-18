@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+
+FRAME_RATE = 29.3
+
+import os
+import serial
+import serial.tools.list_ports
+import sys
+import vlc
+import time
+
+uart = sorted(p.device for p in serial.tools.list_ports.comports())[-1]
+baud = 3000000 # gotta go fast
+print("Opening {} at {} baud".format(uart, baud))
+port = serial.Serial(uart, baud, rtscts=True, timeout=1)
+
+if len(sys.argv) != 2:
+	sys.exit("Pass a path to a binary or a directory full of binaries")
+
+
+if not os.path.isdir(sys.argv[1]):
+	data = open(sys.argv[1], "rb").read()
+	print(len(data))
+	port.write(data)
+else:
+	filenames = list(os.path.join(sys.argv[1], p) for p in sorted(os.listdir(sys.argv[1])))
+	print("Loading all frames into memory...")
+	frames = []
+	for f in filenames:
+		frames.append(open(f, "rb").read())
+	print("Loaded {} frames, OK. Starting music...".format(len(frames)))
+
+	# Play the song, and use the song timing to select frame
+	p = vlc.MediaPlayer("sound.mp3")
+	p.play()
+	starttime = time.time()
+	time.sleep(0.5) # p.is_playing is false after calling p.play, nice
+	print("Starting video...")
+	while p.is_playing():
+		frame = min(int((time.time() - starttime) * FRAME_RATE), len(frames) - 1)
+		print(frame)
+		port.write(frames[frame])
+		time.sleep(0.01) # Get data corruption without this, but logic analyser shows we still get full throughput, with CTS/RTS engaging correctly (???)
+	print("Done!")
