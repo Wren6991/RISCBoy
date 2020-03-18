@@ -24,6 +24,13 @@ module riscboy_core #(
 	parameter CPU_RESET_VECTOR = 32'h200800c0,
 	parameter W_SRAM0_ADDR = 18,
 	parameter SRAM0_INTERNAL = 0,
+
+	// STUB == remove interface to save LUTs
+	parameter STUB_UART         = 0,
+	parameter STUB_SPI          = 0,
+	parameter STUB_PWM          = 0,
+	parameter CUTDOWN_PROCESSOR = 0,
+
 	parameter N_PADS = 25 // Let this default
 ) (
 	input wire                     clk_sys,
@@ -204,10 +211,10 @@ wire               ppu_irq;
 hazard5_cpu #(
 	.RESET_VECTOR    (CPU_RESET_VECTOR),
 	.EXTENSION_C     (1),
-	.EXTENSION_M     (1),
+	.EXTENSION_M     (!CUTDOWN_PROCESSOR),
 	.MULDIV_UNROLL   (1),
 	.CSR_M_MANDATORY (0), // Not going to spend LUTs on a register telling me which architecture is implemented
-	.CSR_M_TRAP      (1), // Do need IRQs though
+	.CSR_M_TRAP      (!CUTDOWN_PROCESSOR), // Do need IRQs though
 	.CSR_COUNTER     (0), // 64 bit counters who do you think you are
 	.MTVEC_WMASK     (32'h00080000), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
 	.MTVEC_INIT      (32'h20000000)
@@ -468,7 +475,11 @@ ahb_sync_sram #(
 	.ahbls_hrdata      (sram1_hrdata)
 );
 
-tbman inst_tbman (
+tbman #(
+	.STUB_UART (STUB_UART),
+	.STUB_SPI  (STUB_SPI),
+	.STUB_PWM  (STUB_PWM)
+) inst_tbman (
 	.clk              (clk_sys),
 	.rst_n            (rst_n),
 	.apbs_psel        (tbman_psel),
@@ -483,61 +494,97 @@ tbman inst_tbman (
 	.irq_force        (tbman_irq_force) // FIXME testing only, need proper platform IRQ controller
 );
 
-pwm_tiny inst_pwm_tiny (
-	.clk          (clk_sys),
-	.rst_n        (rst_n),
-	.apbs_psel    (pwm_psel),
-	.apbs_penable (pwm_penable),
-	.apbs_pwrite  (pwm_pwrite),
-	.apbs_paddr   (pwm_paddr),
-	.apbs_pwdata  (pwm_pwdata),
-	.apbs_prdata  (pwm_prdata),
-	.apbs_pready  (pwm_pready),
-	.apbs_pslverr (pwm_pslverr),
-	.padout       (lcd_pwm)
-);
+generate
+if (STUB_PWM) begin
+	assign pwm_pready = 1'b1;
+	assign pwm_pslverr = 1'b0;
+	assign pwm_prdata = {W_DATA{1'b0}};
+	assign lcd_pwm = 1'b1;
+end else begin
 
-uart_mini #(
-	.FIFO_DEPTH(4),
-	.OVERSAMPLE(8),
-	.RTS_LEVEL(1)
-) inst_uart_mini (
-	.clk          (clk_sys),
-	.rst_n        (rst_n),
-	.apbs_psel    (uart_psel),
-	.apbs_penable (uart_penable),
-	.apbs_pwrite  (uart_pwrite),
-	.apbs_paddr   (uart_paddr),
-	.apbs_pwdata  (uart_pwdata),
-	.apbs_prdata  (uart_prdata),
-	.apbs_pready  (uart_pready),
-	.apbs_pslverr (uart_pslverr),
-	.rx           (uart_rx),
-	.tx           (uart_tx),
-	.rts          (uart_rts),
-	.cts          (uart_cts),
-	.irq          (uart_irq),
-	.dreq         ()
-);
+	pwm_tiny inst_pwm_tiny (
+		.clk          (clk_sys),
+		.rst_n        (rst_n),
+		.apbs_psel    (pwm_psel),
+		.apbs_penable (pwm_penable),
+		.apbs_pwrite  (pwm_pwrite),
+		.apbs_paddr   (pwm_paddr),
+		.apbs_pwdata  (pwm_pwdata),
+		.apbs_prdata  (pwm_prdata),
+		.apbs_pready  (pwm_pready),
+		.apbs_pslverr (pwm_pslverr),
+		.padout       (lcd_pwm)
+	);
+	
+end
+endgenerate
 
-spi_mini #(
-	.FIFO_DEPTH(2)
-) inst_spi_mini (
-	.clk          (clk_sys),
-	.rst_n        (rst_n),
-	.apbs_psel    (spi_psel),
-	.apbs_penable (spi_penable),
-	.apbs_pwrite  (spi_pwrite),
-	.apbs_paddr   (spi_paddr),
-	.apbs_pwdata  (spi_pwdata),
-	.apbs_prdata  (spi_prdata),
-	.apbs_pready  (spi_pready),
-	.apbs_pslverr (spi_pslverr),
-	.sclk         (spi_sclk),
-	.sdo          (spi_sdo),
-	.sdi          (spi_sdi),
-	.cs_n         (spi_cs_n)
-);
+generate
+if (STUB_UART) begin
+	assign uart_pready = 1'b1;
+	assign uart_pslverr = 1'b0;
+	assign uart_prdata = {W_DATA{1'b0}};
+	assign uart_tx = 1'b1;
+	assign uart_rts = 1'b1;
+end else begin
+
+	uart_mini #(
+		.FIFO_DEPTH(4),
+		.OVERSAMPLE(8),
+		.RTS_LEVEL(1)
+	) inst_uart_mini (
+		.clk          (clk_sys),
+		.rst_n        (rst_n),
+		.apbs_psel    (uart_psel),
+		.apbs_penable (uart_penable),
+		.apbs_pwrite  (uart_pwrite),
+		.apbs_paddr   (uart_paddr),
+		.apbs_pwdata  (uart_pwdata),
+		.apbs_prdata  (uart_prdata),
+		.apbs_pready  (uart_pready),
+		.apbs_pslverr (uart_pslverr),
+		.rx           (uart_rx),
+		.tx           (uart_tx),
+		.rts          (uart_rts),
+		.cts          (uart_cts),
+		.irq          (uart_irq),
+		.dreq         ()
+	);
+
+end
+endgenerate
+
+generate
+if (STUB_SPI) begin
+	assign spi_pready = 1'b1;
+	assign spi_pslverr = 1'b0;
+	assign spi_prdata = {W_DATA{1'b0}};
+	assign spi_sclk = 1'b0;
+	assign spi_cs_n = 1'b1;
+	assign spi_sdo = 1'b0;
+end else begin
+
+	spi_mini #(
+		.FIFO_DEPTH(2)
+	) inst_spi_mini (
+		.clk          (clk_sys),
+		.rst_n        (rst_n),
+		.apbs_psel    (spi_psel),
+		.apbs_penable (spi_penable),
+		.apbs_pwrite  (spi_pwrite),
+		.apbs_paddr   (spi_paddr),
+		.apbs_pwdata  (spi_pwdata),
+		.apbs_prdata  (spi_prdata),
+		.apbs_pready  (spi_pready),
+		.apbs_pslverr (spi_pslverr),
+		.sclk         (spi_sclk),
+		.sdo          (spi_sdo),
+		.sdi          (spi_sdi),
+		.cs_n         (spi_cs_n)
+	);
+
+end
+endgenerate
 
 gpio #(
 	.N_PADS (N_PADS)

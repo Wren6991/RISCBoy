@@ -11,7 +11,11 @@
 // running on and act accordingly.
 // (e.g. print to sim console in sim, print to UART on FPGA)
 
-module tbman (
+module tbman #(
+	parameter STUB_UART = 0,
+	parameter STUB_SPI = 0,
+	parameter STUB_PWM = 0
+) (
 	input wire clk,
 	input wire rst_n,
 
@@ -58,6 +62,9 @@ tbman_regs inst_tbman_regs
 	.exit_wen       (exit_wen),
 	.defines_sim_i  (defines_sim),
 	.defines_fpga_i (defines_fpga),
+	.stub_uart_i    (STUB_UART),
+	.stub_spi_i     (STUB_SPI),
+	.stub_pwm_i     (STUB_PWM),
 `ifdef SIM
 	.irq_force_o    (irq_force)
 `else

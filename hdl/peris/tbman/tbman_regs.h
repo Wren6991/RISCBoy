@@ -16,7 +16,8 @@
 #define TBMAN_PUTINT_OFFS 4
 #define TBMAN_EXIT_OFFS 8
 #define TBMAN_DEFINES_OFFS 12
-#define TBMAN_IRQ_FORCE_OFFS 16
+#define TBMAN_STUB_OFFS 16
+#define TBMAN_IRQ_FORCE_OFFS 20
 
 /*******************************************************************************
 *                                    PRINT                                     *
@@ -65,6 +66,25 @@
 #define TBMAN_DEFINES_FPGA_LSB  1
 #define TBMAN_DEFINES_FPGA_BITS 1
 #define TBMAN_DEFINES_FPGA_MASK 0x2
+
+/*******************************************************************************
+*                                     STUB                                     *
+*******************************************************************************/
+
+// Bitmap of devices which have been stubbed out (not present) from this build
+
+// Field: STUB_UART  Access: ROV
+#define TBMAN_STUB_UART_LSB  0
+#define TBMAN_STUB_UART_BITS 1
+#define TBMAN_STUB_UART_MASK 0x1
+// Field: STUB_SPI  Access: ROV
+#define TBMAN_STUB_SPI_LSB  1
+#define TBMAN_STUB_SPI_BITS 1
+#define TBMAN_STUB_SPI_MASK 0x2
+// Field: STUB_PWM  Access: ROV
+#define TBMAN_STUB_PWM_LSB  2
+#define TBMAN_STUB_PWM_BITS 1
+#define TBMAN_STUB_PWM_MASK 0x4
 
 /*******************************************************************************
 *                                  IRQ_FORCE                                   *

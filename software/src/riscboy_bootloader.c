@@ -3,6 +3,7 @@
 #include "delay.h"
 #include "gpio.h"
 #include "spi.h"
+#include "tbman.h"
 #include "uart.h"
 
 #define UART_BAUD (3 * 1000 * 1000)
@@ -106,8 +107,6 @@ int main()
 {
 	uart_init();
 	uart_clkdiv_baud(CLK_SYS_MHZ, UART_BAUD);
-	spi_init(false, false);
-	spi_clkdiv(CLK_SYS_MHZ / (2 * SPI_CLK_MHZ));
 
 	gpio_fsel(PIN_LED, 0);
 	gpio_dir_pin(PIN_LED, 1);
@@ -122,8 +121,15 @@ int main()
 	gpio_fsel(PIN_FLASH_MISO, 1);
 
 	uart_puts(splash);
-	gpio_out_pin(PIN_LED, 1);
+	if (*TBMAN_STUB & TBMAN_STUB_SPI_MASK)
+	{
+		uart_puts("SPI hardware not present. Skipping flash load.");
+		run_flash_shell();
+	}
+	spi_init(false, false);
+	spi_clkdiv(CLK_SYS_MHZ / (2 * SPI_CLK_MHZ));
 
+	gpio_out_pin(PIN_LED, 1);
 	int nop_count = 0;
 	int t;
 	for (t = 0; t < HOST_TIMEOUT_MS; ++t)
@@ -135,8 +141,8 @@ int main()
 			break;
 		delay_us(1000);
 	}
-
 	gpio_out_pin(PIN_LED, 0);
+
 	if (t < HOST_TIMEOUT_MS)
 	{
 		uart_put(ACK);

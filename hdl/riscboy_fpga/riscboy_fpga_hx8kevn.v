@@ -1,5 +1,3 @@
-// Modified FPGA top-level suitable for the TinyFPGA BX
-
 module riscboy_fpga (
 	input wire                     clk_osc,
 

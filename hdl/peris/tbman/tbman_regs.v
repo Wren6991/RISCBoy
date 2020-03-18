@@ -32,6 +32,9 @@ module tbman_regs (
 	output reg exit_wen,
 	input wire  defines_sim_i,
 	input wire  defines_fpga_i,
+	input wire  stub_uart_i,
+	input wire  stub_spi_i,
+	input wire  stub_pwm_i,
 	output reg [15:0] irq_force_o
 );
 
@@ -49,7 +52,8 @@ localparam ADDR_PRINT = 0;
 localparam ADDR_PUTINT = 4;
 localparam ADDR_EXIT = 8;
 localparam ADDR_DEFINES = 12;
-localparam ADDR_IRQ_FORCE = 16;
+localparam ADDR_STUB = 16;
+localparam ADDR_IRQ_FORCE = 20;
 
 wire __print_wen = wen && addr == ADDR_PRINT;
 wire __print_ren = ren && addr == ADDR_PRINT;
@@ -59,6 +63,8 @@ wire __exit_wen = wen && addr == ADDR_EXIT;
 wire __exit_ren = ren && addr == ADDR_EXIT;
 wire __defines_wen = wen && addr == ADDR_DEFINES;
 wire __defines_ren = ren && addr == ADDR_DEFINES;
+wire __stub_wen = wen && addr == ADDR_STUB;
+wire __stub_ren = ren && addr == ADDR_STUB;
 wire __irq_force_wen = wen && addr == ADDR_IRQ_FORCE;
 wire __irq_force_ren = ren && addr == ADDR_IRQ_FORCE;
 
@@ -85,6 +91,17 @@ wire [31:0] __defines_rdata = {30'h0, defines_fpga_rdata, defines_sim_rdata};
 assign defines_sim_rdata = defines_sim_i;
 assign defines_fpga_rdata = defines_fpga_i;
 
+wire  stub_uart_wdata = wdata[0];
+wire  stub_uart_rdata;
+wire  stub_spi_wdata = wdata[1];
+wire  stub_spi_rdata;
+wire  stub_pwm_wdata = wdata[2];
+wire  stub_pwm_rdata;
+wire [31:0] __stub_rdata = {29'h0, stub_pwm_rdata, stub_spi_rdata, stub_uart_rdata};
+assign stub_uart_rdata = stub_uart_i;
+assign stub_spi_rdata = stub_spi_i;
+assign stub_pwm_rdata = stub_pwm_i;
+
 wire [15:0] irq_force_wdata = wdata[15:0];
 wire [15:0] irq_force_rdata;
 wire [31:0] __irq_force_rdata = {16'h0, irq_force_rdata};
@@ -96,6 +113,7 @@ always @ (*) begin
 		ADDR_PUTINT: rdata = __putint_rdata;
 		ADDR_EXIT: rdata = __exit_rdata;
 		ADDR_DEFINES: rdata = __defines_rdata;
+		ADDR_STUB: rdata = __stub_rdata;
 		ADDR_IRQ_FORCE: rdata = __irq_force_rdata;
 		default: rdata = 32'h0;
 	endcase
