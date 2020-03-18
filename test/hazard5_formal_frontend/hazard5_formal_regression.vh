@@ -15,9 +15,13 @@ always @ (posedge clk)
 // Handling of bus faults is not tested
 always assume(!hresp);
 
-// Shouldn't need fairness constrain; prover should be able to
-// work out for itself that 100% stall is uninteresting, as CIR will
-// never become valid.
+// Struggle with induction without a fairness constraint.
+// TODO: the issue is that the prover will initialise prefetch FIFO to be
+// full of garbage and then stall processor until just before end of test,
+// releasing its own garbage.
+// Fairness ensures prefetch FIFO clears out during assumption portion of induction.
+
+// always @ (posedge clk) assume(ahblm_hready || $past(ahblm_hready));
 
 // ----------------------------------------------------------------------------
 // Instruction Memory Model
@@ -42,6 +46,8 @@ always assume(ahblm_hrdata == {
 	imem[{haddr_dph[2 +: $clog2(IMEM_SIZE_BYTES / 4)], 1'b0}]
 });
 
+always assume(!dx_except_invalid_instr); // SHOULD REMOVE, it just gives slightly nicer disassemblies
+
 // ----------------------------------------------------------------------------
 // Consistency Check
 // ----------------------------------------------------------------------------
@@ -65,14 +71,7 @@ end
 // Not part of what we are checking, but potentially help the induction proof
 always @ (posedge clk) if (rst_n) begin
 	assert(fd_cir_vld == 0 || fd_cir_vld == 1 || fd_cir_vld == 2);
-	// This one is actually a required AHB-lite property
-	if (!$past(ahblm_hready) && $past(rst_n) && $past(ahblm_htrans) == 2'b10) begin
-		assert($stable(ahblm_haddr));
-		assert($stable(ahblm_hwrite));
-		assert($stable(ahblm_htrans));
-		assert($stable(ahblm_hsize));
-	end
-	// Likewise, natural alignment of transfers is required in AHB-lite
+	// Natural alignment of transfers is required in AHB-lite
 	assert(!(ahblm_haddr & ~({32{1'b1}} << ahblm_hsize)));
 	// During induction I have seen a non-halfword aligned jump on the jump request bus
 	if (f_jump_req)
