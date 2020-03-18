@@ -692,8 +692,8 @@ wire [15:0] exception_req = {
 	except_load_fault,
 	except_load_misaligned,
 	except_breakpoint,
-	except_instr_invalid,
-	except_instr_fault || csr_access_error,
+	except_instr_invalid || csr_access_error,
+	except_instr_fault,
 	except_instr_misaligned
 };
 
