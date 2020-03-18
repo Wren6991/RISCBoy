@@ -3,7 +3,9 @@
 #include "gpio.h"
 #include "tbman.h"
 #include "uart.h"
+#include "delay.h"
 
+#define FIFO_DEPTH 4
 
 const char *str = "Hello, loopback!\n";
 
@@ -28,6 +30,7 @@ int main()
 
 	// Second test is checked internally, and reported on.
 
+	bool failed = false;
 	tbman_puts("Aggressive loopback:\n");
 
 	uart_clkdiv_baud(CLK_SYS_MHZ, 1000 * 1000);
@@ -53,7 +56,6 @@ int main()
 	while (!uart_rx_empty())
 		*p++ = uart_get();
 
-	bool failed = false;
 
 	if (p != rxbuf + test_len)
 	{
@@ -78,6 +80,27 @@ int main()
 		tbman_puts("RX sum:\n");
 		tbman_putint(accum);
 	}
+
+	// Finally a quick smoke test for RTS/CTS (which are also patched together by LOOPBACK)
+
+	uart_enable_cts(true);
+
+	tbman_puts("RTS/CTS smoke test:\n");
+	for (int i = 0; i < 2 * FIFO_DEPTH - 1; ++i)
+		uart_put(~i);
+
+	delay_ms(1);
+
+	for (int i = 0; i < 2 * FIFO_DEPTH - 1; ++i)
+	{
+		if (uart_get() != (~i & 0xff))
+		{
+			puts("Data mismatch\n");
+			failed = true;
+		}
+	}
+	if (!failed)
+		tbman_puts("OK.\n");
 
 	tbman_exit(failed);
 }
