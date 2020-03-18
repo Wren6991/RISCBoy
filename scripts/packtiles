@@ -71,6 +71,8 @@ if __name__ == "__main__":
 			pfile.write(bytes(bytes_from_bitstream_le(
 				format_pixel("argb1555", False, palette[i:i+3]) for i in range(0, ncolours_actual * 3, 3)
 			)))
+			if ncolours_actual < ncolours_max:
+				pfile.write(bytes(2 * (ncolours_max - ncolours_actual)))
 		img = pimg
 
 	for y in range(0, img.height - (tilesize - 1), tilesize):
