@@ -5,7 +5,7 @@
 #include "spi.h"
 #include "uart.h"
 
-#define UART_BAUD (500 * 1000)
+#define UART_BAUD (3 * 1000 * 1000)
 #define SPI_CLK_MHZ 6
 #define HOST_TIMEOUT_MS 100
 
@@ -114,6 +114,8 @@ int main()
 
 	gpio_fsel(PIN_UART_TX, 1);
 	gpio_fsel(PIN_UART_RX, 1);
+	gpio_fsel(PIN_UART_CTS, 1);
+	gpio_fsel(PIN_UART_RTS, 1);
 	gpio_fsel(PIN_FLASH_CS, 1);
 	gpio_fsel(PIN_FLASH_SCLK, 1);
 	gpio_fsel(PIN_FLASH_MOSI, 1);
