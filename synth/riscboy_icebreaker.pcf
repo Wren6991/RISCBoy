@@ -1,0 +1,32 @@
+# LEDs
+set_io led[0] 37 # Green on main board
+set_io led[1] 11 # Red on main board
+set_io led[2] 26 # Middle on snapoff (L1)
+set_io led[3] 27 # Left on snapoff   (L2)
+set_io led[4] 25 # Right on snapoff  (L3)
+set_io led[5] 23 # Top on snapoff    (L4)
+set_io led[6] 21 # Bottom on snapoff (L5)
+
+set_io uart_tx 9
+set_io uart_rx 6
+
+# Connect SPI master to configuration flash!
+set_io flash_mosi 14
+set_io flash_miso 17
+set_io flash_sclk 15
+set_io flash_cs 16
+
+# 12 MHz oscillator
+set_io clk_osc 35
+
+# Connect LCD signals to some random IOs
+set_io lcd_cs   4  # PMOD P1A1
+set_io lcd_dc   2  # PMOD P1A2
+set_io lcd_sclk 47 # PMOD P1A3
+set_io lcd_mosi 45 # PMOD P1A4
+
+set_io dpad_u 20 # Snapoff top
+set_io dpad_d 18 # Snapoff bottom
+set_io dpad_l 10 # Main board
+set_io dpad_r 19 # Snapoff middle
+

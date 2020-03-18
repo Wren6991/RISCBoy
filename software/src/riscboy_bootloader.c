@@ -1,4 +1,6 @@
- #define CLK_SYS_MHZ 36
+#ifndef CLK_SYS_MHZ
+#define CLK_SYS_MHZ 36
+#endif
 
 #include "delay.h"
 #include "gpio.h"
@@ -6,7 +8,10 @@
 #include "tbman.h"
 #include "uart.h"
 
+#ifndef UART_BAUD
 #define UART_BAUD (3 * 1000 * 1000)
+#endif
+
 #define SPI_CLK_MHZ 6
 #define HOST_TIMEOUT_MS 100
 
