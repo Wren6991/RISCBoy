@@ -26,16 +26,26 @@ module riscboy_fpga (
 
 // Clock + Reset resources
 
-wire clk_sys = clk_osc;
-wire clk_lcd = clk_osc;
+wire clk_sys;
+wire clk_lcd;
 wire rst_n;
-wire pll_lock = 1'b1;
+wire pll_lock;
 
-// pll_12_36 pll (
-// 	.clock_in  (clk_osc),
-// 	.clock_out (clk_sys),
-// 	.locked    (pll_lock)
-// );
+SB_HFOSC #(
+  .CLKHF_DIV ("0b10") // divide by 4 -> 12 MHz
+) inthosc (
+  .CLKHFPU (1'b1),
+  .CLKHFEN (1'b1),
+  .CLKHF   (clk_sys)
+);
+
+pll_12_36 #(
+	.ICE40_PAD (1)
+) pll_lcd (
+	.clock_in  (clk_osc),
+	.clock_out (clk_lcd),
+	.locked    (pll_lock)
+);
 
 fpga_reset #(
 	.SHIFT (3),
