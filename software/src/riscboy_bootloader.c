@@ -129,6 +129,7 @@ int main()
 	if (*TBMAN_STUB & TBMAN_STUB_SPI_MASK)
 	{
 		uart_puts("SPI hardware not present. Skipping flash load.");
+		test_mem();
 		run_flash_shell();
 	}
 	spi_init(false, false);

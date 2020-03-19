@@ -32,22 +32,103 @@ module sram_sync #(
 	output reg [WIDTH-1:0]                         rdata
 );
 
+`ifdef FPGA_ICE40
+localparam FPGA_ICE40_DEFINED = 1;
+`else
+localparam FPGA_ICE40_DEFINED = 0;
+`endif
+
+`ifdef SIM
+localparam SIM_DEFINED = 1;
+`else
+localparam SIM_DEFINED = 0;
+`endif
+
+generate
+if (FPGA_ICE40_DEFINED && WIDTH == 32 && DEPTH == 1 << 15) begin: up5k_spram
+// Special case: use all SPRAMs on UP5k
+
+wire [31:0] rdata0;
+wire [31:0] rdata1;
+
+SB_SPRAM256KA ram00 (
+	.ADDRESS    (addr[13:0]),
+	.DATAIN     (wdata[15:0]),
+	.MASKWREN   ({wen[1], wen[1], wen[0], wen[0]}),
+	.WREN       (wen[1] || wen[0]),
+	.CHIPSELECT (!addr[14]),
+	.CLOCK      (clk),
+	.STANDBY    (1'b0),
+	.SLEEP      (1'b0),
+	.POWEROFF   (1'b1),
+	.DATAOUT    (rdata0[15:0])
+);
+
+SB_SPRAM256KA ram01 (
+	.ADDRESS    (addr[13:0]),
+	.DATAIN     (wdata[31:16]),
+	.MASKWREN   ({wen[3], wen[3], wen[2], wen[2]}),
+	.WREN       (wen[3] || wen[2]),
+	.CHIPSELECT (!addr[14]),
+	.CLOCK      (clk),
+	.STANDBY    (1'b0),
+	.SLEEP      (1'b0),
+	.POWEROFF   (1'b1),
+	.DATAOUT    (rdata0[31:16])
+);
+
+SB_SPRAM256KA ram10 (
+	.ADDRESS    (addr[13:0]),
+	.DATAIN     (wdata[15:0]),
+	.MASKWREN   ({wen[1], wen[1], wen[0], wen[0]}),
+	.WREN       (wen[1] || wen[0]),
+	.CHIPSELECT (addr[14]),
+	.CLOCK      (clk),
+	.STANDBY    (1'b0),
+	.SLEEP      (1'b0),
+	.POWEROFF   (1'b1),
+	.DATAOUT    (rdata1[15:0])
+);
+
+SB_SPRAM256KA ram11 (
+	.ADDRESS    (addr[13:0]),
+	.DATAIN     (wdata[31:16]),
+	.MASKWREN   ({wen[3], wen[3], wen[2], wen[2]}),
+	.WREN       (wen[3] || wen[2]),
+	.CHIPSELECT (addr[14]),
+	.CLOCK      (clk),
+	.STANDBY    (1'b0),
+	.SLEEP      (1'b0),
+	.POWEROFF   (1'b1),
+	.DATAOUT    (rdata1[31:16])
+);
+
+reg chipselect_prev;
+always @ (posedge clk)
+	chipselect_prev <= addr[14];
+
+assign rdata = chipselect_prev ? rdata1 : rdata0;
+
+end else begin: behav_mem
+// Behavioural model, but Yosys does a great job of this on ECP5 and iCE40.
+
 genvar i;
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-initial begin: preload
-	`ifdef SIM
-		integer n;
-		for (n = 0; n < DEPTH; n = n + 1)
-			mem[n] = {WIDTH{1'b0}};
-	`endif
-	if (PRELOAD_FILE != "")
-		$readmemh(PRELOAD_FILE, mem);
+if (PRELOAD_FILE != "" || SIM_DEFINED) begin: preload
+	initial begin: preload_initial
+		`ifdef SIM
+			integer n;
+			for (n = 0; n < DEPTH; n = n + 1)
+				mem[n] = {WIDTH{1'b0}};
+		`endif
+		if (PRELOAD_FILE != "")
+			$readmemh(PRELOAD_FILE, mem);
+	end
 end
 
 
-generate
 if (BYTE_ENABLE) begin: has_byte_enable
 	for (i = 0; i < WIDTH / 8; i = i + 1) begin: byte_mem
 		always @ (posedge clk) begin
@@ -62,6 +143,8 @@ end else begin: no_byte_enable
 			mem[addr] <= wdata;
 		rdata <= mem[addr];
 	end
+end
+
 end
 endgenerate
 

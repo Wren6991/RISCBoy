@@ -57,6 +57,9 @@ wire [N_PADS-1:0] padin;
 
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex"),
+	.SRAM0_INTERNAL (1),
+	.W_SRAM0_ADDR (15), // 2**15 words = 128 kB
+
 	.CUTDOWN_PROCESSOR (1),
 	.STUB_SPI (1),
 	.STUB_PWM (1)
@@ -83,11 +86,6 @@ riscboy_core #(
 );
 
 // GPIO
-
-// TODO this isn't great.
-// Ideally we would have an array of tristate_ios and connect up the pads.
-// However it seems like there is no way of connecting inout ports together in Verilog
-// apart from in the module instantiation???
 
 tristate_io pad_uart_tx (
 	.out (padout[PIN_UART_TX]),

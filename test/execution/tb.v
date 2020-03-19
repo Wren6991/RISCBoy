@@ -169,7 +169,7 @@ initial begin
 
 	$display(".testdata preload:");
 	for (i = result_base_ptr; i < result_end_ptr; i = i + 4)
-		$display("%h", sram0.sram.mem [i / 4]);
+		$display("%h", sram0.sram.behav_mem.mem [i / 4]);
 
 
 	#(10 * CLK_PERIOD);
@@ -192,7 +192,7 @@ initial begin
 
 	$display("Test results:");
 	for (i = result_base_ptr; i < result_end_ptr; i = i + 4)
-		$display("%h", sram0.sram.mem [i / 4]);
+		$display("%h", sram0.sram.behav_mem.mem [i / 4]);
 
 	$finish(2);
 end
