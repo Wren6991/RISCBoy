@@ -18,6 +18,7 @@
 // Instruction frontend for PPU command processor
 
 module riscboy_ppu_cproc_frontend #(
+	parameter ADDR_MASK = 32'hffff_fffc,
 	parameter W_ADDR = 32, // do not modify
 	parameter W_DATA = 32  // do not modify
 ) (
@@ -56,8 +57,6 @@ always @ (posedge clk) if (rst_n && $past(rst_n)) begin
 	end
 end
 `endif
-
-localparam ADDR_MASK = 32'hffff_fffc;
 
 reg [W_ADDR-1:0] pc;
 wire jump_now = jump_target_vld && (jump_target_rdy || !ppu_running);

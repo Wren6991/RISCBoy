@@ -19,6 +19,7 @@
  	parameter W_COORD_SX = 9,
  	parameter W_COORD_UV = 10,
  	parameter W_SPAN_TYPE = 3,
+ 	parameter ADDR_MASK = 32'hffff_ffff,
  	parameter W_ADDR = 32
  ) (
  	input  wire                   clk,
@@ -109,14 +110,14 @@ wire pinfo_fifo_empty;
 wire [W_COORD_UV-1:0] ordinate_mask = ~({{W_COORD_UV-3{1'b1}}, 3'b000} << texsize);
 wire [W_ADDR-1:0] blit_pixel_offs_in_texture = (cgen_u & ordinate_mask) |
 	({{W_COORD_UV-3{1'b0}}, cgen_v & ordinate_mask, 3'b000} << texsize);
-wire [W_ADDR-1:0] blit_addr_offs = {blit_pixel_offs_in_texture, 1'b0} >> 3'h4 - MODE_LOG_PIXSIZE(pixmode);
+wire [W_ADDR-1:0] blit_addr_offs = ({blit_pixel_offs_in_texture, 1'b0} >> 3'h4 - MODE_LOG_PIXSIZE(pixmode)) & ADDR_MASK;
 
-wire [W_ADDR-1:0] tile_addr_offs = 0; // FIXME !!!!!!!!!!!!
+wire [W_ADDR-1:0] tile_addr_offs = 0 & ADDR_MASK; // FIXME !!!!!!!!!!!!
 
 wire blit_out_of_bounds = |{cgen_u & ~ordinate_mask, cgen_v & ~ordinate_mask};
 
 // Always halfword-sized, halfword-aligned
-assign bus_addr = (texture_ptr + (blit_mode ? blit_addr_offs : tile_addr_offs)) & 32'hffff_fffe;
+assign bus_addr = (texture_ptr + (blit_mode ? blit_addr_offs : tile_addr_offs)) & ADDR_MASK & 32'hffff_fffe;
 assign bus_size = 2'h1;
 assign bus_addr_vld = blit_mode ?
 	!(span_done || pinfo_fifo_full || blit_out_of_bounds || !cgen_vld) :

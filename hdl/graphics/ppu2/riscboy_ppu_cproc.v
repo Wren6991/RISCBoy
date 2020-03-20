@@ -25,6 +25,7 @@ module riscboy_ppu_cproc #(
 	parameter W_COORD_SY = 8,
 	parameter W_COORD_UV = 10,
 	parameter W_SPAN_TYPE = 3,
+	parameter GLOBAL_ADDR_MASK = 32'h2007ffff,
 	parameter W_ADDR = 32, // do not modify
 	parameter W_DATA = 32  // do not modify
 ) (
@@ -208,7 +209,7 @@ always @ (posedge clk or negedge rst_n) begin
 		S_BLIT_IMG: state <= S_SPAN_WAIT;
 		S_TILE_TILEMAP: begin
 			state <= S_TILE_TILESET;
-			tmp_buf <= instr & INSTR_ADDR_MASK; // tilemap ptr
+			tmp_buf <= instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK; // tilemap ptr
 			texsize <= INSTR_PF_SIZE(instr);
 		end
 		S_TILE_TILESET: state <= S_SPAN_WAIT;
@@ -225,13 +226,13 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		S_ATILE_TILEMAP: begin
 			state <= S_ATILE_TILESET;
-			tmp_buf <= instr & INSTR_ADDR_MASK; // tilemap ptr
+			tmp_buf <= instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK; // tilemap ptr
 			texsize <= INSTR_PF_SIZE(instr);
 		end
 		S_ATILE_TILESET: state <= S_SPAN_WAIT;
 		S_POKE_ADDR: begin
 			state <= S_POKE_DATA;
-			tmp_buf <= instr & INSTR_ADDR_MASK;
+			tmp_buf <= instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
 		end
 		S_POKE_DATA: begin
 			// TODO actually hook this up
@@ -324,8 +325,8 @@ assign span_type =
 assign span_pixmode = state == S_EXECUTE ? PIXMODE_ARGB1555 : instr[INSTR_PIXMODE_LSB +: INSTR_PIXMODE_BITS];
 assign span_paloffs = paloffs;
 assign span_fill_colour = instr[14:0];
-assign span_texture_ptr = instr & INSTR_ADDR_MASK;
-assign span_tilemap_ptr = tmp_buf & INSTR_ADDR_MASK;
+assign span_texture_ptr = instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
+assign span_tilemap_ptr = tmp_buf & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
 assign span_texsize = texsize;
 assign span_tilesize = tilesize;
 assign span_ablit_halfsize = ablit_halfsize;
@@ -352,12 +353,13 @@ assign cgen_raster_offs_x = span_x0_comb - instr[INSTR_X_LSB +: INSTR_X_BITS];
 // ----------------------------------------------------------------------------
 // Instruction frontend
 
-wire [W_ADDR-1:0] jump_target = (entrypoint_vld && !ppu_running ? entrypoint : instr) & INSTR_ADDR_MASK;
+wire [W_ADDR-1:0] jump_target = (entrypoint_vld && !ppu_running ? entrypoint : instr) & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
 assign jump_target_vld = (state == S_JUMP_ADDR && instr_vld) || (entrypoint_vld && !ppu_running);
 
 riscboy_ppu_cproc_frontend #(
-	.W_ADDR(W_ADDR),
-	.W_DATA(W_DATA)
+	.ADDR_MASK (GLOBAL_ADDR_MASK & 32'hffff_fffc),
+	.W_ADDR    (W_ADDR),
+	.W_DATA    (W_DATA)
 ) inst_riscboy_ppu_cproc_frontend (
 	.clk             (clk),
 	.rst_n           (rst_n),

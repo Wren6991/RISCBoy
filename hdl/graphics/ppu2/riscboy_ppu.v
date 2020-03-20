@@ -23,7 +23,7 @@ module riscboy_ppu #(
 	parameter W_HADDR = 32,
 	parameter W_HDATA = 32,
 	parameter W_DATA = 16,
-	parameter ADDR_MASK = 32'h200fffff
+	parameter ADDR_MASK = 32'h2007ffff
 ) (
 	input  wire               clk_ppu,
 	input  wire               clk_lcd,
@@ -222,12 +222,13 @@ wire                  span_ablit_halfsize;
 wire                  span_done;
 
 riscboy_ppu_cproc #(
-	.W_COORD_SX  (W_COORD_SX),
-	.W_COORD_SY  (W_COORD_SY),
-	.W_COORD_UV  (W_COORD_UV),
-	.W_SPAN_TYPE (W_SPANTYPE),
-	.W_ADDR      (W_HADDR),
-	.W_DATA      (W_HDATA)
+	.W_COORD_SX       (W_COORD_SX),
+	.W_COORD_SY       (W_COORD_SY),
+	.W_COORD_UV       (W_COORD_UV),
+	.W_SPAN_TYPE      (W_SPANTYPE),
+	.GLOBAL_ADDR_MASK (ADDR_MASK),
+	.W_ADDR           (W_HADDR),
+	.W_DATA           (W_HDATA)
 ) cproc (
 	.clk                 (clk_ppu),
 	.rst_n               (rst_n_ppu),
@@ -319,6 +320,7 @@ riscboy_ppu_pixel_agu #(
 	.W_COORD_SX  (W_COORD_SX),
 	.W_COORD_UV  (W_COORD_UV),
 	.W_SPAN_TYPE (W_SPANTYPE),
+	.ADDR_MASK   (ADDR_MASK),
 	.W_ADDR      (W_HADDR)
 ) pixel_agu (
 	.clk                 (clk_ppu),
