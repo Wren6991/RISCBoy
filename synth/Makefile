@@ -1,25 +1,4 @@
-CHIPNAME=riscboy
-DOTF=$(HDL)/riscboy_fpga/riscboy_fpga.f
-KICAD_NET=$(PROJ_ROOT)/board/fpgaboy.net
-
-DEVICE=hx8k
-PACKAGE=bg121
-
-include $(SCRIPTS)/synth_ice40.mk
-
-# romfiles is a prerequisite for synth
-romfiles::
-	@echo ">>> Bootcode"
-	@echo
-	make -C $(SOFTWARE)/build APPNAME=blinky
-	cp $(SOFTWARE)/build/blinky8.hex bootram_init8.hex
-	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
-
-# Regenerate pin constraints from the most recent schematics
-riscboy.pcf:
-	$(SCRIPTS)/extract_ref_nets $(PROJ_ROOT)/board/fpgaboy.net U1 --filter fpga_cfg -o riscboy.pcf
-
-clean::
-	make -C $(SOFTWARE)/build APPNAME=blinky clean
-	rm -f chip.pcf
-	rm -f bootram_init*.hex
+all:
+	yosys -p "read_verilog -I../hdl/hazard5 -I../hdl/graphics/ppu2 -I../hdl/peris/gpio -DFPGA -DFPGA_ICE40 ../hdl/riscboy_fpga/riscboy_fpga_icebreaker.v ../hdl/riscboy_fpga/pll_12_36.v ../hdl/riscboy_fpga/pll_12_30.v ../hdl/riscboy_fpga/pll_12_18.v ../hdl/common/blinky.v ../hdl/common/fpga_reset.v ../hdl/common/tristate_io.v ../hdl/common/pullup_input.v ../hdl/busfabric/ahbl_crossbar.v ../hdl/busfabric/ahbl_splitter.v ../hdl/busfabric/ahbl_arbiter.v ../hdl/common/onehot_mux.v ../hdl/common/onehot_priority.v ../hdl/busfabric/ahbl_to_apb.v ../hdl/busfabric/apb_splitter.v ../hdl/hazard5/arith/hazard5_alu.v ../hdl/hazard5/arith/hazard5_shift_barrel.v ../hdl/hazard5/arith/hazard5_priority_encode.v ../hdl/hazard5/arith/hazard5_muldiv_seq.v ../hdl/hazard5/hazard5_frontend.v ../hdl/hazard5/hazard5_instr_decompress.v ../hdl/hazard5/hazard5_decode.v ../hdl/hazard5/hazard5_csr.v ../hdl/hazard5/hazard5_regfile_1w2r.v ../hdl/hazard5/hazard5_cpu.v ../hdl/graphics/ppu2/riscboy_ppu.v ../hdl/graphics/ppu2/riscboy_ppu_affine_coord_gen.v ../hdl/graphics/ppu2/riscboy_ppu_blender.v ../hdl/graphics/ppu2/riscboy_ppu_busmaster.v ../hdl/graphics/ppu2/riscboy_ppu_cproc.v ../hdl/graphics/ppu2/riscboy_ppu_cproc_frontend.v ../hdl/graphics/ppu2/riscboy_ppu_dispctrl.v ../hdl/graphics/ppu2/riscboy_ppu_palette_mapper.v ../hdl/graphics/ppu2/riscboy_ppu_phase_accum.v ../hdl/graphics/ppu2/riscboy_ppu_pixel_agu.v ../hdl/graphics/ppu2/riscboy_ppu_pixel_unpack.v ../hdl/graphics/ppu2/riscboy_ppu_shift_unshift.v ../hdl/graphics/ppu2/riscboy_ppu_tile_agu.v ../hdl/graphics/ppu2/regs/ppu_regs.v ../hdl/common/ddr_out.v ../hdl/common/dffe_out.v ../hdl/common/reset_sync.v ../hdl/common/skid_buffer.v ../hdl/common/sync_fifo.v ../hdl/common/cdc/async_fifo.v ../hdl/common/cdc/gray_counter.v ../hdl/common/cdc/gray_decode.v ../hdl/common/cdc/sync_1bit.v ../hdl/mem/sram_sync_1r1w.v ../hdl/mem/ahb_sync_sram.v ../hdl/mem/sram_sync.v ../hdl/mem/ahb_async_sram_halfwidth.v ../hdl/peris/tbman/tbman.v ../hdl/peris/tbman/tbman_regs.v ../hdl/peris/uart/uart_regs.v ../hdl/peris/uart/uart_mini.v ../hdl/common/clkdiv_frac.v ../hdl/peris/gpio/gpio.v ../hdl/peris/gpio/gpio_regs.v ../hdl/peris/pwm_tiny/pwm_tiny.v ../hdl/peris/pwm_tiny/pwm_tiny_regs.v ../hdl/peris/spi/spi_mini.v ../hdl/peris/spi/spi_regs.v ../hdl/riscboy_core/riscboy_core.v ../hdl/common/memdump.v; scratchpad -copy abc9.script.flow3 abc9.script;  synth_ice40 -abc9; sta; write_json riscboy_icebreaker.json"
+clean:
+	rm -f *.json
