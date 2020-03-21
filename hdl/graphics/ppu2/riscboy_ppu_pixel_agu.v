@@ -110,33 +110,38 @@ wire pinfo_fifo_empty;
 wire [W_COORD_UV-1:0] ordinate_mask = ~({{W_COORD_UV-3{1'b1}}, 3'b000} << texsize);
 wire [W_ADDR-1:0] blit_pixel_offs_in_texture = (cgen_u & ordinate_mask) |
 	({{W_COORD_UV-3{1'b0}}, cgen_v & ordinate_mask, 3'b000} << texsize);
-wire [W_ADDR-1:0] blit_addr_offs = ({blit_pixel_offs_in_texture, 1'b0} >> 3'h4 - MODE_LOG_PIXSIZE(pixmode)) & ADDR_MASK;
 
-wire [W_ADDR-1:0] tile_addr_offs = 0 & ADDR_MASK; // FIXME !!!!!!!!!!!!
+wire [W_ADDR-1:0] tile_pixel_offset_in_tilemap = tilesize ?
+	{{W_ADDR-16{1'b0}}, tinfo_tilenum, tinfo_v, tinfo_u} :
+	{{W_ADDR-14{1'b0}}, tinfo_tilenum, tinfo_v[2:0], tinfo_u[2:0]};
+
+wire [W_ADDR-1:0] pixel_addr_offs = ({blit_mode ? blit_pixel_offs_in_texture : tile_pixel_offset_in_tilemap, 1'b0}
+	>> 3'h4 - MODE_LOG_PIXSIZE(pixmode)) & ADDR_MASK;
 
 wire blit_out_of_bounds = |{cgen_u & ~ordinate_mask, cgen_v & ~ordinate_mask};
 
 // Always halfword-sized, halfword-aligned
-assign bus_addr = (texture_ptr + (blit_mode ? blit_addr_offs : tile_addr_offs)) & ADDR_MASK & 32'hffff_fffe;
+assign bus_addr = (texture_ptr + pixel_addr_offs) & ADDR_MASK & 32'hffff_fffe;
 assign bus_size = 2'h1;
 assign bus_addr_vld = blit_mode ?
 	!(span_done || pinfo_fifo_full || blit_out_of_bounds || !cgen_vld) :
-	1'b0; // FIXME tiles
+	!(span_done || pinfo_fifo_full || tinfo_discard || !tinfo_vld);
 
 assign issue_pixel = !span_done && (
 	bus_addr_vld && bus_addr_rdy ||
-	blit_mode && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full
-); // TODO tinfo discard
+	blit_mode && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full ||
+	!blit_mode && tinfo_vld && !pinfo_fifo_full
+);
 
 assign cgen_rdy = issue_pixel && blit_mode;
+assign tinfo_rdy = issue_pixel && !blit_mode;
 
 // ----------------------------------------------------------------------------
 // Metadata
 
-wire [4:0] pinfo_fifo_wdata = {
-	blit_out_of_bounds, // FIXME tiles too (tinfo)
-	blit_mode ? cgen_u[3:0] : tinfo_u
-};
+wire [4:0] pinfo_fifo_wdata = blit_mode ?
+	{blit_out_of_bounds, cgen_u[3:0]} :
+	{tinfo_discard, tinfo_u};
 
 sync_fifo #(
 	.DEPTH (4),

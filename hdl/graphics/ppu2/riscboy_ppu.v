@@ -304,6 +304,60 @@ riscboy_ppu_affine_coord_gen #(
 	.out_rdy       (cgen_out_rdy)
 );
 
+wire                  tile_bus_aph_vld;
+wire                  tile_bus_aph_rdy;
+wire [1:0]            tile_bus_aph_size;
+wire [W_HADDR-1:0]    tile_bus_aph_addr;
+wire                  tile_bus_dph_vld;
+wire [W_HDATA-1:0]    tile_bus_dph_data;
+
+wire [3:0]            tinfo_u;
+wire [3:0]            tinfo_v;
+wire [W_TILENUM-1:0]  tinfo_tilenum;
+wire                  tinfo_discard;
+wire                  tinfo_vld;
+wire                  tinfo_rdy;
+
+riscboy_ppu_tile_address_gen #(
+	.W_ADDR      (W_HADDR),
+	.W_DATA      (W_HDATA),
+	.ADDR_MASK   (ADDR_MASK),
+	.W_COORD_UV  (W_COORD_UV),
+	.W_COORD_SX  (W_COORD_SX),
+	.W_SPAN_TYPE (W_SPANTYPE),
+	.W_TILE_NUM  (W_TILENUM)
+) inst_riscboy_ppu_tile_address_gen (
+	.clk              (clk_ppu),
+	.rst_n            (rst_n_ppu),
+
+	.bus_addr_vld     (tile_bus_aph_vld),
+	.bus_addr_rdy     (tile_bus_aph_rdy),
+	.bus_size         (tile_bus_aph_size),
+	.bus_addr         (tile_bus_aph_addr),
+	.bus_data_vld     (tile_bus_dph_vld),
+	.bus_data         (tile_bus_dph_data),
+
+	.span_start       (span_start),
+	.span_count       (span_count),
+	.span_type        (span_type),
+	.span_tilemap_ptr (span_tilemap_ptr),
+	.span_texsize     (span_texsize),
+	.span_tilesize    (span_tilesize),
+	.span_done        (/* unused */),
+
+	.cgen_u           (cgen_out_u),
+	.cgen_v           (cgen_out_v),
+	.cgen_vld         (cgen_out_vld),
+	.cgen_rdy         (cgen_out_rdy_tile),
+
+	.tinfo_u          (tinfo_u),
+	.tinfo_v          (tinfo_v),
+	.tinfo_tilenum    (tinfo_tilenum),
+	.tinfo_discard    (tinfo_discard),
+	.tinfo_vld        (tinfo_vld),
+	.tinfo_rdy        (tinfo_rdy)
+);
+
 wire                  pixel_bus_aph_vld;
 wire                  pixel_bus_aph_rdy;
 wire [W_HADDR-1:0]    pixel_bus_aph_addr;
@@ -346,12 +400,12 @@ riscboy_ppu_pixel_agu #(
 	.cgen_vld            (cgen_out_vld),
 	.cgen_rdy            (cgen_out_rdy_blit),
 
-	.tinfo_u             (/* TODO tinfo_u*/),
-	.tinfo_v             (/* TODO tinfo_v*/),
-	.tinfo_tilenum       (/* TODO tinfo_tilenum*/),
-	.tinfo_discard       (/* TODO tinfo_discard*/),
-	.tinfo_vld           (/* TODO tinfo_vld*/),
-	.tinfo_rdy           (/* TODO tinfo_rdy*/),
+	.tinfo_u             (tinfo_u),
+	.tinfo_v             (tinfo_v),
+	.tinfo_tilenum       (tinfo_tilenum),
+	.tinfo_discard       (tinfo_discard),
+	.tinfo_vld           (tinfo_vld),
+	.tinfo_rdy           (tinfo_rdy),
 
 	.pinfo_u             (pinfo_u),
 	.pinfo_discard       (pinfo_discard),
@@ -597,7 +651,7 @@ riscboy_ppu_dispctrl #(
 // Busmaster
 
 riscboy_ppu_busmaster #(
-	.N_REQ     (2),
+	.N_REQ     (3),
 	.W_ADDR    (W_HADDR),
 	.W_DATA    (W_HDATA),
 	.ADDR_MASK (ADDR_MASK)
@@ -607,12 +661,12 @@ riscboy_ppu_busmaster #(
 	.ppu_running     (ppu_running),
 
 	// Lowest significance wins
-	.req_aph_vld     ({pixel_bus_aph_vld  , cproc_bus_aph_vld  }),
-	.req_aph_rdy     ({pixel_bus_aph_rdy  , cproc_bus_aph_rdy  }),
-	.req_aph_addr    ({pixel_bus_aph_addr , cproc_bus_aph_addr }),
-	.req_aph_size    ({pixel_bus_aph_size , cproc_bus_aph_size }),
-	.req_dph_vld     ({pixel_bus_dph_vld  , cproc_bus_dph_vld  }),
-	.req_dph_data    ({pixel_bus_dph_data , cproc_bus_dph_data }),
+	.req_aph_vld     ({pixel_bus_aph_vld  , tile_bus_aph_vld  , cproc_bus_aph_vld  }),
+	.req_aph_rdy     ({pixel_bus_aph_rdy  , tile_bus_aph_rdy  , cproc_bus_aph_rdy  }),
+	.req_aph_addr    ({pixel_bus_aph_addr , tile_bus_aph_addr , cproc_bus_aph_addr }),
+	.req_aph_size    ({pixel_bus_aph_size , tile_bus_aph_size , cproc_bus_aph_size }),
+	.req_dph_vld     ({pixel_bus_dph_vld  , tile_bus_dph_vld  , cproc_bus_dph_vld  }),
+	.req_dph_data    ({pixel_bus_dph_data , tile_bus_dph_data , cproc_bus_dph_data }),
 
 	.ahblm_haddr     (ahblm_haddr),
 	.ahblm_hwrite    (ahblm_hwrite),
