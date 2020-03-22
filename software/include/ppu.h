@@ -141,14 +141,14 @@ static inline size_t cproc_jump(uint32_t *prog, uintptr_t target)
 	return cproc_branch(prog, target, PPU_CPROC_BRANCH_ALWAYS, 0);
 }
 
-static inline size_t cproc_blit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, void *img)
+static inline size_t cproc_blit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, const void *img)
 {
 	*prog++ = PPU_CPROC_BLIT | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((size & 0x7u) << 25) | ((poff & 0x7u) << 22);
 	*prog++ = ((uint32_t)img & 0xfffffffcu) | (fmt & 0x3u);
 	return 2;
 }
 
-static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, uint8_t halfsize, const int32_t *aparam, void *img)
+static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, uint8_t halfsize, const int32_t *aparam, const void *img)
 {
 	*prog++ = PPU_CPROC_ABLIT | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((size & 0x7u) << 25) | ((poff & 0x7u) << 22) | (!!halfsize << 21);
 	*prog++ = (((uint32_t)aparam[2] >> 10) & 0x0000ffffu) | (((uint32_t)aparam[5] << 6) & 0xffff0000u);
@@ -158,7 +158,7 @@ static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t
 	return 5;
 }
 
-static inline size_t cproc_tile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff, uint8_t fmt, uint8_t tilesize, void *tileset, void *tilemap)
+static inline size_t cproc_tile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff, uint8_t fmt, uint8_t tilesize, const void *tileset, const void *tilemap)
 {
 	*prog++ = PPU_CPROC_TILE | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((tilesize & 0x1u) << 25) | ((poff & 0x7u) << 22);
 	*prog++ = ((uint32_t)tilemap & 0xfffffffcu) | (pfsize & 0x3u);
