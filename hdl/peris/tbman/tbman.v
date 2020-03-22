@@ -62,9 +62,9 @@ tbman_regs inst_tbman_regs
 	.exit_wen       (exit_wen),
 	.defines_sim_i  (defines_sim),
 	.defines_fpga_i (defines_fpga),
-	.stub_uart_i    (STUB_UART),
-	.stub_spi_i     (STUB_SPI),
-	.stub_pwm_i     (STUB_PWM),
+	.stub_uart_i    (|STUB_UART),
+	.stub_spi_i     (|STUB_SPI),
+	.stub_pwm_i     (|STUB_PWM),
 `ifdef SIM
 	.irq_force_o    (irq_force)
 `else

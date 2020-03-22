@@ -107,7 +107,7 @@ reg chipselect_prev;
 always @ (posedge clk)
 	chipselect_prev <= addr[14];
 
-assign rdata = chipselect_prev ? rdata1 : rdata0;
+always @ (*) rdata = chipselect_prev ? rdata1 : rdata0;
 
 end else begin: behav_mem
 // Behavioural model, but Yosys does a great job of this on ECP5 and iCE40.
