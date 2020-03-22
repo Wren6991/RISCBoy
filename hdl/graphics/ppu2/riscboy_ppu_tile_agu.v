@@ -15,7 +15,9 @@
  *                                                                    *
  *********************************************************************/
 
-module riscboy_ppu_tile_address_gen #(
+`default_nettype none
+
+module riscboy_ppu_tile_agu #(
 	parameter W_ADDR = 32,
 	parameter W_DATA = 16,
 	parameter ADDR_MASK = 32'hffffffff,
@@ -57,11 +59,6 @@ module riscboy_ppu_tile_address_gen #(
 
 `include "riscboy_ppu_const.vh"
 
-wire                  tbuf_full;
-wire                  tbuf_empty;
-wire [1:0]            tbuf_level;
-wire                  tbuf_push;
-
 reg [W_COORD_SX-1:0]  count;
 reg [W_SPANTYPE-1:0]  type;
 reg [W_ADDR-1:0]      tilemap_ptr;
@@ -98,7 +95,7 @@ end
 // ----------------------------------------------------------------------------
 // Address generation
 
-wire playfield_mask = ~({{W_COORD_UV-3{1'b1}}, 3'b000} << log_texsize);
+wire [W_COORD_UV-1:0] playfield_mask = ~({{W_COORD_UV-3{1'b1}}, 3'b000} << log_texsize);
 wire out_of_bounds = |{cgen_u & ~playfield_mask, cgen_v & ~playfield_mask}; // FIXME options here!
 
 wire [W_ADDR-1:0] u_tile_index = (cgen_u & playfield_mask) >> (log_tilesize ? 4 : 3);
@@ -107,7 +104,7 @@ wire [W_ADDR-1:0] tile_index_in_tilemap = (u_tile_index | ({7'h0, v_tile_index} 
 
 assign bus_addr = (tilemap_ptr + tile_index_in_tilemap) & ADDR_MASK;
 
-wire issue_discard = out_of_bounds && 0; // FIXME need an option here
+wire issue_discard = out_of_bounds && 1'b0; // FIXME need an option here
 
 // ----------------------------------------------------------------------------
 // Tile info buffering
@@ -152,7 +149,7 @@ sync_fifo #(
 ) tinfo_buf (
 	.clk    (clk),
 	.rst_n  (rst_n),
-	.w_data ({out_of_bounds, cgen_v[3:0], cgen_u[3:0]}),
+	.w_data ({issue_discard, cgen_v[3:0], cgen_u[3:0]}),
 	.w_en   (issue_tinfo),
 	.r_data ({tinfo_discard, tinfo_v, tinfo_u}),
 	.r_en   (consume_tinfo),
@@ -164,7 +161,11 @@ sync_fifo #(
 // ----------------------------------------------------------------------------
 // Handshaking
 
-wire issue_prerequisites = !span_done && cgen_vld && !(tilenum_buf_full || tinfo_buf_full);
+// Note tilenum_buf has depth 2, so we only issue when empty, so that both the
+// issued and in-flight transfer have room when they arrive. This is still
+// sufficient for throughput of 1 cycle in 2, which is all that is required
+// for AT tiling.
+wire issue_prerequisites = !span_done && cgen_vld && tilenum_buf_empty && !tinfo_buf_full;
 
 assign cgen_rdy = issue_prerequisites && (bus_addr_rdy || issue_discard);
 

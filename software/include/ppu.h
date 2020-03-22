@@ -158,5 +158,11 @@ static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t
 	return 5;
 }
 
-
+static inline size_t cproc_tile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff, uint8_t fmt, uint8_t tilesize, void *tileset, void *tilemap)
+{
+	*prog++ = PPU_CPROC_TILE | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((tilesize & 0x1u) << 25) | ((poff & 0x7u) << 22);
+	*prog++ = ((uint32_t)tilemap & 0xfffffffcu) | (pfsize & 0x3u);
+	*prog++ = ((uint32_t)tileset & 0xfffffffcu) | (fmt & 0x3u);
+	return 3;
+}
 #endif // _PPU_H_

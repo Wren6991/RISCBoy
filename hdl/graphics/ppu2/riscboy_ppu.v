@@ -276,7 +276,7 @@ riscboy_ppu_cproc #(
 wire [W_COORD_UV-1:0] cgen_out_u;
 wire [W_COORD_UV-1:0] cgen_out_v;
 wire                  cgen_out_vld;
-wire                  cgen_out_rdy_tile = 1'b0; // FIXME
+wire                  cgen_out_rdy_tile;
 wire                  cgen_out_rdy_blit;
 wire                  cgen_out_rdy = cgen_out_rdy_tile || cgen_out_rdy_blit;
 
@@ -318,7 +318,7 @@ wire                  tinfo_discard;
 wire                  tinfo_vld;
 wire                  tinfo_rdy;
 
-riscboy_ppu_tile_address_gen #(
+riscboy_ppu_tile_agu #(
 	.W_ADDR      (W_HADDR),
 	.W_DATA      (W_HDATA),
 	.ADDR_MASK   (ADDR_MASK),
@@ -326,7 +326,7 @@ riscboy_ppu_tile_address_gen #(
 	.W_COORD_SX  (W_COORD_SX),
 	.W_SPAN_TYPE (W_SPANTYPE),
 	.W_TILE_NUM  (W_TILENUM)
-) inst_riscboy_ppu_tile_address_gen (
+) tile_agu (
 	.clk              (clk_ppu),
 	.rst_n            (rst_n_ppu),
 

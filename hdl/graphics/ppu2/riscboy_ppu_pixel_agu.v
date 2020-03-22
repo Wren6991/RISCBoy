@@ -15,6 +15,8 @@
  *                                                                    *
  *********************************************************************/
 
+`default_nettype none
+
  module riscboy_ppu_pixel_agu #(
  	parameter W_COORD_SX = 9,
  	parameter W_COORD_UV = 10,
@@ -130,7 +132,7 @@ assign bus_addr_vld = blit_mode ?
 assign issue_pixel = !span_done && (
 	bus_addr_vld && bus_addr_rdy ||
 	blit_mode && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full ||
-	!blit_mode && tinfo_vld && !pinfo_fifo_full
+	!blit_mode && tinfo_vld && tinfo_discard && !pinfo_fifo_full
 );
 
 assign cgen_rdy = issue_pixel && blit_mode;
