@@ -22,8 +22,7 @@
 	parameter W_DATA = 16,
 	parameter ADDR_MASK = 32'h200fffff
 ) (
-	input  wire              clk_ppu,
-	input  wire              clk_lcd,
+	input  wire              clk,
 	input  wire              rst_n,
 
 	// AHB-lite master port

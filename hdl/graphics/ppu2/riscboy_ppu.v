@@ -19,72 +19,55 @@
 `default_nettype none
 
 module riscboy_ppu #(
-	parameter PXFIFO_DEPTH = 8,
 	parameter W_HADDR = 32,
 	parameter W_HDATA = 32,
 	parameter W_DATA = 16,
-	parameter ADDR_MASK = 32'h2007ffff
+	parameter ADDR_MASK = 32'h2007ffff,
+	parameter W_COORD_SX = 9, // Do not modify
+	parameter W_COORD_SY = 8, // Do not modify
+	parameter W_PIXDATA = 16  // Do not modify
 ) (
-	input  wire               clk_ppu,
-	input  wire               clk_lcd,
-	input  wire               rst_n,
+	input  wire                  clk,
+	input  wire                  rst_n,
 
-	output wire               irq,
+	output wire                  irq,
 
 	// AHB-lite master port
-	output wire [W_HADDR-1:0] ahblm_haddr,
-	output wire               ahblm_hwrite,
-	output wire [1:0]         ahblm_htrans,
-	output wire [2:0]         ahblm_hsize,
-	output wire [2:0]         ahblm_hburst,
-	output wire [3:0]         ahblm_hprot,
-	output wire               ahblm_hmastlock,
-	input  wire               ahblm_hready,
-	input  wire               ahblm_hresp,
-	output wire [W_HDATA-1:0] ahblm_hwdata,
-	input  wire [W_HDATA-1:0] ahblm_hrdata,
+	output wire [W_HADDR-1:0]    ahblm_haddr,
+	output wire                  ahblm_hwrite,
+	output wire [1:0]            ahblm_htrans,
+	output wire [2:0]            ahblm_hsize,
+	output wire [2:0]            ahblm_hburst,
+	output wire [3:0]            ahblm_hprot,
+	output wire                  ahblm_hmastlock,
+	input  wire                  ahblm_hready,
+	input  wire                  ahblm_hresp,
+	output wire [W_HDATA-1:0]    ahblm_hwdata,
+	input  wire [W_HDATA-1:0]    ahblm_hrdata,
 
 	// APB slave port
-	input  wire               apbs_psel,
-	input  wire               apbs_penable,
-	input  wire               apbs_pwrite,
-	input  wire [15:0]        apbs_paddr,
-	input  wire [W_HDATA-1:0] apbs_pwdata,
-	output wire [W_HDATA-1:0] apbs_prdata,
-	output wire               apbs_pready,
-	output wire               apbs_pslverr,
+	input  wire                  apbs_psel,
+	input  wire                  apbs_penable,
+	input  wire                  apbs_pwrite,
+	input  wire [15:0]           apbs_paddr,
+	input  wire [W_HDATA-1:0]    apbs_pwdata,
+	output wire [W_HDATA-1:0]    apbs_prdata,
+	output wire                  apbs_pready,
+	output wire                  apbs_pslverr,
 
-	output wire               lcd_cs,
-	output wire               lcd_dc,
-	output wire               lcd_sck,
-	output wire               lcd_mosi
+	// Scanbuf read port interface for dispctrl
+	input  wire [W_COORD_SX-1:0] scanout_raddr,
+	input  wire                  scanout_ren,
+	output wire [W_PIXDATA-1:0]  scanout_rdata,
+	output wire                  scanout_buf_rdy,
+	input  wire                  scanout_buf_release
 );
 
 `include "riscboy_ppu_const.vh"
 
-localparam W_PIXDATA = 16;
 localparam W_LCD_PIXDATA = 16;
-localparam W_COORD_SX = 9;
-localparam W_COORD_SY = 8;
 localparam W_COORD_UV = 10;
 localparam W_COORD_FRAC = 8;
-// Should be locals but ISIM bug etc etc:
-parameter W_PXFIFO_LEVEL  = $clog2(PXFIFO_DEPTH + 1);
-
-wire rst_n_ppu;
-wire rst_n_lcd;
-
-reset_sync sync_rst_ppu (
-	.clk       (clk_ppu),
-	.rst_n_in  (rst_n),
-	.rst_n_out (rst_n_ppu)
-);
-
-reset_sync sync_rst_lcd (
-	.clk       (clk_lcd),
-	.rst_n_in  (rst_n),
-	.rst_n_out (rst_n_lcd)
-);
 
 // ----------------------------------------------------------------------------
 // Regblock
@@ -100,14 +83,6 @@ wire [W_COORD_SY-1:0]     dispsize_h;
 wire [W_HADDR-1:0]        cproc_pc_wdata;
 wire                      cproc_pc_wen;
 
-wire [W_LCD_PIXDATA-1:0]  pxfifo_direct_wdata;
-wire                      pxfifo_direct_wen;
-wire                      pxfifo_wfull;
-wire                      pxfifo_wempty;
-wire [W_PXFIFO_LEVEL-1:0] pxfifo_wlevel;
-wire                      lcdctrl_shamt;
-wire                      lcdctrl_busy;
-
 wire                      ints_vsync;
 wire                      ints_hsync;
 wire                      inte_vsync;
@@ -116,8 +91,8 @@ wire                      vsync;
 wire                      hsync;
 
 ppu_regs regs (
-	.clk                    (clk_ppu),
-	.rst_n                  (rst_n_ppu),
+	.clk                    (clk),
+	.rst_n                  (rst_n),
 
 	.apbs_psel              (apbs_psel && !apbs_paddr[11]), // TODO clean up this hack for mapping palette RAM at 2kB
 	.apbs_penable           (apbs_penable),
@@ -138,16 +113,6 @@ ppu_regs regs (
 
 	.cproc_pc_o             (cproc_pc_wdata),
 	.cproc_pc_wen           (cproc_pc_wen),
-
-	.lcd_pxfifo_o           (pxfifo_direct_wdata),
-	.lcd_pxfifo_wen         (pxfifo_direct_wen),
-	.lcd_csr_pxfifo_empty_i (pxfifo_wempty),
-	.lcd_csr_pxfifo_full_i  (pxfifo_wfull),
-	.lcd_csr_pxfifo_level_i ({2'h0, pxfifo_wlevel}),
-	.lcd_csr_lcd_cs_o       (lcd_cs),
-	.lcd_csr_lcd_dc_o       (lcd_dc),
-	.lcd_csr_tx_busy_i      (lcdctrl_busy),
-	.lcd_csr_lcd_shiftcnt_o (lcdctrl_shamt),
 
 	.ints_vsync_i           (vsync),
 	.ints_vsync_o           (ints_vsync),
@@ -173,8 +138,8 @@ reg                  ppu_running;
 assign vsync = hsync && raster_y == dispsize_h;
 assign csr_running = ppu_running;
 
-always @ (posedge clk_ppu or negedge rst_n_ppu) begin
-	if (!rst_n_ppu) begin
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
 		raster_y <= {W_COORD_SY{1'b0}};
 		ppu_running <= 1'b0;
 	end else begin
@@ -230,8 +195,8 @@ riscboy_ppu_cproc #(
 	.W_ADDR           (W_HADDR),
 	.W_DATA           (W_HDATA)
 ) cproc (
-	.clk                 (clk_ppu),
-	.rst_n               (rst_n_ppu),
+	.clk                 (clk),
+	.rst_n               (rst_n),
 
 	.ppu_running         (ppu_running),
 	.entrypoint          (cproc_pc_wdata),
@@ -289,8 +254,8 @@ riscboy_ppu_affine_coord_gen #(
 	.W_COORD_FRAC (W_COORD_FRAC),
 	.W_BUS_DATA   (W_HDATA)
 ) cgen (
-	.clk           (clk_ppu),
-	.rst_n         (rst_n_ppu),
+	.clk           (clk),
+	.rst_n         (rst_n),
 	.start_affine  (cgen_start_affine),
 	.start_simple  (cgen_start_simple),
 	.raster_offs_x (cgen_raster_offs_x),
@@ -327,8 +292,8 @@ riscboy_ppu_tile_agu #(
 	.W_SPAN_TYPE (W_SPANTYPE),
 	.W_TILE_NUM  (W_TILENUM)
 ) tile_agu (
-	.clk              (clk_ppu),
-	.rst_n            (rst_n_ppu),
+	.clk              (clk),
+	.rst_n            (rst_n),
 
 	.bus_addr_vld     (tile_bus_aph_vld),
 	.bus_addr_rdy     (tile_bus_aph_rdy),
@@ -377,8 +342,8 @@ riscboy_ppu_pixel_agu #(
 	.ADDR_MASK   (ADDR_MASK),
 	.W_ADDR      (W_HADDR)
 ) pixel_agu (
-	.clk                 (clk_ppu),
-	.rst_n               (rst_n_ppu),
+	.clk                 (clk),
+	.rst_n               (rst_n),
 
 	.bus_addr_vld        (pixel_bus_aph_vld),
 	.bus_addr_rdy        (pixel_bus_aph_rdy),
@@ -426,8 +391,8 @@ riscboy_ppu_pixel_unpack #(
 	.W_COORD_SX  (W_COORD_SX),
 	.W_SPAN_TYPE (W_SPANTYPE)
 ) pixel_unpack (
-	.clk              (clk_ppu),
-	.rst_n            (rst_n_ppu),
+	.clk              (clk),
+	.rst_n            (rst_n),
 
 	.in_data          (pixel_bus_dph_data[W_PIXDATA-1:0]),
 	.in_vld           (pixel_bus_dph_vld),
@@ -470,35 +435,33 @@ wire [W_COORD_SX-1:0] scanbuf_waddr;
 wire [W_PIXDATA-2:0]  scanbuf_wdata;
 wire                  scanbuf_wen;
 
-wire [W_COORD_SX-1:0] scanbuf_raddr;
 wire [W_PIXDATA-2:0]  scanbuf_rdata0;
 wire [W_PIXDATA-2:0]  scanbuf_rdata1;
-wire                  scanbuf_ren;
 
 sram_sync_1r1w #(
 	.WIDTH (W_PIXDATA - 1), // no alpha
 	.DEPTH (1 << W_COORD_SX)
 ) scanbuf0 (
-	.clk   (clk_ppu),
+	.clk   (clk),
 	.waddr (scanbuf_waddr),
 	.wdata (scanbuf_wdata),
 	.wen   (scanbuf_wen && !blitter_current_scanbuf),
-	.raddr (scanbuf_raddr),
+	.raddr (scanout_raddr),
 	.rdata (scanbuf_rdata0),
-	.ren   (scanbuf_ren && !scanout_current_scanbuf)
+	.ren   (scanout_ren && !scanout_current_scanbuf)
 );
 
 sram_sync_1r1w #(
 	.WIDTH (W_PIXDATA - 1),
 	.DEPTH (1 << W_COORD_SX)
 ) scanbuf1 (
-	.clk   (clk_ppu),
+	.clk   (clk),
 	.waddr (scanbuf_waddr),
 	.wdata (scanbuf_wdata),
 	.wen   (scanbuf_wen && blitter_current_scanbuf),
-	.raddr (scanbuf_raddr),
+	.raddr (scanout_raddr),
 	.rdata (scanbuf_rdata1),
-	.ren   (scanbuf_ren && scanout_current_scanbuf)
+	.ren   (scanout_ren && scanout_current_scanbuf)
 );
 
 riscboy_ppu_blender #(
@@ -506,8 +469,8 @@ riscboy_ppu_blender #(
 	.W_COORD_SX    (W_COORD_SX),
 	.W_PALETTE_IDX (8)
 ) blender (
-	.clk           (clk_ppu),
-	.rst_n         (rst_n_ppu),
+	.clk           (clk),
+	.rst_n         (rst_n),
 
 	.in_vld        (blender_in_vld),
 	.in_data       (blender_in_data),
@@ -528,38 +491,11 @@ riscboy_ppu_blender #(
 	.span_done     (span_done)
 );
 
-// Scan out to pixel FIFO
-// TODO this is a lot of logic to have at this hierarchy level, move this to a better place, once that place is apparent
+// Track scanbuffer clean/dirty flags, and which buffer the blitter and scanout
+// intend to access
 
-reg pxfifo_scan_wen;
-reg scanout_buf_last_read;
-reg [W_COORD_SX-1:0] scanout_x;
-
-wire [W_PIXDATA-2:0] pxfifo_scan_wdata = scanout_buf_last_read ? scanbuf_rdata1 : scanbuf_rdata0;
-wire scanout_done = scanbuf_ren && scanout_x == dispsize_w;
-assign scanbuf_raddr = scanout_x;
-assign scanbuf_ren = scanbuf_dirty[scanout_current_scanbuf] && (
-	pxfifo_wlevel < PXFIFO_DEPTH - 2 || !(pxfifo_wfull || pxfifo_scan_wen)
-);
-
-always @ (posedge clk_ppu or negedge rst_n_ppu) begin
-	if (!rst_n_ppu) begin
-		scanout_x <= {W_COORD_SX{1'b0}};
-		pxfifo_scan_wen <= 1'b0;
-		scanout_buf_last_read <= 1'b0;
-	end else begin
-		pxfifo_scan_wen <= scanbuf_ren;
-		if (scanbuf_ren) begin
-			scanout_buf_last_read <= scanout_current_scanbuf;
-			scanout_x <= scanout_done ? {W_COORD_SX{1'b0}} : scanout_x + 1'b1;
-		end
-	end
-end
-
-// Scanbuffer clean/dirty flags
-
-always @ (posedge clk_ppu or negedge rst_n_ppu) begin
-	if (!rst_n_ppu) begin
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
 		blitter_current_scanbuf <= 1'b0;
 		scanout_current_scanbuf <= 1'b0;
 		scanbuf_dirty <= 2'b00;
@@ -568,7 +504,7 @@ always @ (posedge clk_ppu or negedge rst_n_ppu) begin
 			blitter_current_scanbuf <= !blitter_current_scanbuf;
 			scanbuf_dirty[blitter_current_scanbuf] <= 1'b1;
 		end
-		if (scanout_done) begin
+		if (scanout_buf_release) begin
 			scanout_current_scanbuf <= !scanout_current_scanbuf;
 			scanbuf_dirty[scanout_current_scanbuf] <= 1'b0;
 		end
@@ -577,75 +513,23 @@ end
 
 assign blitter_scanbuf_rdy = !scanbuf_dirty[blitter_current_scanbuf];
 
-// ----------------------------------------------------------------------------
-// LCD shifter and clock crossing
+// Register which scanbuf was last read from by scanout, so we can mux in
+// correct rdata (Note that the SPI dispctrl can read from *different*
+// scanbufs on two consecutive cycles if the PPU is overrunning the display)
 
-wire                       lcdctrl_busy_clklcd;
-wire                       lcdctrl_shamt_clklcd;
+reg scanout_buf_last_read;
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		scanout_buf_last_read <= 1'b0;
+	end else if (scanout_ren) begin
+		scanout_buf_last_read <= scanout_current_scanbuf;
+	end
+end
 
-wire [W_LCD_PIXDATA-1:0]   pxfifo_wdata = pxfifo_direct_wen ? pxfifo_direct_wdata :
-	{pxfifo_scan_wdata[14:5], 1'b0, pxfifo_scan_wdata[4:0]};
-wire                       pxfifo_wen = pxfifo_direct_wen || pxfifo_scan_wen;
-
-wire [W_LCD_PIXDATA-1:0]   pxfifo_rdata;
-wire                       pxfifo_rempty;
-wire                       pxfifo_rdy;
-wire                       pxfifo_pop = pxfifo_rdy && !pxfifo_rempty;
-
-sync_1bit sync_lcd_busy (
-	.clk   (clk_ppu),
-	.rst_n (rst_n_ppu),
-	.i     (lcdctrl_busy_clklcd),
-	.o     (lcdctrl_busy)
-);
-
-// It should be ok to use simple 2FF sync here because software maintains
-// guarantee that this only changes when PPU + shifter are idle
-
-sync_1bit sync_lcd_shamt (
-	.clk   (clk_lcd),
-	.rst_n (rst_n_lcd),
-	.i     (lcdctrl_shamt),
-	.o     (lcdctrl_shamt_clklcd)
-);
-
-async_fifo #(
-	.W_DATA (W_LCD_PIXDATA),
-	.W_ADDR (W_PXFIFO_LEVEL - 1)
-) pixel_fifo (
-	.wclk   (clk_ppu),
-	.wrst_n (rst_n_ppu),
-
-	.wdata  (pxfifo_wdata),
-	.wpush  (pxfifo_wen),
-	.wfull  (pxfifo_wfull),
-	.wempty (pxfifo_wempty),
-	.wlevel (pxfifo_wlevel),
-
-	.rclk   (clk_lcd),
-	.rrst_n (rst_n_lcd),
-
-	.rdata  (pxfifo_rdata),
-	.rpop   (pxfifo_pop),
-	.rfull  (/* unused */),
-	.rempty (pxfifo_rempty),
-	.rlevel (/* unused */)
-);
-
-riscboy_ppu_dispctrl #(
-	.W_DATA (W_LCD_PIXDATA)
-) dispctrl (
-	.clk               (clk_lcd),
-	.rst_n             (rst_n_lcd),
-	.pxfifo_vld        (!pxfifo_rempty),
-	.pxfifo_rdy        (pxfifo_rdy),
-	.pxfifo_rdata      (pxfifo_rdata),
-	.pxfifo_shiftcount (lcdctrl_shamt_clklcd),
-	.tx_busy           (lcdctrl_busy_clklcd),
-	// Outputs to LCD
-	.lcd_sck           (lcd_sck),
-	.lcd_mosi          (lcd_mosi)
-);
+assign scanout_buf_rdy = scanbuf_dirty[scanout_current_scanbuf];
+wire [W_PIXDATA-2:0] scanout_rdata_raw = scanout_buf_last_read ? scanbuf_rdata1 : scanbuf_rdata0;
+// scanout_rdata is in RGB565 format, not RGB555
+assign scanout_rdata = {scanout_rdata_raw[14:5], 1'b0, scanout_rdata_raw[4:0]};
 
 // ----------------------------------------------------------------------------
 // Busmaster
@@ -656,8 +540,8 @@ riscboy_ppu_busmaster #(
 	.W_DATA    (W_HDATA),
 	.ADDR_MASK (ADDR_MASK)
 ) busmaster (
-	.clk             (clk_ppu),
-	.rst_n           (rst_n_ppu),
+	.clk             (clk),
+	.rst_n           (rst_n),
 	.ppu_running     (ppu_running),
 
 	// Lowest significance wins

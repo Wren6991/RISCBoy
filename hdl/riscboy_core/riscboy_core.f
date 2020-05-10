@@ -1,5 +1,6 @@
 list $HDL/hazard5/hazard5.f
 list $HDL/graphics/ppu2/riscboy_ppu.f
+list $HDL/graphics/ppu2/dispctrl/riscboy_ppu_dispctrl_spi.f
 list $HDL/peris/tbman/tbman.f
 list $HDL/peris/uart/uart.f
 list $HDL/peris/gpio/gpio.f

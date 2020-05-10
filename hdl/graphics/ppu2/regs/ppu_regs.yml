@@ -22,20 +22,6 @@ regs:
     info: Write to command processor program counter. Must only be used when the PPU is idle.
     bits:
       - {b: [31, 0], access: wf}
-  - name: lcd_pxfifo
-    info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
-    bits:
-      - {b: [15, 0], access: wf}
-  - name: lcd_csr
-    info: Control and status register for the LCD interface
-    bits:
-      - {b: 0,        name: pxfifo_empty, access: rov}
-      - {b: 1,        name: pxfifo_full,  access: rov}
-      - {b: [7, 2],   name: pxfifo_level, access: rov}
-      - {b: 8,        name: lcd_cs,       access: rw, rst: 0x1}
-      - {b: 9,        name: lcd_dc,       access: rw}
-      - {b: 10,       name: tx_busy,      access: rov}
-      - {b: 16, name: lcd_shiftcnt,       access: rw, info: "1 for 16-bit, 0 for 8-bit"}
   - name: ints
     info: Status of interrupt sources. Each source is write-1-clear.
     bits:

@@ -1,2 +1,2 @@
 file tb.v
-list $HDL/mem/ahb_sync_sram.f
+list $LIBFPGA/mem/ahb_sync_sram.f

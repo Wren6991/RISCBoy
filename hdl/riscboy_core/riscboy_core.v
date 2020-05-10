@@ -204,6 +204,21 @@ wire [W_DATA-1:0]  ppu_apbs_prdata;
 wire               ppu_apbs_pslverr;
 wire               ppu_irq;
 
+wire [W_PADDR-1:0] lcd_apbs_paddr;
+wire               lcd_apbs_psel;
+wire               lcd_apbs_penable;
+wire               lcd_apbs_pwrite;
+wire [W_DATA-1:0]  lcd_apbs_pwdata;
+wire               lcd_apbs_pready;
+wire [W_DATA-1:0]  lcd_apbs_prdata;
+wire               lcd_apbs_pslverr;
+
+wire [W_COORD_SX-1:0] lcd_scanout_raddr;
+wire                  lcd_scanout_ren;
+wire          [15:0]  lcd_scanout_rdata;
+wire                  lcd_scanout_buf_rdy;
+wire                  lcd_scanout_buf_release;
+
 // =============================================================================
 //  Masters
 // =============================================================================
@@ -239,40 +254,84 @@ hazard5_cpu #(
 	} | tbman_irq_force)
 );
 
+localparam W_COORD_SX = 9;
+localparam W_COORD_SY = 8;
+
 riscboy_ppu #(
-	.PXFIFO_DEPTH (8)
+	.W_COORD_SX (W_COORD_SX),
+	.W_COORD_SY (W_COORD_SY)
 ) inst_riscboy_ppu (
-	.clk_ppu         (clk_sys),
-	.clk_lcd         (clk_lcd),
-	.rst_n           (rst_n),
+	.clk                 (clk_sys),
+	.rst_n               (rst_n),
 
-	.irq             (ppu_irq),
+	.irq                 (ppu_irq),
 
-	.ahblm_hready    (ppu_hready),
-	.ahblm_hresp     (ppu_hresp),
-	.ahblm_haddr     (ppu_haddr),
-	.ahblm_hwrite    (ppu_hwrite),
-	.ahblm_htrans    (ppu_htrans),
-	.ahblm_hsize     (ppu_hsize),
-	.ahblm_hburst    (ppu_hburst),
-	.ahblm_hprot     (ppu_hprot),
-	.ahblm_hmastlock (ppu_hmastlock),
-	.ahblm_hwdata    (ppu_hwdata),
-	.ahblm_hrdata    (ppu_hrdata),
+	.ahblm_hready        (ppu_hready),
+	.ahblm_hresp         (ppu_hresp),
+	.ahblm_haddr         (ppu_haddr),
+	.ahblm_hwrite        (ppu_hwrite),
+	.ahblm_htrans        (ppu_htrans),
+	.ahblm_hsize         (ppu_hsize),
+	.ahblm_hburst        (ppu_hburst),
+	.ahblm_hprot         (ppu_hprot),
+	.ahblm_hmastlock     (ppu_hmastlock),
+	.ahblm_hwdata        (ppu_hwdata),
+	.ahblm_hrdata        (ppu_hrdata),
 
-	.apbs_psel       (ppu_apbs_psel),
-	.apbs_penable    (ppu_apbs_penable),
-	.apbs_pwrite     (ppu_apbs_pwrite),
-	.apbs_paddr      (ppu_apbs_paddr),
-	.apbs_pwdata     (ppu_apbs_pwdata),
-	.apbs_prdata     (ppu_apbs_prdata),
-	.apbs_pready     (ppu_apbs_pready),
-	.apbs_pslverr    (ppu_apbs_pslverr),
+	.apbs_psel           (ppu_apbs_psel),
+	.apbs_penable        (ppu_apbs_penable),
+	.apbs_pwrite         (ppu_apbs_pwrite),
+	.apbs_paddr          (ppu_apbs_paddr),
+	.apbs_pwdata         (ppu_apbs_pwdata),
+	.apbs_prdata         (ppu_apbs_prdata),
+	.apbs_pready         (ppu_apbs_pready),
+	.apbs_pslverr        (ppu_apbs_pslverr),
 
-	.lcd_cs          (lcd_cs),
-	.lcd_dc          (lcd_dc),
-	.lcd_sck         (lcd_sck),
-	.lcd_mosi        (lcd_mosi)
+	.scanout_raddr       (lcd_scanout_raddr),
+	.scanout_ren         (lcd_scanout_ren),
+	.scanout_rdata       (lcd_scanout_rdata),
+	.scanout_buf_rdy     (lcd_scanout_buf_rdy),
+	.scanout_buf_release (lcd_scanout_buf_release)
+);
+
+wire rst_n_lcd;
+
+reset_sync #(
+	.N_CYCLES (2)
+) inst_reset_sync (
+	.clk       (clk_lcd),
+	.rst_n_in  (rst_n),
+	.rst_n_out (rst_n_lcd)
+);
+
+riscboy_ppu_dispctrl_spi #(
+	.PXFIFO_DEPTH (8),
+	.W_COORD_SX   (W_COORD_SX)
+) dispctrl_spi_u (
+	.clk_sys             (clk_sys),
+	.rst_n_sys           (rst_n),
+	.clk_tx              (clk_lcd),
+	.rst_n_tx            (rst_n_lcd),
+
+	.apbs_psel           (lcd_apbs_psel),
+	.apbs_penable        (lcd_apbs_penable),
+	.apbs_pwrite         (lcd_apbs_pwrite),
+	.apbs_paddr          (lcd_apbs_paddr),
+	.apbs_pwdata         (lcd_apbs_pwdata),
+	.apbs_prdata         (lcd_apbs_prdata),
+	.apbs_pready         (lcd_apbs_pready),
+	.apbs_pslverr        (lcd_apbs_pslverr),
+
+	.scanout_raddr       (lcd_scanout_raddr),
+	.scanout_ren         (lcd_scanout_ren),
+	.scanout_rdata       (lcd_scanout_rdata),
+	.scanout_buf_rdy     (lcd_scanout_buf_rdy),
+	.scanout_buf_release (lcd_scanout_buf_release),
+
+	.lcd_cs              (lcd_cs),
+	.lcd_dc              (lcd_dc),
+	.lcd_sck             (lcd_sck),
+	.lcd_mosi            (lcd_mosi)
 );
 
 // =============================================================================
@@ -357,9 +416,9 @@ ahbl_to_apb #(
 apb_splitter #(
 	.W_ADDR(W_PADDR),
 	.W_DATA(W_DATA),
-	.N_SLAVES(6),
-	.ADDR_MAP (96'hf000_4000_3000_2000_1000_0000),
-	.ADDR_MASK(96'hf000_f000_f000_f000_f000_f000)
+	.N_SLAVES(7),
+	.ADDR_MAP (112'hf000_5000_4000_3000_2000_1000_0000),
+	.ADDR_MASK(112'hf000_f000_f000_f000_f000_f000_f000)
 ) inst_apb_splitter (
 	.apbs_paddr   (bridge_paddr),
 	.apbs_psel    (bridge_psel),
@@ -369,14 +428,14 @@ apb_splitter #(
 	.apbs_pready  (bridge_pready),
 	.apbs_prdata  (bridge_prdata),
 	.apbs_pslverr (bridge_pslverr),
-	.apbm_paddr   ({tbman_paddr   , ppu_apbs_paddr    , spi_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
-	.apbm_psel    ({tbman_psel    , ppu_apbs_psel     , spi_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
-	.apbm_penable ({tbman_penable , ppu_apbs_penable  , spi_penable , pwm_penable , uart_penable , gpio_penable}),
-	.apbm_pwrite  ({tbman_pwrite  , ppu_apbs_pwrite   , spi_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
-	.apbm_pwdata  ({tbman_pwdata  , ppu_apbs_pwdata   , spi_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
-	.apbm_pready  ({tbman_pready  , ppu_apbs_pready   , spi_pready  , pwm_pready  , uart_pready  , gpio_pready }),
-	.apbm_prdata  ({tbman_prdata  , ppu_apbs_prdata   , spi_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
-	.apbm_pslverr ({tbman_pslverr , ppu_apbs_pslverr  , spi_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
+	.apbm_paddr   ({tbman_paddr   , lcd_apbs_paddr    , ppu_apbs_paddr    , spi_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
+	.apbm_psel    ({tbman_psel    , lcd_apbs_psel     , ppu_apbs_psel     , spi_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
+	.apbm_penable ({tbman_penable , lcd_apbs_penable  , ppu_apbs_penable  , spi_penable , pwm_penable , uart_penable , gpio_penable}),
+	.apbm_pwrite  ({tbman_pwrite  , lcd_apbs_pwrite   , ppu_apbs_pwrite   , spi_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
+	.apbm_pwdata  ({tbman_pwdata  , lcd_apbs_pwdata   , ppu_apbs_pwdata   , spi_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
+	.apbm_pready  ({tbman_pready  , lcd_apbs_pready   , ppu_apbs_pready   , spi_pready  , pwm_pready  , uart_pready  , gpio_pready }),
+	.apbm_prdata  ({tbman_prdata  , lcd_apbs_prdata   , ppu_apbs_prdata   , spi_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
+	.apbm_pslverr ({tbman_pslverr , lcd_apbs_pslverr  , ppu_apbs_pslverr  , spi_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
 );
 
 
