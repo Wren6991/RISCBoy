@@ -6,6 +6,7 @@ export PATH="$PATH:$XILINX/bin/lin64"
 export PROJ_ROOT=`pwd`
 export SCRIPTS=$PROJ_ROOT/scripts
 export HDL=$PROJ_ROOT/hdl
+export LIBFPGA=$HDL/libfpga
 export SOFTWARE=$PROJ_ROOT/software
 
 # Add scripts to PATH, for convenience (e.g. listfiles, regblock) Makefiles do

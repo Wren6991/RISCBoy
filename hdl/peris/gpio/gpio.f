@@ -1,3 +1,3 @@
 wildcard .v .
-file $HDL/common/reset_sync.v
+file $LIBFPGA/common/reset_sync.v
 include .

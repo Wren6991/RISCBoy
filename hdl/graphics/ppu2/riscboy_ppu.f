@@ -14,13 +14,13 @@ file riscboy_ppu_tile_agu.v
 file regs/ppu_regs.v
 include .
 
-file $HDL/common/ddr_out.v
-file $HDL/common/dffe_out.v
-file $HDL/common/onehot_mux.v
-file $HDL/common/onehot_priority.v
-file $HDL/common/reset_sync.v
-file $HDL/common/skid_buffer.v
-file $HDL/common/sync_fifo.v
-list $HDL/common/cdc/async_fifo.f
+file $LIBFPGA/common/ddr_out.v
+file $LIBFPGA/common/dffe_out.v
+file $LIBFPGA/common/onehot_mux.v
+file $LIBFPGA/common/onehot_priority.v
+file $LIBFPGA/common/reset_sync.v
+file $LIBFPGA/common/skid_buffer.v
+file $LIBFPGA/common/sync_fifo.v
+list $LIBFPGA/cdc/async_fifo.f
 
-file $HDL/mem/sram_sync_1r1w.v
+file $LIBFPGA/mem/sram_sync_1r1w.v

@@ -4,3 +4,9 @@
 [submodule "test/riscv-formal"]
 	path = test/riscv-formal
 	url = https://github.com/Wren6991/riscv-formal.git
+[submodule "hdl/libfpga"]
+	path = hdl/libfpga
+	url = git@github.com:Wren6991/libfpga.git
+[submodule "scripts"]
+	path = scripts
+	url = git@github.com:Wren6991/fpgascripts.git

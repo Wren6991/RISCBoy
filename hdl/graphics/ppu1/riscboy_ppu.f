@@ -14,11 +14,11 @@ file riscboy_ppu_sprite_agu.v
 file regs/ppu_regs.v
 include .
 
-list $HDL/common/cdc/async_fifo.f
-file $HDL/common/onehot_mux.v
-file $HDL/common/onehot_priority.v
-file $HDL/common/onehot_encoder.v
-file $HDL/common/onehot_priority_dynamic.v
-file $HDL/common/reset_sync.v
-file $HDL/common/dffe_out.v
-file $HDL/common/ddr_out.v
+list $LIBFPGA/cdc/async_fifo.f
+file $LIBFPGA/common/onehot_mux.v
+file $LIBFPGA/common/onehot_priority.v
+file $LIBFPGA/common/onehot_encoder.v
+file $LIBFPGA/common/onehot_priority_dynamic.v
+file $LIBFPGA/common/reset_sync.v
+file $LIBFPGA/common/dffe_out.v
+file $LIBFPGA/common/ddr_out.v
