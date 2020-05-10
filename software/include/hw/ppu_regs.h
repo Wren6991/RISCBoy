@@ -15,10 +15,8 @@
 #define PPU_CSR_OFFS 0
 #define PPU_DISPSIZE_OFFS 4
 #define PPU_CPROC_PC_OFFS 8
-#define PPU_LCD_PXFIFO_OFFS 12
-#define PPU_LCD_CSR_OFFS 16
-#define PPU_INTS_OFFS 20
-#define PPU_INTE_OFFS 24
+#define PPU_INTS_OFFS 12
+#define PPU_INTE_OFFS 16
 
 /*******************************************************************************
 *                                     CSR                                      *
@@ -73,54 +71,6 @@
 #define PPU_CPROC_PC_LSB  0
 #define PPU_CPROC_PC_BITS 32
 #define PPU_CPROC_PC_MASK 0xffffffff
-
-/*******************************************************************************
-*                                  LCD_PXFIFO                                  *
-*******************************************************************************/
-
-// Direct write access to the pixel FIFO. Must only be used when the PPU is
-// idle.
-
-// Field: LCD_PXFIFO  Access: WF
-#define PPU_LCD_PXFIFO_LSB  0
-#define PPU_LCD_PXFIFO_BITS 16
-#define PPU_LCD_PXFIFO_MASK 0xffff
-
-/*******************************************************************************
-*                                   LCD_CSR                                    *
-*******************************************************************************/
-
-// Control and status register for the LCD interface
-
-// Field: LCD_CSR_PXFIFO_EMPTY  Access: ROV
-#define PPU_LCD_CSR_PXFIFO_EMPTY_LSB  0
-#define PPU_LCD_CSR_PXFIFO_EMPTY_BITS 1
-#define PPU_LCD_CSR_PXFIFO_EMPTY_MASK 0x1
-// Field: LCD_CSR_PXFIFO_FULL  Access: ROV
-#define PPU_LCD_CSR_PXFIFO_FULL_LSB  1
-#define PPU_LCD_CSR_PXFIFO_FULL_BITS 1
-#define PPU_LCD_CSR_PXFIFO_FULL_MASK 0x2
-// Field: LCD_CSR_PXFIFO_LEVEL  Access: ROV
-#define PPU_LCD_CSR_PXFIFO_LEVEL_LSB  2
-#define PPU_LCD_CSR_PXFIFO_LEVEL_BITS 6
-#define PPU_LCD_CSR_PXFIFO_LEVEL_MASK 0xfc
-// Field: LCD_CSR_LCD_CS  Access: RW
-#define PPU_LCD_CSR_LCD_CS_LSB  8
-#define PPU_LCD_CSR_LCD_CS_BITS 1
-#define PPU_LCD_CSR_LCD_CS_MASK 0x100
-// Field: LCD_CSR_LCD_DC  Access: RW
-#define PPU_LCD_CSR_LCD_DC_LSB  9
-#define PPU_LCD_CSR_LCD_DC_BITS 1
-#define PPU_LCD_CSR_LCD_DC_MASK 0x200
-// Field: LCD_CSR_TX_BUSY  Access: ROV
-#define PPU_LCD_CSR_TX_BUSY_LSB  10
-#define PPU_LCD_CSR_TX_BUSY_BITS 1
-#define PPU_LCD_CSR_TX_BUSY_MASK 0x400
-// Field: LCD_CSR_LCD_SHIFTCNT  Access: RW
-// 1 for 16-bit, 0 for 8-bit
-#define PPU_LCD_CSR_LCD_SHIFTCNT_LSB  16
-#define PPU_LCD_CSR_LCD_SHIFTCNT_BITS 1
-#define PPU_LCD_CSR_LCD_SHIFTCNT_MASK 0x10000
 
 /*******************************************************************************
 *                                     INTS                                     *

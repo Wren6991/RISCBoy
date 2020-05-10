@@ -16,7 +16,7 @@ regs:
   - name: dispsize
     info: Set display dimensions, so the display controller knows when it has reached the end of a scanline buffer or frame
     bits:
-      - {b: [8, 0], name: w, access: wo}
+      - {b: [8, 0], name: w, access: wo, rst: 319}
   - name: pxfifo
     info: Direct write access to the pixel FIFO. Must only be used when the PPU is idle.
     bits:

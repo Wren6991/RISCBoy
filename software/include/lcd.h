@@ -5,10 +5,65 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "addressmap.h"
+#include "hw/ppu_dispctrl_spi_regs.h"
 #include "delay.h"
 #include "ppu.h"
 
-// Each record consists of:
+struct spi_lcd_hw {
+	io_rw_32 csr;
+	io_rw_32 dispsize;
+	io_rw_32 pxfifo;
+};
+
+#define mm_spi_lcd ((struct spi_lcd_hw *const)DISP_BASE)
+
+static inline void lcd_force_dc_cs(bool dc, bool cs)
+{
+	mm_spi_lcd->csr = (mm_spi_lcd->csr
+		& ~(DISPCTRL_SPI_CSR_LCD_CS_MASK | DISPCTRL_SPI_CSR_LCD_DC_MASK))
+		| (!!dc << DISPCTRL_SPI_CSR_LCD_DC_LSB)
+		| (!!cs << DISPCTRL_SPI_CSR_LCD_CS_LSB);
+}
+
+static inline void lcd_set_shift_width(uint8_t width)
+{
+	if (width == 16)
+		mm_spi_lcd->csr |= DISPCTRL_SPI_CSR_LCD_SHIFTCNT_MASK;
+	else
+		mm_spi_lcd->csr &= ~DISPCTRL_SPI_CSR_LCD_SHIFTCNT_MASK;
+}
+
+static inline void lcd_put_hword(uint16_t pixdata)
+{
+	while (mm_spi_lcd->csr & DISPCTRL_SPI_CSR_PXFIFO_FULL_MASK)
+		;
+	mm_spi_lcd->pxfifo = pixdata;
+}
+
+// Note the shifter always outputs MSB-first, and will simply be configured to get next data
+// after shifting 8 MSBs out, so we left-justify the data
+static inline void lcd_put_byte(uint8_t pixdata)
+{
+	while (mm_spi_lcd->csr & DISPCTRL_SPI_CSR_PXFIFO_FULL_MASK)
+		;
+	mm_spi_lcd->pxfifo = (uint16_t)pixdata << 8;
+}
+
+static inline void lcd_wait_idle()
+{
+	uint32_t csr;
+	do {
+		csr = mm_spi_lcd->csr;
+	} while (csr & DISPCTRL_SPI_CSR_TX_BUSY_MASK || !(csr & DISPCTRL_SPI_CSR_PXFIFO_EMPTY_MASK));
+}
+
+static inline void lcd_set_disp_width(unsigned int width)
+{
+	mm_spi_lcd->dispsize = width - 1;
+}
+
+// Init sequences. Each record consists of:
 // - A payload size (including the command byte)
 // - A post-delay in units of 5 ms. 0 means no delay.
 // - The command payload, including the initial command byte

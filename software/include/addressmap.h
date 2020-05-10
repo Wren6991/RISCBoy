@@ -15,10 +15,18 @@
 #define PWM_BASE   (PERI_BASE + 0x2000)
 #define SPI_BASE   (PERI_BASE + 0x3000)
 #define PPU_BASE   (PERI_BASE + 0x4000)
+#define DISP_BASE  (PERI_BASE + 0x5000)
 #define TBMAN_BASE (PERI_BASE + 0xf000)
+
+
+#ifndef __ASSEMBLER__
 
 #define DECL_REG(addr, name) volatile uint32_t * const (name) = (volatile uint32_t*)(addr)
 
 #define __time_critical __attribute__((section(".time_critical")))
+
+typedef volatile uint32_t io_rw_32;
+
+#endif
 
 #endif // _ADDRESSMAP_H_

@@ -1,4 +1,4 @@
-#include "ppu.h"
+#include "lcd.h"
 #include "tbman.h"
 
 int main()

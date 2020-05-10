@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="18" />
+   <WVObjectSize size="19" />
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -1041,14 +1041,6 @@
    <wvobject fp_name="group274" type="group">
       <obj_property name="label">PPU</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/clk_ppu" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk_ppu</obj_property>
-         <obj_property name="ObjectShortName">clk_ppu</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/clk_lcd" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk_lcd</obj_property>
-         <obj_property name="ObjectShortName">clk_lcd</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb/dut/inst_riscboy_ppu/rst_n" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">rst_n</obj_property>
          <obj_property name="ObjectShortName">rst_n</obj_property>
@@ -1605,54 +1597,6 @@
       <wvobject fp_name="group342" type="group">
          <obj_property name="label">Pixel FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wen" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_wen</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_wen</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_wdata[15:0]</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_wdata[15:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wen" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_direct_wen</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_direct_wen</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_direct_wdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_direct_wdata[15:0]</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_direct_wdata[15:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wfull" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_wfull</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_wfull</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wempty" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_wempty</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_wempty</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_wlevel" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_wlevel[3:0]</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_wlevel[3:0]</obj_property>
-            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_rdata[15:0]</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_rdata[15:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rempty" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_rempty</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_rempty</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_rdy" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_rdy</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_rdy</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/pxfifo_pop" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">pxfifo_pop</obj_property>
-            <obj_property name="ObjectShortName">pxfifo_pop</obj_property>
-         </wvobject>
       </wvobject>
       <wvobject fp_name="group772" type="group">
          <obj_property name="label">Scanbuf0</obj_property>
@@ -1718,41 +1662,98 @@
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
       </wvobject>
-      <wvobject fp_name="group343" type="group">
-         <obj_property name="label">LCD Shifter</obj_property>
-         <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">lcdctrl_shamt</obj_property>
-            <obj_property name="ObjectShortName">lcdctrl_shamt</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">lcdctrl_busy</obj_property>
-            <obj_property name="ObjectShortName">lcdctrl_busy</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_busy_clklcd" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">lcdctrl_busy_clklcd</obj_property>
-            <obj_property name="ObjectShortName">lcdctrl_busy_clklcd</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcdctrl_shamt_clklcd" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">lcdctrl_shamt_clklcd</obj_property>
-            <obj_property name="ObjectShortName">lcdctrl_shamt_clklcd</obj_property>
-         </wvobject>
+   </wvobject>
+   <wvobject fp_name="group505" type="group">
+      <obj_property name="label">LCD</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/clk_sys" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_sys</obj_property>
+         <obj_property name="ObjectShortName">clk_sys</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_cs" type="logic" db_ref_id="1">
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/rst_n_sys" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rst_n_sys</obj_property>
+         <obj_property name="ObjectShortName">rst_n_sys</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/clk_tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_tx</obj_property>
+         <obj_property name="ObjectShortName">clk_tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/rst_n_tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rst_n_tx</obj_property>
+         <obj_property name="ObjectShortName">rst_n_tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_psel" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_psel</obj_property>
+         <obj_property name="ObjectShortName">apbs_psel</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_penable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_penable</obj_property>
+         <obj_property name="ObjectShortName">apbs_penable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_pwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pwrite</obj_property>
+         <obj_property name="ObjectShortName">apbs_pwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_paddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_paddr[15:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_paddr[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_pwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_pwdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_prdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_prdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">apbs_prdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_pready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pready</obj_property>
+         <obj_property name="ObjectShortName">apbs_pready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/apbs_pslverr" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">apbs_pslverr</obj_property>
+         <obj_property name="ObjectShortName">apbs_pslverr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/scanout_ren" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">scanout_ren</obj_property>
+         <obj_property name="ObjectShortName">scanout_ren</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/scanout_rdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">scanout_rdata[15:0]</obj_property>
+         <obj_property name="ObjectShortName">scanout_rdata[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/scanout_buf_rdy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">scanout_buf_rdy</obj_property>
+         <obj_property name="ObjectShortName">scanout_buf_rdy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/scanout_buf_release" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">scanout_buf_release</obj_property>
+         <obj_property name="ObjectShortName">scanout_buf_release</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/lcd_cs" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">lcd_cs</obj_property>
          <obj_property name="ObjectShortName">lcd_cs</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_dc" type="logic" db_ref_id="1">
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/lcd_dc" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">lcd_dc</obj_property>
          <obj_property name="ObjectShortName">lcd_dc</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_sck" type="logic" db_ref_id="1">
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/lcd_sck" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">lcd_sck</obj_property>
          <obj_property name="ObjectShortName">lcd_sck</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_riscboy_ppu/lcd_mosi" type="logic" db_ref_id="1">
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/lcd_mosi" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">lcd_mosi</obj_property>
          <obj_property name="ObjectShortName">lcd_mosi</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/dispctrl_spi_u/scanout_raddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">scanout_raddr[8:0]</obj_property>
+         <obj_property name="ObjectShortName">scanout_raddr[8:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group472" type="group">

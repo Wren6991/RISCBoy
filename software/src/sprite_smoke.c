@@ -28,7 +28,7 @@ static inline void render_frame()
 		;
 }
 
-#define N_SPRITES 200
+#define N_SPRITES 1
 
 int main()
 {

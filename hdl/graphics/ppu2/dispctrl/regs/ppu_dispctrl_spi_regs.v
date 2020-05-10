@@ -83,7 +83,7 @@ assign csr_lcd_shiftcnt_rdata = csr_lcd_shiftcnt_o;
 wire [8:0] dispsize_w_wdata = wdata[8:0];
 wire [8:0] dispsize_w_rdata;
 wire [31:0] __dispsize_rdata = {23'h0, dispsize_w_rdata};
-assign dispsize_w_rdata = 9'h0;
+assign dispsize_w_rdata = 9'h13f;
 
 wire [15:0] pxfifo_wdata = wdata[15:0];
 wire [15:0] pxfifo_rdata;
@@ -106,7 +106,7 @@ always @ (posedge clk or negedge rst_n) begin
 		csr_lcd_cs_o <= 1'h1;
 		csr_lcd_dc_o <= 1'h0;
 		csr_lcd_shiftcnt_o <= 1'h0;
-		dispsize_w_o <= 9'h0;
+		dispsize_w_o <= 9'h13f;
 	end else begin
 		if (__csr_wen)
 			csr_lcd_cs_o <= csr_lcd_cs_wdata;

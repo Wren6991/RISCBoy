@@ -87,7 +87,7 @@ dispctrl_spi_regs inst_dispctrl_spi_regs (
 
 	.csr_pxfifo_empty_i (pxfifo_wempty),
 	.csr_pxfifo_full_i  (pxfifo_wfull),
-	.csr_pxfifo_level_i (pxfifo_wlevel),
+	.csr_pxfifo_level_i (6'h3f & pxfifo_wlevel),
 	.csr_lcd_cs_o       (lcd_cs),
 	.csr_lcd_dc_o       (lcd_dc),
 	.csr_tx_busy_i      (lcdctrl_busy),
