@@ -1,4 +1,4 @@
-// Modified FPGA top-level suitable for the ULX3S
+// Modified FPGA top-level suitable for the ULX3S, with DVI video output
 
 module riscboy_fpga (
 	input wire                     clk_osc,
@@ -13,6 +13,11 @@ module riscboy_fpga (
 	// inout wire                     flash_sclk, handled by USRMCLK primitive
 	inout wire                     flash_cs,
 
+	// Differential display interface. 3 LSBs are TMDS 0, 1, 2. MSB is clock channel.
+	output wire [3:0]              gpdi_dp,
+	output wire [3:0]              gpdi_dn,
+
+	// Serial display interface
 	output wire                    lcd_cs,
 	output wire                    lcd_dc,
 	output wire                    lcd_sclk,
@@ -23,16 +28,29 @@ module riscboy_fpga (
 
 // Clock + Reset resources
 
-wire clk_sys;
-wire clk_lcd = clk_sys;
 wire rst_n;
-wire pll_lock = 1;
+wire clk_sys;
+wire clk_pix = clk_osc;
+wire clk_bit;
 
-assign clk_sys = clk_osc;
+wire pll_lock_sys;
+wire pll_lock_bit;
+
+pll_25_50 pll_sys (
+	.clkin   (clk_osc),
+	.clkout0 (clk_sys),
+	.locked  (pll_lock_sys)
+);
+
+pll_25_125 pll_bit (
+	.clkin   (clk_osc),
+	.clkout0 (clk_bit),
+	.locked  (pll_lock_bit)
+);
 
 fpga_reset por (
 	.clk         (clk_sys),
-	.force_rst_n (pll_lock),
+	.force_rst_n (pll_lock_bit && pll_lock_sys),
 	.rst_n       (rst_n)
 );
 
@@ -47,10 +65,12 @@ wire [N_PADS-1:0] padin;
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex"),
 	.W_SRAM0_ADDR    (15), // 2**15 words = 128 kiB
-	.SRAM0_INTERNAL  (1)   // Instantiate a second internal SRAM bank, rather than external async SRAM controller
+	.SRAM0_INTERNAL  (1),  // Instantiate a second internal SRAM bank, rather than external async SRAM controller
+	.DISPLAY_TYPE    ("DVI")
 ) core (
 	.clk_sys     (clk_sys),
-	.clk_lcd     (clk_lcd),
+	.clk_lcd_pix (clk_pix),
+	.clk_lcd_bit (clk_bit),
 	.rst_n       (rst_n),
 
 	.sram_addr   (/* unused */),
@@ -60,10 +80,8 @@ riscboy_core #(
 	.sram_oe_n   (/* unused */),
 	.sram_byte_n (/* unused */),
 
-	.lcd_cs      (lcd_cs),
-	.lcd_dc      (lcd_dc),
-	.lcd_sck     (lcd_sclk),
-	.lcd_mosi    (lcd_mosi),
+	.lcdp        (gpdi_dp),
+	.lcdn        (gpdi_dn),
 
 	.padout      (padout),
 	.padoe       (padoe),
@@ -71,7 +89,6 @@ riscboy_core #(
 );
 
 // GPIO
-// TODO hook up UART, SPI etc
 tristate_io pads [4:0] (
 	.out ({padout[PIN_UART_TX], padout[PIN_UART_RX], padout[PIN_FLASH_MISO], padout[PIN_FLASH_MOSI], padout[PIN_FLASH_CS]}),
 	.oe  ({padoe [PIN_UART_TX], padoe [PIN_UART_RX], padoe [PIN_FLASH_MISO], padoe [PIN_FLASH_MOSI], padoe [PIN_FLASH_CS]}),
@@ -89,7 +106,7 @@ USRMCLK pad_sclk(
 wire blink;
 
 blinky #(
-	.CLK_HZ   (12_000_000),
+	.CLK_HZ   (25_000_000),
 	.BLINK_HZ (1),
 	.FANCY    (0)
 ) blinky_u (

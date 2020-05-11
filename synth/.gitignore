@@ -7,3 +7,4 @@ srcs.mk
 *.log
 *.config
 *.svf
+*.bit

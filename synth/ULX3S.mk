@@ -1,7 +1,7 @@
 CHIPNAME=riscboy_ulx3s
 TOP=riscboy_fpga
 DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_ulx3s.f
-BOOTAPP=blinky
+BOOTAPP=riscboy_bootloader
 
 SYNTH_OPT=-abc9
 
@@ -14,7 +14,7 @@ include $(SCRIPTS)/synth_ecp5.mk
 romfiles::
 	@echo ">>> Bootcode"
 	@echo
-	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS="-Os -DFORCE_SRAM0_SIZE=131072"
+	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS="-Os -DFORCE_SRAM0_SIZE=131072 -DCLK_SYS_MHZ=50 -DUART_BAUD=1000000"
 	cp $(SOFTWARE)/build/$(BOOTAPP)8.hex bootram_init8.hex
 	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
 

@@ -1,15 +1,20 @@
 module tb;
 
+// Set to 1 to use internal SRAM0, and DVI display output
+localparam ECP5_PLATFORM = 0;
+
 `include "gpio_pinmap.vh"
 
-localparam CLK_PERIOD_SYS = 20;
-localparam CLK_PERIOD_LCD = 20;
+localparam CLK_PERIOD_SYS = 10;
+localparam CLK_PERIOD_LCD_PIX = ECP5_PLATFORM ? 20 : 10;
+localparam CLK_PERIOD_LCD_BIT = ECP5_PLATFORM ? 4 : 10;
 
 localparam W_SRAM0_ADDR = 18;
 localparam SRAM0_DEPTH = 1 << W_SRAM0_ADDR;
 
 reg clk_sys;
-reg clk_lcd;
+reg clk_lcd_pix;
+reg clk_lcd_bit;
 reg rst_n;
 
 localparam N_PADS = N_GPIOS;
@@ -39,22 +44,25 @@ assign (pull0, pull1) pads = {N_PADS{1'b1}}; // stop getting Xs in processor whe
 
 riscboy_core #(
 	// Skip bootloader: instead initialise main memory directly and jump straight there.
-	.BOOTRAM_PRELOAD(""),
-	.CPU_RESET_VECTOR(32'h200000c0),
-	.N_PADS (N_PADS)
+	.BOOTRAM_PRELOAD  (""),
+	.CPU_RESET_VECTOR (32'h200000c0),
+
+	.SRAM0_INTERNAL   (ECP5_PLATFORM),
+	.W_SRAM0_ADDR     (ECP5_PLATFORM ? 15 : 18), // 2**15 words = 128k or 2**18 halfwords = 512k
+	.SRAM0_PRELOAD    ("../ram_init32.hex"),     // Only valid if SRAM0_INTERNAL is set (so for ECP5_PLATFORM)
+	.DISPLAY_TYPE     (ECP5_PLATFORM ? "DVI" : "SPI"),
+	.N_PADS           (N_PADS)
 ) dut (
 	.clk_sys     (clk_sys),
-	.clk_lcd     (clk_lcd),
+	.clk_lcd_pix (clk_lcd_pix),
+	.clk_lcd_bit (clk_lcd_bit),
 	.rst_n       (rst_n),
 	
 	.padout      (padout),
 	.padoe       (padoe),
 	.padin       (padin),
 
-	.lcd_cs      (lcd_cs),
-	.lcd_dc      (lcd_dc),
-	.lcd_sck     (lcd_sck),
-	.lcd_mosi    (lcd_mosi),
+	.lcdp        ({lcd_cs, lcd_dc, lcd_sck, lcd_mosi}),
 
 	.sram_addr   (sram_addr),
 	.sram_dq     (sram_dq),
@@ -69,11 +77,13 @@ riscboy_core #(
 // ============================================================================
 
 always #(CLK_PERIOD_SYS * 0.5) clk_sys = !clk_sys;
-always #(CLK_PERIOD_LCD * 0.5) clk_lcd = !clk_lcd;
+always #(CLK_PERIOD_LCD_PIX * 0.5) clk_lcd_pix = !clk_lcd_pix;
+always #(CLK_PERIOD_LCD_BIT * 0.5) clk_lcd_bit = !clk_lcd_bit;
 
 initial begin
 	clk_sys = 1'b0;
-	clk_lcd = 1'b0;
+	clk_lcd_pix = 1'b0;
+	clk_lcd_bit = 1'b0;
 	rst_n = 1'b0;
 
 	#(10 * CLK_PERIOD_SYS);

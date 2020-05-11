@@ -15,6 +15,7 @@ compile:
 	make -C $(SOFTWARE)/build APPNAME=$(TEST) LDSCRIPT=$(LDSCRIPT)
 	cp $(SOFTWARE)/build/$(TEST)8.hex ram_init8.hex
 	$(SCRIPTS)/vhexwidth -w 16 -b 0x20000000 ram_init8.hex -o ram_init16.hex
+	$(SCRIPTS)/vhexwidth -w 32 -b 0x20000000 ram_init8.hex -o ram_init32.hex
 
 test:
 	$(MAKE) sim TEST=$(TEST) > sim.log

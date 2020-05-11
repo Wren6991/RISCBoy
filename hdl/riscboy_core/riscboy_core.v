@@ -24,6 +24,9 @@ module riscboy_core #(
 	parameter CPU_RESET_VECTOR = 32'h200800c0,
 	parameter W_SRAM0_ADDR = 18,
 	parameter SRAM0_INTERNAL = 0,
+	parameter SRAM0_PRELOAD = "", // For INTERNAL only
+
+	parameter DISPLAY_TYPE = "SPI", // Valid values are "SPI" and "DVI"
 
 	// STUB == remove interface to save LUTs
 	parameter STUB_UART         = 0,
@@ -34,7 +37,8 @@ module riscboy_core #(
 	parameter N_PADS = 25 // Let this default
 ) (
 	input wire                     clk_sys,
-	input wire                     clk_lcd,
+	input wire                     clk_lcd_pix, // Pixel clock for DVI. Unused for SPI.
+	input wire                     clk_lcd_bit, // Pixel clock x5 for DVI. Serial clock for SPI.
 	input wire                     rst_n,
 
 	output wire [N_PADS-1:0]       padout,
@@ -48,10 +52,10 @@ module riscboy_core #(
 	output wire                    sram_oe_n,
 	output wire [1:0]              sram_byte_n,
 
-	output wire                    lcd_cs,
-	output wire                    lcd_dc,
-	output wire                    lcd_sck,
-	output wire                    lcd_mosi
+	// If interface is SPI, lcdp is {lcd_cs, lcd_dc, lcd_sck, lcd_mosi} and lcdn is zeroes.
+	// If interfaces is DVI, lcdp is the positive of {CLK, TMDS2, TMDS1, TMDS0} and lcdn is the negative of these.
+	output wire [3:0]              lcdp,
+	output wire [3:0]              lcdn
 );
 
 localparam W_ADDR = 32;
@@ -294,45 +298,104 @@ riscboy_ppu #(
 	.scanout_buf_release (lcd_scanout_buf_release)
 );
 
-wire rst_n_lcd;
+generate
+if (DISPLAY_TYPE == "SPI") begin: gen_dispctrl_spi
 
-reset_sync #(
-	.N_CYCLES (2)
-) inst_reset_sync (
-	.clk       (clk_lcd),
-	.rst_n_in  (rst_n),
-	.rst_n_out (rst_n_lcd)
-);
+	wire rst_n_lcd_bit;
 
-riscboy_ppu_dispctrl_spi #(
-	.PXFIFO_DEPTH (8),
-	.W_COORD_SX   (W_COORD_SX)
-) dispctrl_spi_u (
-	.clk_sys             (clk_sys),
-	.rst_n_sys           (rst_n),
-	.clk_tx              (clk_lcd),
-	.rst_n_tx            (rst_n_lcd),
+	reset_sync #(
+		.N_CYCLES (2)
+	) reset_sync_bit (
+		.clk       (clk_lcd_bit),
+		.rst_n_in  (rst_n),
+		.rst_n_out (rst_n_lcd_bit)
+	);
 
-	.apbs_psel           (lcd_apbs_psel),
-	.apbs_penable        (lcd_apbs_penable),
-	.apbs_pwrite         (lcd_apbs_pwrite),
-	.apbs_paddr          (lcd_apbs_paddr),
-	.apbs_pwdata         (lcd_apbs_pwdata),
-	.apbs_prdata         (lcd_apbs_prdata),
-	.apbs_pready         (lcd_apbs_pready),
-	.apbs_pslverr        (lcd_apbs_pslverr),
+	riscboy_ppu_dispctrl_spi #(
+		.PXFIFO_DEPTH (8),
+		.W_COORD_SX   (W_COORD_SX)
+	) dispctrl_spi_u (
+		.clk_sys             (clk_sys),
+		.rst_n_sys           (rst_n),
+		.clk_tx              (clk_lcd_bit),
+		.rst_n_tx            (rst_n_lcd_bit),
 
-	.scanout_raddr       (lcd_scanout_raddr),
-	.scanout_ren         (lcd_scanout_ren),
-	.scanout_rdata       (lcd_scanout_rdata),
-	.scanout_buf_rdy     (lcd_scanout_buf_rdy),
-	.scanout_buf_release (lcd_scanout_buf_release),
+		.apbs_psel           (lcd_apbs_psel),
+		.apbs_penable        (lcd_apbs_penable),
+		.apbs_pwrite         (lcd_apbs_pwrite),
+		.apbs_paddr          (lcd_apbs_paddr),
+		.apbs_pwdata         (lcd_apbs_pwdata),
+		.apbs_prdata         (lcd_apbs_prdata),
+		.apbs_pready         (lcd_apbs_pready),
+		.apbs_pslverr        (lcd_apbs_pslverr),
 
-	.lcd_cs              (lcd_cs),
-	.lcd_dc              (lcd_dc),
-	.lcd_sck             (lcd_sck),
-	.lcd_mosi            (lcd_mosi)
-);
+		.scanout_raddr       (lcd_scanout_raddr),
+		.scanout_ren         (lcd_scanout_ren),
+		.scanout_rdata       (lcd_scanout_rdata),
+		.scanout_buf_rdy     (lcd_scanout_buf_rdy),
+		.scanout_buf_release (lcd_scanout_buf_release),
+
+		.lcd_cs              (lcdp[3]),
+		.lcd_dc              (lcdp[2]),
+		.lcd_sck             (lcdp[1]),
+		.lcd_mosi            (lcdp[0])
+	);
+
+	assign lcdn = 4'h0;
+
+end else begin: gen_dispctrl_dvi// assume "DVI"
+
+	wire rst_n_lcd_pix;
+	wire rst_n_lcd_bit;
+
+	reset_sync #(
+		.N_CYCLES (2)
+	) reset_sync_pix (
+		.clk       (clk_lcd_pix),
+		.rst_n_in  (rst_n),
+		.rst_n_out (rst_n_lcd_pix)
+	);
+
+	reset_sync #(
+		.N_CYCLES (2)
+	) reset_sync_bit (
+		.clk       (clk_lcd_bit),
+		.rst_n_in  (rst_n),
+		.rst_n_out (rst_n_lcd_bit)
+	);
+
+	riscboy_ppu_dispctrl_dvi #(
+		.PXFIFO_DEPTH (8),
+		.W_COORD_SX   (W_COORD_SX)
+	) dispctrl_dvi_u (
+		.clk_sys             (clk_sys),
+		.rst_n_sys           (rst_n),
+		.clk_pix             (clk_lcd_pix),
+		.rst_n_pix           (rst_n_lcd_pix),
+		.clk_bit             (clk_lcd_bit),
+		.rst_n_bit           (rst_n_lcd_bit),
+
+		.apbs_psel           (lcd_apbs_psel),
+		.apbs_penable        (lcd_apbs_penable),
+		.apbs_pwrite         (lcd_apbs_pwrite),
+		.apbs_paddr          (lcd_apbs_paddr),
+		.apbs_pwdata         (lcd_apbs_pwdata),
+		.apbs_prdata         (lcd_apbs_prdata),
+		.apbs_pready         (lcd_apbs_pready),
+		.apbs_pslverr        (lcd_apbs_pslverr),
+
+		.scanout_raddr       (lcd_scanout_raddr),
+		.scanout_ren         (lcd_scanout_ren),
+		.scanout_rdata       (lcd_scanout_rdata),
+		.scanout_buf_rdy     (lcd_scanout_buf_rdy),
+		.scanout_buf_release (lcd_scanout_buf_release),
+
+		.dvip                (lcdp),
+		.dvin                (lcdn)
+	);
+
+end
+endgenerate
 
 // =============================================================================
 //  Busfabric
@@ -477,11 +540,12 @@ if (!SRAM0_INTERNAL) begin: has_sram0_ctrl
 		.sram_byte_n       (sram_byte_n)
 	);
 end else begin: has_internal_sram0
-	// For ECP5 evaluation board, we can have a large internal RAM instead
+	// For ECP5 devices, we can have a large internal RAM bank instead
 	ahb_sync_sram #(
-		.W_DATA(W_DATA),
-		.W_ADDR(W_ADDR),
-		.DEPTH(1 << W_SRAM0_ADDR)
+		.W_DATA       (W_DATA),
+		.W_ADDR       (W_ADDR),
+		.DEPTH        (1 << W_SRAM0_ADDR),
+		.PRELOAD_FILE (SRAM0_PRELOAD)
 	) sram0 (
 		.clk               (clk_sys),
 		.rst_n             (rst_n),
@@ -574,7 +638,7 @@ end else begin
 		.apbs_pslverr (pwm_pslverr),
 		.padout       (lcd_pwm)
 	);
-	
+
 end
 endgenerate
 

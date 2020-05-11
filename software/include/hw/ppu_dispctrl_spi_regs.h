@@ -51,6 +51,12 @@
 #define DISPCTRL_SPI_CSR_LCD_SHIFTCNT_LSB  16
 #define DISPCTRL_SPI_CSR_LCD_SHIFTCNT_BITS 1
 #define DISPCTRL_SPI_CSR_LCD_SHIFTCNT_MASK 0x10000
+// Field: CSR_DISPTYPE  Access: RO
+// Encodes the type of display controller. All RISCBoy display controllers have
+// this field. 0x0 means SPI.
+#define DISPCTRL_SPI_CSR_DISPTYPE_LSB  28
+#define DISPCTRL_SPI_CSR_DISPTYPE_BITS 4
+#define DISPCTRL_SPI_CSR_DISPTYPE_MASK 0xf0000000
 
 /*******************************************************************************
 *                                   DISPSIZE                                   *

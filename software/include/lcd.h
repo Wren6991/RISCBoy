@@ -7,8 +7,25 @@
 
 #include "addressmap.h"
 #include "hw/ppu_dispctrl_spi_regs.h"
+#include "hw/ppu_dispctrl_dvi_regs.h"
 #include "delay.h"
 #include "ppu.h"
+
+// Display controllers have a constant, read-only field in a fixed location,
+// so software can determine which type of display interface is present in
+// the current hardware build
+
+typedef enum {
+	DISPCTRL_TYPE_SPI = 0,
+	DISPCTRL_TYPE_DVI = 1
+} dispctrl_type_t;
+
+static inline dispctrl_type_t get_dispctrl_type()
+{
+	return *(io_rw_32 *const)DISP_BASE >> 28;
+}
+
+// SPI hardware definitions
 
 struct spi_lcd_hw {
 	io_rw_32 csr;
@@ -141,5 +158,13 @@ static inline void st7789_start_pixels()
 	lcd_write_cmd(&cmd, 1);
 	lcd_force_dc_cs(1, 0);
 }
+
+// DVI hardware definitions
+
+struct dvi_lcd_hw {
+	io_rw_32 csr;
+};
+
+#define mm_dvi_lcd ((struct dvi_lcd_hw *const)DISP_BASE)
 
 #endif

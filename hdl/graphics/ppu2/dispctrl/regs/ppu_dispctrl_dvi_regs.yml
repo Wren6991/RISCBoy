@@ -1,0 +1,12 @@
+name: dispctrl_dvi
+bus: apb
+addr: 16
+data: 32
+regs:
+  - name: csr
+    info: Control and status register for the LCD interface
+    bits:
+      - {b: 0, name: en, access: rw,
+          info: "Write 1 to enable the DVI controller. When going from disabled to enabled state, the controller always starts from the beginning of the vertical blanking interval."}
+      - {b: [31, 28], name: disptype, access: ro, rst: 0x1,
+          info: "Encodes the type of display controller. All RISCBoy display controllers have this field. 0x1 means DVI."}
