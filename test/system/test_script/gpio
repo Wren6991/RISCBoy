@@ -10,11 +10,13 @@ for line in open(sys.argv[1]).readlines():
 	if line.startswith("TBMAN:"):
 		tbman_lines.append(line.strip()[7:])
 
-failed = failed or int(tbman_lines[0], 16) != (2 ** 23 - 1) & 0
-failed = failed or int(tbman_lines[1], 16) != (2 ** 23 - 1) & 0x12345678
-failed = failed or int(tbman_lines[2], 16) != (2 ** 23 - 1) & 0x23456789
-failed = failed or int(tbman_lines[3], 16) != (2 ** 23 - 1) & 0x3456789a
-failed = failed or int(tbman_lines[4], 16) != (2 ** 23 - 1) & 0x456789ab
+GPIO_MASK = 2 ** 25 - 1
+
+failed = failed or int(tbman_lines[0], 16) != GPIO_MASK & 0
+failed = failed or int(tbman_lines[1], 16) != GPIO_MASK & 0x12345678
+failed = failed or int(tbman_lines[2], 16) != GPIO_MASK & 0x23456789
+failed = failed or int(tbman_lines[3], 16) != GPIO_MASK & 0x3456789a
+failed = failed or int(tbman_lines[4], 16) != GPIO_MASK & 0x456789ab
 failed = failed or not tbman_lines[5].startswith("CPU requested termination")
 failed = failed or tbman_lines[5].split(" ")[-1] != "0"
 

@@ -1,11 +1,11 @@
-#define CLK_SYS_MHZ 50
+#define CLK_SYS_MHZ 100
 
 #include "gpio.h"
 #include "tbman.h"
 #include "uart.h"
 #include "delay.h"
 
-#define FIFO_DEPTH 4
+#define FIFO_DEPTH 2
 
 const char *str = "Hello, loopback!\n";
 

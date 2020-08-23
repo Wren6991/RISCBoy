@@ -1,2 +1,2 @@
-list $HDL/common/cdc/async_fifo.f
+list $LIBFPGA/cdc/async_fifo.f
 file tb.v

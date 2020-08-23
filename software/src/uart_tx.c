@@ -2,7 +2,7 @@
 #include "gpio.h"
 #include "uart.h"
 
-#define CLK_FREQ_MHZ 50
+#define CLK_FREQ_MHZ 100
 
 int main()
 {

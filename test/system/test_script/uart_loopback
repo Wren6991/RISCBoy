@@ -14,13 +14,15 @@ for line in open(sys.argv[1], "rb").read().decode(errors='ignore').splitlines():
 	elif line.startswith("UART:"):
 		uart_lines.append(line.strip()[6:])
 
-failed = failed or uart_lines[0] != "Hello, loopback!"
-failed = failed or tbman_lines[0] != "Hello, loopback!"
-failed = failed or tbman_lines[1] != "Aggressive loopback:"
-failed = failed or tbman_lines[2] != "RX sum:"
-failed = failed or tbman_lines[3] != "00001fc0"
-failed = failed or not tbman_lines[4].startswith("CPU requested termination")
-failed = failed or tbman_lines[4].split(" ")[-1] != "0"
+failed = failed or uart_lines[0] != "Hello, loopback!";
+failed = failed or tbman_lines[0] != "Hello, loopback!";
+failed = failed or tbman_lines[1] != "Aggressive loopback:";
+failed = failed or tbman_lines[2] != "RX sum:";
+failed = failed or tbman_lines[3] != "00001fc0";
+failed = failed or tbman_lines[4] != "RTS/CTS smoke test:";
+failed = failed or tbman_lines[5] != "OK.";
+failed = failed or not tbman_lines[6].startswith("CPU requested termination")
+failed = failed or tbman_lines[6].split(" ")[-1] != "0"
 
 if not failed:
 	print("Test PASSED.")
