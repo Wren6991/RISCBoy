@@ -1,3 +1,3 @@
 file tb.v
-include $HDL/hazard5
-file $HDL/hazard5/arith/hazard5_muldiv_seq.v
+include $HDL/hazard5/hdl
+file $HDL/hazard5/hdl/arith/hazard5_muldiv_seq.v

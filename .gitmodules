@@ -10,3 +10,6 @@
 [submodule "scripts"]
 	path = scripts
 	url = git@github.com:Wren6991/fpgascripts.git
+[submodule "hdl/hazard5"]
+	path = hdl/hazard5
+	url = git@github.com:Wren6991/Hazard5.git

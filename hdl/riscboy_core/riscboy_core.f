@@ -1,4 +1,4 @@
-list $HDL/hazard5/hazard5.f
+list $HDL/hazard5/hdl/hazard5.f
 list $HDL/graphics/ppu2/riscboy_ppu.f
 list $HDL/graphics/ppu2/dispctrl/riscboy_ppu_dispctrl_spi.f
 list $HDL/graphics/ppu2/dispctrl/riscboy_ppu_dispctrl_dvi.f

@@ -18,6 +18,23 @@ More detailed information can be found in the [documentation](doc/riscboy_doc.pd
 
 The processor supports the RV32IMC instruction set, and passes the RISC-V compliance suite for these instructions, as well as the [riscv-formal](https://github.com/SymbioticEDA/riscv-formal) verification suite, and some of my own formal property checks for instruction frontend consistency and basic bus compliance. It also supports M-mode CSRs, exceptions, and a simple compliant extension for vectored external interrupts.
 
+Cloning
+-------
+
+**This repository uses submodules for HDL as well as tests**
+
+```
+git clone --recursive https://github.com/Wren6991/RISCBoy.git riscboy
+```
+
+Alternatively
+
+```
+git clone https://github.com/Wren6991/RISCBoy.git riscboy
+cd riscboy
+git submodule update --init
+```
+
 Building RV32IC Toolchain
 -------------------------
 
@@ -38,7 +55,7 @@ The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the sc
 You will also need to checkout the RISC-V compliance suite in order to run these tests (note the `-- test` is required to stop git from looking in the KiCad directories and complaining about the library structure there).
 
 ```
-$ git submodule update --init --recursive -- test
+$ git submodule update --init --recursive
 ```
 
 Once this is ready, you should be able to run the following:
