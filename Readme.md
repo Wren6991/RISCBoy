@@ -32,8 +32,10 @@ Alternatively
 ```
 git clone https://github.com/Wren6991/RISCBoy.git riscboy
 cd riscboy
-git submodule update --init
+git submodule update --init --recursive
 ```
+
+Note a recursive submodule update is required to run the processor's standalone tests. This is not necessary for building RISCBoy gateware.
 
 Building RV32IC Toolchain
 -------------------------
