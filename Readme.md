@@ -23,13 +23,13 @@ Cloning
 
 **This repository uses submodules for HDL as well as tests**
 
-```
+```bash
 git clone --recursive https://github.com/Wren6991/RISCBoy.git riscboy
 ```
 
 Alternatively
 
-```
+```bash
 git clone https://github.com/Wren6991/RISCBoy.git riscboy
 cd riscboy
 git submodule update --init --recursive
@@ -42,7 +42,7 @@ Building RV32IC Toolchain
 
 The RV32IC toolchain is required for compilation of software-based tests. Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
 
-```
+```bash
 $ ./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
 $ sudo mkdir /opt/riscv
 $ sudo chown $(whoami) /opt/riscv
@@ -56,13 +56,13 @@ The simulation flow is driven by Xilinx ISIM 14.x; makefiles are found in the sc
 
 You will also need to checkout the RISC-V compliance suite in order to run these tests (note the `-- test` is required to stop git from looking in the KiCad directories and complaining about the library structure there).
 
-```
+```bash
 $ git submodule update --init --recursive
 ```
 
 Once this is ready, you should be able to run the following:
 
-```
+```bash
 $ . sourceme
 $ cd test
 $ ./runtests
@@ -70,7 +70,7 @@ $ ./runtests
 
 which will run all of the HDL-level tests. Software tests will require the RV32IC toolchain. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To graphically debug a test, run its makefile directly:
 
-```
+```bash
 $ cd system
 $ make TEST=helloworld gui
 ```
@@ -97,9 +97,15 @@ FPGA synthesis for iCE40 uses an open-source toolchain. If you would like to bui
 
 Note that I have only built these on Linux. I've heard it is possible to build these on Windows, but haven't tried it. However, they can be built on a Raspberry Pi, which is neat.
 
+There's a full Dockerized build environment for RISCBoy that you can use like:
+
+```bash
+docker run -it registry.gitlab.com/tendermint-hardware/core/riscboy-synthesis
+```
+
 Once the toolchain is in place, run
 
-```
+```bash
 $ . sourceme
 $ cd synth
 $ make -f HX8k-EVN.mk bit
@@ -109,7 +115,7 @@ to generate an FPGA image suitable for Lattice HX8k evaluation board.
 
 There is also highly experimental support (i.e. not my main dev platform) for ECP5, with board files for the Lattice LEF5UM5G-85F-EVN evaluation board:
 
-```
+```bash
 $ make -f ECP5-EVN.mk BUILD=full bit
 ```
 
