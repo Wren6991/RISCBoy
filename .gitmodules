@@ -9,7 +9,7 @@
 	url = https://github.com/Wren6991/libfpga.git
 [submodule "scripts"]
 	path = scripts
-	url = https://Wren6991/fpgascripts.git
+	url = https://github.com/Wren6991/fpgascripts.git
 [submodule "hdl/hazard5"]
 	path = hdl/hazard5
 	url = https://github.com/Wren6991/Hazard5.git
