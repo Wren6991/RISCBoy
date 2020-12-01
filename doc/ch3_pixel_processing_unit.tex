@@ -250,37 +250,37 @@ Like {\tt TILE} but affine transform applied before each tile and pixel lookup: 
 	\item {\tt tilemap} is a pointer to a 2D array of 8 bit tile indices. Each index identifies which image from {\tt tileset} occupies that $8\times 8$ or $16\times 16$~px square.
 	\item {\tt pfs} is the playfield size in pixels, $\textup{width}=\textup{height}=2^{{\tt size} + 7}$, so 128 to 1024 px. See section \ref{section:tiles}.
 \end{itemize}
-\subsubsection*{POKE}
+
+\subsubsection*{PUSH}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,27,28,31} \\
 \bitbox{4}{{\tt 0xe}} \bitbox{28}{\reservedfield} \\
-\bitheader{0,1,2,31} \\
-\bitbox{30}{\tt addr} \bitbox{2}{\reservedfield} \\
-\bitheader{0, 31} \\
-\bitbox{32}{\tt data} \\
+\bitheader{0, 1, 2, 31} \\
+\bitbox{30}{\tt data} \bitbox{2}{\reservedfield} \\
 \end{bytefield}
 
-Write {\tt data} to {\tt addr} in the system address map. Useful for self-modifying code, which can be used for simple (nonrecursive) procedure calls, by writing a return address to a jump instruction at the end of the callee.
+Push literal {\tt data} onto the stack. The stack is popped only by a {\tt POPJ} instruction, is 8 words deep, and wraps on empty/full.
 
-For example, a program which {\tt FILL}s a different background colour on each scanline to produce a vertical gradient, and then calls into a sprite list of {\tt BLIT} commands which is repeated on each scanline.
-
-\subsubsection*{JUMP}
+\subsubsection*{POPJ}
 
 \begin{bytefield}[endianness=big,bitformatting=\tiny]{32}
 \bitheader{0,9,10,23,24,27,28,31} \\
 \bitbox{4}{{\tt 0xf}} \bitbox{4}{\tt cc}  \bitbox{14}{\reservedfield} \bitbox{10}{{\tt a}} \\
-\bitheader{0,1,2,31} \\
-\bitbox{30}{\tt addr} \bitbox{2}{\reservedfield} \\
 \end{bytefield}
 
-Jump to {\tt addr}, if {\tt cc} is true. Values for {\tt cc}:
+Always pop an address from the stack. If {\tt cc} is true, branch to this address. Values for {\tt cc}:
 
 \begin{itemize}
 	\item 0: always
-	\item 1: YLT, raster $y < {\tt a}$
-	\item 2: YNE, raster $y \neq {\tt a}$
+	\item 1: YLT, current raster beam $y < {\tt a}$
+	\item 2: YNE, current raster beam $y \neq {\tt a}$
 \end{itemize}
+
+A regular jump is formed with {\tt PUSH addr; POPJ}, and a subroutine call is formed with {\tt PUSH ret; PUSH target; POPJ; label ret:} followed by a {\tt POPJ} at the end of the target routine.
+
+Subroutines are useful for when a part of your command list is repeated every scanline (e.g. a list of sprites, represented by {\tt BLIT} commands) and a part is not (e.g. {\tt FILL}ing a different background colour every scanline to produce a gradient). Such a program can be structured as a larger per-frame command list which repeatedly calls into a per-scanline subroutine.
+
 
 \subsection{Coordinate Systems}
 \label{section:coordinates}
