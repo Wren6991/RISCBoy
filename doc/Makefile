@@ -1,7 +1,7 @@
 LATEX=pdflatex
 LATEXARGS=-halt-on-error
 DOCNAME=riscboy_doc
-PDFVIEWER=evince
+PDFVIEWER=xdg-open
 
 all: $(DOCNAME).pdf
 

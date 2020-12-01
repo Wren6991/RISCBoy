@@ -59,20 +59,6 @@ This document attempts to describe some of these, but if you need nitty-gritty d
 
 That a free synthesis tool can cram this into one of the cheapest FPGAs on the market is tremendous. I hope for a situation like software compilers, where free tools such as GCC and LLVM are industry standards.
 
-\subsection{PCB}
-
-
-\begin{figure}[!htb]
-\centering
-\caption{PCB stackup (left), and BGA-to-via critical clearances and dimensions (right)}
-\includegraphics[width=0.8\textwidth]{diagrams/stackup_and_bga.pdf}
-\label{diagram:stackup_and_bga}
-\end{figure}
-
-The board has a 4-layer stackup, illustrated in figure \ref{diagram:stackup_and_bga}. It targets low-cost PCB prototyping services such as iTead, and makes compromises to achieve this, chiefly escape routing from the FPGA ($11 \times 11$ 0.8 mm BGA). To meet iTead's copper-clearance, minimum via drill, and minimum annular ring specifications, the BGA pads must be sized down to 0.23 mm. Reflow this component by hand, with a hot air gun and plenty of flux; your toaster oven isn't going to cut it.
-
-Schematic and layout files are in the {\tt board/} subdirectory of the git repository.
-
 \subsection{Licensing}
 
 The Verilog source to this project has no dependencies, and is distributed under the DWTFPL version 3. This is a {\it very} permissive open-source licence, and its text is included in full at the top of the source files. This license is very similar to the original DWTFPL, which more readers may be familiar with, but has an added indemnification clause.

@@ -1,7 +1,5 @@
 \section{Pixel Processing Unit (PPU)}
 
-{\it WARNING: This section rambles incoherently over a piece of hardware that does not yet exist, marking a complete departure from the preceding documentation}
-
 Figure \ref{diagram:ppu_block} shows the high-level structure of the PPU. This is the second-generation architecture -- the previous version had a number of sprite and tile engines operating in parallel, with shared bus access. This was a mistake. Many of these units were idle much of the time, and they were stripped down to the minimum to meet strict area requirements; this in turn led to poor bus utilisation and a lack of flexibility. The second problem was partially solved by the Poker, but at the expense of high software complexity for common use cases (e.g. many sprites on screen). The high level goals of PPU2 are, in order of precedence:
 
 \begin{enumerate}
@@ -31,8 +29,7 @@ Common memory access patterns (for nonpaletted pixels):
 	\item Affine-mapped tiling: fetch tile indices and pixels on alternate cycles
 \end{itemize}
 
-
-The PPU makes no assumptions about display timing: for example, RISCBoy is currently equipped with a 320$\times$240 SPI LCD, which is driven continuously, with no horizontal or vertical blanking periods, as the interface is severely limited in bandwidth. The asynchronous pixel FIFO allows the SPI serial clock to be decoupled from the system clock.
+The display interface is provides a simple handshake for acquiring/releasing dirty scanbuffers, routes read addresses from the display controller to the correct scan buffer, and routes data back. Currently two display controllers are available to connect to this interface: one for serial LCDs such as ILI9341, and another for direct DVI output. The PPU display interface is synchronous, and any clock crossing (to SCK domain for serial LCDs, or pixel clock domain for DVI) is handled inside the display controller.
 
 \subsection{Pixel Formats}
 
@@ -70,7 +67,7 @@ Internally, the PPU uses a single native pixel format, namely ARGB 1555 (see fig
 \end{tabular}
 \end{figure}
 
-For pixels smaller than one byte, the pixel order continues to be defined in a little-endian fashion, i.e. the least-significant pixel will be the first to be displayed. There is an additional constraint that all pixels be naturally aligned in memory. That is, pixel address modulo pixel size is zero.
+For pixels smaller than one byte, the pixel order continues to be defined in a little-endian fashion, i.e. the least-significant pixel will be the first to be displayed. The PPU also requires image base addresses to be word-aligned, which implies all pixels are naturally aligned.
 
 \subsection{Palettes}
 
@@ -111,7 +108,7 @@ For simple purposes (e.g. tiled backgrounds with some sprites on top), the blitt
 \bitbox{4}{{\tt 0x0}} \bitbox{28}{\reservedfield} \\
 \end{bytefield}
 
-Present the current scanline buffer to the display, then stall until a clean buffer becomes available.
+Present the current scanline buffer to the display, then stall until a clean buffer becomes available. If {\tt CSR\_HALT\_HSYNC} is set, or {\tt CSR\_HALT\_VSYNC} is set and this is the last line of the frame, halt the PPU.
 
 \subsubsection*{CLIP}
 
@@ -417,7 +414,7 @@ Note that, without a scale factor, the corners of the texture would be clipped t
 \subsection{Tiles}
 \label{section:tiles}
 
-To reduce memory footprint, the PPU is able to assemble pixels on the fly from an array of small images, known as tiles. TODO much of this section refers to old hw with dedicated tiled backgrounds engines
+To reduce memory footprint, the PPU is able to assemble scenes on the fly from an array of small images, known as tiles. TODO much of this section refers to old hw with dedicated tiled backgrounds engines
 
 \begin{figure}[H]
 \centering
