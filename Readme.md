@@ -37,16 +37,28 @@ git submodule update --init --recursive
 
 Note a recursive submodule update is required to run the processor's standalone tests. This is not necessary for building RISCBoy gateware.
 
-Building RV32IC Toolchain
+Building RV32IMC Toolchain
 -------------------------
 
-The RV32IC toolchain is required for compilation of software-based tests. Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
+The RV32IMC toolchain is required for compilation of software-based tests. Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
 
-```
-$ ./configure --prefix=/opt/riscv --with-arch=rv32ic --with-abi=ilp32
+```bash
+$ # Prerequisites for Ubuntu 20.04
+$ sudo apt install -y autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
+$ cd /tmp
+$ git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
+$ cd riscv-gnu-toolchain
+$ # The ./configure arguments are the most important difference
+$ ./configure --prefix=/opt/riscv --with-arch=rv32imc --with-abi=ilp32
 $ sudo mkdir /opt/riscv
 $ sudo chown $(whoami) /opt/riscv
 $ make -j $(nproc)
+```
+
+Note that on some platforms (e.g. UP5k-based), to reduce area, the processor is configured without compressed instruction and hardware multiply/divide support. Running code on these platforms requires standard libraries built for the base RV32I ISA. A quick fix is to change your configure line to
+
+```bash
+$ ./configure --prefix=/opt/riscv --with-arch=rv32i --with-abi=ilp32
 ```
 
 Simulation
