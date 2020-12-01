@@ -14,7 +14,9 @@
 #define SCREEN_HEIGHT 240
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
-#define N_CHARACTERS 4
+#define N_CHARACTERS 200
+
+#define CPROC_LIST_SIZE 1024
 
 typedef struct sprite {
 	int16_t pos_x;
@@ -37,6 +39,11 @@ typedef struct game_state {
 	int16_t cam_y;
 	uint32_t frame_ctr;
 	struct character chars[N_CHARACTERS];
+	// Double-buffered command list so we can build the next frame's list during
+	// the current frame
+	int prog_buf_next;
+	uint32_t ppu_prog0[CPROC_LIST_SIZE];
+	uint32_t ppu_prog1[CPROC_LIST_SIZE];
 } game_state_t;
 
 void init(game_state_t *state)
@@ -46,18 +53,19 @@ void init(game_state_t *state)
 	state->frame_ctr = 0;
 	for (int i = 0; i < N_CHARACTERS; ++i)
 	{
-		state->chars[i].dir = i;//(rand() >> 16) & 0x3;
+		state->chars[i].dir = (rand() >> 16) & 0x3;
 		state->chars[i].anim_frame = 0;
-		state->chars[i].xmin = 24;
-		state->chars[i].ymin = 10;
-		state->chars[i].xmax = MAP_WIDTH - 8;
-		state->chars[i].ymax = 103;
-		state->chars[i].spdata.pos_x = 30 * (i + 1);//rand() & 0xff;
-		state->chars[i].spdata.pos_y = 100;//rand() & 0xff;
+		state->chars[i].xmin = 8;
+		state->chars[i].ymin = -6;
+		state->chars[i].xmax = MAP_WIDTH - 24;
+		state->chars[i].ymax = 128+87;
+		state->chars[i].spdata.pos_x = rand() & 0xff;
+		state->chars[i].spdata.pos_y = rand() & 0xff;
 		state->chars[i].spdata.tile = 102;
 		state->chars[i].spdata.tilestride = 17;
 		state->chars[i].spdata.ntiles = 2;
 	}
+	state->prog_buf_next = 0;
 }
 
 static inline int clip(int x, int l, int u)
@@ -100,47 +108,57 @@ void update(game_state_t *state)
 
 }
 
-void render(const game_state_t *state)
+void render(game_state_t *state)
 {
-	mm_ppu->bg[0].scroll = 
-		((state->cam_x << PPU_BG0_SCROLL_X_LSB) & PPU_BG0_SCROLL_X_MASK) |
-		((state->cam_y << PPU_BG0_SCROLL_Y_LSB) & PPU_BG0_SCROLL_Y_MASK);
+	// Generate a PPU program into whichever program buffer is not currently being executed
+	state->prog_buf_next = !state->prog_buf_next;
+	uint32_t *prog_base = state->prog_buf_next ? state->ppu_prog1 : state->ppu_prog0;
+	uint32_t *p = prog_base;
 
-	int sp = 0;
-	for (int i = 0; i < N_CHARACTERS; ++i)
-	{
+	// Render to the full scanline width
+	p += cproc_clip(p, 0, SCREEN_WIDTH - 1);
+
+	// One background layer -> one TILE instruction
+	p += cproc_tile(p, -state->cam_x, -state->cam_y,
+		PPU_SIZE_512,    // Playfield size
+		0,               // Palette offset
+		PPU_FORMAT_PAL8, // Tileset pixel format
+		PPU_SIZE_16,     // Tile size
+		tileset,
+		tilemap
+	);
+
+	// Generate a BLIT list for the animated sprites
+	for (int i = 0; i < N_CHARACTERS; ++i) {
 		const character_t *ch = &state->chars[i];
-
 		int pos_x = ch->spdata.pos_x - state->cam_x;
 		int pos_y = ch->spdata.pos_y - state->cam_y;
-		if (pos_x < 0 || pos_y < -16 * (ch->spdata.ntiles - 1) || pos_x > SCREEN_WIDTH + 16 || pos_y > SCREEN_HEIGHT + 16)
-			continue;
-
 		uint8_t basetile = 102 + (ch->dir << 2) + ch->anim_frame;
-		for (int tile = 0; tile < ch->spdata.ntiles; ++tile)
-		{
-			mm_ppu->sp[sp] =
-				((basetile + tile * ch->spdata.tilestride) << PPU_SP0_TILE_LSB) |
-				(((uint32_t)pos_x)	                       << PPU_SP0_X_LSB) |
-				(((uint32_t)pos_y + 16 * tile)             << PPU_SP0_Y_LSB);
-			++sp;
-			if (sp >= N_PPU_SPRITES)
-				break;
+		for (int tile = 0; tile < ch->spdata.ntiles; ++tile) {
+			p += cproc_blit(p,
+				pos_x,
+				pos_y + 15 * tile, // TODO we get a gap if this is 16
+				PPU_SIZE_16,
+				0,
+				PPU_FORMAT_PAL8,
+				tileset + 16 * 16 * (basetile + tile * ch->spdata.tilestride)
+			);
 		}
-		if (sp >= N_PPU_SPRITES)
-			break;
 	}
-	// Deactivate remaining hardware sprites
-	while (sp < N_PPU_SPRITES)
-		mm_ppu->sp[sp++] = 0;
 
+	// After finishing a scanline, present the buffer and loop to start
+	p += cproc_sync(p);
+	p += cproc_jump(p, (uintptr_t)prog_base);
+
+	// Vertical sync
+	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
+		;
 	lcd_wait_idle();
 	lcd_force_dc_cs(1, 1);
 	st7789_start_pixels();
-
+	// Use new program to render next frame
+	cproc_put_pc((uint32_t)prog_base);
 	mm_ppu->csr = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
-	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
-		;
 }
 
 
@@ -148,26 +166,11 @@ int main()
 {
 	lcd_init(ili9341_init_seq);
 
-	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) >> PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
-	mm_ppu->default_bg_colour = 0x7c1fu;
+	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
+	// mm_ppu->default_bg_colour = 0x7c1fu;
 
-	mm_ppu->bg[0].tsbase = (uint32_t)tileset;
-	mm_ppu->bg[0].tmbase = (uint32_t)tilemap;
-	mm_ppu->bg[0].csr =
-		(1u << PPU_BG0_CSR_EN_LSB) |
-		(5u << PPU_BG0_CSR_PFWIDTH_LSB) | // 1024 px wide
-		(4u << PPU_BG0_CSR_PFHEIGHT_LSB) | // 512 px high
-		(1u << PPU_BG0_CSR_TILESIZE_LSB) | // 16x16 pixel tiles
-		(PPU_PIXMODE_PAL8 << PPU_BG0_CSR_PIXMODE_LSB);
-
-	for (int i = 0; i < TILESET_PALETTE_SIZE; ++i)
+	for (int i = 0; i < 256; ++i)
 		PPU_PALETTE_RAM[i] = ((const uint16_t *)tileset_bin_pal)[i];
-
-	mm_ppu->sp_csr =
-		(PPU_PIXMODE_PAL8 << PPU_SP_CSR_PIXMODE_LSB) |
-		(1u << PPU_SP_CSR_TILESIZE_LSB);
-	mm_ppu->sp_tsbase = (uint32_t)tileset;
-
 
 	static game_state_t gstate;
 	init(&gstate);
