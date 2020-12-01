@@ -35,7 +35,7 @@ module riscboy_ppu_cproc_frontend #(
 	input  wire [W_DATA-1:0] bus_data,
 
 	input  wire              jump_target_vld,
-	input  wire              jump_target_rdy,
+	output wire              jump_target_rdy,
 	input  wire [W_ADDR-1:0] jump_target,
 
 	output wire              instr_vld,
