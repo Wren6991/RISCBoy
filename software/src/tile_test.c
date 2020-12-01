@@ -26,6 +26,8 @@ void render_frame()
 		;
 }
 
+uint8_t map_doubled[WIDTH_MAP_TEST_ZELDA_MINI * HEIGHT_MAP_TEST_ZELDA_MINI * 2];
+
 int main()
 {
 	if (!tbman_running_in_sim())
@@ -39,6 +41,13 @@ int main()
 	affine_transform_t cam_trans;
 	affine_identity(cam_trans);
 
+	// PPU2 only supports square maps -- to get rectangular wrapping, double up the map vertically
+	const int n_tiles = WIDTH_MAP_TEST_ZELDA_MINI * HEIGHT_MAP_TEST_ZELDA_MINI;
+	for (int i = 0; i < n_tiles; ++i) {
+		map_doubled[i] = map_test_zelda_mini[i];
+		map_doubled[i + n_tiles] = map_test_zelda_mini[i];
+	}
+
 	unsigned int idle_count = 0;
 	while (true)
 	{
@@ -46,7 +55,7 @@ int main()
 		p += cproc_clip(p, 0, SCREEN_WIDTH - 1);
 		p += cproc_fill(p, 16, 0, 16);
 		p += cproc_atile(p, 0, 0, PPU_SIZE_1024, 0, PPU_FORMAT_PAL8, PPU_SIZE_16,
-			cam_trans, zelda_tileset_mini_pal8, map_test_zelda_mini);
+			cam_trans, zelda_tileset_mini_pal8, map_doubled);
 		p += cproc_sync(p);
 		p += cproc_jump(p, (uintptr_t)cproc_prog);
 		cproc_put_pc((uint32_t)cproc_prog);
