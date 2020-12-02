@@ -1136,6 +1136,11 @@
             <obj_property name="ElementShortName">instr_rdy</obj_property>
             <obj_property name="ObjectShortName">instr_rdy</obj_property>
          </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/state" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">state[3:0]</obj_property>
+            <obj_property name="ObjectShortName">state[3:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/instr" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">instr[31:0]</obj_property>
             <obj_property name="ObjectShortName">instr[31:0]</obj_property>
@@ -1159,9 +1164,27 @@
             <obj_property name="ObjectShortName">jump_target[31:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/state" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">state[3:0]</obj_property>
-            <obj_property name="ObjectShortName">state[3:0]</obj_property>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/stack_push" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">stack_push</obj_property>
+            <obj_property name="ObjectShortName">stack_push</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/stack_pop" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">stack_pop</obj_property>
+            <obj_property name="ObjectShortName">stack_pop</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/stack_ptr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">stack_ptr[2:0]</obj_property>
+            <obj_property name="ObjectShortName">stack_ptr[2:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/stack_rdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">stack_rdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">stack_rdata[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/cproc/stack_wdata" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">stack_wdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">stack_wdata[31:0]</obj_property>
             <obj_property name="Radix">HEXRADIX</obj_property>
          </wvobject>
       </wvobject>

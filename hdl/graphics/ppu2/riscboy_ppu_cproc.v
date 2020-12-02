@@ -244,7 +244,12 @@ wire exec_opcode_this_cycle = instr_vld && instr_rdy && state == S_EXECUTE;
 
 assign hsync = exec_opcode_this_cycle && opcode == OPCODE_SYNC;
 
-assign jump_taken = 1'b1; // TODO condition codes
+wire [INSTR_BCOND_BITS-1:0] branch_cond = instr[INSTR_BCOND_LSB +: INSTR_BCOND_BITS];
+wire [INSTR_Y_BITS-1:0] branch_compval = instr[INSTR_X_LSB +: INSTR_X_BITS];
+assign jump_taken =
+	branch_cond == BCOND_ALWAYS ||
+	branch_cond == BCOND_YLT && beam_y < branch_compval ||
+	branch_cond == BCOND_YNE && beam_y != branch_compval;
 
 assign instr_rdy = !(
 	state == S_SPAN_WAIT ||

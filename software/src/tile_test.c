@@ -13,7 +13,7 @@
 #define SCREEN_WIDTH 320u
 #define SCREEN_HEIGHT 240u
 
-uint32_t __attribute__ ((section (".noload"))) cproc_prog[256];
+uint32_t __attribute__ ((section (".noload"))) cproc_prog[1024];
 
 void render_frame()
 {
@@ -52,13 +52,25 @@ int main()
 	while (true)
 	{
 		uint32_t *p = cproc_prog;
+		// Every scanline, render a span of the affine-tiled background
+		uint32_t *scanline_func = p;
 		p += cproc_clip(p, 0, SCREEN_WIDTH - 1);
-		p += cproc_fill(p, 16, 0, 16);
 		p += cproc_atile(p, 0, 0, PPU_SIZE_1024, 0, PPU_FORMAT_PAL8, PPU_SIZE_16,
 			cam_trans, zelda_tileset_mini_pal8, map_doubled);
-		p += cproc_sync(p);
-		p += cproc_jump(p, (uintptr_t)cproc_prog);
-		cproc_put_pc((uint32_t)cproc_prog);
+		p += cproc_ret(p);
+
+		uint32_t *entry_point = p;
+		for (unsigned int y = 0; y < SCREEN_HEIGHT; ++y) {
+			p += cproc_call(p, scanline_func);
+			// Each scanline, draw a different solid red span, forming a triangle
+			if (y > 80) {
+				p += cproc_clip(p, y, SCREEN_WIDTH - 1 - y);
+				p += cproc_fill(p, 31, 0, 0);
+			}
+			p += cproc_sync(p);
+		}
+
+		cproc_put_pc(entry_point);
 
 		render_frame();
 
