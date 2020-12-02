@@ -36,8 +36,8 @@ localparam OPCODE_BLIT  = 4'h4;
 localparam OPCODE_TILE  = 4'h5;
 localparam OPCODE_ABLIT = 4'h6;
 localparam OPCODE_ATILE = 4'h7;
-localparam OPCODE_POKE  = 4'he;
-localparam OPCODE_JUMP  = 4'hf;
+localparam OPCODE_PUSH  = 4'he;
+localparam OPCODE_POPJ  = 4'hf;
 
 localparam INSTR_X_LSB = 0;
 localparam INSTR_X_BITS = 10;

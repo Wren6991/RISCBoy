@@ -35,9 +35,9 @@ volatile uint16_t *const PPU_PALETTE_RAM = (volatile uint16_t *const)(PPU_BASE +
 
 // PPU command processor control
 
-static inline void cproc_put_pc(uint32_t pc)
+static inline void cproc_put_pc(const uint32_t *target)
 {
-	mm_ppu->cproc_pc = pc;
+	mm_ppu->cproc_pc = (uint32_t)target;
 }
 
 #define PPU_CPROC_SYNC  (0x0u << 28)
@@ -47,8 +47,8 @@ static inline void cproc_put_pc(uint32_t pc)
 #define PPU_CPROC_TILE  (0x5u << 28)
 #define PPU_CPROC_ABLIT (0x6u << 28)
 #define PPU_CPROC_ATILE (0x7u << 28)
-#define PPU_CPROC_POKE  (0xeu << 28)
-#define PPU_CPROC_JUMP  (0xfu << 28)
+#define PPU_CPROC_PUSH  (0xeu << 28)
+#define PPU_CPROC_POPJ  (0xfu << 28)
 
 #define PPU_CPROC_BRANCH_ALWAYS 0x0
 
@@ -86,15 +86,14 @@ static inline size_t cproc_fill(uint32_t *prog, uint8_t r, uint8_t g, uint8_t b)
 	return 1;
 }
 
-static inline size_t cproc_branch(uint32_t *prog, uint32_t target, uint32_t condition, uint16_t compval)
-{
-	*prog++ = PPU_CPROC_JUMP | ((condition & 0xfu) << 24) | (compval & 0x3ffu);
-	*prog++ = target & 0xfffffffcu;
-	return 2;
+static inline size_t cproc_branch(uint32_t *prog, const uint32_t *target, uint32_t condition, uint16_t compval) {
+	*prog++ = PPU_CPROC_PUSH;
+	*prog++ = (uint32_t)target;
+	*prog++ = PPU_CPROC_POPJ | ((condition & 0xfu) << 24) | (compval & 0x3ffu);
+	return 3;
 }
 
-static inline size_t cproc_jump(uint32_t *prog, uintptr_t target)
-{
+static inline size_t cproc_jump(uint32_t *prog, const uint32_t *target) {
 	return cproc_branch(prog, target, PPU_CPROC_BRANCH_ALWAYS, 0);
 }
 

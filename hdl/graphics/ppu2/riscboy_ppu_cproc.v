@@ -25,6 +25,7 @@ module riscboy_ppu_cproc #(
 	parameter W_COORD_SY = 8,
 	parameter W_COORD_UV = 10,
 	parameter W_SPAN_TYPE = 3,
+	parameter W_STACK_PTR = 3,
 	parameter GLOBAL_ADDR_MASK = 32'h2007ffff,
 	parameter W_ADDR = 32, // do not modify
 	parameter W_DATA = 32  // do not modify
@@ -88,9 +89,8 @@ localparam S_ABLIT_IMG       = 4'd8;
 localparam S_ATILE_APARAM    = 4'd9;
 localparam S_ATILE_TILEMAP   = 4'd10;
 localparam S_ATILE_TILESET   = 4'd11;
-localparam S_POKE_ADDR       = 4'd12;
-localparam S_POKE_DATA       = 4'd13;
-localparam S_JUMP_ADDR       = 4'd14;
+localparam S_PUSH_DATA       = 4'd12;
+localparam S_POPJ_JUMP       = 4'd13;
 
 reg [W_STATE-1:0]            state;
 reg [2:0]                    data_ctr;
@@ -183,12 +183,11 @@ always @ (posedge clk or negedge rst_n) begin
 				target_x <= instr[INSTR_X_LSB +: INSTR_X_BITS];
 				target_y <= instr[INSTR_X_LSB +: INSTR_Y_BITS];
 			end
-			OPCODE_POKE: state <= S_POKE_ADDR;
-			OPCODE_JUMP: if (jump_taken) begin
-				state <= S_JUMP_ADDR;
+			OPCODE_PUSH: state <= S_PUSH_DATA;
+			OPCODE_POPJ: if (jump_taken) begin
+				state <= S_POPJ_JUMP;
 			end else begin
-				state <= S_SKIP_INSTR_DATA;
-				data_ctr <= 3'h0;
+				state <= S_EXECUTE;
 			end
 		endcase
 
@@ -230,15 +229,10 @@ always @ (posedge clk or negedge rst_n) begin
 			texsize <= INSTR_PF_SIZE(instr);
 		end
 		S_ATILE_TILESET: state <= S_SPAN_WAIT;
-		S_POKE_ADDR: begin
-			state <= S_POKE_DATA;
-			tmp_buf <= instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
-		end
-		S_POKE_DATA: begin
-			// TODO actually hook this up
+		S_PUSH_DATA: begin
 			state <= S_EXECUTE;
 		end
-		S_JUMP_ADDR: begin
+		S_POPJ_JUMP: begin
 			if (jump_target_rdy)
 				state <= S_EXECUTE;
 		end
@@ -246,7 +240,9 @@ always @ (posedge clk or negedge rst_n) begin
 	endcase
 end
 
-assign hsync = instr_vld && instr_rdy && state == S_EXECUTE && opcode == OPCODE_SYNC;
+wire exec_opcode_this_cycle = instr_vld && instr_rdy && state == S_EXECUTE;
+
+assign hsync = exec_opcode_this_cycle && opcode == OPCODE_SYNC;
 
 assign jump_taken = 1'b1; // TODO condition codes
 
@@ -342,20 +338,52 @@ assign span_start = instr_vld && instr_rdy && (
 
 assign cgen_aparam_vld = instr_vld && (state == S_ABLIT_APARAM || state == S_ATILE_APARAM);
 assign cgen_aparam_data = instr;
-assign cgen_start_simple = state == S_EXECUTE && instr_vld && instr_rdy && (
+assign cgen_start_simple = exec_opcode_this_cycle && (
 	opcode == OPCODE_BLIT || opcode == OPCODE_TILE
 );
-assign cgen_start_affine = state == S_EXECUTE && instr_vld && instr_rdy && (
+assign cgen_start_affine = exec_opcode_this_cycle && (
 	opcode == OPCODE_ABLIT || opcode == OPCODE_ATILE
 );
 assign cgen_raster_offs_y = blit_y_offs[W_COORD_UV-1:0];
 assign cgen_raster_offs_x = span_x0_comb - instr[INSTR_X_LSB +: INSTR_X_BITS];
 
 // ----------------------------------------------------------------------------
-// Instruction frontend
+// Instruction frontend and call stack
 
-wire [W_ADDR-1:0] jump_target = (entrypoint_vld && !ppu_running ? entrypoint : instr) & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
-assign jump_target_vld = (state == S_JUMP_ADDR && instr_vld) || (entrypoint_vld && !ppu_running);
+// Note the jump is conditional but the pop is not. The pop is on cycle n and
+// the jump request asserts on cycle n + 1 (easiest way to deal with sync rd
+// port, and jump performance not critical)
+wire stack_pop = exec_opcode_this_cycle && opcode == OPCODE_POPJ;
+wire stack_push = instr_vld && instr_rdy && state == S_PUSH_DATA;
+
+reg [W_STACK_PTR-1:0] stack_ptr;
+
+always @ (posedge clk or negedge rst_n)
+	if (!rst_n)
+		stack_ptr <= {W_STACK_PTR{1'b0}};
+	else
+		stack_ptr <= (stack_ptr + stack_push) - stack_pop;
+
+wire [W_ADDR-1:0] stack_wdata = instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
+wire [W_ADDR-1:0] stack_rdata;
+
+sram_sync_1r1w #(
+	.WIDTH (W_ADDR),
+	.DEPTH (1 << W_STACK_PTR)
+) call_stack_mem (
+	.clk   (clk),
+
+	.wen   (stack_push),
+	.waddr (stack_ptr),
+	.wdata (stack_wdata),
+
+	.ren   (stack_pop),
+	.raddr (stack_ptr - 1'b1), // empty stack convention
+	.rdata (stack_rdata)
+);
+
+wire [W_ADDR-1:0] jump_target = (entrypoint_vld && !ppu_running ? entrypoint : stack_rdata) & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
+assign jump_target_vld = state == S_POPJ_JUMP || (entrypoint_vld && !ppu_running);
 
 riscboy_ppu_cproc_frontend #(
 	.ADDR_MASK (GLOBAL_ADDR_MASK & 32'hffff_fffc),
