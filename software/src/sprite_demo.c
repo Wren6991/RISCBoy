@@ -18,7 +18,7 @@
 
 #define CPROC_LIST_SIZE 1024
 
-typedef struct sprite {
+typedef struct {
 	int16_t pos_x;
 	int16_t pos_y;
 	uint8_t tile;
@@ -26,7 +26,7 @@ typedef struct sprite {
 	uint8_t ntiles;
 } sprite_t;
 
-typedef struct character {
+typedef struct {
 	sprite_t spdata;
 	int16_t xmin, ymin;
 	int16_t xmax, ymax;
@@ -34,25 +34,26 @@ typedef struct character {
 	uint8_t anim_frame;
 } character_t;
 
-typedef struct game_state {
+typedef struct {
 	int16_t cam_x;
 	int16_t cam_y;
 	uint32_t frame_ctr;
-	struct character chars[N_CHARACTERS];
+	character_t chars[N_CHARACTERS];
+} game_state_t;
+
+typedef struct {
 	// Double-buffered command list so we can build the next frame's list during
 	// the current frame
 	int prog_buf_next;
 	uint32_t ppu_prog0[CPROC_LIST_SIZE];
 	uint32_t ppu_prog1[CPROC_LIST_SIZE];
-} game_state_t;
+} render_state_t;
 
-void init(game_state_t *state)
-{
+void game_init(game_state_t *state) {
 	state->cam_x = 0;
 	state->cam_y = 0;
 	state->frame_ctr = 0;
-	for (int i = 0; i < N_CHARACTERS; ++i)
-	{
+	for (int i = 0; i < N_CHARACTERS; ++i) {
 		state->chars[i].dir = (rand() >> 16) & 0x3;
 		state->chars[i].anim_frame = 0;
 		state->chars[i].xmin = 8;
@@ -65,16 +66,17 @@ void init(game_state_t *state)
 		state->chars[i].spdata.tilestride = 17;
 		state->chars[i].spdata.ntiles = 2;
 	}
+}
+
+void render_init(render_state_t *state) {
 	state->prog_buf_next = 0;
 }
 
-static inline int clip(int x, int l, int u)
-{
+static inline int clip(int x, int l, int u) {
 	return x < l ? l : x > u ? u : x;
 }
 
-void update(game_state_t *state)
-{
+void update(game_state_t *state) {
 	state->frame_ctr++;
 
 	const int CAMERA_SPEED = 3;
@@ -89,14 +91,16 @@ void update(game_state_t *state)
 	state->cam_x = clip(state->cam_x, 0, MAP_WIDTH - SCREEN_WIDTH);
 	state->cam_y = clip(state->cam_y, 0, MAP_HEIGHT - SCREEN_HEIGHT);
 
+	// Pause when A held, so I can see the pixels
+	if (gpio_in_pin(PIN_BTN_A))
+		return;
+
 	const int CHAR_SPEED = 2;
-	for (int i = 0; i < N_CHARACTERS; ++i)
-	{
+	for (int i = 0; i < N_CHARACTERS; ++i) {
 		character_t *ch = &state->chars[i];
 		if ((state->frame_ctr & 0x3u) == 0)
 			ch->anim_frame = (ch->anim_frame + 1) & 0x3;
-		if (!(rand() & 0xf00))
-		{
+		if (!(rand() & 0xf00)) {
 			ch->anim_frame = 0;
 			ch->dir = (rand() >> 16) & 0x3;
 		}
@@ -108,18 +112,17 @@ void update(game_state_t *state)
 
 }
 
-void render(game_state_t *state)
-{
+void render(const game_state_t *gstate, render_state_t *rstate) {
 	// Generate a PPU program into whichever program buffer is not currently being executed
-	state->prog_buf_next = !state->prog_buf_next;
-	uint32_t *prog_base = state->prog_buf_next ? state->ppu_prog1 : state->ppu_prog0;
+	rstate->prog_buf_next = !rstate->prog_buf_next;
+	uint32_t *prog_base = rstate->prog_buf_next ? rstate->ppu_prog1 : rstate->ppu_prog0;
 	uint32_t *p = prog_base;
 
 	// Render to the full scanline width
 	p += cproc_clip(p, 0, SCREEN_WIDTH - 1);
 
 	// One background layer -> one TILE instruction
-	p += cproc_tile(p, -state->cam_x, -state->cam_y,
+	p += cproc_tile(p, -gstate->cam_x, -gstate->cam_y,
 		PPU_SIZE_512,    // Playfield size
 		0,               // Palette offset
 		PPU_FORMAT_PAL8, // Tileset pixel format
@@ -130,14 +133,14 @@ void render(game_state_t *state)
 
 	// Generate a BLIT list for the animated sprites
 	for (int i = 0; i < N_CHARACTERS; ++i) {
-		const character_t *ch = &state->chars[i];
-		int pos_x = ch->spdata.pos_x - state->cam_x;
-		int pos_y = ch->spdata.pos_y - state->cam_y;
+		const character_t *ch = &gstate->chars[i];
+		int pos_x = ch->spdata.pos_x - gstate->cam_x;
+		int pos_y = ch->spdata.pos_y - gstate->cam_y;
 		uint8_t basetile = 102 + (ch->dir << 2) + ch->anim_frame;
 		for (int tile = 0; tile < ch->spdata.ntiles; ++tile) {
 			p += cproc_blit(p,
 				pos_x,
-				pos_y + 15 * tile, // TODO we get a gap if this is 16
+				pos_y + 16 * tile,
 				PPU_SIZE_16,
 				0,
 				PPU_FORMAT_PAL8,
@@ -173,11 +176,12 @@ int main()
 		PPU_PALETTE_RAM[i] = ((const uint16_t *)tileset_bin_pal)[i];
 
 	static game_state_t gstate;
-	init(&gstate);
+	static render_state_t rstate;
+	game_init(&gstate);
+	render_init(&rstate);
 
-	while (true)
-	{
+	while (true) 	{
 		update(&gstate);
-		render(&gstate);
+		render(&gstate, &rstate);
 	}
 }

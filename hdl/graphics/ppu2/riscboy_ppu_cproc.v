@@ -285,7 +285,8 @@ wire [INSTR_X_BITS:0] xr_clip_secondary = min(test_xr, {{INSTR_X_BITS+1-W_COORD_
 wire clip_pass_primary = xl_clip_primary < xr_clip_primary;
 wire clip_pass_secondary = xl_clip_secondary < xr_clip_secondary;
 wire [INSTR_Y_BITS:0] blit_y_offs = {1'b0, {{INSTR_Y_BITS-W_COORD_SY{1'b0}}, beam_y} - instr[INSTR_Y_LSB +: INSTR_Y_BITS]};
-wire blit_intersects_y = blit_y_offs < blit_size;
+// Note <= not <, because blit_size is end - start, not the pixel count (off by one)
+wire blit_intersects_y = !(blit_y_offs > blit_size);
 
 wire skip_span_comb =
 	!(clip_pass_primary || (clip_pass_secondary && use_blit_region)) // Skip if X intersect fails
