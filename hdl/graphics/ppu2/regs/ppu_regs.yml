@@ -11,7 +11,6 @@ regs:
     bits:
       - {b: 0, name: run, access: sc, info: "Write 1 to start the PPU running. Self-clearing strobe"}
       - {b: 2, name: running, access: rov, info: "Reads as 1 if PPU is running, otherwise 0"}
-      - {b: 3, name: halt_hsync, access: rw, info: "If 1, the PPU will halt automatically after completing a scanline"}
       - {b: 4, name: halt_vsync, access: rw, info: "If 1, the PPU will halt automatically after completing a frame"}
   - name: dispsize
     info: Configure display dimensions. Actual width is W + 1, height is H + 1
@@ -23,12 +22,10 @@ regs:
     bits:
       - {b: [31, 0], access: wf}
   - name: ints
-    info: Status of interrupt sources. Each source is write-1-clear.
+    info: Raw status of interrupt sources. Each source is write-1-clear.
     bits:
       - {b: 0, name: vsync, access: w1c}
-      - {b: 1, name: hsync, access: w1c}
   - name: inte
     info: Interrupt enable mask
     bits:
       - {b: 0, name: vsync, access: rw}
-      - {b: 1, name: hsync, access: rw}

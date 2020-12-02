@@ -26,7 +26,6 @@ module ppu_regs (
 	// Register interfaces
 	output reg  csr_run_o,
 	input wire  csr_running_i,
-	output reg  csr_halt_hsync_o,
 	output reg  csr_halt_vsync_o,
 	output reg [8:0] dispsize_w_o,
 	output reg [7:0] dispsize_h_o,
@@ -34,10 +33,7 @@ module ppu_regs (
 	output reg cproc_pc_wen,
 	input wire  ints_vsync_i,
 	output reg  ints_vsync_o,
-	input wire  ints_hsync_i,
-	output reg  ints_hsync_o,
-	output reg  inte_vsync_o,
-	output reg  inte_hsync_o
+	output reg  inte_vsync_o
 );
 
 // APB adapter
@@ -71,14 +67,11 @@ wire  csr_run_wdata = wdata[0];
 wire  csr_run_rdata;
 wire  csr_running_wdata = wdata[2];
 wire  csr_running_rdata;
-wire  csr_halt_hsync_wdata = wdata[3];
-wire  csr_halt_hsync_rdata;
 wire  csr_halt_vsync_wdata = wdata[4];
 wire  csr_halt_vsync_rdata;
-wire [31:0] __csr_rdata = {27'h0, csr_halt_vsync_rdata, csr_halt_hsync_rdata, csr_running_rdata, 1'h0, csr_run_rdata};
+wire [31:0] __csr_rdata = {27'h0, csr_halt_vsync_rdata, 1'h0, csr_running_rdata, 1'h0, csr_run_rdata};
 assign csr_run_rdata = 1'h0;
 assign csr_running_rdata = csr_running_i;
-assign csr_halt_hsync_rdata = csr_halt_hsync_o;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
 
 wire [8:0] dispsize_w_wdata = wdata[8:0];
@@ -96,21 +89,14 @@ assign cproc_pc_rdata = 32'h0;
 
 wire  ints_vsync_wdata = wdata[0];
 wire  ints_vsync_rdata;
-wire  ints_hsync_wdata = wdata[1];
-wire  ints_hsync_rdata;
-wire [31:0] __ints_rdata = {30'h0, ints_hsync_rdata, ints_vsync_rdata};
+wire [31:0] __ints_rdata = {31'h0, ints_vsync_rdata};
 reg  ints_vsync;
 assign ints_vsync_rdata = ints_vsync;
-reg  ints_hsync;
-assign ints_hsync_rdata = ints_hsync;
 
 wire  inte_vsync_wdata = wdata[0];
 wire  inte_vsync_rdata;
-wire  inte_hsync_wdata = wdata[1];
-wire  inte_hsync_rdata;
-wire [31:0] __inte_rdata = {30'h0, inte_hsync_rdata, inte_vsync_rdata};
+wire [31:0] __inte_rdata = {31'h0, inte_vsync_rdata};
 assign inte_vsync_rdata = inte_vsync_o;
-assign inte_hsync_rdata = inte_hsync_o;
 
 always @ (*) begin
 	case (addr)
@@ -125,22 +111,16 @@ always @ (*) begin
 	cproc_pc_wen = __cproc_pc_wen;
 	cproc_pc_o = cproc_pc_wdata;
 	ints_vsync_o = ints_vsync;
-	ints_hsync_o = ints_hsync;
 end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		csr_halt_hsync_o <= 1'h0;
 		csr_halt_vsync_o <= 1'h0;
 		dispsize_w_o <= 9'h0;
 		dispsize_h_o <= 8'h0;
 		ints_vsync <= 1'h0;
-		ints_hsync <= 1'h0;
 		inte_vsync_o <= 1'h0;
-		inte_hsync_o <= 1'h0;
 	end else begin
-		if (__csr_wen)
-			csr_halt_hsync_o <= csr_halt_hsync_wdata;
 		if (__csr_wen)
 			csr_halt_vsync_o <= csr_halt_vsync_wdata;
 		if (__dispsize_wen)
@@ -148,11 +128,8 @@ always @ (posedge clk or negedge rst_n) begin
 		if (__dispsize_wen)
 			dispsize_h_o <= dispsize_h_wdata;
 		ints_vsync <= (ints_vsync && !(__ints_wen && ints_vsync_wdata)) || ints_vsync_i;
-		ints_hsync <= (ints_hsync && !(__ints_wen && ints_hsync_wdata)) || ints_hsync_i;
 		if (__inte_wen)
 			inte_vsync_o <= inte_vsync_wdata;
-		if (__inte_wen)
-			inte_hsync_o <= inte_hsync_wdata;
 	end
 end
 

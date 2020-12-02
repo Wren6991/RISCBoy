@@ -34,11 +34,6 @@
 #define PPU_CSR_RUNNING_LSB  2
 #define PPU_CSR_RUNNING_BITS 1
 #define PPU_CSR_RUNNING_MASK 0x4
-// Field: CSR_HALT_HSYNC  Access: RW
-// If 1, the PPU will halt automatically after completing a scanline
-#define PPU_CSR_HALT_HSYNC_LSB  3
-#define PPU_CSR_HALT_HSYNC_BITS 1
-#define PPU_CSR_HALT_HSYNC_MASK 0x8
 // Field: CSR_HALT_VSYNC  Access: RW
 // If 1, the PPU will halt automatically after completing a frame
 #define PPU_CSR_HALT_VSYNC_LSB  4
@@ -76,16 +71,12 @@
 *                                     INTS                                     *
 *******************************************************************************/
 
-// Status of interrupt sources. Each source is write-1-clear.
+// Raw status of interrupt sources. Each source is write-1-clear.
 
 // Field: INTS_VSYNC  Access: W1C
 #define PPU_INTS_VSYNC_LSB  0
 #define PPU_INTS_VSYNC_BITS 1
 #define PPU_INTS_VSYNC_MASK 0x1
-// Field: INTS_HSYNC  Access: W1C
-#define PPU_INTS_HSYNC_LSB  1
-#define PPU_INTS_HSYNC_BITS 1
-#define PPU_INTS_HSYNC_MASK 0x2
 
 /*******************************************************************************
 *                                     INTE                                     *
@@ -97,9 +88,5 @@
 #define PPU_INTE_VSYNC_LSB  0
 #define PPU_INTE_VSYNC_BITS 1
 #define PPU_INTE_VSYNC_MASK 0x1
-// Field: INTE_HSYNC  Access: RW
-#define PPU_INTE_HSYNC_LSB  1
-#define PPU_INTE_HSYNC_BITS 1
-#define PPU_INTE_HSYNC_MASK 0x2
 
 #endif // _PPU_REGS_H_

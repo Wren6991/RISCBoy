@@ -84,9 +84,7 @@ wire [W_HADDR-1:0]        cproc_pc_wdata;
 wire                      cproc_pc_wen;
 
 wire                      ints_vsync;
-wire                      ints_hsync;
 wire                      inte_vsync;
-wire                      inte_hsync;
 wire                      vsync;
 wire                      hsync;
 
@@ -105,7 +103,6 @@ ppu_regs regs (
 
 	.csr_run_o              (csr_run),
 	.csr_running_i          (csr_running),
-	.csr_halt_hsync_o       (csr_halt_hsync),
 	.csr_halt_vsync_o       (csr_halt_vsync),
 
 	.dispsize_w_o           (dispsize_w),
@@ -116,10 +113,7 @@ ppu_regs regs (
 
 	.ints_vsync_i           (vsync),
 	.ints_vsync_o           (ints_vsync),
-	.ints_hsync_i           (hsync),
-	.ints_hsync_o           (ints_hsync),
-	.inte_vsync_o           (inte_vsync),
-	.inte_hsync_o           (inte_hsync)
+	.inte_vsync_o           (inte_vsync)
 );
 
 // ----------------------------------------------------------------------------
@@ -144,13 +138,11 @@ always @ (posedge clk or negedge rst_n) begin
 		ppu_running <= 1'b0;
 	end else begin
 		raster_y <= vsync ? {W_COORD_SY{1'b0}} : raster_y + hsync;
-		ppu_running <= (ppu_running || csr_run)
-			&& !(vsync && csr_halt_vsync)
-			&& !(hsync && csr_halt_hsync);
+		ppu_running <= (ppu_running || csr_run) && !(vsync && csr_halt_vsync);
 	end
 end
 
-assign irq = |({ints_hsync, ints_vsync} & {inte_hsync, inte_vsync});
+assign irq = ints_vsync && inte_vsync;
 
 // ----------------------------------------------------------------------------
 // Command processor
