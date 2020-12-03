@@ -8,6 +8,16 @@ module riscboy_fpga (
 	inout wire                     uart_tx,
 	inout wire                     uart_rx,
 
+	// DPad is ULX3S direction buttons, A is fire 2, B is fire 1
+	inout wire                     dpad_u,
+	inout wire                     dpad_d,
+	inout wire                     dpad_l,
+	inout wire                     dpad_r,
+	inout wire                     btn_a,
+	inout wire                     btn_b,
+	// POWERn button used as global reset
+	inout wire                     btn_rst_n,
+
 	inout wire                     flash_miso,
 	inout wire                     flash_mosi,
 	// inout wire                     flash_sclk, handled by USRMCLK primitive
@@ -50,7 +60,7 @@ pll_25_125 pll_bit (
 
 fpga_reset por (
 	.clk         (clk_sys),
-	.force_rst_n (pll_lock_bit && pll_lock_sys),
+	.force_rst_n (pll_lock_bit && pll_lock_sys && btn_rst_n),
 	.rst_n       (rst_n)
 );
 
@@ -112,6 +122,27 @@ blinky #(
 ) blinky_u (
 	.clk   (clk_osc),
 	.blink (blink)
+);
+
+pullup_input #(
+	.INVERT (0)
+) button_pads[5:0] (
+	.in({
+		padin[PIN_DPAD_U],
+		padin[PIN_DPAD_D],
+		padin[PIN_DPAD_L],
+		padin[PIN_DPAD_R],
+		padin[PIN_BTN_A],
+		padin[PIN_BTN_B]
+	}),
+	.pad({
+		dpad_u,
+		dpad_d,
+		dpad_l,
+		dpad_r,
+		btn_a,
+		btn_b
+	})
 );
 
 assign led = {
