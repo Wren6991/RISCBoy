@@ -1,5 +1,5 @@
-#ifndef _LCD_H_
-#define _LCD_H_
+#ifndef _SPI_LCD_H_
+#define _SPI_LCD_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,25 +7,7 @@
 
 #include "addressmap.h"
 #include "hw/ppu_dispctrl_spi_regs.h"
-#include "hw/ppu_dispctrl_dvi_regs.h"
 #include "delay.h"
-#include "ppu.h"
-
-// Display controllers have a constant, read-only field in a fixed location,
-// so software can determine which type of display interface is present in
-// the current hardware build
-
-typedef enum {
-	DISPCTRL_TYPE_SPI = 0,
-	DISPCTRL_TYPE_DVI = 1
-} dispctrl_type_t;
-
-static inline dispctrl_type_t get_dispctrl_type()
-{
-	return *(io_rw_32 *const)DISP_BASE >> 28;
-}
-
-// SPI hardware definitions
 
 struct spi_lcd_hw {
 	io_rw_32 csr;
@@ -35,7 +17,7 @@ struct spi_lcd_hw {
 
 #define mm_spi_lcd ((struct spi_lcd_hw *const)DISP_BASE)
 
-static inline void lcd_force_dc_cs(bool dc, bool cs)
+static inline void spi_lcd_force_dc_cs(bool dc, bool cs)
 {
 	mm_spi_lcd->csr = (mm_spi_lcd->csr
 		& ~(DISPCTRL_SPI_CSR_LCD_CS_MASK | DISPCTRL_SPI_CSR_LCD_DC_MASK))
@@ -43,7 +25,7 @@ static inline void lcd_force_dc_cs(bool dc, bool cs)
 		| (!!cs << DISPCTRL_SPI_CSR_LCD_CS_LSB);
 }
 
-static inline void lcd_set_shift_width(uint8_t width)
+static inline void spi_lcd_set_shift_width(uint8_t width)
 {
 	if (width == 16)
 		mm_spi_lcd->csr |= DISPCTRL_SPI_CSR_LCD_SHIFTCNT_MASK;
@@ -51,7 +33,7 @@ static inline void lcd_set_shift_width(uint8_t width)
 		mm_spi_lcd->csr &= ~DISPCTRL_SPI_CSR_LCD_SHIFTCNT_MASK;
 }
 
-static inline void lcd_put_hword(uint16_t pixdata)
+static inline void spi_lcd_put_hword(uint16_t pixdata)
 {
 	while (mm_spi_lcd->csr & DISPCTRL_SPI_CSR_PXFIFO_FULL_MASK)
 		;
@@ -60,14 +42,14 @@ static inline void lcd_put_hword(uint16_t pixdata)
 
 // Note the shifter always outputs MSB-first, and will simply be configured to get next data
 // after shifting 8 MSBs out, so we left-justify the data
-static inline void lcd_put_byte(uint8_t pixdata)
+static inline void spi_lcd_put_byte(uint8_t pixdata)
 {
 	while (mm_spi_lcd->csr & DISPCTRL_SPI_CSR_PXFIFO_FULL_MASK)
 		;
 	mm_spi_lcd->pxfifo = (uint16_t)pixdata << 8;
 }
 
-static inline void lcd_wait_idle()
+static inline void spi_lcd_wait_idle()
 {
 	uint32_t csr;
 	do {
@@ -75,7 +57,7 @@ static inline void lcd_wait_idle()
 	} while (csr & DISPCTRL_SPI_CSR_TX_BUSY_MASK || !(csr & DISPCTRL_SPI_CSR_PXFIFO_EMPTY_MASK));
 }
 
-static inline void lcd_set_disp_width(unsigned int width)
+static inline void spi_lcd_set_disp_width(unsigned int width)
 {
 	mm_spi_lcd->dispsize = width - 1;
 }
@@ -124,47 +106,39 @@ static const uint8_t st7789_init_seq[] = {
 	0                                     // Terminate list
 };
 
-static inline void lcd_write_cmd(const uint8_t *cmd, size_t count)
+static inline void spi_lcd_write_cmd(const uint8_t *cmd, size_t count)
 {
-	lcd_wait_idle();
-	lcd_set_shift_width(8);
-	lcd_force_dc_cs(0, 0);
-	lcd_put_byte(*cmd++);
+	spi_lcd_wait_idle();
+	spi_lcd_set_shift_width(8);
+	spi_lcd_force_dc_cs(0, 0);
+	spi_lcd_put_byte(*cmd++);
 	if (count >= 2)
 	{
-		lcd_force_dc_cs(1, 0);
+		spi_lcd_force_dc_cs(1, 0);
 		for (size_t i = 0; i < count - 1; ++i)
-			lcd_put_byte(*cmd++);
+			spi_lcd_put_byte(*cmd++);
 	}
-	lcd_wait_idle();
-	lcd_force_dc_cs(1, 1);
-	lcd_set_shift_width(16);
+	spi_lcd_wait_idle();
+	spi_lcd_force_dc_cs(1, 1);
+	spi_lcd_set_shift_width(16);
 }
 
-static inline void lcd_init(const uint8_t *init_seq)
+static inline void spi_lcd_init(const uint8_t *init_seq)
 {
 	const uint8_t *cmd = init_seq;
 	while (*cmd)
 	{
-		lcd_write_cmd(cmd + 2, *cmd);
+		spi_lcd_write_cmd(cmd + 2, *cmd);
 		delay_ms(*(cmd + 1) * 5);
 		cmd += *cmd + 2;
 	}
 }
 
-static inline void st7789_start_pixels()
+static inline void spi_lcd_start_pixels()
 {
 	uint8_t cmd = 0x2c;
-	lcd_write_cmd(&cmd, 1);
-	lcd_force_dc_cs(1, 0);
+	spi_lcd_write_cmd(&cmd, 1);
+	spi_lcd_force_dc_cs(1, 0);
 }
-
-// DVI hardware definitions
-
-struct dvi_lcd_hw {
-	io_rw_32 csr;
-};
-
-#define mm_dvi_lcd ((struct dvi_lcd_hw *const)DISP_BASE)
 
 #endif

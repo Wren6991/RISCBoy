@@ -26,7 +26,6 @@ module dispctrl_spi_regs (
 	// Register interfaces
 	input wire  csr_pxfifo_empty_i,
 	input wire  csr_pxfifo_full_i,
-	input wire [5:0] csr_pxfifo_level_i,
 	output reg  csr_lcd_cs_o,
 	output reg  csr_lcd_dc_o,
 	input wire  csr_tx_busy_i,
@@ -61,8 +60,6 @@ wire  csr_pxfifo_empty_wdata = wdata[0];
 wire  csr_pxfifo_empty_rdata;
 wire  csr_pxfifo_full_wdata = wdata[1];
 wire  csr_pxfifo_full_rdata;
-wire [5:0] csr_pxfifo_level_wdata = wdata[7:2];
-wire [5:0] csr_pxfifo_level_rdata;
 wire  csr_lcd_cs_wdata = wdata[8];
 wire  csr_lcd_cs_rdata;
 wire  csr_lcd_dc_wdata = wdata[9];
@@ -73,15 +70,14 @@ wire  csr_lcd_shiftcnt_wdata = wdata[16];
 wire  csr_lcd_shiftcnt_rdata;
 wire [3:0] csr_disptype_wdata = wdata[31:28];
 wire [3:0] csr_disptype_rdata;
-wire [31:0] __csr_rdata = {csr_disptype_rdata, 11'h0, csr_lcd_shiftcnt_rdata, 5'h0, csr_tx_busy_rdata, csr_lcd_dc_rdata, csr_lcd_cs_rdata, csr_pxfifo_level_rdata, csr_pxfifo_full_rdata, csr_pxfifo_empty_rdata};
+wire [31:0] __csr_rdata = {csr_disptype_rdata, 11'h0, csr_lcd_shiftcnt_rdata, 5'h0, csr_tx_busy_rdata, csr_lcd_dc_rdata, csr_lcd_cs_rdata, 6'h0, csr_pxfifo_full_rdata, csr_pxfifo_empty_rdata};
 assign csr_pxfifo_empty_rdata = csr_pxfifo_empty_i;
 assign csr_pxfifo_full_rdata = csr_pxfifo_full_i;
-assign csr_pxfifo_level_rdata = csr_pxfifo_level_i;
 assign csr_lcd_cs_rdata = csr_lcd_cs_o;
 assign csr_lcd_dc_rdata = csr_lcd_dc_o;
 assign csr_tx_busy_rdata = csr_tx_busy_i;
 assign csr_lcd_shiftcnt_rdata = csr_lcd_shiftcnt_o;
-assign csr_disptype_rdata = 4'h1;
+assign csr_disptype_rdata = 4'h0;
 
 wire [8:0] dispsize_w_wdata = wdata[8:0];
 wire [8:0] dispsize_w_rdata;

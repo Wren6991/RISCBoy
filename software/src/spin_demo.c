@@ -1,7 +1,7 @@
 #define CLK_SYS_MHZ 12
 
 #include "ppu.h"
-#include "lcd.h"
+#include "display.h"
 #include "tbman.h"
 #include "affine_transform.h"
 #include "wilber.bin.h"
@@ -24,8 +24,7 @@ static inline void render_frame()
 
 int main()
 {
-	if (!tbman_running_in_sim())
-		lcd_init(ili9341_init_seq);
+	display_init();
 
 	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 
@@ -63,14 +62,11 @@ int main()
 			p += cproc_ablit(p, 0, 0, PPU_SIZE_512, 0, PPU_FORMAT_ARGB1555, PPU_ABLIT_HALFSIZE, trans, wilber_bin);
 		}
 		p += cproc_sync(p);
-		p += cproc_jump(p, (uint32_t)cp_prog);
+		p += cproc_jump(p, cp_prog);
 
-		cproc_put_pc((uint32_t)cp_prog);
-
-		lcd_wait_idle();
-		lcd_force_dc_cs(1, 1);
-		st7789_start_pixels();
-		render_frame();
+		cproc_put_pc(cp_prog);
+		display_start_frame();
+		display_wait_frame_end();
 
 		for (int i = 0; i < N_SPRITES; ++i)
 		{

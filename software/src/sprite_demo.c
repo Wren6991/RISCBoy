@@ -1,7 +1,7 @@
 #define CLK_SYS_MHZ 36
 
 #include "ppu.h"
-#include "lcd.h"
+#include "display.h"
 #include "gpio.h"
 
 #include "tileset.h"
@@ -151,26 +151,17 @@ void render(const game_state_t *gstate, render_state_t *rstate) {
 
 	// After finishing a scanline, present the buffer and loop to start
 	p += cproc_sync(p);
-	p += cproc_jump(p, (uintptr_t)prog_base);
+	p += cproc_jump(p, prog_base);
 
-	// Vertical sync
-	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
-		;
-	lcd_wait_idle();
-	lcd_force_dc_cs(1, 1);
-	st7789_start_pixels();
-	// Use new program to render next frame
-	cproc_put_pc((uint32_t)prog_base);
-	mm_ppu->csr = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
+	display_wait_frame_end();
+	cproc_put_pc(prog_base);
+	display_start_frame();
 }
-
 
 int main()
 {
-	lcd_init(ili9341_init_seq);
-
+	display_init();
 	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
-	// mm_ppu->default_bg_colour = 0x7c1fu;
 
 	for (int i = 0; i < 256; ++i)
 		PPU_PALETTE_RAM[i] = ((const uint16_t *)tileset_bin_pal)[i];

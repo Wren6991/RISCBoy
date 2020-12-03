@@ -3,7 +3,7 @@
 
 #define CLK_SYS_MHZ 12
 #include "gpio.h"
-#include "lcd.h"
+#include "spi_lcd.h"
 #include "pwm.h"
 #include "tbman.h"
 
@@ -20,7 +20,7 @@ int main()
 	pwm_enable(false);
 	pwm_invert(true);
 	if (!tbman_running_in_sim())
-		lcd_init(ili9341_init_seq);
+		spi_lcd_init(ili9341_init_seq);
 
 	for (int i = 0; i < 256; ++i)
 	{
@@ -34,27 +34,18 @@ int main()
 	// Output a test pattern and clear it, to check everything works
 	if (!tbman_running_in_sim())
 	{
-		// st7789_start_pixels();
-		// for (int y = 0; y < HEIGHT; ++y)
-		// {
-		// 	for (int x = 0; x < WIDTH; ++x)
-		// 	{
-		// 		uint16_t colour = palette[(x + y) >> 1];
-		// 		lcd_put_hword(colour);
-		// 	}
-		// }
-		st7789_start_pixels();
+		spi_lcd_start_pixels();
 		for (int y = 0; y < HEIGHT; ++y)
 		{
 			for (int x = 0; x < WIDTH; ++x)
 			{
-				lcd_put_hword(0xffffu);
+				spi_lcd_put_hword(0xffffu);
 			}
 		}
 	}
 
 	// This time it's for real
-	st7789_start_pixels();
+	spi_lcd_start_pixels();
 	for (int y = 0; y < HEIGHT; ++y)
 	{
 		for (int x = 0; x < WIDTH; ++x)
@@ -73,7 +64,7 @@ int main()
 					break;
 			}
 			uint16_t colour = palette[i];
-			lcd_put_hword(colour);
+			spi_lcd_put_hword(colour);
 		}
 	}
 }

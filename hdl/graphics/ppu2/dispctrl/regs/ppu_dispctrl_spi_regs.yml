@@ -4,16 +4,15 @@ addr: 16
 data: 32
 regs:
   - name: csr
-    info: Control and status register for the LCD interface
+    info: Control and status register for the SPI LCD interface
     bits:
       - {b: 0,        name: pxfifo_empty, access: rov}
       - {b: 1,        name: pxfifo_full,  access: rov}
-      - {b: [7, 2],   name: pxfifo_level, access: rov}
       - {b: 8,        name: lcd_cs,       access: rw, rst: 0x1}
       - {b: 9,        name: lcd_dc,       access: rw}
       - {b: 10,       name: tx_busy,      access: rov}
       - {b: 16,       name: lcd_shiftcnt, access: rw, info: "1 for 16-bit, 0 for 8-bit"}
-      - {b: [31, 28], name: disptype, access: ro, rst: 0x1,
+      - {b: [31, 28], name: disptype,     access: ro, rst: 0x0,
           info: "Encodes the type of display controller. All RISCBoy display controllers have this field. 0x0 means SPI."}
   - name: dispsize
     info: Set display dimensions, so the display controller knows when it has reached the end of a scanline buffer or frame

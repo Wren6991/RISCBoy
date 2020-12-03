@@ -20,7 +20,7 @@
 *                                     CSR                                      *
 *******************************************************************************/
 
-// Control and status register for the LCD interface
+// Control and status register for the SPI LCD interface
 
 // Field: CSR_PXFIFO_EMPTY  Access: ROV
 #define DISPCTRL_SPI_CSR_PXFIFO_EMPTY_LSB  0
@@ -30,10 +30,6 @@
 #define DISPCTRL_SPI_CSR_PXFIFO_FULL_LSB  1
 #define DISPCTRL_SPI_CSR_PXFIFO_FULL_BITS 1
 #define DISPCTRL_SPI_CSR_PXFIFO_FULL_MASK 0x2
-// Field: CSR_PXFIFO_LEVEL  Access: ROV
-#define DISPCTRL_SPI_CSR_PXFIFO_LEVEL_LSB  2
-#define DISPCTRL_SPI_CSR_PXFIFO_LEVEL_BITS 6
-#define DISPCTRL_SPI_CSR_PXFIFO_LEVEL_MASK 0xfc
 // Field: CSR_LCD_CS  Access: RW
 #define DISPCTRL_SPI_CSR_LCD_CS_LSB  8
 #define DISPCTRL_SPI_CSR_LCD_CS_BITS 1

@@ -1,7 +1,7 @@
 #define CLK_SYS_MHZ 36
 
 #include "ppu.h"
-#include "lcd.h"
+#include "display.h"
 #include "gpio.h"
 #include "affine_transform.h"
 #include "tbman.h"
@@ -15,23 +15,11 @@
 
 uint32_t __attribute__ ((section (".noload"))) cproc_prog[1024];
 
-void render_frame()
-{
-	lcd_wait_idle();
-	lcd_force_dc_cs(1, 1);
-	st7789_start_pixels();
-
-	mm_ppu->csr = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
-	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
-		;
-}
-
 uint8_t map_doubled[WIDTH_MAP_TEST_ZELDA_MINI * HEIGHT_MAP_TEST_ZELDA_MINI * 2];
 
 int main()
 {
-	if (!tbman_running_in_sim())
-		lcd_init(ili9341_init_seq);
+	display_init();
 
 	mm_ppu->dispsize = (SCREEN_WIDTH - 1 >> PPU_DISPSIZE_W_LSB) | (SCREEN_HEIGHT - 1 << PPU_DISPSIZE_H_LSB);
 
@@ -72,7 +60,8 @@ int main()
 
 		cproc_put_pc(entry_point);
 
-		render_frame();
+		display_start_frame();
+		display_wait_frame_end();
 
 		const unsigned SPEED = 3;
 		const unsigned IDLE_PERIOD = 300;

@@ -1,7 +1,7 @@
 #define CLK_SYS_MHZ 12
 
 #include "ppu.h"
-#include "lcd.h"
+#include "display.h"
 #include "tbman.h"
 #include "affine_transform.h"
 #include "ulx3s_bin.h"
@@ -14,18 +14,11 @@
 
 uint32_t __attribute__ ((section (".noload"))) cp_prog[2048];
 
-static inline void render_frame()
-{
-	mm_ppu->csr = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
-	mm_dvi_lcd->csr = 1; // Make sure DVI is running
-	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
-		;
-}
-
 #define N_SPRITES 1
 
 int main()
 {
+	display_init();
 	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 
 	int16_t px[N_SPRITES];
@@ -65,11 +58,12 @@ int main()
 			p += cproc_ablit(p, 0, 0, PPU_SIZE_512, 0, PPU_FORMAT_PAL8, PPU_ABLIT_HALFSIZE, trans, ulx3s_bin);
 		}
 		p += cproc_sync(p);
-		p += cproc_jump(p, (uint32_t)cp_prog);
+		p += cproc_jump(p, cp_prog);
 
-		cproc_put_pc((uint32_t)cp_prog);
+		cproc_put_pc(cp_prog);
 
-		render_frame();
+		display_start_frame();
+		display_wait_frame_end();
 
 		for (int i = 0; i < N_SPRITES; ++i)
 		{

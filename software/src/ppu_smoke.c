@@ -1,7 +1,7 @@
 #define CLK_SYS_MHZ 12
 
-#include "ppu.h"
-#include "lcd.h"
+#include "display.h"
+#include "display.h"
 #include "tbman.h"
 #include "gpio.h"
 #include "pwm.h"
@@ -12,21 +12,9 @@ uint16_t __attribute__ ((section (".noload"), aligned (4))) tileset[65536];
 uint8_t  __attribute__ ((section (".noload"), aligned (4))) tilemap[256];
 uint32_t __attribute__ ((section (".noload"))) cproc_prog[256];
 
-void render_frame()
-{
-	lcd_wait_idle();
-	lcd_force_dc_cs(1, 1);
-	st7789_start_pixels();
-
-	mm_ppu->csr = PPU_CSR_HALT_VSYNC_MASK | PPU_CSR_RUN_MASK;
-	while (mm_ppu->csr & PPU_CSR_RUNNING_MASK)
-		;
-}
-
 int main()
 {
-	if (!tbman_running_in_sim())
-		lcd_init(ili9341_init_seq);
+	display_init();
 
 	mm_ppu->dispsize = (319 << PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
 
@@ -61,7 +49,8 @@ int main()
 		p += cproc_jump(p, (uintptr_t)cproc_prog);
 		cproc_put_pc((uint32_t)cproc_prog);
 
-		render_frame();
+		display_start_frame();
+		display_wait_frame_end();
 
 		++frame_ctr;
 		unsigned int dir0 = (frame_ctr >> 6) & 0x7u;
