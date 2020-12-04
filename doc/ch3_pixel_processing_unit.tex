@@ -29,7 +29,7 @@ Common memory access patterns (for nonpaletted pixels):
 	\item Affine-mapped tiling: fetch tile indices and pixels on alternate cycles
 \end{itemize}
 
-The display interface is provides a simple handshake for acquiring/releasing dirty scanbuffers, routes read addresses from the display controller to the correct scan buffer, and routes data back. Currently two display controllers are available to connect to this interface: one for serial LCDs such as ILI9341, and another for direct DVI output. The PPU display interface is synchronous, and any clock crossing (to SCK domain for serial LCDs, or pixel clock domain for DVI) is handled inside the display controller.
+The display controller attaches to a dedicated interface on the PPU. Through a simple handshake, the display controller can acquire and release dirty scanbuffers. The display interface routes read addresses from the display controller to the correct scanline buffer, and routes pixel data back to the controller. Currently two display controllers are available to connect to this interface: one for serial LCDs such as ILI9341, and another for direct DVI output. The PPU display interface is synchronous, and any clock crossing (to SCK domain for serial LCDs, or pixel clock domain for DVI) is handled inside the display controller.
 
 \subsection{Pixel Formats}
 
@@ -97,9 +97,9 @@ On RISCBoy these are 15b$\times512$ memories, each composed of a pair of iCE40 4
 
 \newcommand{\reservedfield}{\color{lightgray}\rule{\width}{\height}}
 
-Each instruction consists of one or more words in memory; the blitter processes each instruction in turn, progressing in a linear fashion unless a {\tt JUMP} is encountered. This section describes the encoding of blitter instructions, and their operation. Some fields are marked as {\it reserved}, denoted by a grey colour fill in the bit diagrams. Reserved fields are not used by the current hardware, and should be written all-zeroes by software.
+Each instruction consists of one or more words in memory; the blitter processes each instruction in turn, progressing in a linear fashion unless a {\tt POPJ} is encountered, or the PPU is manually vectored to a new program by system software. This section describes the encoding of blitter instructions, and their operation. Some fields are marked as {\it reserved}, denoted by a grey colour fill in the bit diagrams. Reserved fields are not used by the current hardware, and should be written all-zeroes by software.
 
-For simple purposes (e.g. tiled backgrounds with some sprites on top), the blitter can execute the same program on each scanline; the coordinate systems of {\tt BLIT}/{\tt TILE} commands take the current raster $y$ coordinate into account (see section \ref{section:coordinates}). However, the instruction set is quite flexible, and the blitter's features can be combined in interesting ways, with fancy-looking results.
+For simple purposes (e.g. tiled backgrounds with some sprites on top), the blitter can execute the same program on each scanline: the coordinate systems of {\tt BLIT}/{\tt TILE} commands take the current raster $y$ coordinate into account (see section \ref{section:coordinates}). However, the instruction set is quite flexible, and the blitter's features can be combined in interesting ways, with fancy-looking results.
 
 \subsubsection*{SYNC}
 
@@ -274,7 +274,7 @@ Always pop an address from the stack. If {\tt cc} is true, branch to this addres
 \begin{itemize}
 	\item 0: always
 	\item 1: YLT, current raster beam $y < {\tt a}$
-	\item 2: YNE, current raster beam $y \neq {\tt a}$
+	\item 2: YGE, current raster beam $y \geq {\tt a}$
 \end{itemize}
 
 A regular jump is formed with {\tt PUSH addr; POPJ}, and a subroutine call is formed with {\tt PUSH ret; PUSH target; POPJ; label ret:} followed by a {\tt POPJ} at the end of the target routine.

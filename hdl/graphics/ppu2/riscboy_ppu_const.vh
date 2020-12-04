@@ -43,7 +43,7 @@ localparam INSTR_BCOND_BITS = 4;
 localparam INSTR_BCOND_LSB = 24;
 localparam BCOND_ALWAYS = 4'h0;
 localparam BCOND_YLT = 4'h1;
-localparam BCOND_YNE = 4'h2;
+localparam BCOND_YGE = 4'h2;
 
 localparam INSTR_X_LSB = 0;
 localparam INSTR_X_BITS = 10;

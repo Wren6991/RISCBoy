@@ -187,7 +187,7 @@ dvi_tx_parallel #(
 	.H_SYNC_POLARITY (1'b0),
 	.H_FRONT_PORCH   (16),
 	.H_SYNC_WIDTH    (96),
-	.H_BACK_PORCH    (48),
+	.H_BACK_PORCH    (848),
 	.H_ACTIVE_PIXELS (640),
 
 	.V_SYNC_POLARITY (1'b0),
