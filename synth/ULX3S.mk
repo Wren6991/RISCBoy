@@ -14,7 +14,7 @@ include $(SCRIPTS)/synth_ecp5.mk
 romfiles::
 	@echo ">>> Bootcode"
 	@echo
-	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS="-Os -DFORCE_SRAM0_SIZE=131072 -DCLK_SYS_MHZ=50"
+	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) CCFLAGS="-Os -DFORCE_SRAM0_SIZE=131072 -DCLK_SYS_MHZ=50 -DSTAGE2_OFFS=0x90000"
 	cp $(SOFTWARE)/build/$(BOOTAPP)8.hex bootram_init8.hex
 	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
 
