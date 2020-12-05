@@ -23,6 +23,7 @@
 #     popj
 
 import re
+import struct
 import sys
 
 # Each instruction consists of one or more words. For each instruction we
@@ -234,6 +235,8 @@ default_defs = {
 	"FORMAT_PAL1":     3,
 	"COND_YLT":        1,
 	"COND_YGE":        2,
+	"ylt":             1,
+	"yge":             2,
 }
 
 def getint(x):
@@ -272,8 +275,8 @@ def resolve_instr_args(linenum, instr, args, defs):
 	return resolved_args
 
 if __name__ == "__main__":
-	if len(sys.argv) != 2:
-		sys.exit("Usage: ppuasm <input.S>")
+	if len(sys.argv) < 2 or len(sys.argv) > 3:
+		sys.exit("Usage: ppuasm <input.S> [output.bin]")
 
 	carried_over_from_prev = None
 	defs = default_defs.copy()
@@ -286,7 +289,7 @@ if __name__ == "__main__":
 		if carried_over_from_prev is not None:
 			line = " ".join((carried_over_from_prev, line))
 			carried_over_from_prev = None
-		line = line.strip().split("#")[0]
+		line = line.split("#")[0].strip()
 		if len(line) == 0:
 			continue
 		if line.endswith("\\"):
@@ -321,6 +324,8 @@ if __name__ == "__main__":
 							sys.exit(f"Line {linenum + 1}: '{argval}' is not a valid integer")
 					word |= (val << fieldspec[1]) & ((1 << fieldspec[3] + 1) - (1 << fieldspec[2]))
 				program.append(word)
+		else:
+			sys.exit(f"Line {linenum + 1}: invalid instruction '{tokens[0]}'")
 
 
 	for linenum, fixloc, labelname in label_fixups:
@@ -328,5 +333,9 @@ if __name__ == "__main__":
 			sys.exit(f"Line {linenum + 1}: label '{labelname}' is not defined in program")
 		program[fixloc] = labels[labelname]
 
-	for i, w in enumerate(program):
-		print(f"{4*i:04x}: {w:08x}")
+	if len(sys.argv) > 2:
+		with open(sys.argv[2], "wb") as ofile:
+			ofile.write(struct.pack("<" + "L" * len(program), *program))
+	else:
+		for i, w in enumerate(program):
+			print(f"{4*i:04x}: {w:08x}")

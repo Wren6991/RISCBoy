@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+
+import sys
+
+bindata = bytearray()
+
+if len(sys.argv) < 2:
+	sys.exit("Usage: packbin output.bin offset1:input1.bin ...")
+
+for input_str in sys.argv[2:]:
+	offset, fname = input_str.split(":")
+	offset = int(offset, 0)
+	newdata = open(fname, "rb").read()
+	if len(bindata) < offset + len(newdata):
+		bindata.extend([0] * (offset + len(newdata) - len(bindata)))
+	bindata[offset:offset + len(newdata)] = newdata
+
+open(sys.argv[1], "wb").write(bindata)
