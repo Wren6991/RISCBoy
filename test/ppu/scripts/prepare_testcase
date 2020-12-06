@@ -1,1 +1,51 @@
 #!/usr/bin/env python3
+
+import sys
+import os.path
+import shutil
+import subprocess
+
+if len(sys.argv) != 2:
+	sys.exit("Usage: prepare_testcase <test_dir>")
+target_dir = sys.argv[1]
+riscboy_scripts_dir = os.environ["SCRIPTS"]
+ppu_scripts_dir = os.path.dirname(sys.argv[0])
+build_dir = os.path.join(target_dir, "build")
+
+try:
+	shutil.rmtree(build_dir)
+except:
+	pass
+
+asset_list = []
+
+os.mkdir(build_dir)
+for fname in os.listdir(target_dir):
+	if not os.path.isfile(fname):
+		continue
+	if fname.startswith("sprite_") or fname.startswith("tile8_") or fname.startswith("tile16_"):
+		asset_type, addr, pixformat = os.path.splitext(fname)[0].split("_")
+		out_name = f"asset_{addr}_{pixformat}.bin"
+		subprocess.run([
+			os.path.join(riscboy_scripts_dir, "packtiles"),
+			"-t8" if asset_type == "tile8" else "-t16" if asset_type == "tile16" else "-s",
+			"-f", pixformat,
+			os.path.join(target_dir, fname),
+			os.path.join(build_dir, out_name)],
+			stdout=subprocess.DEVNULL)
+		asset_list.append((addr, os.path.join(build_dir, out_name)))
+	elif fname.endswith(".S"):
+		subprocess.run([
+			os.path.join(ppu_scripts_dir, "ppuasm"),
+			os.path.join(target_dir, fname),
+			os.path.join(build_dir, fname + ".bin")],
+			stdout=subprocess.DEVNULL)
+		asset_list.append((os.path.splitext(fname)[0], os.path.join(build_dir, fname + ".bin")))
+	elif fname.startswith("asset_"):
+		asset_list.append((os.path.splitext(fname)[0].split("_")[1], os.path.join(target_dir, fname)))
+
+subprocess.run([
+	os.path.join(ppu_scripts_dir, "packbin"),
+	os.path.join(build_dir, "mem_init.bin"),
+	*(f"{addr}:{fname}" for addr, fname in asset_list)]
+	)

@@ -11,7 +11,7 @@
 #include "hw/ppu_regs.h"
 #include <backends/cxxrtl/cxxrtl_vcd.h>
 
-static const unsigned int MEM_SIZE = 1024 * 1024;
+static const unsigned int MEM_SIZE = 16 * 1024 * 1024;
 uint8_t mem[MEM_SIZE];
 
 const char *help_str =
@@ -122,7 +122,8 @@ int main(int argc, char **argv) {
 	wdata_seq.push_back(PPU_CSR_RUN_MASK);
 
 	bool sim_halt = false;
-	for (int cycle = 0; !sim_halt && cycle < 100000; ++cycle) {
+	int cycle;
+	for (cycle = 0; !sim_halt && cycle < 1000000; ++cycle) {
 		top.p_clk.set<bool>(false);
 		top.step();
 		if (dump_waves)
@@ -131,24 +132,13 @@ int main(int argc, char **argv) {
 		top.step();
 		// Handle current data phase, then move current address phase to data phase
 		uint32_t rdata = 0;
-		if (bus_trans && bus_write) {
-			uint32_t wdata = top.p_ahblm__hwdata.get<uint32_t>();
-			if (bus_addr <= MEM_SIZE) {
-				unsigned int n_bytes = 1u << bus_size;
-				for (unsigned int i = 0; i < n_bytes; ++i) {
-					mem[bus_addr + i] = wdata >> (8 * i) & 0xffu;
-				}
-			}
-		}
-		else if (bus_trans && !bus_write) {
-			if (bus_addr <= MEM_SIZE) {
-				bus_addr &= ~0x3u;
-				rdata =
-					(uint32_t)mem[bus_addr] |
-					mem[bus_addr + 1] << 8 |
-					mem[bus_addr + 2] << 16 |
-					mem[bus_addr + 3] << 24;
-			}
+		if (bus_trans && !bus_write && bus_addr <= MEM_SIZE) {
+			bus_addr &= ~0x3u;
+			rdata =
+				(uint32_t)mem[bus_addr] |
+				mem[bus_addr + 1] << 8 |
+				mem[bus_addr + 2] << 16 |
+				mem[bus_addr + 3] << 24;
 		}
 		top.p_ahblm__hrdata.set<uint32_t>(rdata);
 
@@ -208,6 +198,8 @@ int main(int argc, char **argv) {
 			vcd.buffer.clear();
 		}
 	}
+
+	std::cout << "Ran for " << (cycle + 1) << " cycles\n";
 
 	if (dump_frame) {
 		std::ofstream ofile(frame_path, std::ios::binary);
