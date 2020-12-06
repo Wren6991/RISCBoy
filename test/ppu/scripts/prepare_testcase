@@ -21,7 +21,7 @@ asset_list = []
 
 os.mkdir(build_dir)
 for fname in os.listdir(target_dir):
-	if not os.path.isfile(fname):
+	if not os.path.isfile(os.path.join(target_dir, fname)):
 		continue
 	if fname.startswith("sprite_") or fname.startswith("tile8_") or fname.startswith("tile16_"):
 		asset_type, addr, pixformat = os.path.splitext(fname)[0].split("_")

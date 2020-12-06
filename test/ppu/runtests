@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+import os.path
+from threading import Thread, Lock, Semaphore
+from multiprocessing import cpu_count
+
+
+class ThreadPool:
+	def __init__(self, thread_count=1):
+		self.threads = [Thread(target=lambda: self._threadtask()) for i in range(thread_count)]
+		self._lock = Lock()
+		self._tasklist = []
+		self._unjoined_tasks = 0
+		self._in_sem = Semaphore(value=0)
+		self._out_sem = Semaphore(value=0)
+		for thread in self.threads:
+			thread.setDaemon(True)
+			thread.start()
+	def queue_task(self, task):
+		self.tasklist.append(task)
+		self._lock.acquire()
+		self._unjoined_tasks += 1
+		self._lock.release()
+		self._in_sem.release()
+	def wait_all(self):
+		unjoined_tasks = self._unjoined_tasks
+		for i in range(unjoined_tasks):
+			self._out_sem.acquire()
+		self._lock.acquire()
+		self._unjoined_tasks -= unjoined_tasks
+		self._lock.release()
+	@property
+	def tasklist(self):
+	    return self._tasklist
+	def _threadtask(self):
+		while True:
+			self._in_sem.acquire()
+			self._tasklist.pop(0)()
+			self._out_sem.release()
+
+test_pass = []
+
+def run(test):
+	def f():
+		out_str = "> {:<65}".format(test)
+		logfile = open(os.path.join(test, "test.log"), "w")
+		failed = False
+		if not failed:
+			result = subprocess.run(["./scripts/prepare_testcase", test], stderr=logfile, stdout=logfile)
+			if result.returncode:
+				out_str += "\033[33m[ABORT!]\033[39m"
+				failed = True
+		if not failed:
+			result = subprocess.run(["./tb/tb", os.path.join(test, "build", "mem_init.bin"),
+				"--frame", os.path.join(test, "test_output.tga")], stderr=logfile, stdout=logfile)
+			if result.returncode:
+				out_str += "\033[33m[ABORT!]\033[39m"
+				failed = True
+		if not failed:
+			result = subprocess.run(["../../scripts/compare_image", "expected_output.png", "test_output.tga"],
+				cwd=test, stderr=logfile, stdout=logfile)
+			if result.returncode:
+				out_str += "\033[31m[FAILED]\033[39m"
+				failed = True
+			else:
+				out_str += "\033[32m[PASSED]\033[39m"
+		test_pass.append(not failed)
+		print(out_str)
+	return f
+
+print("Building testbench...")
+try:
+	output = subprocess.check_output(["make", "-C", "tb",  "tb"], stderr=subprocess.STDOUT)
+except subprocess.CalledProcessError as e:
+	print(output)
+	sys.exit("Failed to build testbench!")
+
+print("Spawning {} threads...".format(cpu_count()))
+tp = ThreadPool(cpu_count())
+
+target_dir = "testcases"
+for dirname in sorted(os.listdir(target_dir)):
+	full_dirname = os.path.join(target_dir, dirname)
+	if not os.path.isdir(full_dirname):
+		continue
+	tp.queue_task(run(full_dirname))
+
+tp.wait_all()

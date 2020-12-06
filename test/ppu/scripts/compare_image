@@ -18,7 +18,7 @@ invalid_mask = Image.new("RGB", (compwidth, compheight))
 invalid_count = 0
 
 def pixels_equal(pix0, pix1):
-	return all((pix0[i] & 0xf8) == (pix1[i] & 0xf8) for i in range(len(pix0)))
+	return all((pix0[i] & 0xf8) == (pix1[i] & 0xf8) for i in range(min(3, len(pix0))))
 
 for x in range(compwidth):
 	for y in range(compheight):
