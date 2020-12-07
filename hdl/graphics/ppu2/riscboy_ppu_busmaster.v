@@ -76,7 +76,7 @@ reg  [N_REQ-1:0] grant_aph_reg;
 wire [N_REQ-1:0] grant_aph = |grant_aph_reg ? grant_aph_reg : grant_aph_comb;
 
 reg  [N_REQ-1:0] grant_dph;
-wire [N_REQ-1:0] req_filtered = req_aph_vld & ~grant_aph_reg & {N_REQ{ppu_running}};
+wire [N_REQ-1:0] req_filtered = req_aph_vld & {N_REQ{ppu_running}};
 
 onehot_priority #(
 	.W_INPUT (N_REQ)
@@ -97,18 +97,18 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
+// ----------------------------------------------------------------------------
+// Bus request generation
+
 wire [W_ADDR-1:0] req_addr_muxed;
 wire [1:0]        req_size_muxed;
 
-// Note it's fine to use combinatorial grant to mux here, because we
-// immediately capture this into the aphase request buffer, so no worries if
-// aphase grant changes.
 onehot_mux #(
 	.N_INPUTS (N_REQ),
 	.W_INPUT  (W_ADDR)
 ) addr_mux_u (
 	.in  (req_aph_addr),
-	.sel (grant_aph_comb),
+	.sel (grant_aph),
 	.out (req_addr_muxed)
 );
 
@@ -117,38 +117,15 @@ onehot_mux #(
 	.W_INPUT  (2)
 ) size_mux_u (
 	.in  (req_aph_size),
-	.sel (grant_aph_comb),
+	.sel (grant_aph),
 	.out (req_size_muxed)
 );
 
-assign req_aph_rdy = grant_aph & {N_REQ{ahblm_hready}};
-
-// ----------------------------------------------------------------------------
-// Bus request generation
-
-// AHBL requires that aphase transaction attributes are held constant after
-// assertion of htrans, until hready goes high. This means at least the grant
-// must be held, but we also need to hold address + size due to the way we
-// have specified the request interface.
-
-wire use_buf_transattr = |grant_aph_reg;
-
-reg [W_ADDR-1:0] aph_buf_addr;
-reg [1:0]        aph_buf_size;
-
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		aph_buf_addr <= {W_ADDR{1'b0}};
-		aph_buf_size <= 2'h0;
-	end else if (|req_filtered && !use_buf_transattr && !ahblm_hready) begin
-		aph_buf_addr <= req_addr_muxed;
-		aph_buf_size <= req_size_muxed;
-	end
-end
-
-assign ahblm_haddr = (use_buf_transattr ? aph_buf_addr : req_addr_muxed) & ADDR_MASK;
-assign ahblm_hsize = {1'b0, use_buf_transattr ? aph_buf_size : req_size_muxed};
+assign ahblm_haddr = req_addr_muxed & ADDR_MASK;
+assign ahblm_hsize = {1'b0, req_size_muxed};
 assign ahblm_htrans = {|grant_aph, 1'b0};
+
+assign req_aph_rdy = grant_aph & {N_REQ{ahblm_hready}};
 
 // ----------------------------------------------------------------------------
 // Data phase response steering
