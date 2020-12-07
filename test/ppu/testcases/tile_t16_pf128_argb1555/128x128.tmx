@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="-1" width="8" height="8" tilewidth="16" tileheight="16" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="oga_zelda_overworld_flat.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="8" height="8">
+  <data encoding="csv">
+94,96,96,96,96,96,96,95,
+97,43,44,45,38,87,38,97,
+97,60,61,62,38,38,38,97,
+97,77,78,79,86,38,38,97,
+97,38,38,38,1,2,3,97,
+97,11,12,38,18,19,20,97,
+97,28,29,86,35,36,37,97,
+91,96,96,96,96,96,96,92
+</data>
+ </layer>
+</map>
