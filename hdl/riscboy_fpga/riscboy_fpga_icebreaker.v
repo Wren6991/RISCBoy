@@ -75,7 +75,8 @@ riscboy_core #(
 	.STUB_PWM (1)
 ) core (
 	.clk_sys     (clk_sys),
-	.clk_lcd     (clk_lcd),
+	.clk_lcd_pix (1'b0), // unused for SPI display
+	.clk_lcd_bit (clk_lcd),
 	.rst_n       (rst_n),
 
 	.sram_addr   (/* unused */),
@@ -85,10 +86,7 @@ riscboy_core #(
 	.sram_oe_n   (/* unused */),
 	.sram_byte_n (/* unused */),
 
-	.lcd_cs      (lcd_cs),
-	.lcd_dc      (lcd_dc),
-	.lcd_sck     (lcd_sclk),
-	.lcd_mosi    (lcd_mosi),
+	.lcdp        ({lcd_cs, lcd_dc, lcd_sclk, lcd_mosi}),
 
 	.padout      (padout),
 	.padoe       (padoe),
