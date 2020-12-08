@@ -71,10 +71,11 @@ def run(test):
 	return f
 
 print("Building testbench...")
+build_output = ""
 try:
-	output = subprocess.check_output(["make", "-C", "tb",  "tb"], stderr=subprocess.STDOUT)
+	build_output = subprocess.check_output(["make", "-C", "tb", "clean", "tb"])
 except subprocess.CalledProcessError as e:
-	print(output)
+	print(build_output)
 	sys.exit("Failed to build testbench!")
 
 print("Spawning {} threads...".format(cpu_count()))

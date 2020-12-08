@@ -3,4 +3,4 @@ sim
 *.elf
 *.hex
 *.log
-
+*.vcd

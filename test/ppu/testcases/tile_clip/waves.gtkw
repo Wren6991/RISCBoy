@@ -1,0 +1,59 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Dec  8 06:00:22 2020
+[*]
+[dumpfile] "/home/luke/proj/riscboy/test/ppu/testcases/tile_clip/waves.vcd"
+[dumpfile_mtime] "Tue Dec  8 06:00:02 2020"
+[dumpfile_size] 32038632
+[savefile] "/home/luke/proj/riscboy/test/ppu/testcases/tile_clip/waves.gtkw"
+[timestart] 0
+[size] 2560 1403
+[pos] -1 -1
+*-8.000000 485 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] pixel_agu.
+[treeopen] tile_agu.
+[sst_width] 233
+[signals_width] 368
+[sst_expanded] 1
+[sst_vpaned_height] 423
+@28
+tile_agu.clk
+@200
+-Tile AGU
+@28
+tile_agu.bus_addr_vld
+tile_agu.bus_addr_rdy
+tile_agu.bus_data_vld
+@22
+tile_agu.bus_addr[31:0]
+tile_agu.bus_data[31:0]
+tile_agu.cgen_u[9:0]
+tile_agu.cgen_v[9:0]
+@29
+tile_agu.issue_tinfo
+@22
+tile_agu.count[8:0]
+@28
+tile_agu.first_of_tile
+tile_agu.last_of_tile
+tile_agu.issue_prerequisites
+@22
+tile_agu.tinfo_tilenum[7:0]
+tile_agu.tinfo_u[3:0]
+@28
+tile_agu.tinfo_vld
++{tile_agu.tilenum_buf.level[1:0]} tile_agu.tilenum_buf.level[1:0]
+tile_agu.tinfo_buf.level[2:0]
+tile_agu.consume_tilenum
+tile_agu.consume_tinfo
+tile_agu.tinfo_rdy
+@200
+-Pixel AGU
+@28
+pixel_agu.tinfo_rdy
+pixel_agu.tinfo_vld
+@22
+pixel_agu.tinfo_u[3:0]
+pixel_agu.tinfo_tilenum[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

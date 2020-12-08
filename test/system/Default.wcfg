@@ -1433,6 +1433,10 @@
             <obj_property name="ElementShortName">span_tilesize</obj_property>
             <obj_property name="ObjectShortName">span_tilesize</obj_property>
          </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/count" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">count[8:0]</obj_property>
+            <obj_property name="ObjectShortName">count[8:0]</obj_property>
+         </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/cgen_u" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">cgen_u[9:0]</obj_property>
             <obj_property name="ObjectShortName">cgen_u[9:0]</obj_property>
@@ -1450,6 +1454,14 @@
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/cgen_rdy" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">cgen_rdy</obj_property>
             <obj_property name="ObjectShortName">cgen_rdy</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/first_of_tile" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">first_of_tile</obj_property>
+            <obj_property name="ObjectShortName">first_of_tile</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/last_of_tile" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">last_of_tile</obj_property>
+            <obj_property name="ObjectShortName">last_of_tile</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/playfield_mask" type="array" db_ref_id="1">
             <obj_property name="ElementShortName">playfield_mask[9:0]</obj_property>
@@ -1474,6 +1486,14 @@
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/tilenum_buf_full" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">tilenum_buf_full</obj_property>
             <obj_property name="ObjectShortName">tilenum_buf_full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/tilenum_buf_empty" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">tilenum_buf_empty</obj_property>
+            <obj_property name="ObjectShortName">tilenum_buf_empty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/consume_tilenum" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">consume_tilenum</obj_property>
+            <obj_property name="ObjectShortName">consume_tilenum</obj_property>
          </wvobject>
          <wvobject fp_name="/tb/dut/inst_riscboy_ppu/tile_agu/span_done" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">span_done</obj_property>

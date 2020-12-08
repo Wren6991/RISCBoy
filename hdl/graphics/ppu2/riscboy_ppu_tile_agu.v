@@ -64,6 +64,7 @@ reg [W_SPANTYPE-1:0]  type;
 reg [W_ADDR-1:0]      tilemap_ptr;
 reg [2:0]             log_texsize;
 reg                   log_tilesize;
+reg                   first_of_span;
 
 wire issue_tinfo = cgen_vld && cgen_rdy;
 
@@ -75,6 +76,7 @@ always @ (posedge clk or negedge rst_n) begin
 		tilemap_ptr <= {W_ADDR{1'b0}};
 		log_texsize <= 3'h0;
 		log_tilesize <= 1'b0;
+		first_of_span <= 1'b0;
 	end else if (span_start) begin
 		span_done <= !(span_type == SPANTYPE_TILE || span_type == SPANTYPE_ATILE);
 		count <= span_count;
@@ -82,11 +84,13 @@ always @ (posedge clk or negedge rst_n) begin
 		tilemap_ptr <= span_tilemap_ptr & ADDR_MASK;
 		log_texsize <= {1'b1, span_texsize[1:0]}; // only larger half of sizes available for tiled backgrounds (128 -> 1024 px)
 		log_tilesize <= span_tilesize;
+		first_of_span <= 1'b1;
 	end else if (cgen_vld && cgen_rdy) begin
 `ifdef FORMAL
 		assert(!span_done);
 `endif
 		count <= count - 1'b1;
+		first_of_span <= 1'b0;
 		if (~|count)
 			span_done <= 1'b1;
 	end
@@ -106,6 +110,13 @@ assign bus_addr = (tilemap_ptr + tile_index_in_tilemap) & ADDR_MASK;
 
 wire issue_discard = out_of_bounds && 1'b0; // FIXME need an option here
 
+// We want to know the first time a tile address is *issued* (to forward it to
+// the bus) and the last time tile data is *used* (to pop it from the buffer)
+wire [3:0] tile_wrap_mask = {span_tilesize, 3'h7};
+wire tinfo_end;
+wire first_of_tile = type == SPANTYPE_ATILE || first_of_span || ~|(cgen_u[3:0] & tile_wrap_mask);
+wire last_of_tile = type == SPANTYPE_ATILE || !tinfo_buf_empty && (tinfo_end || &(tinfo_u[3:0] & tile_wrap_mask));
+
 // ----------------------------------------------------------------------------
 // Tile info buffering
 //
@@ -120,8 +131,7 @@ wire issue_discard = out_of_bounds && 1'b0; // FIXME need an option here
 // in the tilenum queue.
 
 wire consume_tinfo = tinfo_vld && tinfo_rdy;
-wire consume_tilenum = consume_tinfo && !tinfo_discard;
-
+wire consume_tilenum = consume_tinfo && last_of_tile;
 
 wire tilenum_buf_empty;
 wire tilenum_buf_full;
@@ -145,13 +155,13 @@ skid_buffer #(
 
 sync_fifo #(
 	.DEPTH (4),
-	.WIDTH (2 * 4 + 1)
+	.WIDTH (2 * 4 + 1 + 1)
 ) tinfo_buf (
 	.clk    (clk),
 	.rst_n  (rst_n),
-	.w_data ({issue_discard, cgen_v[3:0], cgen_u[3:0]}),
+	.w_data ({~|count, issue_discard, cgen_v[3:0], cgen_u[3:0]}),
 	.w_en   (issue_tinfo),
-	.r_data ({tinfo_discard, tinfo_v, tinfo_u}),
+	.r_data ({tinfo_end, tinfo_discard, tinfo_v, tinfo_u}),
 	.r_en   (consume_tinfo),
 	.full   (tinfo_buf_full),
 	.empty  (tinfo_buf_empty),
@@ -165,13 +175,17 @@ sync_fifo #(
 // issued and in-flight transfer have room when they arrive. This is still
 // sufficient for throughput of 1 cycle in 2, which is all that is required
 // for AT tiling.
-wire issue_prerequisites = !span_done && cgen_vld && tilenum_buf_empty && !tinfo_buf_full;
 
-assign cgen_rdy = issue_prerequisites && (bus_addr_rdy || issue_discard);
+wire issue_prerequisites = !span_done && cgen_vld && !tinfo_buf_full;
 
-assign bus_addr_vld = issue_prerequisites && !issue_discard;
+assign cgen_rdy = issue_prerequisites && (bus_addr_rdy || !first_of_tile);
+
+// For 1:1 tile mapping we don't check the tilenum buffer level, because the
+// depth of the tinfo buffer is less than one tile, which guarantees there
+// will never be more than 2 tile numbers in the tilenum buffer!
+assign bus_addr_vld = issue_prerequisites && first_of_tile && (tilenum_buf_empty || type == SPANTYPE_TILE);
 assign bus_size = 2'b00;
 
-assign tinfo_vld = !tinfo_buf_empty && (tinfo_discard || !tilenum_buf_empty);
+assign tinfo_vld = !tinfo_buf_empty && !tilenum_buf_empty;
 
 endmodule

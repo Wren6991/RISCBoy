@@ -1,0 +1,40 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Dec  8 06:18:23 2020
+[*]
+[dumpfile] "/home/luke/proj/riscboy/test/ppu/testcases/atile_t16_pf128_argb1555/waves.vcd"
+[dumpfile_mtime] "Tue Dec  8 06:15:55 2020"
+[dumpfile_size] 62758259
+[savefile] "/home/luke/proj/riscboy/test/ppu/testcases/atile_t16_pf128_argb1555/waves.gtkw"
+[timestart] 639
+[size] 2560 1403
+[pos] 1869 -304
+*-4.000000 682 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tile_agu.
+[sst_width] 233
+[signals_width] 207
+[sst_expanded] 1
+[sst_vpaned_height] 423
+@200
+-Tile AGU
+@22
+tile_agu.bus_addr[31:0]
+@28
+tile_agu.bus_addr_rdy
+@29
+tile_agu.bus_addr_vld
+@22
+tile_agu.bus_data[31:0]
+@28
+tile_agu.bus_data_vld
+tile_agu.bus_size[1:0]
+@22
+tile_agu.tinfo_u[3:0]
+tile_agu.tinfo_v[3:0]
+@28
+tile_agu.tinfo_vld
+tile_agu.tinfo_rdy
+@22
+tile_agu.tinfo_tilenum[7:0]
+[pattern_trace] 1
+[pattern_trace] 0
