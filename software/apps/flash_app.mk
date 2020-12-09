@@ -7,7 +7,7 @@ MARCH?=rv32ic
 
 .PHONY: all
 all:
-	make -C $(BUILD_DIR) APPNAME=$(APPNAME) SRCS="$(SRCS)" INCDIRS="$(INCDIRS)" LDSCRIPT=$(LDSCRIPT) $(APPNAME).bin
+	make -C $(BUILD_DIR) APPNAME=$(APPNAME) SRCS="$(SRCS)" INCDIRS="$(INCDIRS)" LDSCRIPT=$(LDSCRIPT) $(APPNAME).bin $(APPNAME).dis
 	cp -f $(BUILD_DIR)/$(APPNAME).bin $(APPNAME).bin
 	$(SCRIPTS)/mkflashexec $(BUILD_DIR)/$(APPNAME).bin $(APPNAME)_flash.bin
 
