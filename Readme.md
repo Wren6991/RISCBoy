@@ -23,13 +23,13 @@ Cloning
 
 **This repository uses submodules for HDL as well as tests**
 
-```
+```bash
 git clone --recursive https://github.com/Wren6991/RISCBoy.git riscboy
 ```
 
 Alternatively
 
-```
+```bash
 git clone https://github.com/Wren6991/RISCBoy.git riscboy
 cd riscboy
 git submodule update --init --recursive
@@ -43,23 +43,19 @@ Building RV32IMC Toolchain
 The RV32IMC toolchain is required for compilation of software-based tests. Follow the instructions on the [RISC-V GNU Toolchain GitHub](https://github.com/riscv/riscv-gnu-toolchain), except for the configure line:
 
 ```bash
-$ # Prerequisites for Ubuntu 20.04
-$ sudo apt install -y autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
-$ cd /tmp
-$ git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
-$ cd riscv-gnu-toolchain
-$ # The ./configure arguments are the most important difference
-$ ./configure --prefix=/opt/riscv --with-arch=rv32imc --with-abi=ilp32
-$ sudo mkdir /opt/riscv
-$ sudo chown $(whoami) /opt/riscv
-$ make -j $(nproc)
+# Prerequisites for Ubuntu 20.04
+sudo apt install -y autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
+cd /tmp
+git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
+cd riscv-gnu-toolchain
+# The ./configure arguments are the most important difference
+./configure --prefix=/opt/riscv --with-arch=rv32imc --with-abi=ilp32 --with-multilib-generator="rv32i-ilp32--;rv32ic-ilp32--;rv32im-ilp32--;rv32imc-ilp32--"
+sudo mkdir /opt/riscv
+sudo chown $(whoami) /opt/riscv
+make -j $(nproc)
 ```
 
-Note that on some platforms (e.g. UP5k-based), to reduce area, the processor is configured without compressed instruction and hardware multiply/divide support. Running code on these platforms requires standard libraries built for the base RV32I ISA. A quick fix is to change your configure line to
-
-```bash
-$ ./configure --prefix=/opt/riscv --with-arch=rv32i --with-abi=ilp32
-```
+On smaller FPGAs, like the iCE40 UP5k, RISCBoy may be configured to use a smaller RV32I variant of the processor, rather than the higher-performance RV32IMC version. The compiler will support any of the ISA variants available on RISCBoy, but we must also instruct the toolchain build scripts to produce standard libraries for these variants, via the `--with-multilib` arguments. Running a RV32I executable linked against an RV32IMC standard library on an RV32I-only processor will ruin your day!
 
 Simulation
 ----------
@@ -74,17 +70,17 @@ $ git submodule update --init --recursive
 
 Once this is ready, you should be able to run the following:
 
-```
-$ . sourceme
-$ cd test
-$ ./runtests
+```bash
+. sourceme
+cd test
+./runtests
 ```
 
 which will run all of the HDL-level tests. Software tests will require the RV32IC toolchain. You may need to adjust some of the paths in `sourceme` if ISIM is installed in a non-default location. To graphically debug a test, run its makefile directly:
 
-```
-$ cd system
-$ make TEST=helloworld gui
+```bash
+cd system
+make TEST=helloworld gui
 ```
 
 PCB
@@ -111,18 +107,18 @@ Note that I have only built these on Linux. I've heard it is possible to build t
 
 Once the toolchain is in place, run
 
-```
-$ . sourceme
-$ cd synth
-$ make -f HX8k-EVN.mk bit
+```bash
+. sourceme
+cd synth
+make -f HX8k-EVN.mk bit
 ```
 
 to generate an FPGA image suitable for Lattice HX8k evaluation board.
 
 There is also highly experimental support (i.e. not my main dev platform) for ECP5, with board files for the Lattice LEF5UM5G-85F-EVN evaluation board:
 
-```
-$ make -f ECP5-EVN.mk BUILD=full bit
+```bash
+make -f ECP5-EVN.mk BUILD=full bit
 ```
 
 This build replaces the external, 512 kiB, 16 bit wide SRAM of RISCBoy development hardware with an internal, 256 kiB, 32 bit wide synchronous memory, which Trellis builds out of ECP5 sysmem blocks.
