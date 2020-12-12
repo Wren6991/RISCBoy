@@ -229,12 +229,13 @@ wire                  lcd_scanout_buf_release;
 
 hazard5_cpu #(
 	.RESET_VECTOR    (CPU_RESET_VECTOR),
-	.EXTENSION_C     (1),
+	.EXTENSION_C     (!CUTDOWN_PROCESSOR),
 	.EXTENSION_M     (!CUTDOWN_PROCESSOR),
 	.MULDIV_UNROLL   (1),
 	.CSR_M_MANDATORY (0), // Not going to spend LUTs on a register telling me which architecture is implemented
 	.CSR_M_TRAP      (!CUTDOWN_PROCESSOR), // Do need IRQs though
 	.CSR_COUNTER     (0), // 64 bit counters who do you think you are
+	.REDUCED_BYPASS  (CUTDOWN_PROCESSOR),
 	.MTVEC_WMASK     (32'h00080000), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
 	.MTVEC_INIT      (32'h20000000)
 ) inst_revive_cpu (
