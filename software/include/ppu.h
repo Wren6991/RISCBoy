@@ -51,11 +51,13 @@ static inline void cproc_put_pc(const uint32_t *target)
 #define PPU_CPROC_POPJ  (0xfu << 28)
 
 #define PPU_CPROC_BRANCH_ALWAYS 0x0
+#define PPU_CPROC_BRANCH_YLT    0x1
+#define PPU_CPROC_BRANCH_YGE    0x2
 
 #define PPU_FORMAT_ARGB1555 0
 #define PPU_FORMAT_PAL8 1
 #define PPU_FORMAT_PAL4 2
-#define PPU_FORMAT_PAL1
+#define PPU_FORMAT_PAL1 3
 
 #define PPU_SIZE_8    0
 #define PPU_SIZE_16   1
@@ -68,60 +70,35 @@ static inline void cproc_put_pc(const uint32_t *target)
 
 #define PPU_ABLIT_FULLSIZE 0
 #define PPU_ABLIT_HALFSIZE 1
-static inline size_t cproc_sync(uint32_t *prog)
+
+typedef uint32_t ppu_instr_t;
+
+// ----------------------------------------------------------------------------
+// Rendering instructions
+
+static inline size_t cproc_sync(ppu_instr_t *prog)
 {
 	*prog++ = PPU_CPROC_SYNC;
 	return 1;
 }
 
-static inline size_t cproc_clip(uint32_t *prog, uint16_t x_start, uint16_t x_end) {
+static inline size_t cproc_clip(ppu_instr_t *prog, uint16_t x_start, uint16_t x_end) {
 	*prog++ = PPU_CPROC_CLIP | (x_start & 0x3ffu) | ((x_end & 0x3ffu) << 10);
 	return 1;
 }
 
-static inline size_t cproc_fill(uint32_t *prog, uint8_t r, uint8_t g, uint8_t b) {
+static inline size_t cproc_fill(ppu_instr_t *prog, uint8_t r, uint8_t g, uint8_t b) {
 	*prog++ = PPU_CPROC_FILL | ((r & 0x1fu) << 10) | ((g & 0x1fu) << 5) | (b & 0x1fu);
 	return 1;
 }
 
-static inline size_t cproc_branch(uint32_t *prog, const uint32_t *target, uint32_t condition, uint16_t compval) {
-	*prog++ = PPU_CPROC_PUSH;
-	*prog++ = (uint32_t)target;
-	*prog++ = PPU_CPROC_POPJ | ((condition & 0xfu) << 24) | (compval & 0x3ffu);
-	return 3;
-}
-
-static inline size_t cproc_jump(uint32_t *prog, const uint32_t *target) {
-	return cproc_branch(prog, target, PPU_CPROC_BRANCH_ALWAYS, 0);
-}
-
-static inline size_t cproc_call(uint32_t *prog, const uint32_t *target) {
-	*prog++ = PPU_CPROC_PUSH;
-	uint32_t *return_vector = prog;
-	*prog++ = 0;
-	prog += cproc_jump(prog, target);
-	*return_vector = (uint32_t)prog;
-	return 5;
-}
-
-static inline size_t cproc_ret(uint32_t *prog) {
-	*prog++ = PPU_CPROC_POPJ;
-	return 1;
-}
-
-static inline size_t cproc_jump_unresolved(uint32_t *prog, const uint32_t **vector_out) {
-	*vector_out = &prog[1];
-	return cproc_jump(prog, NULL);
-}
-
-
-static inline size_t cproc_blit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, const void *img) {
+static inline size_t cproc_blit(ppu_instr_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff, uint8_t fmt, const void *img) {
 	*prog++ = PPU_CPROC_BLIT | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((size & 0x7u) << 25) | ((poff & 0x7u) << 22);
 	*prog++ = ((uint32_t)img & 0xfffffffcu) | (fmt & 0x3u);
 	return 2;
 }
 
-static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff,
+static inline size_t cproc_ablit(ppu_instr_t *prog, uint16_t x, uint16_t y, uint8_t size, uint8_t poff,
 	uint8_t fmt, uint8_t halfsize, const int32_t *aparam, const void *img) {
 
 	*prog++ = PPU_CPROC_ABLIT | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((size & 0x7u) << 25) | ((poff & 0x7u) << 22) | (!!halfsize << 21);
@@ -132,7 +109,7 @@ static inline size_t cproc_ablit(uint32_t *prog, uint16_t x, uint16_t y, uint8_t
 	return 5;
 }
 
-static inline size_t cproc_tile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff,
+static inline size_t cproc_tile(ppu_instr_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff,
 	uint8_t fmt, uint8_t tilesize, const void *tileset, const void *tilemap) {
 
 	*prog++ = PPU_CPROC_TILE | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((tilesize & 0x1u) << 25) | ((poff & 0x7u) << 22);
@@ -141,7 +118,7 @@ static inline size_t cproc_tile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t 
 	return 3;
 }
 
-static inline size_t cproc_atile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff,
+static inline size_t cproc_atile(ppu_instr_t *prog, uint16_t x, uint16_t y, uint8_t pfsize, uint8_t poff,
 	uint8_t fmt, uint8_t tilesize, const int32_t *aparam, const void *tileset, const void *tilemap) {
 
 	*prog++ = PPU_CPROC_ATILE | (x & 0x3ffu) | ((y & 0x3ffu) << 10) | ((tilesize & 0x1u) << 25) | ((poff & 0x7u) << 22);
@@ -152,4 +129,52 @@ static inline size_t cproc_atile(uint32_t *prog, uint16_t x, uint16_t y, uint8_t
 	*prog++ = ((uint32_t)tileset & 0xfffffffcu) | (fmt & 0x3u);
 	return 6;
 }
+
+// ----------------------------------------------------------------------------
+// Control flow instructions
+
+// "Unresolved" branch/jump variants give you a pointer to the jump target
+// vector, so you can fill in the target later. Usually the regular ones suffice
+
+static inline size_t cproc_branch(ppu_instr_t *prog, const ppu_instr_t *target, uint32_t condition, uint16_t compval) {
+	*prog++ = PPU_CPROC_PUSH;
+	*prog++ = (uint32_t)target;
+	*prog++ = PPU_CPROC_POPJ | ((condition & 0xfu) << 24) | (compval & 0x3ffu);
+	return 3;
+}
+
+static inline size_t cproc_branch_unresolved(ppu_instr_t *prog, uint32_t **vector_out, uint32_t condition, uint16_t compval) {
+	*vector_out = (uint32_t*)(prog + 1);
+	return cproc_branch(prog, 0, condition, compval);
+}
+
+static inline size_t cproc_jump(ppu_instr_t *prog, const ppu_instr_t *target) {
+	return cproc_branch(prog, target, PPU_CPROC_BRANCH_ALWAYS, 0);
+}
+
+static inline size_t cproc_jump_unresolved(ppu_instr_t *prog, uint32_t **vector_out) {
+	return cproc_branch_unresolved(prog, vector_out, PPU_CPROC_BRANCH_ALWAYS, 0);
+}
+
+static inline size_t cproc_call_unresolved(ppu_instr_t *prog, uint32_t **vector_out) {
+	*prog++ = PPU_CPROC_PUSH;
+	uint32_t *return_vector = prog;
+	*prog++ = 0; // dummy
+	size_t jump_size = cproc_jump_unresolved(prog, vector_out);
+	*return_vector = (uint32_t)(prog + jump_size);
+	return 2 + jump_size;
+}
+
+static inline size_t cproc_call(ppu_instr_t *prog, const ppu_instr_t *target) {
+	uint32_t *call_vector_loc;
+	size_t ret = cproc_call_unresolved(prog, &call_vector_loc);
+	*call_vector_loc = (uint32_t)target;
+	return ret;
+}
+
+static inline size_t cproc_ret(ppu_instr_t *prog) {
+	*prog++ = PPU_CPROC_POPJ;
+	return 1;
+}
+
 #endif // _PPU_H_

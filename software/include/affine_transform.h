@@ -126,5 +126,14 @@ static inline void affine_rotate(affine_transform_t current_trans, uint8_t theta
 	affine_copy(current_trans, tmp);
 }
 
+static inline void affine_scale_reciprocal(affine_transform_t current_trans, int32_t scale_reciprocal) {
+	int32_t tmp[6];
+	int32_t transform[6] = {
+		scale_reciprocal, 0,                0,
+		0,                scale_reciprocal, 0
+	};
+	affine_mul(tmp, current_trans, transform);
+	affine_copy(current_trans, tmp);
+}
 
 #endif // _AFFINE_TRANSFORM_H_
