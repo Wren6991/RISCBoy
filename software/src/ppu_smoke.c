@@ -1,4 +1,4 @@
-#define CLK_SYS_MHZ 12
+#define CLK_SYS_MHZ 36
 
 #include "display.h"
 #include "display.h"
@@ -15,8 +15,6 @@ uint32_t __attribute__ ((section (".noload"))) cproc_prog[256];
 int main()
 {
 	display_init();
-
-	mm_ppu->dispsize = (319 << PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
 
 	for (int i = 0; i < 256; ++i)
 		tilemap[i] = i;

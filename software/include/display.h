@@ -9,6 +9,18 @@
 // Header file for doing common things to SPI/DVI display controllers, without
 // having to be aware of which of the two you have
 
+#ifndef SPI_LCD_INIT_SEQ
+#define SPI_LCD_INIT_SEQ ili9341_init_seq
+#endif
+
+#ifndef DISPLAY_WIDTH
+#define DISPLAY_WIDTH 320
+#endif
+
+#ifndef DISPLAY_HEIGHT
+#define DISPLAY_HEIGHT 240
+#endif
+
 // Display controllers have a constant, read-only field in a fixed location,
 // so software can determine which type of display interface is present in
 // the current hardware build
@@ -23,11 +35,15 @@ static inline dispctrl_type_t get_dispctrl_type() {
 }
 
 static inline void display_init() {
+	mm_ppu->dispsize =
+		((DISPLAY_WIDTH  - 1) << PPU_DISPSIZE_W_LSB) |
+		((DISPLAY_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 	dispctrl_type_t disptype = get_dispctrl_type();
 	if (disptype == DISPCTRL_TYPE_SPI) {
 		// This takes a looooooooooooooong time in sim
 		if (!tbman_running_in_sim())
-			spi_lcd_init(ili9341_init_seq);
+			spi_lcd_init(SPI_LCD_INIT_SEQ);
+		spi_lcd_set_disp_width(DISPLAY_WIDTH);
 	}
 	else if (disptype == DISPCTRL_TYPE_DVI) {
 		// Nothing to do here -- we won't start it until the first frame starts

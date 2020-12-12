@@ -4,19 +4,16 @@
 #include "display.h"
 #include "gpio.h"
 
+#include <stdlib.h>
+
 #include "tileset.h"
 #include "tileset_pal.h"
 #include "tilemap.h"
 
-#include <stdlib.h>
-
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
-#define N_CHARACTERS 200
-
-#define CPROC_LIST_SIZE 1024
+#define N_CHARACTERS 100
+#define CPROC_LIST_SIZE 2048
 
 typedef struct {
 	int16_t pos_x;
@@ -88,8 +85,8 @@ void update(game_state_t *state) {
 		state->cam_x -= CAMERA_SPEED;
 	if (gpio_in_pin(PIN_DPAD_R))
 		state->cam_x += CAMERA_SPEED;
-	state->cam_x = clip(state->cam_x, 0, MAP_WIDTH - SCREEN_WIDTH);
-	state->cam_y = clip(state->cam_y, 0, MAP_HEIGHT - SCREEN_HEIGHT);
+	state->cam_x = clip(state->cam_x, 0, MAP_WIDTH - DISPLAY_WIDTH);
+	state->cam_y = clip(state->cam_y, 0, MAP_HEIGHT - DISPLAY_HEIGHT);
 
 	// Pause when A held, so I can see the pixels
 	if (gpio_in_pin(PIN_BTN_A))
@@ -119,7 +116,7 @@ void render(const game_state_t *gstate, render_state_t *rstate) {
 	uint32_t *p = prog_base;
 
 	// Render to the full scanline width
-	p += cproc_clip(p, 0, SCREEN_WIDTH - 1);
+	p += cproc_clip(p, 0, DISPLAY_WIDTH - 1);
 
 	// One background layer -> one TILE instruction
 	p += cproc_tile(p, -gstate->cam_x, -gstate->cam_y,
@@ -161,7 +158,6 @@ void render(const game_state_t *gstate, render_state_t *rstate) {
 int main()
 {
 	display_init();
-	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 
 	for (int i = 0; i < 256; ++i)
 		PPU_PALETTE_RAM[i] = ((const uint16_t *)tileset_bin_pal)[i];

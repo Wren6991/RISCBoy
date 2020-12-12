@@ -14,7 +14,6 @@ uint32_t ppu_prog[64];
 int main()
 {
 	display_init();
-	mm_ppu->dispsize = (319 >> PPU_DISPSIZE_W_LSB) | (239 << PPU_DISPSIZE_H_LSB);
 
 	unsigned scroll_fg = 0;
 	unsigned scroll_bg = 0;

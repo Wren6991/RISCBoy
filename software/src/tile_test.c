@@ -10,9 +10,6 @@
 #include "zelda_tileset_mini_pal8_palette.h"
 #include "map_test_zelda_mini.h"
 
-#define SCREEN_WIDTH 320u
-#define SCREEN_HEIGHT 240u
-
 uint32_t __attribute__ ((section (".noload"))) cproc_prog[1024];
 
 uint8_t map_doubled[WIDTH_MAP_TEST_ZELDA_MINI * HEIGHT_MAP_TEST_ZELDA_MINI * 2];
@@ -20,8 +17,6 @@ uint8_t map_doubled[WIDTH_MAP_TEST_ZELDA_MINI * HEIGHT_MAP_TEST_ZELDA_MINI * 2];
 int main()
 {
 	display_init();
-
-	mm_ppu->dispsize = (SCREEN_WIDTH - 1 >> PPU_DISPSIZE_W_LSB) | (SCREEN_HEIGHT - 1 << PPU_DISPSIZE_H_LSB);
 
 	for (int i = 0; i < ZELDA_MINI_PALETTE_SIZE; ++i)
 		PPU_PALETTE_RAM[i] = ((const uint16_t *)zelda_tileset_mini_pal8_palette)[i] | 0x8000u;
@@ -42,17 +37,17 @@ int main()
 		uint32_t *p = cproc_prog;
 		// Every scanline, render a span of the affine-tiled background
 		uint32_t *scanline_func = p;
-		p += cproc_clip(p, 0, SCREEN_WIDTH - 1);
+		p += cproc_clip(p, 0, DISPLAY_WIDTH - 1);
 		p += cproc_atile(p, 0, 0, PPU_SIZE_1024, 0, PPU_FORMAT_PAL8, PPU_SIZE_16,
 			cam_trans, zelda_tileset_mini_pal8, map_doubled);
 		p += cproc_ret(p);
 
 		uint32_t *entry_point = p;
-		for (unsigned int y = 0; y < SCREEN_HEIGHT; ++y) {
+		for (unsigned int y = 0; y < DISPLAY_HEIGHT; ++y) {
 			p += cproc_call(p, scanline_func);
 			// Each scanline, draw a different solid red span, forming a triangle
-			if (y > 80) {
-				p += cproc_clip(p, y, SCREEN_WIDTH - 1 - y);
+			if (y > 100) {
+				p += cproc_clip(p, y, DISPLAY_WIDTH - 1 - y);
 				p += cproc_fill(p, 31, 0, 0);
 			}
 			p += cproc_sync(p);
@@ -88,9 +83,9 @@ int main()
 
 		if (gpio_in() & (1u << PIN_BTN_A))
 		{
-			affine_translate(cam_trans, -(SCREEN_WIDTH / 2), -(SCREEN_HEIGHT / 2));
+			affine_translate(cam_trans, -(DISPLAY_WIDTH / 2), -(DISPLAY_HEIGHT / 2));
 			affine_rotate(cam_trans, SPEED);
-			affine_translate(cam_trans, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+			affine_translate(cam_trans, DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2);
 		}
 	}
 }

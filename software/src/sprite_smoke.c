@@ -8,9 +8,6 @@
 
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 320u
-#define SCREEN_HEIGHT 240u
-
 uint16_t __attribute__ ((section (".noload"), aligned (4))) sprite[1024];
 uint32_t __attribute__ ((section (".noload"))) cp_prog[2048];
 
@@ -19,8 +16,6 @@ uint32_t __attribute__ ((section (".noload"))) cp_prog[2048];
 int main()
 {
 	display_init();
-
-	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 
 	for (unsigned int i = 0; i < 1024; ++i)
 		sprite[i] = i | 0x8000u; // alpha!
@@ -41,7 +36,7 @@ int main()
 	while (true)
 	{
 		uint32_t *p = cp_prog;
-		p += cproc_clip(p, 0, 319);
+		p += cproc_clip(p, 0, DISPLAY_WIDTH - 1);
 		p += cproc_fill(p, 31, 0, 0);
 		for (int i = 0; i < N_SPRITES; ++i)
 			p += cproc_blit(p, px[i], py[i], PPU_SIZE_32, 0, PPU_FORMAT_ARGB1555, sprite);

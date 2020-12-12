@@ -8,9 +8,6 @@
 
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 320u
-#define SCREEN_HEIGHT 240u
-
 uint32_t __attribute__ ((section (".noload"))) cp_prog[2048];
 
 static inline void render_frame()
@@ -25,8 +22,6 @@ static inline void render_frame()
 int main()
 {
 	display_init();
-
-	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 
 	int16_t px[N_SPRITES];
 	int16_t py[N_SPRITES];
@@ -52,7 +47,7 @@ int main()
 		affine_translate(base, -128, -128);
 
 		uint32_t *p = cp_prog;
-		p += cproc_clip(p, 0, 319);
+		p += cproc_clip(p, 0, DISPLAY_WIDTH - 1);
 		p += cproc_fill(p, 31, 0, 0);
 		for (int i = 0; i < N_SPRITES; ++i)
 		{

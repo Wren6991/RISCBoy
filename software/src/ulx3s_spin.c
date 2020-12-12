@@ -1,4 +1,4 @@
-#define CLK_SYS_MHZ 12
+#define CLK_SYS_MHZ 50
 
 #include "ppu.h"
 #include "display.h"
@@ -9,9 +9,6 @@
 
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 320u
-#define SCREEN_HEIGHT 240u
-
 uint32_t __attribute__ ((section (".noload"))) cp_prog[2048];
 
 #define N_SPRITES 1
@@ -19,7 +16,6 @@ uint32_t __attribute__ ((section (".noload"))) cp_prog[2048];
 int main()
 {
 	display_init();
-	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
 
 	int16_t px[N_SPRITES];
 	int16_t py[N_SPRITES];
