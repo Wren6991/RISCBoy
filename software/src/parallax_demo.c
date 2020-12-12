@@ -5,7 +5,6 @@
 #include "gpio.h"
 
 #include "tileset.h"
-#include "tileset_palette.h"
 #include "tilemap_background.h"
 #include "tilemap_foreground.h"
 

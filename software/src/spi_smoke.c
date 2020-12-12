@@ -20,11 +20,6 @@ int main()
 {
 	uint8_t rx[BUFSIZE];
 
-	*GPIO_FSEL0 |=
-		GPIO_FSEL_MASK_PIN(PIN_FLASH_CS)   |
-		GPIO_FSEL_MASK_PIN(PIN_FLASH_SCLK) |
-		GPIO_FSEL_MASK_PIN(PIN_FLASH_MOSI);
-
 	gpio_dir_pin(PIN_FLASH_MISO, 1); // avoid Z, else get Xs in the FIFO, which we try to drain.
 
 	for (int div = 1; div <= 10; div += 9)

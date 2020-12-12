@@ -1,25 +1,25 @@
 module riscboy_fpga (
-	input wire                     clk_osc,
+	input wire        clk_osc,
 
-	output wire [6:0]              led,
+	output wire [6:0] led,
 
-	inout wire                     uart_tx,
-	inout wire                     uart_rx,
+	output wire       uart_tx,
+	input  wire       uart_rx,
 
-	inout wire                     dpad_u,
-	inout wire                     dpad_d,
-	inout wire                     dpad_l,
-	inout wire                     dpad_r,
+	input  wire       dpad_u,
+	input  wire       dpad_d,
+	input  wire       dpad_l,
+	input  wire       dpad_r,
 
-	inout wire                     flash_miso,
-	inout wire                     flash_mosi,
-	inout wire                     flash_sclk,
-	inout wire                     flash_cs,
+	input  wire       flash_miso,
+	output wire       flash_mosi,
+	output wire       flash_sclk,
+	output wire       flash_cs,
 
-	output wire                    lcd_cs,
-	output wire                    lcd_dc,
-	output wire                    lcd_sclk,
-	output wire                    lcd_mosi,
+	output wire       lcd_cs,
+	output wire       lcd_dc,
+	output wire       lcd_sclk,
+	output wire       lcd_mosi,
 );
 
 `include "gpio_pinmap.vh"
@@ -79,6 +79,18 @@ riscboy_core #(
 	.clk_lcd_bit (clk_lcd),
 	.rst_n       (rst_n),
 
+	.lcd_pwm     (/* unused */),
+
+	.uart_tx     (uart_tx),
+	.uart_rx     (uart_rx),
+	.uart_rts    (/* unused */),
+	.uart_cts    (/* unused */),
+
+	.spi_sclk    (flash_sclk),
+	.spi_cs      (flash_cs),
+	.spi_sdo     (flash_mosi),
+	.spi_sdi     (flash_miso),
+
 	.sram_addr   (/* unused */),
 	.sram_dq     (/* unused */),
 	.sram_ce_n   (/* unused */),
@@ -91,65 +103,6 @@ riscboy_core #(
 	.padout      (padout),
 	.padoe       (padoe),
 	.padin       (padin)
-);
-
-// GPIO
-
-tristate_io pad_uart_tx (
-	.out (padout[PIN_UART_TX]),
-	.oe  (padoe[PIN_UART_TX]),
-	.in  (padin[PIN_UART_TX]),
-	.pad (uart_tx)
-);
-
-tristate_io pad_uart_rx (
-	.out (padout[PIN_UART_RX]),
-	.oe  (padoe[PIN_UART_RX]),
-	.in  (padin[PIN_UART_RX]),
-	.pad (uart_rx)
-);
-
-// TODO these are shared with PMOD pins on icebreaker, and they aren't critical
-// tristate_io pad_uart_rts (
-// 	.out (padout[PIN_UART_RTS]),
-// 	.oe  (padoe[PIN_UART_RTS]),
-// 	.in  (padin[PIN_UART_RTS]),
-// 	.pad (uart_rts)
-// );
-
-// tristate_io pad_uart_cts (
-// 	.out (padout[PIN_UART_CTS]),
-// 	.oe  (padoe[PIN_UART_CTS]),
-// 	.in  (padin[PIN_UART_CTS]),
-// 	.pad (uart_cts)
-// );
-
-tristate_io pad_flash_miso (
-	.out (padout[PIN_FLASH_MISO]),
-	.oe  (padoe[PIN_FLASH_MISO]),
-	.in  (padin[PIN_FLASH_MISO]),
-	.pad (flash_miso)
-);
-
-tristate_io pad_flash_mosi (
-	.out (padout[PIN_FLASH_MOSI]),
-	.oe  (padoe[PIN_FLASH_MOSI]),
-	.in  (padin[PIN_FLASH_MOSI]),
-	.pad (flash_mosi)
-);
-
-tristate_io pad_flash_sclk (
-	.out (padout[PIN_FLASH_SCLK]),
-	.oe  (padoe[PIN_FLASH_SCLK]),
-	.in  (padin[PIN_FLASH_SCLK]),
-	.pad (flash_sclk)
-);
-
-tristate_io pad_flash_cs (
-	.out (padout[PIN_FLASH_CS]),
-	.oe  (padoe[PIN_FLASH_CS]),
-	.in  (padin[PIN_FLASH_CS]),
-	.pad (flash_cs)
 );
 
 // Button on main board is inverted, but buttons on snapoff are not.
@@ -183,8 +136,8 @@ pullup_input #(
 );
 
 assign led = {
-	!padout[PIN_UART_TX],
-	!padin[PIN_UART_RX],
+	!uart_tx,
+	!uart_rx,
 	padin[PIN_DPAD_U],
 	padin[PIN_DPAD_D],
 	padin[PIN_DPAD_L],

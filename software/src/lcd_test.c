@@ -8,7 +8,6 @@
 
 int main()
 {
-	gpio_fsel(PIN_LCD_PWM, 1);
 	pwm_enable(false);
 	pwm_invert(true);
 	spi_lcd_init(st7789_init_seq);

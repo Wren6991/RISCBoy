@@ -16,9 +16,7 @@ int main()
 {
 	uart_init();
 	uart_clkdiv_baud(CLK_SYS_MHZ, 115200);
-	gpio_fsel(PIN_UART_TX, 1);
 
-	gpio_fsel(PIN_LED, 0);
 	gpio_dir_pin(PIN_LED, 1);
 
 	while (true)

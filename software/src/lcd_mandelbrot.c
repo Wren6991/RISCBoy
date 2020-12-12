@@ -16,7 +16,6 @@ static uint16_t palette[256];
 
 int main()
 {
-	gpio_fsel(PIN_LCD_PWM, 1);
 	pwm_enable(false);
 	pwm_invert(true);
 	if (!tbman_running_in_sim())

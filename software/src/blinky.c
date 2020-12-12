@@ -5,7 +5,6 @@
 
 int main()
 {
-	gpio_fsel(PIN_LED, 0);
 	gpio_dir_pin(PIN_LED, 1);
 	while (true)
 	{

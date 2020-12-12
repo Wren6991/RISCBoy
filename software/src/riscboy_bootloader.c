@@ -113,17 +113,7 @@ int main()
 	uart_init();
 	uart_clkdiv_baud(CLK_SYS_MHZ, UART_BAUD);
 
-	gpio_fsel(PIN_LED, 0);
 	gpio_dir_pin(PIN_LED, 1);
-
-	gpio_fsel(PIN_UART_TX, 1);
-	gpio_fsel(PIN_UART_RX, 1);
-	gpio_fsel(PIN_UART_CTS, 1);
-	gpio_fsel(PIN_UART_RTS, 1);
-	gpio_fsel(PIN_FLASH_CS, 1);
-	gpio_fsel(PIN_FLASH_SCLK, 1);
-	gpio_fsel(PIN_FLASH_MOSI, 1);
-	gpio_fsel(PIN_FLASH_MISO, 1);
 
 	uart_puts(splash);
 	if (*TBMAN_STUB & TBMAN_STUB_SPI_MASK)

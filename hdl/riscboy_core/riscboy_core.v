@@ -15,9 +15,8 @@
  *                                                                    *
  *********************************************************************/
 
-// riscboy_core contains the full system, except for
-// Clock, Reset and Power (CRaP)
-// which lives in the chip/fpga/testbench top level
+// riscboy_core contains the full system, except for Clock, Reset and Power
+// (CRaP) which lives in the chip/fpga/testbench top level
 
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
@@ -34,16 +33,27 @@ module riscboy_core #(
 	parameter STUB_PWM          = 0,
 	parameter CUTDOWN_PROCESSOR = 0,
 
-	parameter N_PADS = 25 // Let this default
+	parameter N_PADS = 11 // Let this default
 ) (
 	input wire                     clk_sys,
 	input wire                     clk_lcd_pix, // Pixel clock for DVI. Unused for SPI.
 	input wire                     clk_lcd_bit, // Pixel clock x5 for DVI. Serial clock for SPI.
 	input wire                     rst_n,
 
+	// GPIOs and hard peripheral signals
 	output wire [N_PADS-1:0]       padout,
 	output wire [N_PADS-1:0]       padoe,
 	input  wire [N_PADS-1:0]       padin,
+
+	output wire                    lcd_pwm,
+	output wire                    uart_tx,
+	input  wire                    uart_rx,
+	output wire                    uart_rts,
+	input  wire                    uart_cts,
+	output wire                    spi_sclk,
+	output wire                    spi_cs,
+	output wire                    spi_sdo,
+	input  wire                    spi_sdi,
 
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
 	inout  wire [15:0]             sram_dq,
@@ -159,11 +169,6 @@ wire [W_DATA-1:0]  uart_prdata;
 wire               uart_pslverr;
 wire               uart_irq;
 
-wire               uart_tx;
-wire               uart_rx;
-wire               uart_cts;
-wire               uart_rts;
-
 wire [W_PADDR-1:0] spi_paddr;
 wire               spi_psel;
 wire               spi_penable;
@@ -173,11 +178,6 @@ wire               spi_pready;
 wire [W_DATA-1:0]  spi_prdata;
 wire               spi_pslverr;
 
-wire               spi_sclk;
-wire               spi_cs_n;
-wire               spi_sdo;
-wire               spi_sdi;
-
 wire [W_PADDR-1:0] pwm_paddr;
 wire               pwm_psel;
 wire               pwm_penable;
@@ -186,8 +186,6 @@ wire [W_DATA-1:0]  pwm_pwdata;
 wire               pwm_pready;
 wire [W_DATA-1:0]  pwm_prdata;
 wire               pwm_pslverr;
-
-wire lcd_pwm;
 
 wire [W_PADDR-1:0] gpio_paddr;
 wire               gpio_psel;
@@ -684,7 +682,7 @@ if (STUB_SPI) begin
 	assign spi_pslverr = 1'b0;
 	assign spi_prdata = {W_DATA{1'b0}};
 	assign spi_sclk = 1'b0;
-	assign spi_cs_n = 1'b1;
+	assign spi_cs = 1'b1;
 	assign spi_sdo = 1'b0;
 end else begin
 
@@ -704,7 +702,7 @@ end else begin
 		.sclk         (spi_sclk),
 		.sdo          (spi_sdo),
 		.sdi          (spi_sdi),
-		.cs_n         (spi_cs_n)
+		.cs_n         (spi_cs)
 	);
 
 end
@@ -726,17 +724,7 @@ gpio #(
 
 	.padout       (padout),
 	.padoe        (padoe),
-	.padin        (padin),
-
-	.lcd_pwm      (lcd_pwm),
-	.uart_tx      (uart_tx),
-	.uart_rx      (uart_rx),
-	.uart_rts     (uart_rts),
-	.uart_cts     (uart_cts),
-	.spi_cs       (spi_cs_n),
-	.spi_sclk     (spi_sclk),
-	.spi_sdo      (spi_sdo),
-	.spi_sdi      (spi_sdi)
+	.padin        (padin)
 );
 
 endmodule

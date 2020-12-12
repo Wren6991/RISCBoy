@@ -12,7 +12,7 @@
 
 #define MAP_WIDTH  512
 #define MAP_HEIGHT 256
-#define N_CHARACTERS 100
+#define N_CHARACTERS 300
 #define CPROC_LIST_SIZE 2048
 
 typedef struct {

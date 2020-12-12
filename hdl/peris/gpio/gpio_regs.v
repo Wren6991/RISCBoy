@@ -24,35 +24,9 @@ module gpio_regs (
 	output wire apbs_pslverr,
 	
 	// Register interfaces
-	output reg [24:0] out_o,
-	output reg [24:0] dir_o,
-	input wire [24:0] in_i,
-	output reg  fsel0_p0_o,
-	output reg  fsel0_p1_o,
-	output reg  fsel0_p2_o,
-	output reg  fsel0_p3_o,
-	output reg  fsel0_p4_o,
-	output reg  fsel0_p5_o,
-	output reg  fsel0_p6_o,
-	output reg  fsel0_p7_o,
-	output reg  fsel0_p8_o,
-	output reg  fsel0_p9_o,
-	output reg  fsel0_p10_o,
-	output reg  fsel0_p11_o,
-	output reg  fsel0_p12_o,
-	output reg  fsel0_p13_o,
-	output reg  fsel0_p14_o,
-	output reg  fsel0_p15_o,
-	output reg  fsel0_p16_o,
-	output reg  fsel0_p17_o,
-	output reg  fsel0_p18_o,
-	output reg  fsel0_p19_o,
-	output reg  fsel0_p20_o,
-	output reg  fsel0_p21_o,
-	output reg  fsel0_p22_o,
-	output reg  fsel0_p23_o,
-	output reg  fsel0_p24_o,
-	output wire [24:0] concat_fsel_o
+	output reg [10:0] out_o,
+	output reg [10:0] dir_o,
+	input wire [10:0] in_i
 );
 
 // APB adapter
@@ -68,7 +42,6 @@ assign apbs_pslverr = 1'b0;
 localparam ADDR_OUT = 0;
 localparam ADDR_DIR = 4;
 localparam ADDR_IN = 8;
-localparam ADDR_FSEL0 = 12;
 
 wire __out_wen = wen && addr == ADDR_OUT;
 wire __out_ren = ren && addr == ADDR_OUT;
@@ -76,196 +49,40 @@ wire __dir_wen = wen && addr == ADDR_DIR;
 wire __dir_ren = ren && addr == ADDR_DIR;
 wire __in_wen = wen && addr == ADDR_IN;
 wire __in_ren = ren && addr == ADDR_IN;
-wire __fsel0_wen = wen && addr == ADDR_FSEL0;
-wire __fsel0_ren = ren && addr == ADDR_FSEL0;
 
-wire [24:0] out_wdata = wdata[24:0];
-wire [24:0] out_rdata;
-wire [31:0] __out_rdata = {7'h0, out_rdata};
+wire [10:0] out_wdata = wdata[10:0];
+wire [10:0] out_rdata;
+wire [31:0] __out_rdata = {21'h0, out_rdata};
 assign out_rdata = out_o;
 
-wire [24:0] dir_wdata = wdata[24:0];
-wire [24:0] dir_rdata;
-wire [31:0] __dir_rdata = {7'h0, dir_rdata};
+wire [10:0] dir_wdata = wdata[10:0];
+wire [10:0] dir_rdata;
+wire [31:0] __dir_rdata = {21'h0, dir_rdata};
 assign dir_rdata = dir_o;
 
-wire [24:0] in_wdata = wdata[24:0];
-wire [24:0] in_rdata;
-wire [31:0] __in_rdata = {7'h0, in_rdata};
+wire [10:0] in_wdata = wdata[10:0];
+wire [10:0] in_rdata;
+wire [31:0] __in_rdata = {21'h0, in_rdata};
 assign in_rdata = in_i;
-
-wire  fsel0_p0_wdata = wdata[0];
-wire  fsel0_p0_rdata;
-wire  fsel0_p1_wdata = wdata[1];
-wire  fsel0_p1_rdata;
-wire  fsel0_p2_wdata = wdata[2];
-wire  fsel0_p2_rdata;
-wire  fsel0_p3_wdata = wdata[3];
-wire  fsel0_p3_rdata;
-wire  fsel0_p4_wdata = wdata[4];
-wire  fsel0_p4_rdata;
-wire  fsel0_p5_wdata = wdata[5];
-wire  fsel0_p5_rdata;
-wire  fsel0_p6_wdata = wdata[6];
-wire  fsel0_p6_rdata;
-wire  fsel0_p7_wdata = wdata[7];
-wire  fsel0_p7_rdata;
-wire  fsel0_p8_wdata = wdata[8];
-wire  fsel0_p8_rdata;
-wire  fsel0_p9_wdata = wdata[9];
-wire  fsel0_p9_rdata;
-wire  fsel0_p10_wdata = wdata[10];
-wire  fsel0_p10_rdata;
-wire  fsel0_p11_wdata = wdata[11];
-wire  fsel0_p11_rdata;
-wire  fsel0_p12_wdata = wdata[12];
-wire  fsel0_p12_rdata;
-wire  fsel0_p13_wdata = wdata[13];
-wire  fsel0_p13_rdata;
-wire  fsel0_p14_wdata = wdata[14];
-wire  fsel0_p14_rdata;
-wire  fsel0_p15_wdata = wdata[15];
-wire  fsel0_p15_rdata;
-wire  fsel0_p16_wdata = wdata[16];
-wire  fsel0_p16_rdata;
-wire  fsel0_p17_wdata = wdata[17];
-wire  fsel0_p17_rdata;
-wire  fsel0_p18_wdata = wdata[18];
-wire  fsel0_p18_rdata;
-wire  fsel0_p19_wdata = wdata[19];
-wire  fsel0_p19_rdata;
-wire  fsel0_p20_wdata = wdata[20];
-wire  fsel0_p20_rdata;
-wire  fsel0_p21_wdata = wdata[21];
-wire  fsel0_p21_rdata;
-wire  fsel0_p22_wdata = wdata[22];
-wire  fsel0_p22_rdata;
-wire  fsel0_p23_wdata = wdata[23];
-wire  fsel0_p23_rdata;
-wire  fsel0_p24_wdata = wdata[24];
-wire  fsel0_p24_rdata;
-wire [31:0] __fsel0_rdata = {7'h0, fsel0_p24_rdata, fsel0_p23_rdata, fsel0_p22_rdata, fsel0_p21_rdata, fsel0_p20_rdata, fsel0_p19_rdata, fsel0_p18_rdata, fsel0_p17_rdata, fsel0_p16_rdata, fsel0_p15_rdata, fsel0_p14_rdata, fsel0_p13_rdata, fsel0_p12_rdata, fsel0_p11_rdata, fsel0_p10_rdata, fsel0_p9_rdata, fsel0_p8_rdata, fsel0_p7_rdata, fsel0_p6_rdata, fsel0_p5_rdata, fsel0_p4_rdata, fsel0_p3_rdata, fsel0_p2_rdata, fsel0_p1_rdata, fsel0_p0_rdata};
-assign fsel0_p0_rdata = fsel0_p0_o;
-assign fsel0_p1_rdata = fsel0_p1_o;
-assign fsel0_p2_rdata = fsel0_p2_o;
-assign fsel0_p3_rdata = fsel0_p3_o;
-assign fsel0_p4_rdata = fsel0_p4_o;
-assign fsel0_p5_rdata = fsel0_p5_o;
-assign fsel0_p6_rdata = fsel0_p6_o;
-assign fsel0_p7_rdata = fsel0_p7_o;
-assign fsel0_p8_rdata = fsel0_p8_o;
-assign fsel0_p9_rdata = fsel0_p9_o;
-assign fsel0_p10_rdata = fsel0_p10_o;
-assign fsel0_p11_rdata = fsel0_p11_o;
-assign fsel0_p12_rdata = fsel0_p12_o;
-assign fsel0_p13_rdata = fsel0_p13_o;
-assign fsel0_p14_rdata = fsel0_p14_o;
-assign fsel0_p15_rdata = fsel0_p15_o;
-assign fsel0_p16_rdata = fsel0_p16_o;
-assign fsel0_p17_rdata = fsel0_p17_o;
-assign fsel0_p18_rdata = fsel0_p18_o;
-assign fsel0_p19_rdata = fsel0_p19_o;
-assign fsel0_p20_rdata = fsel0_p20_o;
-assign fsel0_p21_rdata = fsel0_p21_o;
-assign fsel0_p22_rdata = fsel0_p22_o;
-assign fsel0_p23_rdata = fsel0_p23_o;
-assign fsel0_p24_rdata = fsel0_p24_o;
-assign concat_fsel_o = {fsel0_p24_o, fsel0_p23_o, fsel0_p22_o, fsel0_p21_o, fsel0_p20_o, fsel0_p19_o, fsel0_p18_o, fsel0_p17_o, fsel0_p16_o, fsel0_p15_o, fsel0_p14_o, fsel0_p13_o, fsel0_p12_o, fsel0_p11_o, fsel0_p10_o, fsel0_p9_o, fsel0_p8_o, fsel0_p7_o, fsel0_p6_o, fsel0_p5_o, fsel0_p4_o, fsel0_p3_o, fsel0_p2_o, fsel0_p1_o, fsel0_p0_o};
 
 always @ (*) begin
 	case (addr)
 		ADDR_OUT: rdata = __out_rdata;
 		ADDR_DIR: rdata = __dir_rdata;
 		ADDR_IN: rdata = __in_rdata;
-		ADDR_FSEL0: rdata = __fsel0_rdata;
 		default: rdata = 32'h0;
 	endcase
 end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		out_o <= 25'h0;
-		dir_o <= 25'h0;
-		fsel0_p0_o <= 1'h0;
-		fsel0_p1_o <= 1'h0;
-		fsel0_p2_o <= 1'h0;
-		fsel0_p3_o <= 1'h0;
-		fsel0_p4_o <= 1'h0;
-		fsel0_p5_o <= 1'h0;
-		fsel0_p6_o <= 1'h0;
-		fsel0_p7_o <= 1'h0;
-		fsel0_p8_o <= 1'h0;
-		fsel0_p9_o <= 1'h0;
-		fsel0_p10_o <= 1'h0;
-		fsel0_p11_o <= 1'h0;
-		fsel0_p12_o <= 1'h0;
-		fsel0_p13_o <= 1'h0;
-		fsel0_p14_o <= 1'h0;
-		fsel0_p15_o <= 1'h0;
-		fsel0_p16_o <= 1'h0;
-		fsel0_p17_o <= 1'h0;
-		fsel0_p18_o <= 1'h0;
-		fsel0_p19_o <= 1'h0;
-		fsel0_p20_o <= 1'h0;
-		fsel0_p21_o <= 1'h0;
-		fsel0_p22_o <= 1'h0;
-		fsel0_p23_o <= 1'h0;
-		fsel0_p24_o <= 1'h0;
+		out_o <= 11'h0;
+		dir_o <= 11'h0;
 	end else begin
 		if (__out_wen)
 			out_o <= out_wdata;
 		if (__dir_wen)
 			dir_o <= dir_wdata;
-		if (__fsel0_wen)
-			fsel0_p0_o <= fsel0_p0_wdata;
-		if (__fsel0_wen)
-			fsel0_p1_o <= fsel0_p1_wdata;
-		if (__fsel0_wen)
-			fsel0_p2_o <= fsel0_p2_wdata;
-		if (__fsel0_wen)
-			fsel0_p3_o <= fsel0_p3_wdata;
-		if (__fsel0_wen)
-			fsel0_p4_o <= fsel0_p4_wdata;
-		if (__fsel0_wen)
-			fsel0_p5_o <= fsel0_p5_wdata;
-		if (__fsel0_wen)
-			fsel0_p6_o <= fsel0_p6_wdata;
-		if (__fsel0_wen)
-			fsel0_p7_o <= fsel0_p7_wdata;
-		if (__fsel0_wen)
-			fsel0_p8_o <= fsel0_p8_wdata;
-		if (__fsel0_wen)
-			fsel0_p9_o <= fsel0_p9_wdata;
-		if (__fsel0_wen)
-			fsel0_p10_o <= fsel0_p10_wdata;
-		if (__fsel0_wen)
-			fsel0_p11_o <= fsel0_p11_wdata;
-		if (__fsel0_wen)
-			fsel0_p12_o <= fsel0_p12_wdata;
-		if (__fsel0_wen)
-			fsel0_p13_o <= fsel0_p13_wdata;
-		if (__fsel0_wen)
-			fsel0_p14_o <= fsel0_p14_wdata;
-		if (__fsel0_wen)
-			fsel0_p15_o <= fsel0_p15_wdata;
-		if (__fsel0_wen)
-			fsel0_p16_o <= fsel0_p16_wdata;
-		if (__fsel0_wen)
-			fsel0_p17_o <= fsel0_p17_wdata;
-		if (__fsel0_wen)
-			fsel0_p18_o <= fsel0_p18_wdata;
-		if (__fsel0_wen)
-			fsel0_p19_o <= fsel0_p19_wdata;
-		if (__fsel0_wen)
-			fsel0_p20_o <= fsel0_p20_wdata;
-		if (__fsel0_wen)
-			fsel0_p21_o <= fsel0_p21_wdata;
-		if (__fsel0_wen)
-			fsel0_p22_o <= fsel0_p22_wdata;
-		if (__fsel0_wen)
-			fsel0_p23_o <= fsel0_p23_wdata;
-		if (__fsel0_wen)
-			fsel0_p24_o <= fsel0_p24_wdata;
 	end
 end
 

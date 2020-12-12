@@ -1,28 +1,28 @@
 module riscboy_fpga (
-	input wire                     clk_osc,
+	input  wire                     clk_osc,
 
-	output wire [7:0]              led,
+	output wire [7:0]               led,
 
-	inout wire                     uart_tx,
-	inout wire                     uart_rx,
-	inout wire                     uart_rts,
-	inout wire                     uart_cts,
+	output wire                     uart_tx,
+	input  wire                     uart_rx,
+	output wire                     uart_rts,
+	input  wire                     uart_cts,
 
-	inout wire                     dpad_u,
-	inout wire                     dpad_d,
-	inout wire                     dpad_l,
-	inout wire                     dpad_r,
-	inout wire                     btn_a,
+	input  wire                     dpad_u,
+	input  wire                     dpad_d,
+	input  wire                     dpad_l,
+	input  wire                     dpad_r,
+	input  wire                     btn_a,
 
-	inout wire                     flash_miso,
-	inout wire                     flash_mosi,
-	inout wire                     flash_sclk,
-	inout wire                     flash_cs,
+	input  wire                     flash_miso,
+	output wire                     flash_mosi,
+	output wire                     flash_sclk,
+	output wire                     flash_cs,
 
-	output wire                    lcd_cs,
-	output wire                    lcd_dc,
-	output wire                    lcd_sclk,
-	output wire                    lcd_mosi,
+	output wire                     lcd_cs,
+	output wire                     lcd_dc,
+	output wire                     lcd_sclk,
+	output wire                     lcd_mosi,
 
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
 	inout  wire [15:0]             sram_dq,
@@ -73,6 +73,18 @@ riscboy_core #(
 	.clk_lcd_bit (clk_lcd),
 	.rst_n       (rst_n),
 
+	.lcd_pwm     (/* unused */),
+
+	.uart_tx     (uart_tx),
+	.uart_rx     (uart_rx),
+	.uart_rts    (uart_rts),
+	.uart_cts    (uart_cts),
+
+	.spi_sclk    (flash_sclk),
+	.spi_cs      (flash_cs),
+	.spi_sdo     (flash_mosi),
+	.spi_sdi     (flash_miso),
+
 	.sram_addr   (sram_addr),
 	.sram_dq     (sram_dq),
 	.sram_ce_n   (sram_ce_n),
@@ -88,67 +100,6 @@ riscboy_core #(
 );
 
 // GPIO
-
-// TODO this isn't great.
-// Ideally we would have an array of tristate_ios and connect up the pads.
-// However it seems like there is no way of connecting inout ports together in Verilog
-// apart from in the module instantiation???
-
-tristate_io pad_uart_tx (
-	.out (padout[PIN_UART_TX]),
-	.oe  (padoe[PIN_UART_TX]),
-	.in  (padin[PIN_UART_TX]),
-	.pad (uart_tx)
-);
-
-tristate_io pad_uart_rx (
-	.out (padout[PIN_UART_RX]),
-	.oe  (padoe[PIN_UART_RX]),
-	.in  (padin[PIN_UART_RX]),
-	.pad (uart_rx)
-);
-
-tristate_io pad_uart_rts (
-	.out (padout[PIN_UART_RTS]),
-	.oe  (padoe[PIN_UART_RTS]),
-	.in  (padin[PIN_UART_RTS]),
-	.pad (uart_rts)
-);
-
-tristate_io pad_uart_cts (
-	.out (padout[PIN_UART_CTS]),
-	.oe  (padoe[PIN_UART_CTS]),
-	.in  (padin[PIN_UART_CTS]),
-	.pad (uart_cts)
-);
-
-tristate_io pad_flash_miso (
-	.out (padout[PIN_FLASH_MISO]),
-	.oe  (padoe[PIN_FLASH_MISO]),
-	.in  (padin[PIN_FLASH_MISO]),
-	.pad (flash_miso)
-);
-
-tristate_io pad_flash_mosi (
-	.out (padout[PIN_FLASH_MOSI]),
-	.oe  (padoe[PIN_FLASH_MOSI]),
-	.in  (padin[PIN_FLASH_MOSI]),
-	.pad (flash_mosi)
-);
-
-tristate_io pad_flash_sclk (
-	.out (padout[PIN_FLASH_SCLK]),
-	.oe  (padoe[PIN_FLASH_SCLK]),
-	.in  (padin[PIN_FLASH_SCLK]),
-	.pad (flash_sclk)
-);
-
-tristate_io pad_flash_cs (
-	.out (padout[PIN_FLASH_CS]),
-	.oe  (padoe[PIN_FLASH_CS]),
-	.in  (padin[PIN_FLASH_CS]),
-	.pad (flash_cs)
-);
 
 pullup_input in_u (
 	.in  (padin[PIN_DPAD_U]),
@@ -176,8 +127,8 @@ pullup_input in_a (
 );
 
 assign led = {
-	!padout[PIN_UART_TX],
-	!padin[PIN_UART_RX],
+	!uart_tx,
+	!uart_rx,
 	padin[PIN_DPAD_U],
 	padin[PIN_DPAD_D],
 	padin[PIN_DPAD_L],
