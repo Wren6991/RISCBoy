@@ -22,10 +22,10 @@
 
 // Processor GPIO pin write register
 
-// Field: OUT  Access: RW
-#define GPIO_OUT_LSB  0
-#define GPIO_OUT_BITS 11
-#define GPIO_OUT_MASK 0x7ff
+// Field: OUT_LED  Access: RW
+#define GPIO_OUT_LED_LSB  0
+#define GPIO_OUT_LED_BITS 1
+#define GPIO_OUT_LED_MASK 0x1
 
 /*******************************************************************************
 *                                     DIR                                      *
@@ -33,10 +33,10 @@
 
 // Processor GPIO output enables
 
-// Field: DIR  Access: RW
-#define GPIO_DIR_LSB  0
-#define GPIO_DIR_BITS 11
-#define GPIO_DIR_MASK 0x7ff
+// Field: DIR_LED  Access: RW
+#define GPIO_DIR_LED_LSB  0
+#define GPIO_DIR_LED_BITS 1
+#define GPIO_DIR_LED_MASK 0x1
 
 /*******************************************************************************
 *                                      IN                                      *
@@ -44,9 +44,49 @@
 
 // Processor GPIO pin read values
 
-// Field: IN  Access: ROV
-#define GPIO_IN_LSB  0
-#define GPIO_IN_BITS 11
-#define GPIO_IN_MASK 0x7ff
+// Field: IN_LED  Access: ROV
+#define GPIO_IN_LED_LSB  0
+#define GPIO_IN_LED_BITS 1
+#define GPIO_IN_LED_MASK 0x1
+// Field: IN_DPAD_U  Access: ROV
+#define GPIO_IN_DPAD_U_LSB  1
+#define GPIO_IN_DPAD_U_BITS 1
+#define GPIO_IN_DPAD_U_MASK 0x2
+// Field: IN_DPAD_D  Access: ROV
+#define GPIO_IN_DPAD_D_LSB  2
+#define GPIO_IN_DPAD_D_BITS 1
+#define GPIO_IN_DPAD_D_MASK 0x4
+// Field: IN_DPAD_L  Access: ROV
+#define GPIO_IN_DPAD_L_LSB  3
+#define GPIO_IN_DPAD_L_BITS 1
+#define GPIO_IN_DPAD_L_MASK 0x8
+// Field: IN_DPAD_R  Access: ROV
+#define GPIO_IN_DPAD_R_LSB  4
+#define GPIO_IN_DPAD_R_BITS 1
+#define GPIO_IN_DPAD_R_MASK 0x10
+// Field: IN_BTN_A  Access: ROV
+#define GPIO_IN_BTN_A_LSB  5
+#define GPIO_IN_BTN_A_BITS 1
+#define GPIO_IN_BTN_A_MASK 0x20
+// Field: IN_BTN_B  Access: ROV
+#define GPIO_IN_BTN_B_LSB  6
+#define GPIO_IN_BTN_B_BITS 1
+#define GPIO_IN_BTN_B_MASK 0x40
+// Field: IN_BTN_X  Access: ROV
+#define GPIO_IN_BTN_X_LSB  7
+#define GPIO_IN_BTN_X_BITS 1
+#define GPIO_IN_BTN_X_MASK 0x80
+// Field: IN_BTN_Y  Access: ROV
+#define GPIO_IN_BTN_Y_LSB  8
+#define GPIO_IN_BTN_Y_BITS 1
+#define GPIO_IN_BTN_Y_MASK 0x100
+// Field: IN_BTN_START  Access: ROV
+#define GPIO_IN_BTN_START_LSB  9
+#define GPIO_IN_BTN_START_BITS 1
+#define GPIO_IN_BTN_START_MASK 0x200
+// Field: IN_BTN_SELECT  Access: ROV
+#define GPIO_IN_BTN_SELECT_LSB  10
+#define GPIO_IN_BTN_SELECT_BITS 1
+#define GPIO_IN_BTN_SELECT_MASK 0x400
 
 #endif // _GPIO_REGS_H_

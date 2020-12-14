@@ -24,9 +24,19 @@ module gpio_regs (
 	output wire apbs_pslverr,
 	
 	// Register interfaces
-	output reg [10:0] out_o,
-	output reg [10:0] dir_o,
-	input wire [10:0] in_i
+	output reg  out_led_o,
+	output reg  dir_led_o,
+	input wire  in_led_i,
+	input wire  in_dpad_u_i,
+	input wire  in_dpad_d_i,
+	input wire  in_dpad_l_i,
+	input wire  in_dpad_r_i,
+	input wire  in_btn_a_i,
+	input wire  in_btn_b_i,
+	input wire  in_btn_x_i,
+	input wire  in_btn_y_i,
+	input wire  in_btn_start_i,
+	input wire  in_btn_select_i
 );
 
 // APB adapter
@@ -50,20 +60,50 @@ wire __dir_ren = ren && addr == ADDR_DIR;
 wire __in_wen = wen && addr == ADDR_IN;
 wire __in_ren = ren && addr == ADDR_IN;
 
-wire [10:0] out_wdata = wdata[10:0];
-wire [10:0] out_rdata;
-wire [31:0] __out_rdata = {21'h0, out_rdata};
-assign out_rdata = out_o;
+wire  out_led_wdata = wdata[0];
+wire  out_led_rdata;
+wire [31:0] __out_rdata = {31'h0, out_led_rdata};
+assign out_led_rdata = out_led_o;
 
-wire [10:0] dir_wdata = wdata[10:0];
-wire [10:0] dir_rdata;
-wire [31:0] __dir_rdata = {21'h0, dir_rdata};
-assign dir_rdata = dir_o;
+wire  dir_led_wdata = wdata[0];
+wire  dir_led_rdata;
+wire [31:0] __dir_rdata = {31'h0, dir_led_rdata};
+assign dir_led_rdata = dir_led_o;
 
-wire [10:0] in_wdata = wdata[10:0];
-wire [10:0] in_rdata;
-wire [31:0] __in_rdata = {21'h0, in_rdata};
-assign in_rdata = in_i;
+wire  in_led_wdata = wdata[0];
+wire  in_led_rdata;
+wire  in_dpad_u_wdata = wdata[1];
+wire  in_dpad_u_rdata;
+wire  in_dpad_d_wdata = wdata[2];
+wire  in_dpad_d_rdata;
+wire  in_dpad_l_wdata = wdata[3];
+wire  in_dpad_l_rdata;
+wire  in_dpad_r_wdata = wdata[4];
+wire  in_dpad_r_rdata;
+wire  in_btn_a_wdata = wdata[5];
+wire  in_btn_a_rdata;
+wire  in_btn_b_wdata = wdata[6];
+wire  in_btn_b_rdata;
+wire  in_btn_x_wdata = wdata[7];
+wire  in_btn_x_rdata;
+wire  in_btn_y_wdata = wdata[8];
+wire  in_btn_y_rdata;
+wire  in_btn_start_wdata = wdata[9];
+wire  in_btn_start_rdata;
+wire  in_btn_select_wdata = wdata[10];
+wire  in_btn_select_rdata;
+wire [31:0] __in_rdata = {21'h0, in_btn_select_rdata, in_btn_start_rdata, in_btn_y_rdata, in_btn_x_rdata, in_btn_b_rdata, in_btn_a_rdata, in_dpad_r_rdata, in_dpad_l_rdata, in_dpad_d_rdata, in_dpad_u_rdata, in_led_rdata};
+assign in_led_rdata = in_led_i;
+assign in_dpad_u_rdata = in_dpad_u_i;
+assign in_dpad_d_rdata = in_dpad_d_i;
+assign in_dpad_l_rdata = in_dpad_l_i;
+assign in_dpad_r_rdata = in_dpad_r_i;
+assign in_btn_a_rdata = in_btn_a_i;
+assign in_btn_b_rdata = in_btn_b_i;
+assign in_btn_x_rdata = in_btn_x_i;
+assign in_btn_y_rdata = in_btn_y_i;
+assign in_btn_start_rdata = in_btn_start_i;
+assign in_btn_select_rdata = in_btn_select_i;
 
 always @ (*) begin
 	case (addr)
@@ -76,13 +116,13 @@ end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		out_o <= 11'h0;
-		dir_o <= 11'h0;
+		out_led_o <= 1'h0;
+		dir_led_o <= 1'h0;
 	end else begin
 		if (__out_wen)
-			out_o <= out_wdata;
+			out_led_o <= out_led_wdata;
 		if (__dir_wen)
-			dir_o <= dir_wdata;
+			dir_led_o <= dir_led_wdata;
 	end
 end
 

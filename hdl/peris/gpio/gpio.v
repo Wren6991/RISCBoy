@@ -43,23 +43,54 @@ always @ (posedge clk or negedge rst_n_sync) begin
 	end
 end
 
+// Assign unused outputs
+
+function output_is_unused;
+	input integer out;
+begin
+	output_is_unused = out != PIN_LED;
+end
+endfunction
+
+genvar i;
+generate
+for (i = 0; i < N_GPIOS; i = i + 1) begin: assign_unused_out
+	if (output_is_unused(i)) begin
+		assign padout[i] = 1'b0;
+		assign padoe[i] = 1'b0;
+	end
+end
+endgenerate
+
 // APB Regblock
 
 gpio_regs inst_gpio_regs
 (
-	.clk           (clk),
-	.rst_n         (rst_n_sync),
-	.apbs_psel     (apbs_psel),
-	.apbs_penable  (apbs_penable),
-	.apbs_pwrite   (apbs_pwrite),
-	.apbs_paddr    (apbs_paddr),
-	.apbs_pwdata   (apbs_pwdata),
-	.apbs_prdata   (apbs_prdata),
-	.apbs_pready   (apbs_pready),
-	.apbs_pslverr  (apbs_pslverr),
-	.out_o         (padout),
-	.dir_o         (padoe),
-	.in_i          (padin_reg)
+	.clk             (clk),
+	.rst_n           (rst_n_sync),
+	.apbs_psel       (apbs_psel),
+	.apbs_penable    (apbs_penable),
+	.apbs_pwrite     (apbs_pwrite),
+	.apbs_paddr      (apbs_paddr),
+	.apbs_pwdata     (apbs_pwdata),
+	.apbs_prdata     (apbs_prdata),
+	.apbs_pready     (apbs_pready),
+	.apbs_pslverr    (apbs_pslverr),
+
+	.out_led_o       (padout[PIN_LED]),
+	.dir_led_o       (padoe[PIN_LED]),
+
+	.in_led_i        (padin_reg[PIN_LED       ]),
+	.in_dpad_u_i     (padin_reg[PIN_DPAD_U    ]),
+	.in_dpad_d_i     (padin_reg[PIN_DPAD_D    ]),
+	.in_dpad_l_i     (padin_reg[PIN_DPAD_L    ]),
+	.in_dpad_r_i     (padin_reg[PIN_DPAD_R    ]),
+	.in_btn_a_i      (padin_reg[PIN_BTN_A     ]),
+	.in_btn_b_i      (padin_reg[PIN_BTN_B     ]),
+	.in_btn_x_i      (padin_reg[PIN_BTN_X     ]),
+	.in_btn_y_i      (padin_reg[PIN_BTN_Y     ]),
+	.in_btn_start_i  (padin_reg[PIN_BTN_START ]),
+	.in_btn_select_i (padin_reg[PIN_BTN_SELECT])
 );
 
 endmodule

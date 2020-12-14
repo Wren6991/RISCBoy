@@ -3,17 +3,35 @@ bus: apb
 addr: 16
 data: 32
 params:
-  N_PADS: 11
+  GPIOS:
+    - [led        , io]
+    - [dpad_u     , i ]
+    - [dpad_d     , i ]
+    - [dpad_l     , i ]
+    - [dpad_r     , i ]
+    - [btn_a      , i ]
+    - [btn_b      , i ]
+    - [btn_x      , i ]
+    - [btn_y      , i ]
+    - [btn_start  , i ]
+    - [btn_select , i ]
 regs:
-  - name: out
-    info: Processor GPIO pin write register
-    bits:
-      - {b: [N_PADS - 1, 0], access: rw}
-  - name: dir
-    info: Processor GPIO output enables
-    bits:
-      - {b: [N_PADS - 1, 0], access: rw}
-  - name: in
-    info: Processor GPIO pin read values
-    bits:
-      - {b: [N_PADS - 1, 0], access: rov}
+  - generate: |
+      _('- name: out ')
+      _('  info: Processor GPIO pin write register')
+      _('  bits:')
+      for i, (name, access) in enumerate(GPIOS):
+          if "o" in access:
+              _(f'  - {{name: {name}, b: {i}, access: rw}}')
+      _('- name: dir')
+      _('  info: Processor GPIO output enables')
+      _('  bits:')
+      for i, (name, access) in enumerate(GPIOS):
+          if access == "io":
+              _(f'  - {{name: {name}, b: {i}, access: rw}}')
+      _('- name: in')
+      _('  info: Processor GPIO pin read values')
+      _('  bits:')
+      for i, (name, access) in enumerate(GPIOS):
+          if "i" in access:
+              _(f'  - {{name: {name}, b: {i}, access: rov}}')
