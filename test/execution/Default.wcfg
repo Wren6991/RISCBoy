@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="118" />
+   <WVObjectSize size="115" />
    <wvobject fp_name="divider115" type="divider">
       <obj_property name="label">SRAM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -214,8 +214,8 @@
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/frontend/fifo_mem" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fifo_mem[0:1,31:0]</obj_property>
-      <obj_property name="ObjectShortName">fifo_mem[0:1,31:0]</obj_property>
+      <obj_property name="ElementShortName">fifo_mem[0:2,31:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_mem[0:2,31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
       <wvobject fp_name="/tb/cpu0/frontend/fifo_mem[0]" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">[0,31:0]</obj_property>
@@ -227,18 +227,15 @@
          <obj_property name="ObjectShortName">fifo_mem[1,31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb/cpu0/frontend/fifo_mem[2]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[2,31:0]</obj_property>
+         <obj_property name="ObjectShortName">fifo_mem[2,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/fifo_wptr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fifo_wptr[1:0]</obj_property>
-      <obj_property name="ObjectShortName">fifo_wptr[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/fifo_rptr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fifo_rptr[1:0]</obj_property>
-      <obj_property name="ObjectShortName">fifo_rptr[1:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/frontend/fifo_level" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">fifo_level[1:0]</obj_property>
-      <obj_property name="ObjectShortName">fifo_level[1:0]</obj_property>
+   <wvobject fp_name="/tb/cpu0/frontend/fifo_valid" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">fifo_valid[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_valid[1:0]</obj_property>
    </wvobject>
    <wvobject fp_name="divider56" type="divider">
       <obj_property name="label">Frontend Logic</obj_property>
@@ -499,10 +496,6 @@
          <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/cpu0/inst_hazard5_csr/error" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">error</obj_property>
-         <obj_property name="ObjectShortName">error</obj_property>
-      </wvobject>
    </wvobject>
    <wvobject fp_name="group139" type="group">
       <obj_property name="label">CSR Internals</obj_property>
@@ -555,10 +548,6 @@
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/cpu0/xm_except_invalid_instr" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">xm_except_invalid_instr</obj_property>
-      <obj_property name="ObjectShortName">xm_except_invalid_instr</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cpu0/xm_jump" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">xm_jump</obj_property>
