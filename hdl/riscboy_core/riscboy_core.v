@@ -32,6 +32,7 @@ module riscboy_core #(
 	parameter STUB_SPI          = 0,
 	parameter STUB_PWM          = 0,
 	parameter CUTDOWN_PROCESSOR = 0,
+	parameter UART_FIFO_DEPTH   = 4,
 
 	parameter N_PADS = 11 // Let this default
 ) (
@@ -651,9 +652,9 @@ if (STUB_UART) begin
 end else begin
 
 	uart_mini #(
-		.FIFO_DEPTH(4),
-		.OVERSAMPLE(8),
-		.RTS_LEVEL(1)
+		.FIFO_DEPTH (UART_FIFO_DEPTH),
+		.OVERSAMPLE (8),
+		.RTS_LEVEL  (1)
 	) inst_uart_mini (
 		.clk          (clk_sys),
 		.rst_n        (rst_n),

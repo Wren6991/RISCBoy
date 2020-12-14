@@ -66,13 +66,14 @@ wire [N_PADS-1:0] padoe;
 wire [N_PADS-1:0] padin;
 
 riscboy_core #(
-	.BOOTRAM_PRELOAD ("bootram_init32.hex"),
-	.SRAM0_INTERNAL (1),
-	.W_SRAM0_ADDR (15), // 2**15 words = 128 kB
+	.BOOTRAM_PRELOAD   ("bootram_init32.hex"),
+	.SRAM0_INTERNAL    (1),
+	.W_SRAM0_ADDR      (15), // 2**15 words = 128 kB
 
 	.CUTDOWN_PROCESSOR (1),
-	.STUB_SPI (1),
-	.STUB_PWM (1)
+	.STUB_SPI          (1),
+	.STUB_PWM          (1),
+	.UART_FIFO_DEPTH   (2)
 ) core (
 	.clk_sys     (clk_sys),
 	.clk_lcd_pix (1'b0), // unused for SPI display
