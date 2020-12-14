@@ -20,8 +20,6 @@ int main()
 {
 	uint8_t rx[BUFSIZE];
 
-	gpio_dir_pin(PIN_FLASH_MISO, 1); // avoid Z, else get Xs in the FIFO, which we try to drain.
-
 	for (int div = 1; div <= 10; div += 9)
 	{
 		spi_clkdiv(div);
