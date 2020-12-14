@@ -1,22 +1,22 @@
 module gpio #(
 	parameter N_PADS = 11
 ) (
-	input wire clk,
-	input wire rst_n,
+	input  wire              clk,
+	input  wire              rst_n,
 	
 	// APB Port
-	input wire apbs_psel,
-	input wire apbs_penable,
-	input wire apbs_pwrite,
-	input wire [15:0] apbs_paddr,
-	input wire [31:0] apbs_pwdata,
-	output wire [31:0] apbs_prdata,
-	output wire apbs_pready,
-	output wire apbs_pslverr,
+	input  wire              apbs_psel,
+	input  wire              apbs_penable,
+	input  wire              apbs_pwrite,
+	input  wire [15:0]       apbs_paddr,
+	input  wire [31:0]       apbs_pwdata,
+	output wire [31:0]       apbs_prdata,
+	output wire              apbs_pready,
+	output wire              apbs_pslverr,
 
-	output reg [N_PADS-1:0] padout,
-	output reg [N_PADS-1:0] padoe,
-	input wire [N_PADS-1:0] padin,
+	output wire [N_PADS-1:0] padout,
+	output wire [N_PADS-1:0] padoe,
+	input  wire [N_PADS-1:0] padin
 );
 
 `include "gpio_pinmap.vh"

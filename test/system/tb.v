@@ -24,6 +24,16 @@ wire [N_PADS-1:0]       padout;
 wire [N_PADS-1:0]       padoe;
 wire [N_PADS-1:0]       padin;
 
+wire                    lcd_pwm;
+wire                    uart_tx;
+wire                    uart_rx;
+wire                    uart_rts;
+wire                    uart_cts;
+wire                    spi_sclk;
+wire                    spi_cs;
+wire                    spi_sdo;
+wire                    spi_sdi;
+
 wire [W_SRAM0_ADDR-1:0] sram_addr;
 wire [15:0]             sram_dq;
 wire                    sram_ce_n;
@@ -61,6 +71,16 @@ riscboy_core #(
 	.padout      (padout),
 	.padoe       (padoe),
 	.padin       (padin),
+
+	.lcd_pwm     (lcd_pwm),
+	.uart_tx     (uart_tx),
+	.uart_rx     (uart_rx),
+	.uart_rts    (uart_rts),
+	.uart_cts    (uart_cts),
+	.spi_sclk    (spi_sclk),
+	.spi_cs      (spi_cs),
+	.spi_sdo     (spi_sdo),
+	.spi_sdi     (spi_sdi),
 
 	.lcdp        ({lcd_cs, lcd_dc, lcd_sck, lcd_mosi}),
 
@@ -100,8 +120,8 @@ tristate_io padbuf [0:N_PADS-1] (
 behav_uart_rx #(
 	.BAUD_RATE(115200.0),
 	.BUF_SIZE(256)
-) uart_rx (
-	.rx(pads[PIN_UART_TX])
+) uart_rx_to_console (
+	.rx(uart_tx)
 );
 
 sram_async #(
