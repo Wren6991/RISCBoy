@@ -183,7 +183,9 @@ wire [9:0] tmds1;
 wire [9:0] tmds2;
 
 dvi_tx_parallel #(
-	// 640x480p 60 Hz timings from CEA-861D
+	// Timings here are 640x480p 60 Hz timings from CEA-861D, but with extra 800
+	// pixels of horizontal blanking, to get 480p 30 Hz with a legal pixel clock.
+	// My monitors and TV don't mind this, but yours might
 	.H_SYNC_POLARITY (1'b0),
 	.H_FRONT_PORCH   (16),
 	.H_SYNC_WIDTH    (96),
@@ -194,7 +196,11 @@ dvi_tx_parallel #(
 	.V_FRONT_PORCH   (10),
 	.V_SYNC_WIDTH    (2),
 	.V_BACK_PORCH    (33),
-	.V_ACTIVE_LINES  (480)
+	.V_ACTIVE_LINES  (480),
+
+	// We are doubling the pixels anyway, so can use the *much* smaller
+	// pixel-doubled encoder
+	.SMOL_TMDS_ENCODE (1)
 ) dvi_tx_ctrl (
 	.clk     (clk_pix),
 	.rst_n   (rst_n_pix),
@@ -244,13 +250,10 @@ dvi_serialiser ser2 (
 	.qn        (dvin[2])
 );
 
-dvi_serialiser serclk (
-	.clk_pix   (clk_pix),
-	.rst_n_pix (rst_n_pix),
+dvi_clock_driver serclk (
 	.clk_x5    (clk_bit),
 	.rst_n_x5  (rst_n_bit),
 
-	.d         (10'b0000011111),
 	.qp        (dvip[3]),
 	.qn        (dvin[3])
 );
