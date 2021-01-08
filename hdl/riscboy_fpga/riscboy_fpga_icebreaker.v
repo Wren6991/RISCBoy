@@ -16,45 +16,60 @@ module riscboy_fpga (
 	output wire       flash_sclk,
 	output wire       flash_cs,
 
-	output wire       lcd_cs,
-	output wire       lcd_dc,
-	output wire       lcd_sclk,
-	output wire       lcd_mosi,
+	// output wire       lcd_cs,
+	// output wire       lcd_dc,
+	// output wire       lcd_sclk,
+	// output wire       lcd_mosi,
+
+	output wire [3:0]  dvi_p,
+	output wire [3:0]  dvi_n
 );
 
 `include "gpio_pinmap.vh"
 
 // Clock + Reset resources
 
-wire clk_sys;
-wire clk_lcd;
-wire rst_n;
+wire clk_pix;
+wire clk_bit;
+reg clk_sys;
 wire pll_lock;
+wire rst_n_por;
 
-SB_HFOSC #(
-  .CLKHF_DIV ("0b10") // divide by 4 -> 12 MHz
-) inthosc (
-  .CLKHFPU (1'b1),
-  .CLKHFEN (1'b1),
-  .CLKHF   (clk_sys)
-);
-
-pll_12_36 #(
+pll_12_126 #(
 	.ICE40_PAD (1)
 ) pll_lcd (
 	.clock_in  (clk_osc),
-	.clock_out (clk_lcd),
+	.clock_out (clk_bit),
 	.locked    (pll_lock)
 );
 
 fpga_reset #(
 	.SHIFT (3),
-	.COUNT (200) // need at least 3 us delay before accessing BRAMs on iCE40
+	.COUNT (0) // TODO the iCE40 BRAMs need some delay before their contents is valid; is the PLL lock delay enough?
 ) rstgen (
-	.clk         (clk_sys),
+	.clk         (clk_bit),
 	.force_rst_n (pll_lock),
-	.rst_n       (rst_n)
+	.rst_n       (rst_n_por)
 );
+
+// Pixel clock: 126 / 5 -> 25.2 MHz
+reg [4:0] clkdiv_pix;
+assign clk_pix = clkdiv_pix[0];
+always @ (posedge clk_bit or negedge rst_n_por)
+	if (!rst_n_por)
+		clkdiv_pix <= 5'b11100;
+	else
+		clkdiv_pix <= {clkdiv_pix[0],  clkdiv_pix[4:1]};
+
+// System clock: 126 /  -> 14 MHz
+localparam SYS_CLK_RATIO = 10;
+reg [SYS_CLK_RATIO-1:0] clkdiv_sys;
+assign clk_sys = clkdiv_sys[0];
+always @ (posedge clk_bit or negedge rst_n_por)
+	if (!rst_n_por)	
+		clkdiv_sys <= {SYS_CLK_RATIO{1'b1}} << (SYS_CLK_RATIO / 2);
+	else
+		clkdiv_sys <= {clkdiv_sys[0], clkdiv_sys[SYS_CLK_RATIO-1:1]};
 
 // Instantiate the actual logic
 
@@ -70,6 +85,8 @@ riscboy_core #(
 	.SRAM0_INTERNAL    (1),
 	.W_SRAM0_ADDR      (15), // 2**15 words = 128 kB
 
+	.DISPLAY_TYPE      ("DVI"),
+
 	.CUTDOWN_PROCESSOR (1),
 	.STUB_SPI          (1),
 	.STUB_PWM          (1),
@@ -77,9 +94,9 @@ riscboy_core #(
 	.UART_FIFO_DEPTH   (1)
 ) core (
 	.clk_sys     (clk_sys),
-	.clk_lcd_pix (1'b0), // unused for SPI display
-	.clk_lcd_bit (clk_lcd),
-	.rst_n       (rst_n),
+	.clk_lcd_pix (clk_pix),
+	.clk_lcd_bit (clk_sys),
+	.rst_n       (rst_n_por),
 
 	.lcd_pwm     (/* unused */),
 
@@ -100,7 +117,10 @@ riscboy_core #(
 	.sram_oe_n   (/* unused */),
 	.sram_byte_n (/* unused */),
 
-	.lcdp        ({lcd_cs, lcd_dc, lcd_sclk, lcd_mosi}),
+	// .lcdp        ({lcd_cs, lcd_dc, lcd_sclk, lcd_mosi}),
+
+	.lcdp        (dvi_p),
+	.lcdn        (dvi_n),
 
 	.padout      (padout),
 	.padoe       (padoe),

@@ -1,4 +1,6 @@
-#define CLK_SYS_MHZ 50
+#define CLK_SYS_MHZ 18
+#define SPI_LCD_INIT_SEQ st7789_init_seq
+#define DISPLAY_WIDTH 240
 
 #include "ppu.h"
 #include "display.h"
