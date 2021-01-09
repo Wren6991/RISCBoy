@@ -74,7 +74,7 @@ riscboy_core #(
 	.STUB_SPI          (1),
 	.STUB_PWM          (1),
 	.NO_SRAM_WRITE_BUF (1),
-	.UART_FIFO_DEPTH   (2)
+	.UART_FIFO_DEPTH   (1)
 ) core (
 	.clk_sys     (clk_sys),
 	.clk_lcd_pix (1'b0), // unused for SPI display
