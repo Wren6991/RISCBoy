@@ -92,6 +92,10 @@
       <obj_property name="ObjectShortName">ahbls_hrdata[31:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb/ahbl_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbl_hready</obj_property>
+      <obj_property name="ObjectShortName">ahbl_hready</obj_property>
+   </wvobject>
    <wvobject fp_name="divider35" type="divider">
       <obj_property name="label">SRAM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -117,10 +121,6 @@
    <wvobject fp_name="/tb/uut/write_retire" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">write_retire</obj_property>
       <obj_property name="ObjectShortName">write_retire</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/uut/write_capture" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">write_capture</obj_property>
-      <obj_property name="ObjectShortName">write_capture</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/uut/sram_wen" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">sram_wen[3:0]</obj_property>

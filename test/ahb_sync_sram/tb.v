@@ -149,6 +149,7 @@ initial begin
 		ahbl_hwrite <= 1'b0;
 		@ (posedge clk);
 		#1;
+		while (!ahbl_hready) begin @ (posedge clk); #1; end
 		if (ahbl_hrdata != test_vec[i]) begin
 			$display("Test FAILED: Mismatch at %h: %h (r) != %h (w)", i * 4, ahbl_hrdata, test_vec[i]);
 			$finish;
@@ -176,6 +177,7 @@ initial begin
 		@ (posedge clk);
 		#1;
 		ahbl_haddr <= i * 4;
+		while (!ahbl_hready) begin @ (posedge clk); #1; end
 		if (ahbl_hrdata != test_vec[0]) begin
 			$display("Test FAILED: Mismatch at 0 (next %h): %h (r) != %h (w)", i, ahbl_hrdata, test_vec[0]);
 			$finish;

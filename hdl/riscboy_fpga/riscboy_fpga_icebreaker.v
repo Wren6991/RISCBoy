@@ -73,6 +73,7 @@ riscboy_core #(
 	.CUTDOWN_PROCESSOR (1),
 	.STUB_SPI          (1),
 	.STUB_PWM          (1),
+	.NO_SRAM_WRITE_BUF (1),
 	.UART_FIFO_DEPTH   (2)
 ) core (
 	.clk_sys     (clk_sys),

@@ -32,6 +32,7 @@ module riscboy_core #(
 	parameter STUB_SPI          = 0,
 	parameter STUB_PWM          = 0,
 	parameter CUTDOWN_PROCESSOR = 0,
+	parameter NO_SRAM_WRITE_BUF = 0,
 	parameter UART_FIFO_DEPTH   = 4,
 
 	parameter N_PADS = 11 // Let this default
@@ -540,12 +541,13 @@ if (!SRAM0_INTERNAL) begin: has_sram0_ctrl
 		.sram_byte_n       (sram_byte_n)
 	);
 end else begin: has_internal_sram0
-	// For ECP5 devices, we can have a large internal RAM bank instead
+	// For ECP5 and UP5k, we can have a large internal RAM bank instead
 	ahb_sync_sram #(
-		.W_DATA       (W_DATA),
-		.W_ADDR       (W_ADDR),
-		.DEPTH        (1 << W_SRAM0_ADDR),
-		.PRELOAD_FILE (SRAM0_PRELOAD)
+		.W_DATA            (W_DATA),
+		.W_ADDR            (W_ADDR),
+		.DEPTH             (1 << W_SRAM0_ADDR),
+		.HAS_WRITE_BUFFER  (!NO_SRAM_WRITE_BUF),
+		.PRELOAD_FILE      (SRAM0_PRELOAD)
 	) sram0 (
 		.clk               (clk_sys),
 		.rst_n             (rst_n),
@@ -577,10 +579,11 @@ endgenerate
 // + small amount of hot code
 
 ahb_sync_sram #(
-	.W_DATA(W_DATA),
-	.W_ADDR(W_ADDR),
-	.DEPTH(1 << 11), // 2^11 words = 8 kiB
-	.PRELOAD_FILE (BOOTRAM_PRELOAD)
+	.W_DATA            (W_DATA),
+	.W_ADDR            (W_ADDR),
+	.DEPTH             (1 << 11), // 2^11 words = 8 kiB
+	.HAS_WRITE_BUFFER  (!NO_SRAM_WRITE_BUF),
+	.PRELOAD_FILE      (BOOTRAM_PRELOAD)
 ) sram1 (
 	.clk               (clk_sys),
 	.rst_n             (rst_n),
