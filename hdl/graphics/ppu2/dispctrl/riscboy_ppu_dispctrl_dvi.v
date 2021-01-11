@@ -100,14 +100,11 @@ wire                      pxfifo_wfull;
 wire                      pxfifo_wempty;
 wire [W_PXFIFO_LEVEL-1:0] pxfifo_wlevel;
 
-// For every 1 read there are two writes. This register will read 01 during
-// the first write, 10 (shifted along) during the second write, or 00 if no
-// write is taking place.
-reg [1:0] wen_state;
 reg       scanline_second_read;
+reg       pxfifo_wen;
 
-assign scanout_ren = csr_en && scanout_buf_rdy && !wen_state[0] && (
-	pxfifo_wlevel + |wen_state < PXFIFO_DEPTH - 2
+assign scanout_ren = csr_en && scanout_buf_rdy && (
+	pxfifo_wlevel + pxfifo_wen < PXFIFO_DEPTH
 );
 wire end_of_scanline = scanout_ren && scanout_raddr == 319; // FIXME hardcoded
 assign scanout_buf_release = end_of_scanline && scanline_second_read;
@@ -116,14 +113,14 @@ assign scanout_buf_release = end_of_scanline && scanline_second_read;
 always @ (posedge clk_sys or negedge rst_n_sys) begin
 	if (!rst_n_sys) begin
 		scanout_raddr <= {W_COORD_SX{1'b0}};
-		wen_state <= 2'h0;
+		pxfifo_wen <= 1'b0;
 		scanline_second_read <= 1'b0;
 	end else if (!csr_en) begin
 		scanout_raddr <= {W_COORD_SX{1'b0}};
-		wen_state <= 2'h0;
+		pxfifo_wen <= 1'b0;
 		scanline_second_read <= 1'b0;
 	end else begin
-		wen_state <= (wen_state << 1) | scanout_ren;
+		pxfifo_wen <= scanout_ren;
 		if (scanout_ren) begin
 			scanout_raddr <= end_of_scanline ? {W_COORD_SX{1'b0}} : scanout_raddr + 1'b1;
 			if (end_of_scanline)
@@ -131,8 +128,6 @@ always @ (posedge clk_sys or negedge rst_n_sys) begin
 		end
 	end
 end
-
-wire pxfifo_wen = |wen_state;
 
 // ----------------------------------------------------------------------------
 // System to pixel clock domain crossing
@@ -181,6 +176,7 @@ sync_1bit sync_lcd_shamt (
 wire [9:0] tmds0;
 wire [9:0] tmds1;
 wire [9:0] tmds2;
+wire rgb_rdy;
 
 dvi_tx_parallel #(
 	// Timings here are 640x480p 60 Hz timings from CEA-861D, but with extra 800
@@ -209,12 +205,31 @@ dvi_tx_parallel #(
 	.r       ({pxfifo_rdata[15:11] , 3'h0}),
 	.g       ({pxfifo_rdata[10:5]  , 2'h0}),
 	.b       ({pxfifo_rdata[4:0]   , 3'h0}),
-	.rgb_rdy (pxfifo_pop),
+	.rgb_rdy (rgb_rdy),
 
 	.tmds2   (tmds2),
 	.tmds1   (tmds1),
 	.tmds0   (tmds0)
 );
+
+// Pixel-doubling by deleting half of the FIFO pops:
+reg get_first_pixel;
+reg second_use_of_pixel;
+always @ (posedge clk_pix or negedge rst_n_pix) begin
+	if (!rst_n_pix) begin
+		get_first_pixel <= 1'b1;
+		second_use_of_pixel <= 1'b0;
+	end else if (!csr_en_clkpix) begin
+		get_first_pixel <= 1'b1;
+		second_use_of_pixel <= 1'b0;
+	end else begin
+		get_first_pixel <= get_first_pixel && pxfifo_rempty;
+		second_use_of_pixel <= second_use_of_pixel ^ rgb_rdy;
+	end
+end
+
+assign pxfifo_pop = get_first_pixel && !pxfifo_rempty ||
+	rgb_rdy && second_use_of_pixel;
 
 // Commoned-up ring counters for better CE packing on iCE40:
 
