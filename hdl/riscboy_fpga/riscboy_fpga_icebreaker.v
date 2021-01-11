@@ -29,9 +29,10 @@ module riscboy_fpga (
 
 // Clock + Reset resources
 
-wire clk_pix;
+wire clk_bit_unbuffered;
 wire clk_bit;
-reg clk_sys;
+wire clk_pix;
+wire clk_sys;
 wire pll_lock;
 wire rst_n_por;
 
@@ -39,8 +40,13 @@ pll_12_126 #(
 	.ICE40_PAD (1)
 ) pll_lcd (
 	.clock_in  (clk_osc),
-	.clock_out (clk_bit),
+	.clock_out (clk_bit_unbuffered),
 	.locked    (pll_lock)
+);
+
+SB_GB promote_bit_clock (
+	.USER_SIGNAL_TO_GLOBAL_BUFFER (clk_bit_unbuffered),
+	.GLOBAL_BUFFER_OUTPUT         (clk_bit)
 );
 
 fpga_reset #(
@@ -61,8 +67,8 @@ always @ (posedge clk_bit or negedge rst_n_por)
 	else
 		clkdiv_pix <= {clkdiv_pix[0],  clkdiv_pix[4:1]};
 
-// System clock: 126 /  -> 14 MHz
-localparam SYS_CLK_RATIO = 10;
+// System clock: 126 / 9 -> 14 MHz
+localparam SYS_CLK_RATIO = 9;
 reg [SYS_CLK_RATIO-1:0] clkdiv_sys;
 assign clk_sys = clkdiv_sys[0];
 always @ (posedge clk_bit or negedge rst_n_por)
@@ -95,7 +101,7 @@ riscboy_core #(
 ) core (
 	.clk_sys     (clk_sys),
 	.clk_lcd_pix (clk_pix),
-	.clk_lcd_bit (clk_sys),
+	.clk_lcd_bit (clk_bit),
 	.rst_n       (rst_n_por),
 
 	.lcd_pwm     (/* unused */),
