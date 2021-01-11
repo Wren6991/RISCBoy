@@ -216,38 +216,81 @@ dvi_tx_parallel #(
 	.tmds0   (tmds0)
 );
 
-dvi_serialiser ser0 (
-	.clk_pix   (clk_pix),
-	.rst_n_pix (rst_n_pix),
-	.clk_x5    (clk_bit),
-	.rst_n_x5  (rst_n_bit),
+// Commoned-up ring counters for better CE packing on iCE40:
 
-	.d         (tmds0),
-	.qp        (dvip[0]),
-	.qn        (dvin[0])
+localparam N_IN = 2;
+localparam N_OUT = 10;
+
+reg [N_IN-1:0]  ser_ctr_pix;
+reg [N_OUT-1:0] ser_ctr_bit;
+
+always @ (posedge clk_pix or negedge rst_n_pix) begin
+	if (!rst_n_pix) begin
+		ser_ctr_pix <= {{N_IN-1{1'b0}}, 1'b1};
+	end else begin
+		ser_ctr_pix <= {ser_ctr_pix[N_IN-2:0], ser_ctr_pix[N_IN-1]};
+	end
+end
+
+always @ (posedge clk_bit or negedge rst_n_bit) begin
+	if (!rst_n_bit) begin
+		// Reads start as far as possible from writes
+		ser_ctr_bit <= {{N_OUT-1{1'b0}}, 1'b1} << (N_OUT / 2);
+	end else begin
+		ser_ctr_bit <= {ser_ctr_bit[N_OUT-2:0], ser_ctr_bit[N_OUT-1]};
+	end
+end
+
+dvi_serialiser
+`ifdef FPGA_ICE40
+#(.EXTERNAL_RING_COUNTERS (1))
+`endif
+ser0 (
+	.clk_pix          (clk_pix),
+	.rst_n_pix        (rst_n_pix),
+	.external_ctr_pix (ser_ctr_pix),
+	.clk_x5           (clk_bit),
+	.rst_n_x5         (rst_n_bit),
+	.external_ctr_x5  (ser_ctr_bit),
+
+	.d                (tmds0),
+	.qp               (dvip[0]),
+	.qn               (dvin[0])
 );
 
-dvi_serialiser ser1 (
-	.clk_pix   (clk_pix),
-	.rst_n_pix (rst_n_pix),
-	.clk_x5    (clk_bit),
-	.rst_n_x5  (rst_n_bit),
+dvi_serialiser
+`ifdef FPGA_ICE40
+#(.EXTERNAL_RING_COUNTERS (1))
+`endif
+ser1 (
+	.clk_pix          (clk_pix),
+	.rst_n_pix        (rst_n_pix),
+	.external_ctr_pix (ser_ctr_pix),
+	.clk_x5           (clk_bit),
+	.rst_n_x5         (rst_n_bit),
+	.external_ctr_x5  (ser_ctr_bit),
 
-	.d         (tmds1),
-	.qp        (dvip[1]),
-	.qn        (dvin[1])
+	.d                (tmds1),
+	.qp               (dvip[1]),
+	.qn               (dvin[1])
 );
 
 
-dvi_serialiser ser2 (
-	.clk_pix   (clk_pix),
-	.rst_n_pix (rst_n_pix),
-	.clk_x5    (clk_bit),
-	.rst_n_x5  (rst_n_bit),
+dvi_serialiser
+`ifdef FPGA_ICE40
+#(.EXTERNAL_RING_COUNTERS (1))
+`endif
+ser2 (
+	.clk_pix          (clk_pix),
+	.rst_n_pix        (rst_n_pix),
+	.external_ctr_pix (ser_ctr_pix),
+	.clk_x5           (clk_bit),
+	.rst_n_x5         (rst_n_bit),
+	.external_ctr_x5  (ser_ctr_bit),
 
-	.d         (tmds2),
-	.qp        (dvip[2]),
-	.qn        (dvin[2])
+	.d                (tmds2),
+	.qp               (dvip[2]),
+	.qn               (dvin[2])
 );
 
 dvi_clock_driver serclk (
