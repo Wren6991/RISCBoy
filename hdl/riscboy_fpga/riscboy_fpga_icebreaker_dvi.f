@@ -1,4 +1,4 @@
-file riscboy_fpga_icebreaker.v
+file riscboy_fpga_icebreaker_dvi.v
 file pll_12_36.v
 file pll_12_30.v
 file pll_12_18.v

@@ -1,5 +1,5 @@
-CHIPNAME=riscboy_icebreaker
-DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_icebreaker.f
+CHIPNAME=riscboy_icebreaker_dvi
+DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_icebreaker_dvi.f
 BOOTAPP=riscboy_bootloader
 
 DEVICE=up5k
