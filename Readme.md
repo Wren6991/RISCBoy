@@ -88,7 +88,7 @@ PCB
 
 The image shows the Rev A PCB. It is compatible with iTead's 4-layer 5x5 cm prototyping service, which currently costs $65 for 10 boards.
 
-![](board/board_render01.jpg)
+![](board/riscboy_reva0/board_render01.jpg)
 
 The schematic can be viewed [here (pdf)](board/fpgaboy.pdf)
 
