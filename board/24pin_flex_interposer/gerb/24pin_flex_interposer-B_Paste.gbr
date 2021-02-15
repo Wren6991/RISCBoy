@@ -1,0 +1,15 @@
+%TF.GenerationSoftware,KiCad,Pcbnew,5.99.0-unknown-7565f60a0~106~ubuntu20.04.1*%
+%TF.CreationDate,2020-12-13T15:13:58+00:00*%
+%TF.ProjectId,24pin_flex_interposer,32347069-6e5f-4666-9c65-785f696e7465,rev?*%
+%TF.SameCoordinates,Original*%
+%TF.FileFunction,Paste,Bot*%
+%TF.FilePolarity,Positive*%
+%FSLAX46Y46*%
+G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
+G04 Created by KiCad (PCBNEW 5.99.0-unknown-7565f60a0~106~ubuntu20.04.1) date 2020-12-13 15:13:58*
+%MOMM*%
+%LPD*%
+G01*
+G04 APERTURE LIST*
+G04 APERTURE END LIST*
+M02*
