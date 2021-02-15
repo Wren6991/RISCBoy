@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "31pin")(type "KiCad")(uri "${KIPRJMOD}/31pin.pretty")(options "")(descr ""))
+)
