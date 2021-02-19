@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "riscboy")(type "KiCad")(uri "${KIPRJMOD}/riscboy.pretty")(options "")(descr ""))
+)
