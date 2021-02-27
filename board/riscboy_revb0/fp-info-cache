@@ -1,4 +1,4 @@
-19405622009005964
+19415304795754392
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -84140,6 +84140,27 @@ varistor SIOV
 2
 2
 riscboy
+19-337C-RGB-LED
+
+
+0
+0
+0
+riscboy
+BGA-48_6x8_6.0x8.0mm
+
+
+0
+48
+48
+riscboy
+BGA-121_11x11_9.0x9.0mm
+
+
+0
+121
+121
+riscboy
 C_0402_1005Metric_undersilk
 Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
 capacitor
@@ -84161,6 +84182,20 @@ L_0806_undersilk
 2
 2
 riscboy
+Micrel_MLF-8-1EP_2x2mm_P0.5mm_EP0.8x1.3mm_ThermalVias
+http://ww1.microchip.com/downloads/en/DeviceDoc/mic2290.pdf
+mlf 8 2x2 mm
+0
+13
+9
+riscboy
+QFN-56_EP_7x7_Pitch0.4mm
+
+
+0
+60
+57
+riscboy
 R_0402_1005Metric_undersilk
 Resistor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
 resistor
@@ -84174,3 +84209,10 @@ membrane-switch-6mm
 0
 17
 2
+riscboy
+solderjumper-3-bridged
+
+
+0
+3
+3
