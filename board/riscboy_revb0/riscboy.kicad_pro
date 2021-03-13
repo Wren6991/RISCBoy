@@ -262,6 +262,7 @@
       "default_text_size": 50.0,
       "default_wire_thickness": 6.0,
       "field_names": [],
+      "intersheets_ref_own_page": false,
       "intersheets_ref_prefix": "",
       "intersheets_ref_short": false,
       "intersheets_ref_show": false,
@@ -285,7 +286,7 @@
   },
   "sheets": [
     [
-      "94dc7141-c62f-4c20-98de-fb168c316cf3",
+      "9a2d099a-21a3-4642-97bc-cba2b8fb8532",
       ""
     ]
   ],

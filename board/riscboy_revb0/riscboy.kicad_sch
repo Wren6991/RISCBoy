@@ -11245,7 +11245,7 @@
     (uuid 8e283e12-0bfd-487d-9df0-20b5b1d55611)
     (property "Reference" "SW10" (id 0) (at 224.79 158.75 0))
     (property "Value" "tactile" (id 1) (at 220.98 163.83 0))
-    (property "Footprint" "" (id 2) (at 220.98 156.21 0)
+    (property "Footprint" "Button_Switch_SMD:SW_Push_1P1T_NO_6x6mm_H9.5mm" (id 2) (at 220.98 156.21 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 220.98 156.21 0)
@@ -11260,7 +11260,7 @@
     (uuid 3630d1ab-0593-46d6-85e2-28d8b5df0385)
     (property "Reference" "J3" (id 0) (at 134.62 193.04 0))
     (property "Value" "1827928-1 TE" (id 1) (at 135.89 203.2 0))
-    (property "Footprint" "" (id 2) (at 134.62 198.12 0)
+    (property "Footprint" "riscboy:1827928-1-battery" (id 2) (at 134.62 198.12 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 134.62 198.12 0)
@@ -11441,7 +11441,7 @@
     (property "Value" "2.5mm-3P-TRS" (id 1) (at 251.46 46.99 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "" (id 2) (at 256.54 40.64 0)
+    (property "Footprint" "riscboy:SJ-2523-SMT-TRS" (id 2) (at 256.54 40.64 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 256.54 40.64 0)
@@ -12650,7 +12650,7 @@
       (reference "J2") (unit 1) (value "NF") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical")
     )
     (path "/3630d1ab-0593-46d6-85e2-28d8b5df0385"
-      (reference "J3") (unit 1) (value "1827928-1 TE") (footprint "")
+      (reference "J3") (unit 1) (value "1827928-1 TE") (footprint "riscboy:1827928-1-battery")
     )
     (path "/1fe9d450-9762-4051-83c2-d081c2ee1598"
       (reference "J4") (unit 1) (value "2.54mm") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
@@ -12665,7 +12665,7 @@
       (reference "J7") (unit 1) (value "2.54mm") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
     )
     (path "/695285e8-768f-4e6e-85a7-b4ddddfd30dc"
-      (reference "J8") (unit 1) (value "2.5mm-3P-TRS") (footprint "")
+      (reference "J8") (unit 1) (value "2.5mm-3P-TRS") (footprint "riscboy:SJ-2523-SMT-TRS")
     )
     (path "/50060aee-ba17-41fe-a373-ea0d5a28e839"
       (reference "J9") (unit 1) (value "0.5mm FFC bottom-contact") (footprint "riscboy:FPC_24_0.5mm")
@@ -12782,7 +12782,7 @@
       (reference "SW9") (unit 1) (value "membrane") (footprint "riscboy:membrane-switch-6mm")
     )
     (path "/8e283e12-0bfd-487d-9df0-20b5b1d55611"
-      (reference "SW10") (unit 1) (value "tactile") (footprint "")
+      (reference "SW10") (unit 1) (value "tactile") (footprint "Button_Switch_SMD:SW_Push_1P1T_NO_6x6mm_H9.5mm")
     )
     (path "/6be811df-edd7-4694-bd9b-da439be69642"
       (reference "U1") (unit 1) (value "RP2040") (footprint "riscboy:QFN-56_EP_7x7_Pitch0.4mm")
