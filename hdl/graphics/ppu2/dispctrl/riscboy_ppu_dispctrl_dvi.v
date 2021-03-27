@@ -137,6 +137,7 @@ wire [W_DATA-1:0] pxfifo_wdata = scanout_rdata;
 
 wire [W_DATA-1:0] pxfifo_rdata;
 wire              pxfifo_pop;
+wire              pxfifo_rempty;
 
 async_fifo #(
 	.W_DATA (W_DATA),
@@ -157,7 +158,7 @@ async_fifo #(
 	.rdata  (pxfifo_rdata),
 	.rpop   (pxfifo_pop),
 	.rfull  (/* unused */),
-	.rempty (/* unused */),
+	.rempty (pxfifo_rempty),
 	.rlevel (/* unused */)
 );
 
