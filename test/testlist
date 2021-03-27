@@ -3,6 +3,7 @@ ahb_sync_sram
 ahb_async_sram
 ahb_async_sram_halfwidth
 ahb_cache_readonly
+ahb_cache_writeback
 ahbl_splitter
 ahbl_arbiter
 ahbl_crossbar

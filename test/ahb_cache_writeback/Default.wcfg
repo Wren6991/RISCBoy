@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="39" />
+   <wave_markers>
+      <marker time="585000000" label="" />
+   </wave_markers>
+   <wvobject fp_name="/tb/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/rst_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider19" type="divider">
+      <obj_property name="label">Upstream AHBL</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="vbus70" type="vbus" db_ref_id="1">
+      <obj_property name="label">src_haddr</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/tb/cache/src_haddr[10]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[10]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[10]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[9]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[8]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[8]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[7]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[6]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[6]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[5]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[5]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[4]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[3]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[3]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[2]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[2]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[1]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/src_haddr[0]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">src_haddr[0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/src_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">src_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">src_htrans[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/src_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hwrite</obj_property>
+      <obj_property name="ObjectShortName">src_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/src_hsize" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hsize[2:0]</obj_property>
+      <obj_property name="ObjectShortName">src_hsize[2:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/src_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hready</obj_property>
+      <obj_property name="ObjectShortName">src_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/src_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hresp</obj_property>
+      <obj_property name="ObjectShortName">src_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/src_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">src_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/src_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">src_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider20" type="divider">
+      <obj_property name="label">Cache signals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cache_addr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_ren" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_ren</obj_property>
+      <obj_property name="ObjectShortName">cache_ren</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_rdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cache_rdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_hit" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_hit</obj_property>
+      <obj_property name="ObjectShortName">cache_hit</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_dirty" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_dirty</obj_property>
+      <obj_property name="ObjectShortName">cache_dirty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_dirty_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_dirty_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cache_dirty_addr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_wdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cache_wdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_wen_modify" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_wen_modify[3:0]</obj_property>
+      <obj_property name="ObjectShortName">cache_wen_modify[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/cache_wen_fill" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cache_wen_fill</obj_property>
+      <obj_property name="ObjectShortName">cache_wen_fill</obj_property>
+   </wvobject>
+   <wvobject fp_name="group1794" type="group">
+      <obj_property name="label">Cache Internals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="vbus695" type="vbus" db_ref_id="1">
+         <obj_property name="label">addr_tag_prev</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[7]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[7]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[7]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[6]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[6]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[6]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[5]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[5]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[5]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[4]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[4]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[4]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[3]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[3]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[3]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[2]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[2]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[2]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[1]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[1]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/addr_tag_prev[0]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">addr_tag_prev[0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="vbus657" type="vbus" db_ref_id="1">
+         <obj_property name="label">tmem_rdata_tag</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[7]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[7]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[7]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[6]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[6]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[6]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[5]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[5]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[5]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[4]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[4]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[4]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[3]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[3]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[3]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[2]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[2]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[2]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[1]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[1]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_tag[0]" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">tmem_rdata_tag[0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_valid" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">tmem_rdata_valid</obj_property>
+         <obj_property name="ObjectShortName">tmem_rdata_valid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/cache_mem/tmem_rdata_dirty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">tmem_rdata_dirty</obj_property>
+         <obj_property name="ObjectShortName">tmem_rdata_dirty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem " type="array" db_ref_id="1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">\behav_mem.mem [0:15,31:0]</obj_property>
+         <obj_property name="ObjectShortName">\behav_mem.mem [0:15,31:0]</obj_property>
+         <obj_property name="label">dmem</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [0]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[0,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [0,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [1]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[1,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [1,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [2]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[2,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [2,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [3]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[3,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [3,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [4]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[4,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [4,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [5]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[5,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [5,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [6]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[6,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [6,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [7]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[7,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [7,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [8]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[8,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [8,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [9]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[9,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [9,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [10]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[10,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [10,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [11]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[11,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [11,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [12]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[12,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [12,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [13]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[13,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [13,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [14]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[14,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [14,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/dmem/\behav_mem.mem [15]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[15,31:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [15,31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem " type="array" db_ref_id="1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">\behav_mem.mem [0:15,27:0]</obj_property>
+         <obj_property name="ObjectShortName">\behav_mem.mem [0:15,27:0]</obj_property>
+         <obj_property name="label">tmem</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [0]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[0,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [0,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [1]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[1,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [1,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [2]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[2,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [2,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [3]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[3,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [3,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [4]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[4,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [4,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [5]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[5,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [5,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [6]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[6,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [6,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [7]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[7,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [7,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [8]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[8,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [8,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [9]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[9,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [9,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [10]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[10,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [10,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [11]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[11,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [11,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [12]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[12,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [12,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [13]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[13,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [13,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [14]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[14,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [14,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb/cache/cache_mem/tmem/\behav_mem.mem [15]" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">[15,27:0]</obj_property>
+            <obj_property name="ObjectShortName">\behav_mem.mem [15,27:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider13" type="divider">
+      <obj_property name="label">Downstream AHBL</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/dst_haddr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_haddr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dst_haddr[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/dst_htrans" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_htrans[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dst_htrans[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dst_hwrite" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_hwrite</obj_property>
+      <obj_property name="ObjectShortName">dst_hwrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/dst_hready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_hready</obj_property>
+      <obj_property name="ObjectShortName">dst_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dst_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_hresp</obj_property>
+      <obj_property name="ObjectShortName">dst_hresp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dst_hwdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_hwdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dst_hwdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/cache/dst_hrdata" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_hrdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dst_hrdata[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider71" type="divider">
+      <obj_property name="label">Test logic</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/expected_mem_state" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">expected_mem_state[0:31,31:0]</obj_property>
+      <obj_property name="ObjectShortName">expected_mem_state[0:31,31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/tb/expected_mem_state[0]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[0,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[0,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[1]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[1,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[1,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[2]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[2,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[2,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[3]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[3,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[3,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[4]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[4,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[4,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[5]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[5,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[5,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[6]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[6,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[6,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[7]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[7,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[7,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[8]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[8,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[8,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[9]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[9,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[9,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[10]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[10,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[10,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[11]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[11,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[11,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[12]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[12,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[12,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[13]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[13,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[13,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[14]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[14,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[14,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[15]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[15,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[15,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[16]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[16,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[16,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[17]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[17,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[17,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[18]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[18,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[18,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[19]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[19,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[19,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[20]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[20,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[20,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[21]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[21,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[21,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[22]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[22,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[22,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[23]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[23,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[23,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[24]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[24,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[24,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[25]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[25,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[25,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[26]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[26,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[26,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[27]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[27,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[27,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[28]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[28,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[28,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[29]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[29,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[29,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[30]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[30,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[30,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/expected_mem_state[31]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[31,31:0]</obj_property>
+         <obj_property name="ObjectShortName">expected_mem_state[31,31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/read_in_dphase" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">read_in_dphase</obj_property>
+      <obj_property name="ObjectShortName">read_in_dphase</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/write_in_dphase" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">write_in_dphase</obj_property>
+      <obj_property name="ObjectShortName">write_in_dphase</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dphase_byte_mask" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dphase_byte_mask[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dphase_byte_mask[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="vbus120" type="vbus" db_ref_id="1">
+      <obj_property name="label">addr_dphase</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/tb/addr_dphase[11]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[11]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[11]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[10]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[10]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[10]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[9]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[9]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[8]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[8]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[8]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[7]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[7]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[6]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[6]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[6]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[5]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[5]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[4]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[4]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[3]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[3]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[3]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[2]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[2]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[2]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[1]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[1]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/addr_dphase[0]" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">addr_dphase[0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/bad_data" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bad_data</obj_property>
+      <obj_property name="ObjectShortName">bad_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/data_should_be_valid" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">data_should_be_valid</obj_property>
+      <obj_property name="ObjectShortName">data_should_be_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/expected_data" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">expected_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">expected_data[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>

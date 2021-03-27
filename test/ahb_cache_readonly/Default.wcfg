@@ -9,7 +9,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="29" />
    <wvobject fp_name="/tb/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -82,6 +82,10 @@
       <obj_property name="ElementShortName">src_hready</obj_property>
       <obj_property name="ObjectShortName">src_hready</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb/src_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">src_hresp</obj_property>
+      <obj_property name="ObjectShortName">src_hresp</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb/cache/src_hrdata" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">src_hrdata[31:0]</obj_property>
       <obj_property name="ObjectShortName">src_hrdata[31:0]</obj_property>
@@ -140,6 +144,10 @@
    <wvobject fp_name="/tb/cache/dst_hready" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">dst_hready</obj_property>
       <obj_property name="ObjectShortName">dst_hready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dst_hresp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dst_hresp</obj_property>
+      <obj_property name="ObjectShortName">dst_hresp</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/cache/dst_hrdata" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">dst_hrdata[31:0]</obj_property>
