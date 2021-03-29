@@ -21,3 +21,5 @@
 
 halt:
 	j halt
+
+.word 0, 0

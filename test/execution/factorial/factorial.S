@@ -41,3 +41,5 @@ mul_done:
 	lw t1, 4(sp)
 	addi sp, sp, 8
 	ret
+
+.word 0,0,0,0
