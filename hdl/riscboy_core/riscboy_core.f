@@ -12,3 +12,5 @@ list $LIBFPGA/mem/ahb_sync_sram.f
 list $LIBFPGA/mem/ahb_async_sram_halfwidth.f
 list $LIBFPGA/peris/uart/uart.f
 list $LIBFPGA/peris/spi/spi.f
+
+list $LIBFPGA/mem/ahb_cache.f
