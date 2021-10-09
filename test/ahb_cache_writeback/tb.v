@@ -2,7 +2,7 @@ module tb;
 
 localparam W_ADDR = 32;
 localparam W_DATA = 32;
-localparam CACHE_DEPTH = 256;
+localparam CACHE_DEPTH = 8;
 localparam MEM_DEPTH = 2 * CACHE_DEPTH;
 parameter MEM_ADDR_WIDTH = $clog2(MEM_DEPTH * W_DATA / 8);
 parameter HSIZE_MAX = $clog2(W_DATA / 8);
@@ -41,7 +41,7 @@ initial begin: test_seq
 	src_htrans = 0;
 	src_hsize = 0;
 	src_hburst = 0;
-	src_hprot = 0;
+	src_hprot = 4'b1111; // must be cacheable && bufferable
 	src_hmastlock = 0;
 	src_hwdata = 0;
 	@(posedge clk);
@@ -62,12 +62,16 @@ end
 always @ (posedge clk) if (enable_access) begin: traffic_gen
 	integer hsize_tmp;
 	if (src_hready) begin
-		if ($random & 16'h8000) begin
+		if ($random & 16'hc000) begin
 			src_htrans <= 2'b10;
 			src_hwrite <= ~|($random & 16'hc000);
-			hsize_tmp = $random % (HSIZE_MAX + 1);
+			hsize_tmp = $random;
+			if (hsize_tmp < 0)
+				hsize_tmp = -hsize_tmp; // No $urandom in this awful simulator
+			hsize_tmp = hsize_tmp % (HSIZE_MAX + 1);
 			src_hsize <= hsize_tmp;
-			src_haddr <= $random & ~({W_ADDR{1'b1}} << MEM_ADDR_WIDTH) & ({W_ADDR{1'b1}} << hsize_tmp);
+			if ($random & 16'hf000)
+				src_haddr <= $random & ~({W_ADDR{1'b1}} << MEM_ADDR_WIDTH) & ({W_ADDR{1'b1}} << hsize_tmp);
 		end else begin
 			src_htrans <= 2'b00;
 			src_haddr <= {W_ADDR{1'b0}};
@@ -140,8 +144,7 @@ end
 // DUT
 
 // Cache to downstream memory
-wire               dst_hready_resp;
-wire               dst_hready = dst_hready_resp;
+reg                dst_hready_resp;
 wire               dst_hresp;
 wire [W_ADDR-1:0]  dst_haddr;
 wire               dst_hwrite;
@@ -156,7 +159,8 @@ wire [W_DATA-1:0]  dst_hrdata;
 ahb_cache_writeback #(
 	.W_ADDR (W_ADDR),
 	.W_DATA (W_DATA),
-	.DEPTH  (CACHE_DEPTH)
+	.W_LINE (W_DATA * 2),
+	.DEPTH  (CACHE_DEPTH / 2)
 ) cache (
 	.clk             (clk),
 	.rst_n           (rst_n),
@@ -194,7 +198,7 @@ ahb_sync_sram #(
 ) mem (
 	.clk               (clk),
 	.rst_n             (rst_n),
-	.ahbls_hready_resp (dst_hready_resp),
+	.ahbls_hready_resp (/* unused */),
 	.ahbls_hready      (dst_hready),
 	.ahbls_hresp       (dst_hresp),
 	.ahbls_haddr       (dst_haddr),
@@ -207,5 +211,19 @@ ahb_sync_sram #(
 	.ahbls_hwdata      (dst_hwdata),
 	.ahbls_hrdata      (dst_hrdata)
 );
+
+// Random memory stalls:
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		dst_hready_resp <= 1'b1;
+	end else begin
+		if (dst_hready) begin
+			dst_hready_resp <= !dst_htrans[1] || (($random >> 20) & 1);
+		end else begin
+			dst_hready_resp <= (($random >> 20) & 1);
+		end
+	end
+end
 
 endmodule
