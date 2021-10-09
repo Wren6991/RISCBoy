@@ -95,8 +95,6 @@ On RISCBoy these are 15b$\times512$ memories, each composed of a pair of iCE40 4
 
 \subsection{Instruction Set}
 
-\newcommand{\reservedfield}{\color{lightgray}\rule{\width}{\height}}
-
 Each instruction consists of one or more words in memory; the blitter processes each instruction in turn, progressing in a linear fashion unless a {\tt POPJ} is encountered, or the PPU is manually vectored to a new program by system software. This section describes the encoding of blitter instructions, and their operation. Some fields are marked as {\it reserved}, denoted by a grey colour fill in the bit diagrams. Reserved fields are not used by the current hardware, and should be written all-zeroes by software.
 
 For simple purposes (e.g. tiled backgrounds with some sprites on top), the blitter can execute the same program on each scanline: the coordinate systems of {\tt BLIT}/{\tt TILE} commands take the current raster $y$ coordinate into account (see section \ref{section:coordinates}). However, the instruction set is quite flexible, and the blitter's features can be combined in interesting ways, with fancy-looking results.
