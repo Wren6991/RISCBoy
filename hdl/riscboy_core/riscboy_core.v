@@ -227,7 +227,7 @@ wire                  lcd_scanout_buf_release;
 //  Masters
 // =============================================================================
 
-hazard5_cpu #(
+hazard5_cpu_1port #(
 	.RESET_VECTOR    (CPU_RESET_VECTOR),
 	.EXTENSION_C     (!CUTDOWN_PROCESSOR),
 	.EXTENSION_M     (!CUTDOWN_PROCESSOR),
@@ -238,7 +238,7 @@ hazard5_cpu #(
 	.REDUCED_BYPASS  (CUTDOWN_PROCESSOR),
 	.MTVEC_WMASK     (32'h00080000), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
 	.MTVEC_INIT      (32'h20000000)
-) inst_revive_cpu (
+) hazard5_cpu_u (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
 	.ahblm_hready    (proc0_hready),
