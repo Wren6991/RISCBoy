@@ -425,7 +425,9 @@ ahbl_crossbar #(
 	.src_hresp       ({proc0_hresp     , ppu_hresp    }),
 	.src_haddr       ({proc0_haddr     , ppu_haddr    }),
 	.src_hwrite      ({proc0_hwrite    , ppu_hwrite   }),
-	.src_htrans      ({proc0_htrans    , ppu_htrans   }),
+	// Workaround for bug in AHB arbiter for slaves with wait states (used to
+	// be cancelled out by a different bug in APB bridge!):
+	.src_htrans      ({proc0_htrans & {2{proc0_hready}}, ppu_htrans & {2{ppu_hready}}}),
 	.src_hsize       ({proc0_hsize     , ppu_hsize    }),
 	.src_hburst      ({proc0_hburst    , ppu_hburst   }),
 	.src_hprot       ({proc0_hprot     , ppu_hprot    }),
