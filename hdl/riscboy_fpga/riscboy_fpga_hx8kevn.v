@@ -1,3 +1,5 @@
+`default_nettype none
+
 module riscboy_fpga (
 	input  wire                     clk_osc,
 
@@ -59,44 +61,83 @@ fpga_reset #(
 // Instantiate the actual logic
 
 localparam W_SRAM0_ADDR = 18;
+localparam W_SRAM0_DATA = 16;
 localparam N_PADS = N_GPIOS;
 
 wire [N_PADS-1:0] padout;
 wire [N_PADS-1:0] padoe;
 wire [N_PADS-1:0] padin;
 
+wire                      sramphy_clk;
+wire                      sramphy_rst_n;
+wire [W_SRAM0_ADDR-1:0]   sramphy_addr;
+wire [W_SRAM0_DATA-1:0]   sramphy_dq_out;
+wire [W_SRAM0_DATA-1:0]   sramphy_dq_oe;
+wire [W_SRAM0_DATA-1:0]   sramphy_dq_in;
+wire                      sramphy_ce_n;
+wire                      sramphy_we_n;
+wire                      sramphy_oe_n;
+wire [W_SRAM0_DATA/8-1:0] sramphy_byte_n;
+
 riscboy_core #(
 	.BOOTRAM_PRELOAD ("bootram_init32.hex")
 ) core (
-	.clk_sys     (clk_sys),
-	.clk_lcd_pix (1'b0), // unused for SPI display
-	.clk_lcd_bit (clk_lcd),
-	.rst_n       (rst_n),
+	.clk_sys        (clk_sys),
+	.clk_lcd_pix    (1'b0), // unused for SPI display
+	.clk_lcd_bit    (clk_lcd),
+	.rst_n          (rst_n),
 
-	.lcd_pwm     (/* unused */),
+	.lcd_pwm        (/* unused */),
 
-	.uart_tx     (uart_tx),
-	.uart_rx     (uart_rx),
-	.uart_rts    (uart_rts),
-	.uart_cts    (uart_cts),
+	.uart_tx        (uart_tx),
+	.uart_rx        (uart_rx),
+	.uart_rts       (uart_rts),
+	.uart_cts       (uart_cts),
 
-	.spi_sclk    (flash_sclk),
-	.spi_cs      (flash_cs),
-	.spi_sdo     (flash_mosi),
-	.spi_sdi     (flash_miso),
+	.spi_sclk       (flash_sclk),
+	.spi_cs         (flash_cs),
+	.spi_sdo        (flash_mosi),
+	.spi_sdi        (flash_miso),
 
+	.sram_phy_clk   (sramphy_clk),
+	.sram_phy_rst_n (sramphy_rst_n),
+	.sram_addr      (sramphy_addr),
+	.sram_dq_out    (sramphy_dq_out),
+	.sram_dq_oe     (sramphy_dq_oe),
+	.sram_dq_in     (sramphy_dq_in),
+	.sram_ce_n      (sramphy_ce_n),
+	.sram_we_n      (sramphy_we_n),
+	.sram_oe_n      (sramphy_oe_n),
+	.sram_byte_n    (sramphy_byte_n),
+
+	.lcdp           ({lcd_cs, lcd_dc, lcd_sclk, lcd_mosi}),
+
+	.padout         (padout),
+	.padoe          (padoe),
+	.padin          (padin)
+);
+
+// SRAM PHY
+
+async_sram_phy #(
+	.W_ADDR (W_SRAM0_ADDR),
+	.W_DATA (W_SRAM0_DATA)
+) sram_phy_u (
+	.clk         (sramphy_clk),
+	.rst_n       (sramphy_rst_n),
+	.ctrl_addr   (sramphy_addr),
+	.ctrl_dq_out (sramphy_dq_out),
+	.ctrl_dq_oe  (sramphy_dq_oe),
+	.ctrl_dq_in  (sramphy_dq_in),
+	.ctrl_ce_n   (sramphy_ce_n),
+	.ctrl_we_n   (sramphy_we_n),
+	.ctrl_oe_n   (sramphy_oe_n),
 	.sram_addr   (sram_addr),
 	.sram_dq     (sram_dq),
-	.sram_ce_n   (sram_ce_n),
+	.sram_ce_n   (/* unused */),
 	.sram_we_n   (sram_we_n),
 	.sram_oe_n   (sram_oe_n),
-	.sram_byte_n (sram_byte_n),
-
-	.lcdp        ({lcd_cs, lcd_dc, lcd_sclk, lcd_mosi}),
-
-	.padout      (padout),
-	.padoe       (padoe),
-	.padin       (padin)
+	.sram_byte_n (sram_byte_n)
 );
 
 // GPIO
@@ -138,3 +179,7 @@ assign led = {
 };
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

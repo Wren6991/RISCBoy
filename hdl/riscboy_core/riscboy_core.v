@@ -18,6 +18,8 @@
 // riscboy_core contains the full system, except for Clock, Reset and Power
 // (CRaP) which lives in the chip/fpga/testbench top level
 
+`default_nettype none
+
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
 	parameter CPU_RESET_VECTOR = 32'h200800c0,
@@ -57,8 +59,13 @@ module riscboy_core #(
 	output wire                    spi_sdo,
 	input  wire                    spi_sdi,
 
+	// External asynchronous SRAM ("PHY" instantiated in FPGA wrapper)
+	output wire                    sram_phy_clk,
+	output wire                    sram_phy_rst_n,
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
-	inout  wire [15:0]             sram_dq,
+	output wire [15:0]             sram_dq_out,
+	output wire [15:0]             sram_dq_oe,
+	input  wire [15:0]             sram_dq_in,
 	output wire                    sram_ce_n,
 	output wire                    sram_we_n,
 	output wire                    sram_oe_n,
@@ -515,6 +522,8 @@ apb_splitter #(
 
 generate
 if (!SRAM0_INTERNAL) begin: has_sram0_ctrl
+	assign sram_phy_clk = clk_sys;
+	assign sram_phy_rst_n = rst_n;
 	ahb_async_sram_halfwidth #(
 		.W_DATA(W_DATA),
 		.W_ADDR(W_ADDR),
@@ -536,7 +545,9 @@ if (!SRAM0_INTERNAL) begin: has_sram0_ctrl
 		.ahbls_hrdata      (sram0_hrdata),
 
 		.sram_addr         (sram_addr),
-		.sram_dq           (sram_dq),
+		.sram_dq_out       (sram_dq_out),
+		.sram_dq_oe        (sram_dq_oe),
+		.sram_dq_in        (sram_dq_in),
 		.sram_ce_n         (sram_ce_n),
 		.sram_we_n         (sram_we_n),
 		.sram_oe_n         (sram_oe_n),
@@ -734,3 +745,7 @@ gpio #(
 );
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif
