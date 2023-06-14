@@ -1,30 +1,30 @@
 `default_nettype none
 
 module riscboy_fpga (
-	input  wire                     clk_osc,
+	input  wire                    clk_osc,
 
-	output wire [7:0]               led,
+	output wire [7:0]              led,
 
-	output wire                     uart_tx,
-	input  wire                     uart_rx,
-	output wire                     uart_rts,
-	input  wire                     uart_cts,
+	output wire                    uart_tx,
+	input  wire                    uart_rx,
+	output wire                    uart_rts,
+	input  wire                    uart_cts,
 
-	input  wire                     dpad_u,
-	input  wire                     dpad_d,
-	input  wire                     dpad_l,
-	input  wire                     dpad_r,
-	input  wire                     btn_a,
+	input  wire                    dpad_u,
+	input  wire                    dpad_d,
+	input  wire                    dpad_l,
+	input  wire                    dpad_r,
+	input  wire                    btn_a,
 
-	input  wire                     flash_miso,
-	output wire                     flash_mosi,
-	output wire                     flash_sclk,
-	output wire                     flash_cs,
+	input  wire                    flash_miso,
+	output wire                    flash_mosi,
+	output wire                    flash_sclk,
+	output wire                    flash_cs,
 
-	output wire                     lcd_cs,
-	output wire                     lcd_dc,
-	output wire                     lcd_sclk,
-	output wire                     lcd_mosi,
+	output wire                    lcd_cs,
+	output wire                    lcd_dc,
+	output wire                    lcd_sclk,
+	output wire                    lcd_mosi,
 
 	output wire [W_SRAM0_ADDR-1:0] sram_addr,
 	inout  wire [15:0]             sram_dq,
@@ -132,6 +132,7 @@ async_sram_phy #(
 	.ctrl_ce_n   (sramphy_ce_n),
 	.ctrl_we_n   (sramphy_we_n),
 	.ctrl_oe_n   (sramphy_oe_n),
+	.ctrl_byte_n (sramphy_byte_n),
 	.sram_addr   (sram_addr),
 	.sram_dq     (sram_dq),
 	.sram_ce_n   (/* unused */),
