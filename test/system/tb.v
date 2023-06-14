@@ -34,12 +34,16 @@ wire                    spi_cs;
 wire                    spi_sdo;
 wire                    spi_sdi;
 
-wire [W_SRAM0_ADDR-1:0] sram_addr;
-wire [15:0]             sram_dq;
-wire                    sram_ce_n;
-wire                    sram_we_n;
-wire                    sram_oe_n;
-wire [1:0]              sram_byte_n;
+wire                    sramphy_clk;
+wire                    sramphy_rst_n;
+wire [W_SRAM0_ADDR-1:0] sramphy_addr;
+wire [15:0]             sramphy_dq_out;
+wire [15:0]             sramphy_dq_oe;
+wire [15:0]             sramphy_dq_in;
+wire                    sramphy_ce_n;
+wire                    sramphy_we_n;
+wire                    sramphy_oe_n;
+wire [1:0]              sramphy_byte_n;
 
 wire                    lcd_cs;
 wire                    lcd_dc;
@@ -63,26 +67,61 @@ riscboy_core #(
 	.DISPLAY_TYPE     (ECP5_PLATFORM ? "DVI" : "SPI"),
 	.N_PADS           (N_PADS)
 ) dut (
-	.clk_sys     (clk_sys),
-	.clk_lcd_pix (clk_lcd_pix),
-	.clk_lcd_bit (clk_lcd_bit),
-	.rst_n       (rst_n),
+	.clk_sys        (clk_sys),
+	.clk_lcd_pix    (clk_lcd_pix),
+	.clk_lcd_bit    (clk_lcd_bit),
+	.rst_n          (rst_n),
 	
-	.padout      (padout),
-	.padoe       (padoe),
-	.padin       (padin),
+	.padout         (padout),
+	.padoe          (padoe),
+	.padin          (padin),
 
-	.lcd_pwm     (lcd_pwm),
-	.uart_tx     (uart_tx),
-	.uart_rx     (uart_rx),
-	.uart_rts    (uart_rts),
-	.uart_cts    (uart_cts),
-	.spi_sclk    (spi_sclk),
-	.spi_cs      (spi_cs),
-	.spi_sdo     (spi_sdo),
-	.spi_sdi     (spi_sdi),
+	.lcd_pwm        (lcd_pwm),
+	.uart_tx        (uart_tx),
+	.uart_rx        (uart_rx),
+	.uart_rts       (uart_rts),
+	.uart_cts       (uart_cts),
+	.spi_sclk       (spi_sclk),
+	.spi_cs         (spi_cs),
+	.spi_sdo        (spi_sdo),
+	.spi_sdi        (spi_sdi),
 
-	.lcdp        ({lcd_cs, lcd_dc, lcd_sck, lcd_mosi}),
+	.lcdp           ({lcd_cs, lcd_dc, lcd_sck, lcd_mosi}),
+
+	.sram_phy_clk   (sramphy_clk),
+	.sram_phy_rst_n (sramphy_rst_n),
+	.sram_addr      (sramphy_addr),
+	.sram_dq_out    (sramphy_dq_out),
+	.sram_dq_oe     (sramphy_dq_oe),
+	.sram_dq_in     (sramphy_dq_in),
+	.sram_ce_n      (sramphy_ce_n),
+	.sram_we_n      (sramphy_we_n),
+	.sram_oe_n      (sramphy_oe_n),
+	.sram_byte_n    (sramphy_byte_n)
+);
+
+wire [W_SRAM0_ADDR-1:0] sram_addr;
+wire [15:0]             sram_dq;
+wire                    sram_ce_n;
+wire                    sram_we_n;
+wire                    sram_oe_n;
+wire [1:0]              sram_byte_n;
+
+async_sram_phy #(
+	.W_ADDR(18),
+	.W_DATA(16)
+) sram_phy_u (
+	.clk         (sramphy_clk),
+	.rst_n       (sramphy_rst_n),
+
+	.ctrl_addr   (sramphy_addr),
+	.ctrl_dq_out (sramphy_dq_out),
+	.ctrl_dq_oe  (sramphy_dq_oe),
+	.ctrl_dq_in  (sramphy_dq_in),
+	.ctrl_ce_n   (sramphy_ce_n),
+	.ctrl_we_n   (sramphy_we_n),
+	.ctrl_oe_n   (sramphy_oe_n),
+	.ctrl_byte_n (sramphy_byte_n),
 
 	.sram_addr   (sram_addr),
 	.sram_dq     (sram_dq),
@@ -91,6 +130,8 @@ riscboy_core #(
 	.sram_oe_n   (sram_oe_n),
 	.sram_byte_n (sram_byte_n)
 );
+
+
 
 // ============================================================================
 // Stimulus and peripherals

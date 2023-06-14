@@ -9,53 +9,12 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="24" />
    <wvobject fp_name="divider57" type="divider">
       <obj_property name="label">CPU Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/clk" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/rst_n" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">rst_n</obj_property>
-      <obj_property name="ObjectShortName">rst_n</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_haddr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_haddr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ahblm_haddr[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_htrans" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_htrans[1:0]</obj_property>
-      <obj_property name="ObjectShortName">ahblm_htrans[1:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_hwrite" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_hwrite</obj_property>
-      <obj_property name="ObjectShortName">ahblm_hwrite</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_hsize" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_hsize[2:0]</obj_property>
-      <obj_property name="ObjectShortName">ahblm_hsize[2:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_hready" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_hready</obj_property>
-      <obj_property name="ObjectShortName">ahblm_hready</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_hwdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_hwdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ahblm_hwdata[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/dut/cpu/ahblm_hrdata" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ahblm_hrdata[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ahblm_hrdata[31:0]</obj_property>
-      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="group108" type="group">
       <obj_property name="label">Processor Internals</obj_property>
@@ -79,10 +38,6 @@
       <wvobject fp_name="group114" type="group">
          <obj_property name="label">Execute</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/cpu/ahblm_hready" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">ahblm_hready</obj_property>
-            <obj_property name="ObjectShortName">ahblm_hready</obj_property>
-         </wvobject>
          <wvobject fp_name="group750" type="group">
             <obj_property name="label">Muldiv</obj_property>
             <obj_property name="DisplayName">label</obj_property>
@@ -103,20 +58,6 @@
       <wvobject fp_name="group115" type="group">
          <obj_property name="label">Load/Store DPhase</obj_property>
          <obj_property name="DisplayName">label</obj_property>
-         <wvobject fp_name="/tb/dut/cpu/ahblm_hready" type="logic" db_ref_id="1">
-            <obj_property name="ElementShortName">ahblm_hready</obj_property>
-            <obj_property name="ObjectShortName">ahblm_hready</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/cpu/ahblm_hrdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">ahblm_hrdata[31:0]</obj_property>
-            <obj_property name="ObjectShortName">ahblm_hrdata[31:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb/dut/cpu/ahblm_hwdata" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">ahblm_hwdata[31:0]</obj_property>
-            <obj_property name="ObjectShortName">ahblm_hwdata[31:0]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
-         </wvobject>
       </wvobject>
       <wvobject fp_name="group116" type="group">
          <obj_property name="label">Writeback</obj_property>
@@ -1091,18 +1032,6 @@
    <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/xbar_htrans[1]" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">[1,0:2,1:0]</obj_property>
       <obj_property name="ObjectShortName">xbar_htrans[1,0:2,1:0]</obj_property>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/xbar_htrans[1,0]" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">[1,0,1:0]</obj_property>
-         <obj_property name="ObjectShortName">xbar_htrans[1,0,1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/xbar_htrans[1,1]" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">[1,1,1:0]</obj_property>
-         <obj_property name="ObjectShortName">xbar_htrans[1,1,1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/xbar_htrans[1,2]" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">[1,2,1:0]</obj_property>
-         <obj_property name="ObjectShortName">xbar_htrans[1,2,1:0]</obj_property>
-      </wvobject>
    </wvobject>
    <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/xbar_hready[1]" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">[1,0:2]</obj_property>
@@ -1195,203 +1124,133 @@
       <obj_property name="label">TB UART</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="group173" type="group">
-      <obj_property name="label">Main Memory</obj_property>
+   <wvobject fp_name="group338" type="group">
+      <obj_property name="label">Proc AHB</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/dut/proc0_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_haddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">proc0_haddr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_htrans[1:0]</obj_property>
+         <obj_property name="ObjectShortName">proc0_htrans[1:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_hwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_hwrite</obj_property>
+         <obj_property name="ObjectShortName">proc0_hwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_hsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">proc0_hsize[2:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_hready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_hready</obj_property>
+         <obj_property name="ObjectShortName">proc0_hready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_hresp" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_hresp</obj_property>
+         <obj_property name="ObjectShortName">proc0_hresp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_hwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_hwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">proc0_hwdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/proc0_hrdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">proc0_hrdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">proc0_hrdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject fp_name="group464" type="group">
-      <obj_property name="label">SRAM0 Arbiter</obj_property>
+   <wvobject fp_name="group358" type="group">
+      <obj_property name="label">SRAM0 AHB</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hready" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hready[1:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hready[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hready_resp" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hready_resp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hready_resp[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hresp" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hresp[1:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hresp[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_haddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_haddr[63:0]</obj_property>
-         <obj_property name="ObjectShortName">src_haddr[63:0]</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_haddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_haddr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sram0_haddr[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hwrite" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hwrite[1:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hwrite[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_htrans" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_htrans[3:0]</obj_property>
-         <obj_property name="ObjectShortName">src_htrans[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hsize" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hsize[5:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hsize[5:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hburst" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hburst[5:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hburst[5:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hprot" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hprot[7:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hprot[7:0]</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_htrans" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_htrans[1:0]</obj_property>
+         <obj_property name="ObjectShortName">sram0_htrans[1:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hmastlock" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hmastlock[1:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hmastlock[1:0]</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_hwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_hwrite</obj_property>
+         <obj_property name="ObjectShortName">sram0_hwrite</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hwdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hwdata[63:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hwdata[63:0]</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_hsize" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_hsize[2:0]</obj_property>
+         <obj_property name="ObjectShortName">sram0_hsize[2:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /src_hrdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">src_hrdata[63:0]</obj_property>
-         <obj_property name="ObjectShortName">src_hrdata[63:0]</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_hready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_hready</obj_property>
+         <obj_property name="ObjectShortName">sram0_hready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb/dut/sram0_hwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_hwdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sram0_hwdata[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hready" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hready</obj_property>
-         <obj_property name="ObjectShortName">dst_hready</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hready_resp" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hready_resp</obj_property>
-         <obj_property name="ObjectShortName">dst_hready_resp</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hresp" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hresp</obj_property>
-         <obj_property name="ObjectShortName">dst_hresp</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_haddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_haddr[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_haddr[31:0]</obj_property>
+      <wvobject fp_name="/tb/dut/sram0_hrdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sram0_hrdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sram0_hrdata[31:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hwrite" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hwrite</obj_property>
-         <obj_property name="ObjectShortName">dst_hwrite</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_htrans" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_htrans[1:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_htrans[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hsize" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hsize[2:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_hsize[2:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hburst" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hburst[2:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_hburst[2:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hprot" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hprot[3:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_hprot[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hmastlock" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hmastlock</obj_property>
-         <obj_property name="ObjectShortName">dst_hmastlock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hwdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hwdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_hwdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="group173" type="group">
+      <obj_property name="label">SRAM0 RAM Signals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb/inst_sram_async/addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">addr[17:0]</obj_property>
+         <obj_property name="ObjectShortName">addr[17:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /dst_hrdata" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">dst_hrdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">dst_hrdata[31:0]</obj_property>
+      <wvobject fp_name="/tb/inst_sram_async/dq" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">dq[15:0]</obj_property>
+         <obj_property name="ObjectShortName">dq[15:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_gnt_a" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mast_gnt_a[1:0]</obj_property>
-         <obj_property name="ObjectShortName">mast_gnt_a[1:0]</obj_property>
+      <wvobject fp_name="/tb/inst_sram_async/ce_n" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ce_n</obj_property>
+         <obj_property name="ObjectShortName">ce_n</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_aphase_ends" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mast_aphase_ends[1:0]</obj_property>
-         <obj_property name="ObjectShortName">mast_aphase_ends[1:0]</obj_property>
+      <wvobject fp_name="/tb/inst_sram_async/oe_n" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">oe_n</obj_property>
+         <obj_property name="ObjectShortName">oe_n</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_wen" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_wen[1:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_wen[1:0]</obj_property>
+      <wvobject fp_name="/tb/inst_sram_async/we_n" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">we_n</obj_property>
+         <obj_property name="ObjectShortName">we_n</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_in_dphase" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mast_in_dphase[1:0]</obj_property>
-         <obj_property name="ObjectShortName">mast_in_dphase[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_valid" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_valid[1:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_valid[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_haddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_haddr[0:1,31:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_haddr[0:1,31:0]</obj_property>
+      <wvobject fp_name="/tb/inst_sram_async/ben_n" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ben_n[1:0]</obj_property>
+         <obj_property name="ObjectShortName">ben_n[1:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hwrite" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_hwrite[0:1]</obj_property>
-         <obj_property name="ObjectShortName">buf_hwrite[0:1]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_htrans" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_htrans[0:1,1:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_htrans[0:1,1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hsize" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_hsize[0:1,2:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_hsize[0:1,2:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hburst" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_hburst[0:1,2:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_hburst[0:1,2:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hprot" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_hprot[0:1,3:0]</obj_property>
-         <obj_property name="ObjectShortName">buf_hprot[0:1,3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /buf_hmastlock" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">buf_hmastlock[0:1]</obj_property>
-         <obj_property name="ObjectShortName">buf_hmastlock[0:1]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_haddr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_haddr[63:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_haddr[63:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hwrite" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_hwrite[1:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_hwrite[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_htrans" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_htrans[3:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_htrans[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hsize" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_hsize[5:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_hsize[5:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hburst" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_hburst[5:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_hburst[5:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hprot" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_hprot[7:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_hprot[7:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /actual_hmastlock" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">actual_hmastlock[1:0]</obj_property>
-         <obj_property name="ObjectShortName">actual_hmastlock[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_req_a" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mast_req_a[1:0]</obj_property>
-         <obj_property name="ObjectShortName">mast_req_a[1:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb/dut/inst_ahbl_crossbar/\arb_instantiate[0].arb /mast_gnt_d" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">mast_gnt_d[1:0]</obj_property>
-         <obj_property name="ObjectShortName">mast_gnt_d[1:0]</obj_property>
-      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/\has_sram0_ctrl.sram0_ctrl /long_dphase" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">long_dphase</obj_property>
+      <obj_property name="ObjectShortName">long_dphase</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/\has_sram0_ctrl.sram0_ctrl /bytemask_noshift" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bytemask_noshift[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bytemask_noshift[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/\has_sram0_ctrl.sram0_ctrl /bytemask_aph" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bytemask_aph[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bytemask_aph[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/\has_sram0_ctrl.sram0_ctrl /ce_aph" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce_aph</obj_property>
+      <obj_property name="ObjectShortName">ce_aph</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/\has_sram0_ctrl.sram0_ctrl /ce_dph" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ce_dph</obj_property>
+      <obj_property name="ObjectShortName">ce_dph</obj_property>
    </wvobject>
 </wave_config>

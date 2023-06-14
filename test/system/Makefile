@@ -1,7 +1,6 @@
 TEST=helloworld
 
-all:
-	test
+all: test
 
 mkdir:
 	mkdir -p $(TEST)
