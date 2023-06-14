@@ -204,7 +204,6 @@ ddr_out sck_ddr (
 
 	.d_rise (1'b0),
 	.d_fall (lcdctrl_busy_clklcd),
-	.e      (1'b1),
 	.q      (lcd_sck)
 );
 
