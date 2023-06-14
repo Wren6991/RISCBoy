@@ -5,13 +5,13 @@
 
 #include "raspberry_256x256_rgb565.h"
 
-#define PIN_DB0 0
-#define PIN_LED 16
-#define PIN_RST 17
-#define PIN_CS 18
-#define PIN_RS 19
-#define PIN_WR 20
-#define PIN_RD 21
+#define PIN_DB0 21
+// #define PIN_LED 16
+#define PIN_RST 26
+#define PIN_CS 25
+#define PIN_RS 24
+#define PIN_WR 23
+#define PIN_RD 22
 
 #define N_DATA_PINS 16
 
@@ -27,9 +27,19 @@ static inline void gpio_out_init(uint pin, bool val) {
 	gpio_set_dir(pin, GPIO_OUT);
 }
 
+static inline uint16_t rev16(uint16_t x) {
+	x = (x & 0xff00u) >> 8 | (x & 0x00ffu) << 8;
+	x = (x & 0xf0f0u) >> 4 | (x & 0x0f0fu) << 4;
+	x = (x & 0xccccu) >> 2 | (x & 0x3333u) << 2;
+	x = (x & 0xaaaau) >> 1 | (x & 0x5555u) << 1;
+	return x;
+}
+
 static inline void set_db(uint16_t data) {
-	const uint32_t data_mask = ~(~0u << N_DATA_PINS) << PIN_DB0;
-	gpio_xor_mask(((uint32_t)data << PIN_DB0 ^ gpio_get_all()) & data_mask);
+	gpio_put_masked(
+		~(~0u << N_DATA_PINS) << (PIN_DB0 - (N_DATA_PINS - 1)),
+		(uint32_t)rev16(data) << (PIN_DB0 - (N_DATA_PINS - 1))
+	);
 }
 
 // yes again with this shit
@@ -66,16 +76,35 @@ static inline void put_data(uint16_t data) {
 }
 
 int main() {
-	for (int i = PIN_DB0; i < PIN_DB0 + N_DATA_PINS; ++i)
+#if 0
+	// Blinky test pattern
+	const uint first = 6;
+	const uint last = 27;
+	for (int i = first; i <= last; ++i) {
 		gpio_out_init(i, 0);
-	gpio_out_init(PIN_LED, 1);
+	}
+	while (true) {
+		gpio_put_all(-1u);
+		busy_wait_us_32(100);
+		for (int i = first; i < last; ++i) {
+			gpio_put_all(1u << i);
+			busy_wait_us_32(100);
+		}
+		gpio_put_all(0);
+		busy_wait_us_32(100 * 1000);
+	}
+
+#else
+	for (int i = PIN_DB0; i > PIN_DB0 - N_DATA_PINS; --i)
+		gpio_out_init(i, 0);
+	// gpio_out_init(PIN_LED, 1);
 	gpio_out_init(PIN_RST, 1);
 	gpio_out_init(PIN_CS,  1);
 	gpio_out_init(PIN_RS,  1);
 	gpio_out_init(PIN_WR,  1);
 	gpio_out_init(PIN_RD,  1);
 
-	hw_set_bits(&padsbank0_hw->io[PIN_LED], PADS_BANK0_GPIO0_DRIVE_BITS);
+	// hw_set_bits(&padsbank0_hw->io[PIN_LED], PADS_BANK0_GPIO0_DRIVE_BITS);
 
 	// The NOAC starts by sending this many zero data elements, then a 0x8000u.
 	// No idea if it's important
@@ -238,4 +267,5 @@ int main() {
 			}
 		}
 	}
+#endif
 }
