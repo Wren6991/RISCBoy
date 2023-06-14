@@ -3,7 +3,7 @@
 all: tb
 
 dut.cpp:
-	yosys -p "read_verilog -I $(HDL)/graphics/ppu2 $(shell listfiles $(HDL)/graphics/ppu2/riscboy_ppu.f); prep -flatten -top riscboy_ppu; async2sync; write_cxxrtl -O2 dut.cpp" 2>&1 > cxxrtl.log
+	yosys -p "read_verilog -I $(HDL)/graphics/ppu $(shell listfiles $(HDL)/graphics/ppu/riscboy_ppu.f); prep -flatten -top riscboy_ppu; async2sync; write_cxxrtl -O2 dut.cpp" 2>&1 > cxxrtl.log
 
 clean::
 	rm -f dut.cpp cxxrtl.log
