@@ -24,7 +24,7 @@
 #define SRAM0_SIZE FORCE_SRAM0_SIZE
 #endif
 
-#define MEMTEST_BYTES
+// #define MEMTEST_BYTES
 
 const char *splash =
 "\n"

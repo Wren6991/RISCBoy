@@ -13,7 +13,7 @@ romfiles::
 	@echo
 	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) MARCH=rv32i CCFLAGS="-Os -DCLK_SYS_MHZ=12 -DFORCE_SRAM0_SIZE=131072 -DUART_BAUD=1000000"
 	cp $(SOFTWARE)/build/$(BOOTAPP)8.hex bootram_init8.hex
-	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x20080000 -o bootram_init32.hex
+	$(SCRIPTS)/vhexwidth bootram_init8.hex -w 32 -b 0x00100000 -o bootram_init32.hex
 
 clean::
 	make -C $(SOFTWARE)/build APPNAME=$(BOOTAPP) clean

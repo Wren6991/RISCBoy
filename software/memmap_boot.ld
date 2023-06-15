@@ -4,12 +4,11 @@
    are permitted in any medium without royalty provided the copyright
    notice and this notice are preserved.  */
 
-/* Modified from GCC default for FPGABoy */
+/* Modified from GCC default for RISCBoy */
 
 MEMORY
   {
-   /* RAM (wx)  : ORIGIN = 0x20000000, LENGTH = 512K*/
-    IRAM (wx) : ORIGIN = 0x20080000, LENGTH = 8K
+    IRAM (wx) : ORIGIN = 0x00100000, LENGTH = 8K
   }
 
 OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv",
