@@ -27,6 +27,8 @@
 // complex) and, as a result, we can not tolerate backpressure from the scan
 // buffer. We assume exclusive access.
 
+`default_nettype none
+
 module riscboy_ppu_blender #(
 	parameter W_PIXDATA = 16,
 	parameter W_COORD_SX = 9,
@@ -91,8 +93,9 @@ always @ (posedge clk or negedge rst_n) begin
 		x_coord <= x_coord + 1'b1;
 		x_remaining <= x_remaining - 1'b1;
 		// Note span_count is 1 below actual count, i.e. if initialised to 1, we draw 2 pixels
-		if (~|x_remaining)
+		if (~|x_remaining) begin
 			span_done <= 1'b1;
+		end
 `ifdef FORMAL
 		assert(!span_done);
 `endif
@@ -112,3 +115,7 @@ assign scanbuf_wen = pmap_out_vld && pmap_out_data[W_PIXDATA-1] // "Alpha blendi
 	&& !out_blank;
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

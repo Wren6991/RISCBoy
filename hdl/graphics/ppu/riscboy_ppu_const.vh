@@ -57,6 +57,7 @@ localparam INSTR_PIXMODE_LSB = 0;
 localparam INSTR_PIXMODE_BITS = 2;
 
 localparam INSTR_ADDR_MASK = 32'hffff_fffc;
+localparam ADDR_BYTE_SHIFT = 1;
 
 function [2:0] INSTR_BLIT_SIZE; input [31:0] instr; INSTR_BLIT_SIZE = instr[27:25]; endfunction
 function [0:0] INSTR_TILE_SIZE; input [31:0] instr; INSTR_TILE_SIZE = instr[25]; endfunction

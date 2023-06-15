@@ -18,20 +18,20 @@
 `default_nettype none
 
  module riscboy_ppu_pixel_agu #(
- 	parameter W_COORD_SX = 9,
- 	parameter W_COORD_UV = 10,
- 	parameter W_SPAN_TYPE = 3,
- 	parameter ADDR_MASK = 32'hffff_ffff,
- 	parameter W_ADDR = 32
+	parameter W_COORD_SX = 9,
+	parameter W_COORD_UV = 10,
+	parameter W_SPAN_TYPE = 3,
+	parameter W_ADDR = 18,
+	parameter ADDR_MASK = {W_ADDR{1'b1}}
  ) (
- 	input  wire                   clk,
- 	input  wire                   rst_n,
+	input  wire                   clk,
+	input  wire                   rst_n,
 
- 	// Address phase only. Data phase is handled at the unpacker.
+	// Address phase only. Data phase is handled at the unpacker.
 	output wire                   bus_addr_vld,
 	input  wire                   bus_addr_rdy,
-	output wire [1:0]             bus_size,
 	output wire [W_ADDR-1:0]      bus_addr,
+	input  wire                   bus_data_vld,
 
 	input  wire                   span_start,
 	input  wire [W_COORD_SX-1:0]  span_count,
@@ -96,8 +96,9 @@ always @ (posedge clk or negedge rst_n) begin
 		tilesize <= span_tilesize;
 	end else if (issue_pixel) begin
 		count <= count - 1'b1;
-		if (~|count)
+		if (~|count) begin
 			span_done <= 1'b1;
+		end
 	end
 end
 
@@ -105,26 +106,24 @@ end
 // Address generation
 
 wire blit_mode = type == SPANTYPE_BLIT || type == SPANTYPE_ABLIT;
+wire pinfo_room_for_issue; // TODO delete?
 wire pinfo_fifo_full;
-wire pinfo_fifo_empty;
-
 
 wire [W_COORD_UV-1:0] ordinate_mask = ~({{W_COORD_UV-3{1'b1}}, 3'b000} << texsize);
-wire [W_ADDR-1:0] blit_pixel_offs_in_texture = (cgen_u & ordinate_mask) |
+wire [W_ADDR:0] blit_pixel_offs_in_texture = (cgen_u & ordinate_mask) |
 	({{W_COORD_UV-3{1'b0}}, cgen_v & ordinate_mask, 3'b000} << texsize);
 
-wire [W_ADDR-1:0] tile_pixel_offset_in_tilemap = tilesize ?
-	{{W_ADDR-16{1'b0}}, tinfo_tilenum, tinfo_v, tinfo_u} :
-	{{W_ADDR-14{1'b0}}, tinfo_tilenum, tinfo_v[2:0], tinfo_u[2:0]};
+wire [W_ADDR:0] tile_pixel_offset_in_tilemap = tilesize ?
+	{{W_ADDR-15{1'b0}}, tinfo_tilenum, tinfo_v, tinfo_u} :
+	{{W_ADDR-13{1'b0}}, tinfo_tilenum, tinfo_v[2:0], tinfo_u[2:0]};
 
-wire [W_ADDR-1:0] pixel_addr_offs = ({blit_mode ? blit_pixel_offs_in_texture : tile_pixel_offset_in_tilemap, 1'b0}
+wire [W_ADDR:0] pixel_addr_offs = ({blit_mode ? blit_pixel_offs_in_texture : tile_pixel_offset_in_tilemap, 1'b0}
 	>> 3'h4 - MODE_LOG_PIXSIZE(pixmode)) & ADDR_MASK;
 
 wire blit_out_of_bounds = |{cgen_u & ~ordinate_mask, cgen_v & ~ordinate_mask};
 
 // Always halfword-sized, halfword-aligned
-assign bus_addr = (texture_ptr + pixel_addr_offs) & ADDR_MASK & 32'hffff_fffe;
-assign bus_size = 2'h1;
+assign bus_addr = (({texture_ptr, 1'b0} + pixel_addr_offs) >> 1) & ADDR_MASK;
 assign bus_addr_vld = blit_mode ?
 	!(span_done || pinfo_fifo_full || blit_out_of_bounds || !cgen_vld) :
 	!(span_done || pinfo_fifo_full || tinfo_discard || !tinfo_vld);
@@ -141,26 +140,50 @@ assign tinfo_rdy = issue_pixel && !blit_mode;
 // ----------------------------------------------------------------------------
 // Metadata
 
+localparam PINFO_FIFO_DEPTH = 4;
+localparam W_PINFO_FIFO_LEVEL = 3;
+
+wire                          pinfo_fifo_empty;
+wire [W_PINFO_FIFO_LEVEL-1:0] pinfo_fifo_level;
+
 wire [4:0] pinfo_fifo_wdata = blit_mode ?
 	{blit_out_of_bounds, cgen_u[3:0]} :
 	{tinfo_discard, tinfo_u};
 
 sync_fifo #(
-	.DEPTH (4),
+	.DEPTH (PINFO_FIFO_DEPTH),
 	.WIDTH (5)
 ) pinfo_fifo (
 	.clk    (clk),
 	.rst_n  (rst_n),
 
-	.w_data (pinfo_fifo_wdata),
-	.w_en   (issue_pixel),
-	.r_data ({pinfo_discard, pinfo_u}),
-	.r_en   (pinfo_vld && pinfo_rdy),
+	.wdata  (pinfo_fifo_wdata),
+	.wen    (issue_pixel),
+	.rdata  ({pinfo_discard, pinfo_u}),
+	.ren    (pinfo_vld && pinfo_rdy),
+	.flush  (1'b0),
 	.full   (pinfo_fifo_full),
 	.empty  (pinfo_fifo_empty),
-	.level  (/* unused */)
+	.level  (pinfo_fifo_level)
 );
 
 assign pinfo_vld = !pinfo_fifo_empty;
 
+reg [W_PINFO_FIFO_LEVEL-1:0] fetches_in_flight;
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		fetches_in_flight <= {W_PINFO_FIFO_LEVEL{1'b0}};
+	end else begin
+		fetches_in_flight <= fetches_in_flight
+			+ {{W_PINFO_FIFO_LEVEL-1{1'b0}}, bus_addr_vld && bus_addr_rdy}
+			- {{W_PINFO_FIFO_LEVEL-1{1'b0}}, bus_data_vld                };
+	end
+end
+
+assign pinfo_room_for_issue = pinfo_fifo_level + fetches_in_flight < PINFO_FIFO_DEPTH;
+
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

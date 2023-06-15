@@ -81,8 +81,9 @@ always @ (posedge clk or negedge rst_n) begin
 		if (out_vld) begin
 			x_remaining <= x_remaining - 1'b1;
 			x_coord <= x_coord + 1'b1;
-			if (~|x_remaining)
+			if (~|x_remaining) begin
 				span_done <= 1'b1;
+			end
 		end
 `ifdef FORMAL
 		if (in_vld)

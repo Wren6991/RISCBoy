@@ -101,7 +101,14 @@ int main(int argc, char **argv) {
 	uint32_t bus_addr = 0;
 	uint8_t bus_size = 0;
 	// Never generate bus stalls
-	top.p_ahblm__hready.set<bool>(true);
+	top.p_mem__addr__rdy.set<bool>(true);
+
+	static const int mem_latency = 2;
+	std::pair<bool, uint32_t> mem_reqs[mem_latency];
+	for (int i = 0; i < mem_latency; ++i) {
+		mem_reqs[i] = std::pair<bool, uint32_t>(false, 0);
+	}
+	int next_mem_req = 0;
 
 	// Reset + initial clock pulse
 	top.step();
@@ -132,33 +139,28 @@ int main(int argc, char **argv) {
 			vcd.sample(cycle * 2);
 		top.p_clk.set<bool>(true);
 		top.step();
-		// Handle current data phase, then move current address phase to data phase
-		uint32_t rdata = 0;
-		bool hready = true;
-		if (bus_trans && !bus_write && bus_addr <= MEM_SIZE) {
-			hready = rand() > RAND_MAX / 5;
-			top.p_ahblm__hready.set<bool>(hready);
-			bus_addr &= ~0x3u;
+		top.step();
+
+		// Provide a response for the memory access that was issued n cycles ago
+		uint16_t rdata = 0;
+		bool rdata_valid = false;
+		std::pair<bool, uint32_t> mem_req_pop = mem_reqs[next_mem_req];
+		if (mem_req_pop.first) {
+			rdata_valid = true;
 			rdata =
-				(uint32_t)mem[bus_addr] |
-				mem[bus_addr + 1] << 8 |
-				mem[bus_addr + 2] << 16 |
-				mem[bus_addr + 3] << 24;
+				(uint32_t)mem[(mem_req_pop.second << 1)] |
+				mem[(mem_req_pop.second << 1) + 1] << 8;
 		}
-		else {
-			// IDLE -> OKAY
-			hready = true;
-			top.p_ahblm__hready.set<bool>(hready);
-		}
-		if (hready) {
-			// Only assert data on last cycle of data phase, to check master doesn't
-			// sample early.
-			top.p_ahblm__hrdata.set<uint32_t>(rdata);
-			bus_trans = top.p_ahblm__htrans.get<uint8_t>() >> 1;
-			bus_write = top.p_ahblm__hwrite.get<bool>();
-			bus_size = top.p_ahblm__hsize.get<uint8_t>();
-			bus_addr = top.p_ahblm__haddr.get<uint32_t>();
-		}
+		top.p_mem__rdata.set<uint16_t>(rdata);
+		top.p_mem__rdata__vld.set<bool>(rdata_valid);
+
+		// Push the current memory access to the history ring buffer so we will
+		// process it in n cycles
+		mem_reqs[next_mem_req] = std::pair<bool, uint32_t>(
+			top.p_mem__addr__vld.get<bool>(),
+			top.p_mem__addr.get<uint32_t>()
+		);
+		next_mem_req = (next_mem_req + 1) % mem_latency;
 
 		// Process configuration register writes
 		if (!waddr_seq.empty() && !wdata_seq.empty() && !top.p_apbs__psel.get<bool>()) {

@@ -120,8 +120,9 @@ riscboy_core #(
 // SRAM PHY
 
 async_sram_phy #(
-	.W_ADDR (W_SRAM0_ADDR),
-	.W_DATA (W_SRAM0_DATA)
+	.W_ADDR     (W_SRAM0_ADDR),
+	.W_DATA     (W_SRAM0_DATA),
+	.DQ_SYNC_IN (1)
 ) sram_phy_u (
 	.clk         (sramphy_clk),
 	.rst_n       (sramphy_rst_n),

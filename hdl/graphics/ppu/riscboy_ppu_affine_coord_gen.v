@@ -27,10 +27,12 @@
 // u = [ u ]   s - s0 = [ raster_offs_x ]   A = [ a_xu  a_yu ]   b = [ b_u ]
 //     [ v ]            [ raster_offs_y ]       [ a_xv  a_yv ]       [ b_v ]
 
+`default_nettype none
+
 module riscboy_ppu_affine_coord_gen #(
 	parameter W_COORD_INT = 10,
 	parameter W_COORD_FRAC = 8,
-	parameter W_BUS_DATA = 32
+	parameter W_CFGDATA = 32
 ) (
 	input  wire                   clk,
 	input  wire                   rst_n,
@@ -40,7 +42,7 @@ module riscboy_ppu_affine_coord_gen #(
 	input  wire [W_COORD_INT-1:0] raster_offs_x, // (s - s0)
 	input  wire [W_COORD_INT-1:0] raster_offs_y,
 
-	input  wire [W_BUS_DATA-1:0]  aparam_data,   // b vector, then A matrix, upper row first
+	input  wire [W_CFGDATA-1:0]   aparam_data,   // b vector, then A matrix, upper row first
 	input  wire                   aparam_vld,
 	output wire                   aparam_rdy,
 
@@ -110,7 +112,7 @@ assign out_vld = state == S_STREAM_SIMPLE || state == S_STREAM_AFFINE;
 // u and v phase accumulators
 
 localparam W_COORD_FULL = W_COORD_INT + W_COORD_FRAC;
-localparam W_APARAM = W_BUS_DATA / 2;
+localparam W_APARAM = W_CFGDATA / 2;
 
 // b coefficients are left-shifted to full significance
 wire [W_COORD_FULL-1:0] aparam_unpack_bu = {aparam_data[       0 +: W_APARAM], {W_COORD_FULL-W_APARAM{1'b0}}};
@@ -189,3 +191,7 @@ assign out_u = phase_u[W_COORD_FRAC +: W_COORD_INT];
 assign out_v = phase_v[W_COORD_FRAC +: W_COORD_INT];
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

@@ -63,9 +63,9 @@
 // idle.
 
 // Field: CPROC_PC  Access: WF
-#define PPU_CPROC_PC_LSB  0
-#define PPU_CPROC_PC_BITS 32
-#define PPU_CPROC_PC_MASK 0xffffffff
+#define PPU_CPROC_PC_LSB  1
+#define PPU_CPROC_PC_BITS 18
+#define PPU_CPROC_PC_MASK 0x7fffe
 
 /*******************************************************************************
 *                                     INTS                                     *

@@ -20,28 +20,31 @@
 // - Test blit requests for intersection with current scanline and clip region
 // - Generate commands for blitting hardware
 
+`default_nettype none
+
 module riscboy_ppu_cproc #(
-	parameter W_COORD_SX = 9,
-	parameter W_COORD_SY = 8,
-	parameter W_COORD_UV = 10,
-	parameter W_SPAN_TYPE = 3,
-	parameter W_STACK_PTR = 3,
-	parameter GLOBAL_ADDR_MASK = 32'h2007ffff,
-	parameter W_ADDR = 32, // do not modify
-	parameter W_DATA = 32  // do not modify
+	parameter W_COORD_SX       = 9,
+	parameter W_COORD_SY       = 8,
+	parameter W_COORD_UV       = 10,
+	parameter W_SPAN_TYPE      = 3,
+	parameter W_STACK_PTR      = 3,
+	parameter W_MEM_ADDR       = 18,
+	parameter GLOBAL_ADDR_MASK = {W_MEM_ADDR{1'b1}},
+	parameter W_MEM_DATA       = 16,  // do not modify
+	parameter W_INSTR          = 32   // do not modify
 ) (
 	input  wire                   clk,
 	input  wire                   rst_n,
 
 	input  wire                   ppu_running,
-	input  wire [W_ADDR-1:0]      entrypoint,
+	input  wire [W_MEM_ADDR-1:0]  entrypoint,
 	input  wire                   entrypoint_vld,
 
 	output wire                   bus_addr_vld,
 	input  wire                   bus_addr_rdy,
-	output wire [W_ADDR-1:0]      bus_addr,
+	output wire [W_MEM_ADDR-1:0]  bus_addr,
 	input  wire                   bus_data_vld,
-	input  wire [W_DATA-1:0]      bus_data,
+	input  wire [W_MEM_DATA-1:0]  bus_data,
 
 	input  wire [W_COORD_SY-1:0]  beam_y,
 	output wire                   hsync,
@@ -52,7 +55,7 @@ module riscboy_ppu_cproc #(
 	output wire                   cgen_start_simple,
 	output wire [W_COORD_UV-1:0]  cgen_raster_offs_x,
 	output wire [W_COORD_UV-1:0]  cgen_raster_offs_y,
-	output wire [W_DATA-1:0]      cgen_aparam_data,
+	output wire [W_INSTR-1:0]     cgen_aparam_data,
 	output wire                   cgen_aparam_vld,
 	input  wire                   cgen_aparam_rdy,
 
@@ -66,8 +69,8 @@ module riscboy_ppu_cproc #(
 	output wire [1:0]             span_pixmode,
 	output wire [2:0]             span_paloffs,
 	output wire [14:0]            span_fill_colour,
-	output wire [W_ADDR-1:0]      span_tilemap_ptr,
-	output wire [W_ADDR-1:0]      span_texture_ptr,
+	output wire [W_MEM_ADDR-1:0]  span_tilemap_ptr,
+	output wire [W_MEM_ADDR-1:0]  span_texture_ptr,
 	output wire [2:0]             span_texsize,
 	output wire                   span_tilesize,
 	output wire                   span_ablit_halfsize,
@@ -92,9 +95,10 @@ localparam S_ATILE_TILESET   = 4'd11;
 localparam S_PUSH_DATA       = 4'd12;
 localparam S_POPJ_JUMP       = 4'd13;
 
+
 reg [W_STATE-1:0]            state;
 reg [2:0]                    data_ctr;
-reg [W_DATA-1:0]             tmp_buf;
+reg [W_MEM_ADDR-1:0]         tilemap_ptr;
 
 reg [W_COORD_SX-1:0]         clip_x0;
 reg [W_COORD_SX-1:0]         clip_x1;
@@ -108,7 +112,7 @@ reg                          ablit_halfsize;
 
 wire                         instr_vld;
 wire                         instr_rdy;
-wire [W_DATA-1:0]            instr;
+wire [W_INSTR-1:0]           instr;
 wire [INSTR_OPCODE_BITS-1:0] opcode = instr[INSTR_OPCODE_LSB +: INSTR_OPCODE_BITS];
 
 wire                         skip_span; // e.g. offscreen blit
@@ -116,21 +120,26 @@ wire                         jump_taken;
 wire                         jump_target_vld;
 wire                         jump_target_rdy;
 
+// Instructions contain byte addresses (with some LSBs invalid due to
+// alignment constraints). Need to be shifted to get SRAM addresses.
+localparam INSTR_ADDR_SHIFT  = 1;
+wire [W_MEM_ADDR-1:0] instr_ptr_arg = (instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK) >> INSTR_ADDR_SHIFT;
+
 // Control state machine
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		state    <= S_EXECUTE;
-		data_ctr <= 3'h0;
-		tmp_buf  <= {W_DATA{1'b0}};
-		clip_x0  <= {W_COORD_SX{1'b0}};
-		clip_x1  <= {W_COORD_SX{1'b0}};
-		target_x <= {W_COORD_UV{1'b0}};
-		target_y <= {W_COORD_UV{1'b0}};
-		texsize  <= 3'h0;
-		paloffs  <= {INSTR_PALOFFS_BITS{1'b0}};
-		tilesize <= 1'b0;
-		ablit_halfsize <= 1'b0;
+		state           <= S_EXECUTE;
+		data_ctr        <= 3'h0;
+		tilemap_ptr     <= {W_MEM_ADDR{1'b0}};
+		clip_x0         <= {W_COORD_SX{1'b0}};
+		clip_x1         <= {W_COORD_SX{1'b0}};
+		target_x        <= {W_COORD_UV{1'b0}};
+		target_y        <= {W_COORD_UV{1'b0}};
+		texsize         <= 3'h0;
+		paloffs         <= {INSTR_PALOFFS_BITS{1'b0}};
+		tilesize        <= 1'b0;
+		ablit_halfsize  <= 1'b0;
 	end else if (ppu_running && (instr_vld || !instr_rdy)) case (state)
 
 		S_EXECUTE: case (opcode)
@@ -208,7 +217,7 @@ always @ (posedge clk or negedge rst_n) begin
 		S_BLIT_IMG: state <= S_SPAN_WAIT;
 		S_TILE_TILEMAP: begin
 			state <= S_TILE_TILESET;
-			tmp_buf <= instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK; // tilemap ptr
+			tilemap_ptr <= instr_ptr_arg;
 			texsize <= INSTR_PF_SIZE(instr);
 		end
 		S_TILE_TILESET: state <= S_SPAN_WAIT;
@@ -225,7 +234,7 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		S_ATILE_TILEMAP: begin
 			state <= S_ATILE_TILESET;
-			tmp_buf <= instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK; // tilemap ptr
+			tilemap_ptr <= instr_ptr_arg;
 			texsize <= INSTR_PF_SIZE(instr);
 		end
 		S_ATILE_TILESET: state <= S_SPAN_WAIT;
@@ -327,8 +336,8 @@ assign span_type =
 assign span_pixmode = state == S_EXECUTE ? PIXMODE_ARGB1555 : instr[INSTR_PIXMODE_LSB +: INSTR_PIXMODE_BITS];
 assign span_paloffs = paloffs;
 assign span_fill_colour = instr[14:0];
-assign span_texture_ptr = instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
-assign span_tilemap_ptr = tmp_buf & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
+assign span_texture_ptr = instr_ptr_arg;
+assign span_tilemap_ptr = tilemap_ptr;
 assign span_texsize = texsize;
 assign span_tilesize = tilesize;
 assign span_ablit_halfsize = ablit_halfsize;
@@ -369,11 +378,11 @@ always @ (posedge clk or negedge rst_n)
 	else
 		stack_ptr <= (stack_ptr + stack_push) - stack_pop;
 
-wire [W_ADDR-1:0] stack_wdata = instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
-wire [W_ADDR-1:0] stack_rdata;
+wire [W_MEM_ADDR-1:0] stack_wdata = instr_ptr_arg;
+wire [W_MEM_ADDR-1:0] stack_rdata;
 
 sram_sync_1r1w #(
-	.WIDTH (W_ADDR),
+	.WIDTH (W_MEM_ADDR),
 	.DEPTH (1 << W_STACK_PTR)
 ) call_stack_mem (
 	.clk   (clk),
@@ -387,13 +396,13 @@ sram_sync_1r1w #(
 	.rdata (stack_rdata)
 );
 
-wire [W_ADDR-1:0] jump_target = (entrypoint_vld && !ppu_running ? entrypoint : stack_rdata) & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK;
+wire [W_MEM_ADDR-1:0] jump_target = (entrypoint_vld && !ppu_running ? entrypoint : stack_rdata) & GLOBAL_ADDR_MASK & ({W_MEM_ADDR{1'b1}} << 1);
 assign jump_target_vld = state == S_POPJ_JUMP || (entrypoint_vld && !ppu_running);
 
 riscboy_ppu_cproc_frontend #(
-	.ADDR_MASK (GLOBAL_ADDR_MASK & 32'hffff_fffc),
-	.W_ADDR    (W_ADDR),
-	.W_DATA    (W_DATA)
+	.ADDR_MASK  (GLOBAL_ADDR_MASK),
+	.W_ADDR     (W_MEM_ADDR),
+	.W_DATA     (W_MEM_DATA)
 ) inst_riscboy_ppu_cproc_frontend (
 	.clk             (clk),
 	.rst_n           (rst_n),
@@ -415,3 +424,7 @@ riscboy_ppu_cproc_frontend #(
 );
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

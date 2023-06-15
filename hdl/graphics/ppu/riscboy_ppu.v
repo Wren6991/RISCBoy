@@ -19,10 +19,12 @@
 `default_nettype none
 
 module riscboy_ppu #(
+	parameter W_MEM_ADDR = 18,
+	parameter W_MEM_DATA = 16, // Do not modify
 	parameter W_HADDR = 32,
 	parameter W_HDATA = 32,
 	parameter W_DATA = 16,
-	parameter ADDR_MASK = 32'h2007ffff,
+	parameter ADDR_MASK = {W_MEM_ADDR{1'b1}},
 	parameter W_COORD_SX = 9, // Do not modify
 	parameter W_COORD_SY = 8, // Do not modify
 	parameter W_PIXDATA = 16  // Do not modify
@@ -32,20 +34,15 @@ module riscboy_ppu #(
 
 	output wire                  irq,
 
-	// AHB-lite master port
-	output wire [W_HADDR-1:0]    ahblm_haddr,
-	output wire                  ahblm_hwrite,
-	output wire [1:0]            ahblm_htrans,
-	output wire [2:0]            ahblm_hsize,
-	output wire [2:0]            ahblm_hburst,
-	output wire [3:0]            ahblm_hprot,
-	output wire                  ahblm_hmastlock,
-	input  wire                  ahblm_hready,
-	input  wire                  ahblm_hresp,
-	output wire [W_HDATA-1:0]    ahblm_hwdata,
-	input  wire [W_HDATA-1:0]    ahblm_hrdata,
+	// Memory read port -- note this is an SRAM row (halfword) address, not a
+	// byte address:
+	output wire [W_MEM_ADDR-1:0] mem_addr,
+	output wire                  mem_addr_vld,
+	input  wire                  mem_addr_rdy,
+	input  wire [W_MEM_DATA-1:0] mem_rdata,
+	input  wire                  mem_rdata_vld,
 
-	// APB slave port
+	// APB configuration/control port
 	input  wire                  apbs_psel,
 	input  wire                  apbs_penable,
 	input  wire                  apbs_pwrite,
@@ -80,7 +77,7 @@ wire                      csr_halt_vsync;
 wire [W_COORD_SX-1:0]     dispsize_w;
 wire [W_COORD_SY-1:0]     dispsize_h;
 
-wire [W_HADDR-1:0]        cproc_pc_wdata;
+wire [W_MEM_ADDR-1:0]     cproc_pc_wdata;
 wire                      cproc_pc_wen;
 
 wire                      ints_vsync;
@@ -147,36 +144,35 @@ assign irq = ints_vsync && inte_vsync;
 // ----------------------------------------------------------------------------
 // Command processor
 
-wire                  cproc_bus_aph_vld;
-wire                  cproc_bus_aph_rdy;
-wire [W_HADDR-1:0]    cproc_bus_aph_addr;
-wire [1:0]            cproc_bus_aph_size = 2'h2;
-wire                  cproc_bus_dph_vld;
-wire [W_HDATA-1:0]    cproc_bus_dph_data;
+wire                    cproc_bus_aph_vld;
+wire                    cproc_bus_aph_rdy;
+wire [W_MEM_ADDR-1:0]   cproc_bus_aph_addr;
+wire                    cproc_bus_dph_vld;
+wire [W_MEM_DATA-1:0]   cproc_bus_dph_data;
 
-wire                  blitter_scanbuf_rdy;
+wire                    blitter_scanbuf_rdy;
 
-wire                  cgen_start_affine;
-wire                  cgen_start_simple;
-wire [W_COORD_UV-1:0] cgen_raster_offs_x;
-wire [W_COORD_UV-1:0] cgen_raster_offs_y;
-wire [W_HDATA-1:0]    cgen_aparam_data;
-wire                  cgen_aparam_vld;
-wire                  cgen_aparam_rdy;
+wire                    cgen_start_affine;
+wire                    cgen_start_simple;
+wire [W_COORD_UV-1:0]   cgen_raster_offs_x;
+wire [W_COORD_UV-1:0]   cgen_raster_offs_y;
+wire [2*W_MEM_DATA-1:0] cgen_aparam_data;
+wire                    cgen_aparam_vld;
+wire                    cgen_aparam_rdy;
 
-wire                  span_start;
-wire [W_COORD_SX-1:0] span_x0;
-wire [W_COORD_SX-1:0] span_count;
-wire [W_SPANTYPE-1:0] span_type;
-wire [1:0]            span_pixmode;
-wire [2:0]            span_paloffs;
-wire [14:0]           span_fill_colour;
-wire [W_HADDR-1:0]    span_tilemap_ptr;
-wire [W_HADDR-1:0]    span_texture_ptr;
-wire [2:0]            span_texsize;
-wire                  span_tilesize;
-wire                  span_ablit_halfsize;
-wire                  span_done;
+wire                    span_start;
+wire [W_COORD_SX-1:0]   span_x0;
+wire [W_COORD_SX-1:0]   span_count;
+wire [W_SPANTYPE-1:0]   span_type;
+wire [1:0]              span_pixmode;
+wire [2:0]              span_paloffs;
+wire [14:0]             span_fill_colour;
+wire [W_MEM_ADDR-1:0]   span_tilemap_ptr;
+wire [W_MEM_ADDR-1:0]   span_texture_ptr;
+wire [2:0]              span_texsize;
+wire                    span_tilesize;
+wire                    span_ablit_halfsize;
+wire                    span_done;
 
 riscboy_ppu_cproc #(
 	.W_COORD_SX       (W_COORD_SX),
@@ -184,8 +180,8 @@ riscboy_ppu_cproc #(
 	.W_COORD_UV       (W_COORD_UV),
 	.W_SPAN_TYPE      (W_SPANTYPE),
 	.GLOBAL_ADDR_MASK (ADDR_MASK),
-	.W_ADDR           (W_HADDR),
-	.W_DATA           (W_HDATA)
+	.W_MEM_ADDR       (W_MEM_ADDR),
+	.W_MEM_DATA       (W_MEM_DATA)
 ) cproc (
 	.clk                 (clk),
 	.rst_n               (rst_n),
@@ -244,7 +240,7 @@ always @ (posedge clk) if (rst_n) assert(!(cgen_out_rdy_tile && cgen_out_rdy_bli
 riscboy_ppu_affine_coord_gen #(
 	.W_COORD_INT  (W_COORD_UV),
 	.W_COORD_FRAC (W_COORD_FRAC),
-	.W_BUS_DATA   (W_HDATA)
+	.W_CFGDATA    (2 * W_MEM_DATA)
 ) cgen (
 	.clk           (clk),
 	.rst_n         (rst_n),
@@ -263,10 +259,9 @@ riscboy_ppu_affine_coord_gen #(
 
 wire                  tile_bus_aph_vld;
 wire                  tile_bus_aph_rdy;
-wire [1:0]            tile_bus_aph_size;
-wire [W_HADDR-1:0]    tile_bus_aph_addr;
+wire [W_MEM_ADDR-1:0] tile_bus_aph_addr;
 wire                  tile_bus_dph_vld;
-wire [W_HDATA-1:0]    tile_bus_dph_data;
+wire [W_MEM_DATA-1:0] tile_bus_dph_data;
 
 wire [3:0]            tinfo_u;
 wire [3:0]            tinfo_v;
@@ -276,8 +271,8 @@ wire                  tinfo_vld;
 wire                  tinfo_rdy;
 
 riscboy_ppu_tile_agu #(
-	.W_ADDR      (W_HADDR),
-	.W_DATA      (W_HDATA),
+	.W_ADDR      (W_MEM_ADDR),
+	.W_DATA      (W_MEM_DATA),
 	.ADDR_MASK   (ADDR_MASK),
 	.W_COORD_UV  (W_COORD_UV),
 	.W_COORD_SX  (W_COORD_SX),
@@ -289,7 +284,6 @@ riscboy_ppu_tile_agu #(
 
 	.bus_addr_vld     (tile_bus_aph_vld),
 	.bus_addr_rdy     (tile_bus_aph_rdy),
-	.bus_size         (tile_bus_aph_size),
 	.bus_addr         (tile_bus_aph_addr),
 	.bus_data_vld     (tile_bus_dph_vld),
 	.bus_data         (tile_bus_dph_data),
@@ -317,10 +311,9 @@ riscboy_ppu_tile_agu #(
 
 wire                  pixel_bus_aph_vld;
 wire                  pixel_bus_aph_rdy;
-wire [W_HADDR-1:0]    pixel_bus_aph_addr;
-wire [1:0]            pixel_bus_aph_size;
+wire [W_MEM_ADDR-1:0] pixel_bus_aph_addr;
 wire                  pixel_bus_dph_vld;
-wire [W_HDATA-1:0]    pixel_bus_dph_data;
+wire [W_MEM_DATA-1:0] pixel_bus_dph_data;
 
 wire [3:0]            pinfo_u;
 wire                  pinfo_discard;
@@ -332,15 +325,15 @@ riscboy_ppu_pixel_agu #(
 	.W_COORD_UV  (W_COORD_UV),
 	.W_SPAN_TYPE (W_SPANTYPE),
 	.ADDR_MASK   (ADDR_MASK),
-	.W_ADDR      (W_HADDR)
+	.W_ADDR      (W_MEM_ADDR)
 ) pixel_agu (
 	.clk                 (clk),
 	.rst_n               (rst_n),
 
 	.bus_addr_vld        (pixel_bus_aph_vld),
 	.bus_addr_rdy        (pixel_bus_aph_rdy),
-	.bus_size            (pixel_bus_aph_size),
 	.bus_addr            (pixel_bus_aph_addr),
+	.bus_data_vld        (pixel_bus_dph_vld),
 
 	.span_start          (span_start),
 	.span_count          (span_count),
@@ -528,34 +521,31 @@ assign scanout_rdata = {scanout_rdata_raw[14:5], 1'b0, scanout_rdata_raw[4:0]};
 
 riscboy_ppu_busmaster #(
 	.N_REQ     (3),
-	.W_ADDR    (W_HADDR),
-	.W_DATA    (W_HDATA),
+	.W_ADDR    (W_MEM_ADDR),
+	.W_DATA    (W_MEM_DATA),
 	.ADDR_MASK (ADDR_MASK)
 ) busmaster (
 	.clk             (clk),
 	.rst_n           (rst_n),
 	.ppu_running     (ppu_running),
 
-	// Lowest significance wins
-	.req_aph_vld     ({pixel_bus_aph_vld  , tile_bus_aph_vld  , cproc_bus_aph_vld  }),
-	.req_aph_rdy     ({pixel_bus_aph_rdy  , tile_bus_aph_rdy  , cproc_bus_aph_rdy  }),
-	.req_aph_addr    ({pixel_bus_aph_addr , tile_bus_aph_addr , cproc_bus_aph_addr }),
-	.req_aph_size    ({pixel_bus_aph_size , tile_bus_aph_size , cproc_bus_aph_size }),
-	.req_dph_vld     ({pixel_bus_dph_vld  , tile_bus_dph_vld  , cproc_bus_dph_vld  }),
-	.req_dph_data    ({pixel_bus_dph_data , tile_bus_dph_data , cproc_bus_dph_data }),
+	//                             <- Low priority  |  High priority ->
+	.req_aph_vld     ({cproc_bus_aph_vld  , pixel_bus_aph_vld  , tile_bus_aph_vld  }),
+	.req_aph_rdy     ({cproc_bus_aph_rdy  , pixel_bus_aph_rdy  , tile_bus_aph_rdy  }),
+	.req_aph_addr    ({cproc_bus_aph_addr , pixel_bus_aph_addr , tile_bus_aph_addr }),
+	.req_dph_vld     ({cproc_bus_dph_vld  , pixel_bus_dph_vld  , tile_bus_dph_vld  }),
+	.req_dph_data    ({cproc_bus_dph_data , pixel_bus_dph_data , tile_bus_dph_data }),
 
-	.ahblm_haddr     (ahblm_haddr),
-	.ahblm_hwrite    (ahblm_hwrite),
-	.ahblm_htrans    (ahblm_htrans),
-	.ahblm_hsize     (ahblm_hsize),
-	.ahblm_hburst    (ahblm_hburst),
-	.ahblm_hprot     (ahblm_hprot),
-	.ahblm_hmastlock (ahblm_hmastlock),
-	.ahblm_hready    (ahblm_hready),
-	.ahblm_hresp     (ahblm_hresp),
-	.ahblm_hwdata    (ahblm_hwdata),
-	.ahblm_hrdata    (ahblm_hrdata)
+	.mem_addr        (mem_addr),
+	.mem_addr_vld    (mem_addr_vld),
+	.mem_addr_rdy    (mem_addr_rdy),
+	.mem_rdata       (mem_rdata),
+	.mem_rdata_vld   (mem_rdata_vld)
 );
 
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

@@ -8,14 +8,13 @@ from multiprocessing import cpu_count
 
 class ThreadPool:
 	def __init__(self, thread_count=1):
-		self.threads = [Thread(target=lambda: self._threadtask()) for i in range(thread_count)]
+		self.threads = [Thread(target=lambda: self._threadtask(), daemon=True) for i in range(thread_count)]
 		self._lock = Lock()
 		self._tasklist = []
 		self._unjoined_tasks = 0
 		self._in_sem = Semaphore(value=0)
 		self._out_sem = Semaphore(value=0)
 		for thread in self.threads:
-			thread.setDaemon(True)
 			thread.start()
 	def queue_task(self, task):
 		self.tasklist.append(task)

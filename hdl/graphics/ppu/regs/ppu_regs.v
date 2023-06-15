@@ -29,7 +29,7 @@ module ppu_regs (
 	output reg  csr_halt_vsync_o,
 	output reg [8:0] dispsize_w_o,
 	output reg [7:0] dispsize_h_o,
-	output reg [31:0] cproc_pc_o,
+	output reg [17:0] cproc_pc_o,
 	output reg cproc_pc_wen,
 	input wire  ints_vsync_i,
 	output reg  ints_vsync_o,
@@ -82,10 +82,10 @@ wire [31:0] __dispsize_rdata = {8'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
 assign dispsize_w_rdata = 9'h0;
 assign dispsize_h_rdata = 8'h0;
 
-wire [31:0] cproc_pc_wdata = wdata[31:0];
-wire [31:0] cproc_pc_rdata;
-wire [31:0] __cproc_pc_rdata = {cproc_pc_rdata};
-assign cproc_pc_rdata = 32'h0;
+wire [17:0] cproc_pc_wdata = wdata[18:1];
+wire [17:0] cproc_pc_rdata;
+wire [31:0] __cproc_pc_rdata = {13'h0, cproc_pc_rdata, 1'h0};
+assign cproc_pc_rdata = 18'h0;
 
 wire  ints_vsync_wdata = wdata[0];
 wire  ints_vsync_rdata;

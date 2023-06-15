@@ -15,6 +15,8 @@
  *                                                                    *
  *********************************************************************/
 
+`default_nettype none
+
 module riscboy_ppu_palette_mapper #(
 	parameter W_PIXDATA = 16,
 	parameter W_PALETTE_IDX = 8
@@ -81,3 +83,7 @@ assign out_vld = sidestep_vld || pram_out_vld;
 assign out_data = sidestep_vld ? sidestep_data : pram_rdata;
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

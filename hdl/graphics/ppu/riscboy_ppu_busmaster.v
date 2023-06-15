@@ -19,18 +19,21 @@
 // contention and bus stall. Data phase signals are vld only -- requestor must
 // accept data immediately.
 //
-// Note there is a through path from aph_vld to aph_rdy, so don't use rdy to
-// generate vld :)
+// Note there is a through path from aph_vld to aph_rdy (due to arbitration
+// between requestors), so don't use rdy to generate vld :)
 //
 // After asserting aph_vld, the request must stay asserted and stable until
 // aph_rdy goes high. It is not necessary to wait for dphase to complete
 // before asserting another aphase.
 
+`default_nettype none
+
 module riscboy_ppu_busmaster #(
-	parameter N_REQ = 10,
-	parameter W_ADDR = 32,
-	parameter W_DATA = 32,  // must be 32 (just up here for use on ports)
-	parameter ADDR_MASK = {W_ADDR{1'b1}}
+	parameter N_REQ       = 10,
+	parameter W_ADDR      = 18,
+	parameter W_DATA      = 16,
+	parameter ADDR_MASK   = {W_ADDR{1'b1}},
+	parameter MAX_LATENCY = 2
 ) (
 	input  wire                    clk,
 	input  wire                    rst_n,
@@ -46,62 +49,34 @@ module riscboy_ppu_busmaster #(
 	output wire [N_REQ-1:0]        req_dph_vld,
 	output wire [N_REQ*W_DATA-1:0] req_dph_data,
 
-	// AHB-lite Master port
-	output wire [W_ADDR-1:0]       ahblm_haddr,
-	output wire                    ahblm_hwrite,
-	output wire [1:0]              ahblm_htrans,
-	output wire [2:0]              ahblm_hsize,
-	output wire [2:0]              ahblm_hburst,
-	output wire [3:0]              ahblm_hprot,
-	output wire                    ahblm_hmastlock,
-	input  wire                    ahblm_hready,
-	input  wire                    ahblm_hresp,
-	output wire [W_DATA-1:0]       ahblm_hwdata,
-	input  wire [W_DATA-1:0]       ahblm_hrdata
+	// Memory access port
+	output wire [W_ADDR-1:0]       mem_addr,
+	output wire                    mem_addr_vld,
+	input  wire                    mem_addr_rdy,
+	input  wire [W_DATA-1:0]       mem_rdata,
+	input  wire                    mem_rdata_vld
 );
-
-// Tie off unused bus outputs
-
-assign ahblm_hwrite = 1'b0;
-assign ahblm_hburst = 3'h0;
-assign ahblm_hprot = 4'b0011; // non-cacheable non-bufferable privileged data access
-assign ahblm_hmastlock = 1'b0;
-assign ahblm_hwdata = {W_DATA{1'b0}};
-
 // ----------------------------------------------------------------------------
 // Request arbitration
 
-wire [N_REQ-1:0] grant_aph_comb;
-reg  [N_REQ-1:0] grant_aph_reg;
-wire [N_REQ-1:0] grant_aph = |grant_aph_reg ? grant_aph_reg : grant_aph_comb;
+// Simple priority arbitration. No need to hold the grant stable here as this
+// grant (and the associated address) is sampled when the address pipestage
+// updates.
 
-reg  [N_REQ-1:0] grant_dph;
 wire [N_REQ-1:0] req_filtered = req_aph_vld & {N_REQ{ppu_running}};
+wire [N_REQ-1:0] grant_aph;
 
 onehot_priority #(
 	.W_INPUT (N_REQ)
 ) req_priority_u (
 	.in  (req_filtered),
-	.out (grant_aph_comb)
+	.out (grant_aph)
 );
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		grant_aph_reg <= {N_REQ{1'b0}};
-		grant_dph <= {N_REQ{1'b0}};
-	end else if (ahblm_hready) begin
-		grant_aph_reg <= {N_REQ{1'b0}};
-		grant_dph <= grant_aph;
-	end else begin
-		grant_aph_reg <= grant_aph;
-	end
-end
-
 // ----------------------------------------------------------------------------
-// Bus request generation
+// Bus request generation + address pipestage
 
 wire [W_ADDR-1:0] req_addr_muxed;
-wire [1:0]        req_size_muxed;
 
 onehot_mux #(
 	.N_INPUTS (N_REQ),
@@ -112,41 +87,57 @@ onehot_mux #(
 	.out (req_addr_muxed)
 );
 
-onehot_mux #(
-	.N_INPUTS (N_REQ),
-	.W_INPUT  (2)
-) size_mux_u (
-	.in  (req_aph_size),
-	.sel (grant_aph),
-	.out (req_size_muxed)
-);
+reg [W_ADDR-1:0] pipestage_addr;
+reg [N_REQ-1:0]  pipestage_reqmask;
 
-assign ahblm_haddr = req_addr_muxed & ADDR_MASK;
-assign ahblm_hsize = {1'b0, req_size_muxed};
-assign ahblm_htrans = {|grant_aph, 1'b0};
+wire pipestage_update = mem_addr_vld ? mem_addr_rdy : |req_filtered;
 
-assign req_aph_rdy = grant_aph & {N_REQ{ahblm_hready}};
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		pipestage_addr <= {W_ADDR{1'b0}};
+		pipestage_reqmask <= {N_REQ{1'b0}};
+	end else if (pipestage_update) begin
+		pipestage_addr <= req_addr_muxed & ADDR_MASK;
+		pipestage_reqmask <= grant_aph;
+	end
+end
+
+assign mem_addr     = pipestage_addr & ADDR_MASK;
+assign mem_addr_vld = |pipestage_reqmask;
+
+assign req_aph_rdy = grant_aph & {N_REQ{pipestage_update}};
+
 
 // ----------------------------------------------------------------------------
 // Data phase response steering
 
-reg [1:0]        dph_buf_addr;
+// Need to remember which requestor is associated with each in-flight bus
+// transfer, so that data can be returned to the correct requestor when the
+// transfer completes.
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		dph_buf_addr <= 2'h0;
-	end else if (ahblm_hready) begin
-		dph_buf_addr <= ahblm_haddr[1:0];
-	end
-end
+wire [N_REQ-1:0] dph_reqmask;
 
-wire [W_DATA-1:0] hrdata_steered = {
-	ahblm_hrdata[31:16],
-	dph_buf_addr[1] ? ahblm_hrdata[31:24] : ahblm_hrdata[15:8],
-	ahblm_hrdata[dph_buf_addr * 8 +: 8]
-};
+sync_fifo #(
+	.DEPTH  (MAX_LATENCY),
+	.WIDTH  (N_REQ)
+) in_flight_reqmask_fifo_u (
+	.clk    (clk),
+	.rst_n  (rst_n),
+	.wdata  (pipestage_reqmask),
+	.wen    (mem_addr_vld && mem_addr_rdy),
+	.rdata  (dph_reqmask),
+	.ren    (mem_rdata_vld),
+	.flush  (1'b0),
+	.full   (/* unused */),
+	.empty  (/* unused */),
+	.level  (/* unused */)
+);
 
-assign req_dph_vld = grant_dph & {N_REQ{ahblm_hready}};
-assign req_dph_data = {N_REQ{hrdata_steered}};
+assign req_dph_data = {N_REQ{mem_rdata}};
+assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld}};
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

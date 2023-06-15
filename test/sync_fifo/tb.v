@@ -32,10 +32,11 @@ sync_fifo #(
 ) uut (
 	.clk    (clk),
 	.rst_n  (rst_n),
-	.w_data (w_data),
-	.w_en   (w_en),
-	.r_data (r_data),
-	.r_en   (r_en),
+	.wdata  (w_data),
+	.wen    (w_en),
+	.rdata  (r_data),
+	.ren    (r_en),
+	.flush  (1'b0),
 
 	.full   (full),
 	.empty  (empty),

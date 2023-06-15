@@ -20,7 +20,8 @@ regs:
   - name: cproc_pc
     info: Write to command processor program counter. Must only be used when the PPU is idle.
     bits:
-      - {b: [31, 0], access: wf}
+      # Note this has been shifted up by 1, to allow software to write byte-addressed pointers directly
+      - {b: [18, 1], access: wf}
   - name: ints
     info: Raw status of interrupt sources. Each source is write-1-clear.
     bits:
