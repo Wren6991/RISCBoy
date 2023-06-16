@@ -102,8 +102,6 @@ reg [W_MEM_ADDR-1:0]         tilemap_ptr;
 
 reg [W_COORD_SX-1:0]         clip_x0;
 reg [W_COORD_SX-1:0]         clip_x1;
-reg [W_COORD_UV-1:0]         target_x;
-reg [W_COORD_UV-1:0]         target_y;
 
 reg [2:0]                    texsize;
 reg [INSTR_PALOFFS_BITS-1:0] paloffs;
@@ -134,15 +132,21 @@ always @ (posedge clk or negedge rst_n) begin
 		tilemap_ptr     <= {W_MEM_ADDR{1'b0}};
 		clip_x0         <= {W_COORD_SX{1'b0}};
 		clip_x1         <= {W_COORD_SX{1'b0}};
-		target_x        <= {W_COORD_UV{1'b0}};
-		target_y        <= {W_COORD_UV{1'b0}};
 		texsize         <= 3'h0;
 		paloffs         <= {INSTR_PALOFFS_BITS{1'b0}};
 		tilesize        <= 1'b0;
 		ablit_halfsize  <= 1'b0;
 	end else if (ppu_running && (instr_vld || !instr_rdy)) case (state)
 
-		S_EXECUTE: case (opcode)
+		S_EXECUTE: begin
+
+			texsize <= INSTR_BLIT_SIZE(instr);
+			paloffs <= instr[INSTR_PALOFFS_LSB +: INSTR_PALOFFS_BITS];
+			tilesize <= INSTR_TILE_SIZE(instr);
+			ablit_halfsize <= instr[INSTR_ABLIT_HALFSIZE_LSB];
+			data_ctr <= 3'h0;
+
+			case (opcode)
 			OPCODE_SYNC: state <= S_SYNC_WAIT;
 			OPCODE_CLIP: begin
 				clip_x0 <= instr[INSTR_X_LSB +: INSTR_X_BITS];
@@ -154,20 +158,12 @@ always @ (posedge clk or negedge rst_n) begin
 				data_ctr <= 3'h0;
 			end else begin
 				state <= S_BLIT_IMG;
-				texsize <= INSTR_BLIT_SIZE(instr);
-				paloffs <= instr[INSTR_PALOFFS_LSB +: INSTR_PALOFFS_BITS];
-				target_x <= instr[INSTR_X_LSB +: INSTR_X_BITS];
-				target_y <= instr[INSTR_X_LSB +: INSTR_Y_BITS];
 			end
 			OPCODE_TILE: if (skip_span) begin
 				state <= S_SKIP_INSTR_DATA;
 				data_ctr <= 3'h1;
 			end else begin
 				state <= S_TILE_TILEMAP;
-				tilesize <= INSTR_TILE_SIZE(instr);
-				paloffs <= instr[INSTR_PALOFFS_LSB +: INSTR_PALOFFS_BITS];
-				target_x <= instr[INSTR_X_LSB +: INSTR_X_BITS];
-				target_y <= instr[INSTR_X_LSB +: INSTR_Y_BITS];
 			end
 			OPCODE_ABLIT: if (skip_span) begin
 				state <= S_SKIP_INSTR_DATA;
@@ -175,11 +171,6 @@ always @ (posedge clk or negedge rst_n) begin
 			end else begin
 				state <= S_ABLIT_APARAM;
 				data_ctr <= 3'h2;
-				texsize <= INSTR_BLIT_SIZE(instr);
-				paloffs <= instr[INSTR_PALOFFS_LSB +: INSTR_PALOFFS_BITS];
-				target_x <= instr[INSTR_X_LSB +: INSTR_X_BITS];
-				target_y <= instr[INSTR_X_LSB +: INSTR_Y_BITS];
-				ablit_halfsize <= instr[INSTR_ABLIT_HALFSIZE_LSB];
 			end
 			OPCODE_ATILE: if (skip_span) begin
 				state <= S_SKIP_INSTR_DATA;
@@ -187,10 +178,6 @@ always @ (posedge clk or negedge rst_n) begin
 			end else begin
 				state <= S_ATILE_APARAM;
 				data_ctr <= 3'h2;
-				tilesize <= INSTR_TILE_SIZE(instr);
-				paloffs <= instr[INSTR_PALOFFS_LSB +: INSTR_PALOFFS_BITS];
-				target_x <= instr[INSTR_X_LSB +: INSTR_X_BITS];
-				target_y <= instr[INSTR_X_LSB +: INSTR_Y_BITS];
 			end
 			OPCODE_PUSH: state <= S_PUSH_DATA;
 			OPCODE_POPJ: if (jump_taken) begin
@@ -198,7 +185,8 @@ always @ (posedge clk or negedge rst_n) begin
 			end else begin
 				state <= S_EXECUTE;
 			end
-		endcase
+			endcase
+		end
 
 		S_SKIP_INSTR_DATA: begin
 			data_ctr <= data_ctr - 1'b1;
