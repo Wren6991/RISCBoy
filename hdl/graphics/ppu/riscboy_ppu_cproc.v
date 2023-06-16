@@ -115,7 +115,7 @@ wire                         instr_rdy;
 wire [W_INSTR-1:0]           instr;
 wire [INSTR_OPCODE_BITS-1:0] opcode = instr[INSTR_OPCODE_LSB +: INSTR_OPCODE_BITS];
 
-wire                         skip_span; // e.g. offscreen blit
+wire                         skip_span; // e.g. offscreen blit -- note this is valid only during S_EXECUTE
 wire                         jump_taken;
 wire                         jump_target_vld;
 wire                         jump_target_rdy;
@@ -298,34 +298,34 @@ wire [INSTR_Y_BITS:0] blit_y_offs = {1'b0, {{INSTR_Y_BITS-W_COORD_SY{1'b0}}, bea
 // Note <= not <, because blit_size is end - start, not the pixel count (off by one)
 wire blit_intersects_y = !(blit_y_offs > blit_size);
 
-wire skip_span_comb =
+assign skip_span =
 	!(clip_pass_primary || (clip_pass_secondary && use_blit_region)) // Skip if X intersect fails
 	|| (use_blit_region && !blit_intersects_y);                      // Skip if Y intersect fails
 
 
 wire [W_COORD_SX-1:0] span_x0_comb = use_blit_region && clip_pass_secondary ? xl_clip_secondary : xl_clip_primary;
+wire [W_COORD_SX-1:0] span_count_comb_primary = xr_clip_primary - xl_clip_primary;
+wire [W_COORD_SX-1:0] span_count_comb_secondary = xr_clip_secondary - xl_clip_secondary;
 wire [W_COORD_SX-1:0] span_count_comb = use_blit_region && clip_pass_secondary ?
-	xr_clip_secondary - xl_clip_secondary : xr_clip_primary - xl_clip_primary;
+	span_count_comb_secondary : span_count_comb_primary;
 
 reg [W_COORD_SX-1:0] span_x0_saved;
 reg [W_COORD_SX-1:0] span_count_saved;
-reg                  skip_span_saved;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		span_x0_saved <= {W_COORD_SX{1'b0}};
 		span_count_saved <= {W_COORD_SX{1'b0}};
-		skip_span_saved <= 1'b1;
 	end else if (state == S_EXECUTE && instr_vld && instr_rdy) begin
 		span_x0_saved <= span_x0_comb;
 		span_count_saved <= span_count_comb;
-		skip_span_saved <= skip_span_saved <= skip_span_comb;
 	end
 end
 
-assign span_x0 = state == S_EXECUTE ? span_x0_comb : span_x0_saved;
-assign span_count = state == S_EXECUTE ? span_count_comb : span_count_saved;
-assign skip_span = state == S_EXECUTE ? skip_span_comb : skip_span_saved;
+// Note we're using xl_clip_primary instead of span_x0_comb because it's
+// assumed that any span in S_EXECUTE is a FILL instruction.
+assign span_x0 = state == S_EXECUTE ? xl_clip_primary : span_x0_saved;
+assign span_count = state == S_EXECUTE ? span_count_comb_primary : span_count_saved;
 
 assign span_type =
 	state == S_BLIT_IMG ? SPANTYPE_BLIT :
@@ -343,7 +343,8 @@ assign span_tilesize = tilesize;
 assign span_ablit_halfsize = ablit_halfsize;
 
 assign span_start = instr_vld && instr_rdy && (
-	state == S_EXECUTE && opcode == OPCODE_FILL && !skip_span ||
+	// Avoid using the full `skip_span` comparison combinatorially for FILL:
+	state == S_EXECUTE && opcode == OPCODE_FILL && clip_pass_primary ||
 	state == S_BLIT_IMG ||
 	state == S_ABLIT_IMG ||
 	state == S_TILE_TILESET ||
