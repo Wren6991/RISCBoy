@@ -629,7 +629,8 @@ ahb_sync_sram #(
 	.W_DATA            (W_DATA),
 	.W_ADDR            (W_ADDR),
 	.DEPTH             (1 << 11), // 2^11 words = 8 kiB
-	.HAS_WRITE_BUFFER  (!NO_SRAM_WRITE_BUF),
+	.USE_1R1W          (1),
+	.HAS_WRITE_BUFFER  (0), // Not needed with 1R1W
 	.PRELOAD_FILE      (BOOTRAM_PRELOAD)
 ) sram1 (
 	.clk               (clk_sys),
