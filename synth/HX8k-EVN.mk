@@ -3,7 +3,7 @@ DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_hx8kevn.f
 TOP=riscboy_fpga
 BOOTAPP=riscboy_bootloader
 
-SYNTH_OPT=-retime
+SYNTH_OPT=
 
 DEVICE=hx8k
 PACKAGE=ct256
