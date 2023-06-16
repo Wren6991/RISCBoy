@@ -81,6 +81,13 @@ localparam W_ADDR = 32;
 localparam W_DATA = 32;
 localparam W_PADDR = 16;
 
+localparam [W_ADDR-1:0] SRAM0_BASE = 32'h20000000;
+localparam [W_ADDR-1:0] SRAM0_MASK = 32'he0080000;
+localparam [W_ADDR-1:0] SRAM1_BASE = 32'h20080000;
+localparam [W_ADDR-1:0] SRAM1_MASK = 32'he0080000;
+localparam [W_ADDR-1:0] APB_BASE   = 32'h40000000;
+localparam [W_ADDR-1:0] APB_MASK   = 32'he0000000;
+
 // =============================================================================
 //  Instance interconnects
 // =============================================================================
@@ -243,8 +250,8 @@ hazard5_cpu_1port #(
 	.CSR_M_TRAP      (!CUTDOWN_PROCESSOR), // Do need IRQs though
 	.CSR_COUNTER     (0), // 64 bit counters who do you think you are
 	.REDUCED_BYPASS  (CUTDOWN_PROCESSOR),
-	.MTVEC_WMASK     (32'h00080000), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
-	.MTVEC_INIT      (32'h20000000)
+	.MTVEC_WMASK     (SRAM0_BASE ^ SRAM1_BASE), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
+	.MTVEC_INIT      (SRAM0_BASE)
 ) hazard5_cpu_u (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
@@ -269,6 +276,12 @@ hazard5_cpu_1port #(
 localparam W_COORD_SX = 9;
 localparam W_COORD_SY = 8;
 
+wire [W_SRAM0_ADDR-1:0] ppu_mem_addr;
+wire                    ppu_mem_addr_vld;
+wire                    ppu_mem_addr_rdy;
+wire [15:0]             ppu_mem_rdata;
+wire                    ppu_mem_rdata_vld;
+
 riscboy_ppu #(
 	.W_COORD_SX (W_COORD_SX),
 	.W_COORD_SY (W_COORD_SY),
@@ -280,17 +293,11 @@ riscboy_ppu #(
 
 	.irq                 (ppu_irq),
 
-	.ahblm_hready        (ppu_hready),
-	.ahblm_hresp         (ppu_hresp),
-	.ahblm_haddr         (ppu_haddr),
-	.ahblm_hwrite        (ppu_hwrite),
-	.ahblm_htrans        (ppu_htrans),
-	.ahblm_hsize         (ppu_hsize),
-	.ahblm_hburst        (ppu_hburst),
-	.ahblm_hprot         (ppu_hprot),
-	.ahblm_hmastlock     (ppu_hmastlock),
-	.ahblm_hwdata        (ppu_hwdata),
-	.ahblm_hrdata        (ppu_hrdata),
+	.mem_addr            (ppu_mem_addr),
+	.mem_addr_vld        (ppu_mem_addr_vld),
+	.mem_addr_rdy        (ppu_mem_addr_rdy),
+	.mem_rdata           (ppu_mem_rdata),
+	.mem_rdata_vld       (ppu_mem_rdata_vld),
 
 	.apbs_psel           (ppu_apbs_psel),
 	.apbs_penable        (ppu_apbs_penable),
@@ -307,6 +314,32 @@ riscboy_ppu #(
 	.scanout_buf_rdy     (lcd_scanout_buf_rdy),
 	.scanout_buf_release (lcd_scanout_buf_release)
 );
+
+riscboy_ppu_ahbl_adapter #(
+	.DST_ADDR_BASE (SRAM0_BASE)
+) inst_riscboy_ppu_ahbl_adapter (
+	.clk             (clk_sys),
+	.rst_n           (rst_n),
+
+	.ppu_addr        (ppu_mem_addr),
+	.ppu_addr_vld    (ppu_mem_addr_vld),
+	.ppu_addr_rdy    (ppu_mem_addr_rdy),
+	.ppu_rdata       (ppu_mem_rdata),
+	.ppu_rdata_vld   (ppu_mem_rdata_vld),
+
+	.ahblm_haddr     (ppu_haddr),
+	.ahblm_hwrite    (ppu_hwrite),
+	.ahblm_htrans    (ppu_htrans),
+	.ahblm_hsize     (ppu_hsize),
+	.ahblm_hburst    (ppu_hburst),
+	.ahblm_hprot     (ppu_hprot),
+	.ahblm_hmastlock (ppu_hmastlock),
+	.ahblm_hready    (ppu_hready),
+	.ahblm_hresp     (ppu_hresp),
+	.ahblm_hwdata    (ppu_hwdata),
+	.ahblm_hrdata    (ppu_hrdata)
+);
+
 
 generate
 if (DISPLAY_TYPE == "SPI") begin: gen_dispctrl_spi
@@ -416,8 +449,8 @@ ahbl_crossbar #(
 	.N_SLAVES  (3),
 	.W_ADDR    (W_ADDR),
 	.W_DATA    (W_DATA),
-	.ADDR_MAP  (96'h40000000_20080000_20000000),
-	.ADDR_MASK (96'he0000000_e0080000_e0080000),
+	.ADDR_MAP  ({APB_BASE, SRAM1_BASE, SRAM0_BASE}),
+	.ADDR_MASK ({APB_MASK, SRAM1_MASK, SRAM0_MASK}),
 	.CONN_MATRIX ({
 		3'b111,
 		3'b001

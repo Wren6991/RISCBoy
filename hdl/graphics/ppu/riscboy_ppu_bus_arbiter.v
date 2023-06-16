@@ -15,25 +15,19 @@
  *                                                                    *
  *********************************************************************/
 
-// Address phase signals have rdy/vld -- we assert backpressure based on
-// contention and bus stall. Data phase signals are vld only -- requestor must
-// accept data immediately.
-//
-// Note there is a through path from aph_vld to aph_rdy (due to arbitration
-// between requestors), so don't use rdy to generate vld :)
-//
-// After asserting aph_vld, the request must stay asserted and stable until
-// aph_rdy goes high. It is not necessary to wait for dphase to complete
-// before asserting another aphase.
+// Interface the multiple address generators inside the PPU to a single,
+// external, read-only bus. Optionally add pipe stages to the address going
+// out, and the data coming back in.
 
 `default_nettype none
 
-module riscboy_ppu_busmaster #(
+module riscboy_ppu_bus_arbiter #(
 	parameter N_REQ         = 10,
 	parameter W_ADDR        = 18,
 	parameter W_DATA        = 16,
 	parameter ADDR_MASK     = {W_ADDR{1'b1}},
-	parameter MAX_IN_FLIGHT = 3
+	parameter MAX_IN_FLIGHT = 3,
+	parameter PIPESTAGE_IN  = 1
 ) (
 	input  wire                    clk,
 	input  wire                    rst_n,
@@ -111,6 +105,31 @@ assign req_aph_rdy = grant_aph & {N_REQ{pipestage_update}};
 
 
 // ----------------------------------------------------------------------------
+// Optional data input pipestage
+
+reg [W_DATA-1:0] mem_rdata_q;
+reg              mem_rdata_vld_q;
+
+generate
+if (PIPESTAGE_IN != 0) begin: have_input_pipestage
+	always @ (posedge clk or negedge rst_n) begin
+		if (!rst_n) begin
+			mem_rdata_q <= {W_DATA{1'b0}};
+			mem_rdata_vld_q <= 1'b0;
+		end else begin
+			mem_rdata_q <= mem_rdata;
+			mem_rdata_vld_q <= mem_rdata_vld;
+		end
+	end
+end else begin: no_input_pipestage
+	always @ (*) begin
+		mem_rdata_q = mem_rdata;
+		mem_rdata_vld_q = mem_rdata_vld;
+	end
+end
+endgenerate
+
+// ----------------------------------------------------------------------------
 // Data phase response steering
 
 // Need to remember which requestor is associated with each in-flight bus
@@ -130,19 +149,19 @@ sync_fifo #(
 	.wdata  (pipestage_reqmask),
 	.wen    (mem_addr_vld && mem_addr_rdy),
 	.rdata  (dph_reqmask),
-	.ren    (mem_rdata_vld),
+	.ren    (mem_rdata_vld_q),
 	.flush  (1'b0),
 	.full   (/* unused */),
 	.empty  (/* unused */),
 	.level  (reqmask_fifo_level)
 );
 
-assign req_dph_data = {N_REQ{mem_rdata}};
-assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld}};
+assign req_dph_data = {N_REQ{mem_rdata_q}};
+assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld_q}};
 
 assign space_in_reqmask_fifo = (reqmask_fifo_level
 	+ {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, |pipestage_reqmask}
-	- {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, mem_rdata_vld}
+	- {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, mem_rdata_vld_q}
 	) < MAX_IN_FLIGHT;
 
 endmodule

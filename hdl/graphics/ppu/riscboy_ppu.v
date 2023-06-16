@@ -517,9 +517,9 @@ wire [W_PIXDATA-2:0] scanout_rdata_raw = scanout_buf_last_read ? scanbuf_rdata1 
 assign scanout_rdata = {scanout_rdata_raw[14:5], 1'b0, scanout_rdata_raw[4:0]};
 
 // ----------------------------------------------------------------------------
-// Busmaster
+// Bus interface
 
-riscboy_ppu_busmaster #(
+riscboy_ppu_bus_arbiter #(
 	.N_REQ     (3),
 	.W_ADDR    (W_MEM_ADDR),
 	.W_DATA    (W_MEM_DATA),

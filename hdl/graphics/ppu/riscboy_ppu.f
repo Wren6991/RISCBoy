@@ -1,7 +1,8 @@
 file riscboy_ppu.v
 file riscboy_ppu_affine_coord_gen.v
 file riscboy_ppu_blender.v
-file riscboy_ppu_busmaster.v
+file riscboy_ppu_bus_arbiter.v
+file riscboy_ppu_ahbl_adapter.v
 file riscboy_ppu_cproc.v
 file riscboy_ppu_cproc_frontend.v
 file riscboy_ppu_palette_mapper.v
