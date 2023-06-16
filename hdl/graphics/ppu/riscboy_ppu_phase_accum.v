@@ -27,6 +27,8 @@
 // This is because only op_a supports unshifting after the multiply step, so
 // that it can be repeatedly added as raster x advances.
 
+`default_nettype none
+
 module riscboy_ppu_phase_accum #(
 	parameter W_COORD_INT = 10,
 	parameter W_COORD_FRAC = 8,
@@ -46,6 +48,7 @@ module riscboy_ppu_phase_accum #(
 
 	input wire [W_COORD_FULL-1:0] accum_wdata,
 	input wire                    accum_load,
+	input wire                    accum_hold,
 	input wire                    accum_add_a,
 	input wire                    accum_add_b,
 	input wire                    accum_incr,
@@ -86,7 +89,7 @@ always @ (posedge clk or negedge rst_n) begin
 		accum <= {W_COORD_FULL{1'b0}};
 	end else if (accum_load) begin
 		accum <= accum_wdata;
-	end else begin
+	end else if (!accum_hold) begin
 		// Note I have tried standard carry save tricks etc but I can't beat what
 		// Yosys does here with two + symbols
 		accum <= accum
@@ -106,3 +109,7 @@ end
 `endif
 
 endmodule
+
+`ifndef YOSYS
+`default_nettype wire
+`endif

@@ -136,9 +136,14 @@ wire [W_COORD_FULL-1:0] accum_wdata_v = {
 
 wire op_shift     = state == S_MAT_MUL &&  |mul_ctr;
 wire op_a_unshift = state == S_MAT_MUL && ~|mul_ctr;
-wire accum_add_a  = state == S_MAT_MUL && raster_offs_x_sreg[0] || state == S_STREAM_AFFINE && out_vld && out_rdy;
+wire accum_add_a  = state == S_MAT_MUL && raster_offs_x_sreg[0] || state == S_STREAM_AFFINE;
 wire accum_add_b  = state == S_MAT_MUL && raster_offs_y_sreg[0];
-wire accum_u_incr = state == S_STREAM_SIMPLE && out_vld && out_rdy;
+wire accum_u_incr = state == S_STREAM_SIMPLE;
+
+// Feeding out_rdy into the adders, via accum_add_a or accum_u_incr above, can
+// create a long timing path, because out_rdy is a late signal originating at
+// the bus arbiter. Instead we merge it in late, using a clock enable term:
+wire accum_hold   = out_vld && !out_rdy;
 
 wire [W_COORD_FULL-1:0] phase_u;
 wire [W_COORD_FULL-1:0] phase_v;
@@ -159,6 +164,7 @@ riscboy_ppu_phase_accum #(
 
 	.accum_wdata  (accum_wdata_u),
 	.accum_load   (accum_load),
+	.accum_hold   (accum_hold),
 	.accum_add_a  (accum_add_a),
 	.accum_add_b  (accum_add_b),
 	.accum_incr   (accum_u_incr),
@@ -181,6 +187,7 @@ riscboy_ppu_phase_accum #(
 
 	.accum_wdata  (accum_wdata_v),
 	.accum_load   (accum_load),
+	.accum_hold   (accum_hold),
 	.accum_add_a  (accum_add_a),
 	.accum_add_b  (accum_add_b),
 	.accum_incr   (1'b0),
