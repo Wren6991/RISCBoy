@@ -29,11 +29,11 @@
 `default_nettype none
 
 module riscboy_ppu_busmaster #(
-	parameter N_REQ       = 10,
-	parameter W_ADDR      = 18,
-	parameter W_DATA      = 16,
-	parameter ADDR_MASK   = {W_ADDR{1'b1}},
-	parameter MAX_LATENCY = 2
+	parameter N_REQ         = 10,
+	parameter W_ADDR        = 18,
+	parameter W_DATA        = 16,
+	parameter ADDR_MASK     = {W_ADDR{1'b1}},
+	parameter MAX_IN_FLIGHT = 3
 ) (
 	input  wire                    clk,
 	input  wire                    rst_n,
@@ -63,7 +63,9 @@ module riscboy_ppu_busmaster #(
 // grant (and the associated address) is sampled when the address pipestage
 // updates.
 
-wire [N_REQ-1:0] req_filtered = req_aph_vld & {N_REQ{ppu_running}};
+wire space_in_reqmask_fifo;
+wire block_issue = !ppu_running || !space_in_reqmask_fifo;
+wire [N_REQ-1:0] req_filtered = req_aph_vld & {N_REQ{!block_issue}};
 wire [N_REQ-1:0] grant_aph;
 
 onehot_priority #(
@@ -116,9 +118,11 @@ assign req_aph_rdy = grant_aph & {N_REQ{pipestage_update}};
 // transfer completes.
 
 wire [N_REQ-1:0] dph_reqmask;
+localparam W_REQMASK_FIFO_LEVEL = $clog2(MAX_IN_FLIGHT + 1);
+wire [W_REQMASK_FIFO_LEVEL-1:0] reqmask_fifo_level;
 
 sync_fifo #(
-	.DEPTH  (MAX_LATENCY),
+	.DEPTH  (MAX_IN_FLIGHT),
 	.WIDTH  (N_REQ)
 ) in_flight_reqmask_fifo_u (
 	.clk    (clk),
@@ -130,11 +134,16 @@ sync_fifo #(
 	.flush  (1'b0),
 	.full   (/* unused */),
 	.empty  (/* unused */),
-	.level  (/* unused */)
+	.level  (reqmask_fifo_level)
 );
 
 assign req_dph_data = {N_REQ{mem_rdata}};
 assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld}};
+
+assign space_in_reqmask_fifo = (reqmask_fifo_level
+	+ {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, |pipestage_reqmask}
+	- {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, mem_rdata_vld}
+	) < MAX_IN_FLIGHT;
 
 endmodule
 
