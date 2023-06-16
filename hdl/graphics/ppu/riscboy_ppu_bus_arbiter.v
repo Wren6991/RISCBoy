@@ -85,6 +85,7 @@ onehot_mux #(
 
 reg [W_ADDR-1:0] pipestage_addr;
 reg [N_REQ-1:0]  pipestage_reqmask;
+reg              pipestage_reqmask_vld;
 
 wire pipestage_update = mem_addr_vld ? mem_addr_rdy : |req_filtered;
 
@@ -92,17 +93,18 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		pipestage_addr <= {W_ADDR{1'b0}};
 		pipestage_reqmask <= {N_REQ{1'b0}};
+		pipestage_reqmask_vld <= 1'b0;
 	end else if (pipestage_update) begin
 		pipestage_addr <= req_addr_muxed & ADDR_MASK;
 		pipestage_reqmask <= grant_aph;
+		pipestage_reqmask_vld <= |grant_aph;
 	end
 end
 
 assign mem_addr     = pipestage_addr & ADDR_MASK;
-assign mem_addr_vld = |pipestage_reqmask;
+assign mem_addr_vld = pipestage_reqmask_vld;
 
 assign req_aph_rdy = grant_aph & {N_REQ{pipestage_update}};
-
 
 // ----------------------------------------------------------------------------
 // Optional data input pipestage
@@ -160,7 +162,7 @@ assign req_dph_data = {N_REQ{mem_rdata_q}};
 assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld_q}};
 
 assign space_in_reqmask_fifo = (reqmask_fifo_level
-	+ {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, |pipestage_reqmask}
+	+ {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, pipestage_reqmask_vld}
 	- {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, mem_rdata_vld_q}
 	) < MAX_IN_FLIGHT;
 
