@@ -241,16 +241,17 @@ wire                  lcd_scanout_buf_release;
 // =============================================================================
 
 hazard5_cpu_1port #(
-	.RESET_VECTOR    (CPU_RESET_VECTOR),
-	.EXTENSION_C     (!CUTDOWN_PROCESSOR),
-	.EXTENSION_M     (!CUTDOWN_PROCESSOR),
-	.MULDIV_UNROLL   (1),
-	.CSR_M_MANDATORY (0), // Not going to spend LUTs on a register telling me which architecture is implemented
-	.CSR_M_TRAP      (!CUTDOWN_PROCESSOR), // Do need IRQs though
-	.CSR_COUNTER     (0), // 64 bit counters who do you think you are
-	.REDUCED_BYPASS  (CUTDOWN_PROCESSOR),
-	.MTVEC_WMASK     (SRAM0_BASE ^ SRAM1_BASE), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
-	.MTVEC_INIT      (SRAM0_BASE)
+	.RESET_VECTOR      (CPU_RESET_VECTOR),
+	.EXTENSION_C       (!CUTDOWN_PROCESSOR),
+	.EXTENSION_M       (!CUTDOWN_PROCESSOR),
+	.MULDIV_UNROLL     (1),
+	.CSR_M_MANDATORY   (0), // Not going to spend LUTs on a register telling me which architecture is implemented
+	.CSR_M_TRAP        (!CUTDOWN_PROCESSOR), // Do need IRQs though
+	.CSR_COUNTER       (0), // 64 bit counters who do you think you are
+	.REDUCED_BYPASS    (CUTDOWN_PROCESSOR),
+	.MTVEC_WMASK       (SRAM0_BASE ^ SRAM1_BASE), // Restrict MTVEC to SRAM0_BASE or SRAM1_BASE, to save gates
+	.MTVEC_INIT        (SRAM0_BASE),
+	.NO_LS_ALIGN_CHECK (1)
 ) hazard5_cpu_u (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
