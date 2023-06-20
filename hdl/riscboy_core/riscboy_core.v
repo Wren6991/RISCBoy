@@ -15,8 +15,9 @@
  *                                                                    *
  *********************************************************************/
 
-// riscboy_core contains the full system, except for Clock, Reset and Power
-// (CRaP) which lives in the chip/fpga/testbench top level
+// riscboy_core contains the full system, except for clock/reset/pads which
+// live in an external wrapper. This file is the top level for system-level
+// simulation.
 
 `default_nettype none
 
@@ -70,6 +71,16 @@ module riscboy_core #(
 	output wire                    sram_we_n,
 	output wire                    sram_oe_n,
 	output wire [1:0]              sram_byte_n,
+
+	// Testbench management interface, inputs should be tied to 0 on FPGA
+	output wire [15:0]             tbio_paddr,
+	output wire                    tbio_psel,
+	output wire                    tbio_penable,
+	output wire                    tbio_pwrite,
+	output wire [31:0]             tbio_pwdata,
+	input  wire                    tbio_pready,
+	input  wire [31:0]             tbio_prdata,
+	input  wire                    tbio_pslverr,
 
 	// If interface is SPI, lcdp is {lcd_cs, lcd_dc, lcd_sck, lcd_mosi} and lcdn is zeroes.
 	// If interfaces is DVI, lcdp is the positive of {CLK, TMDS2, TMDS1, TMDS0} and lcdn is the negative of these.
@@ -162,17 +173,6 @@ wire [W_DATA-1:0]  bridge_pwdata;
 wire               bridge_pready;
 wire [W_DATA-1:0]  bridge_prdata;
 wire               bridge_pslverr;
-
-wire [W_PADDR-1:0] tbman_paddr;
-wire               tbman_psel;
-wire               tbman_penable;
-wire               tbman_pwrite;
-wire [W_DATA-1:0]  tbman_pwdata;
-wire               tbman_pready;
-wire [W_DATA-1:0]  tbman_prdata;
-wire               tbman_pslverr;
-
-wire [15:0]        tbman_irq_force;
 
 wire [W_PADDR-1:0] uart_paddr;
 wire               uart_psel;
@@ -270,7 +270,7 @@ hazard5_cpu_1port #(
 		14'h0,
 		uart_irq,
 		ppu_irq
-	} | tbman_irq_force)
+	})
 );
 
 localparam W_COORD_SX = 9;
@@ -536,14 +536,14 @@ apb_splitter #(
 	.apbs_pready  (bridge_pready),
 	.apbs_prdata  (bridge_prdata),
 	.apbs_pslverr (bridge_pslverr),
-	.apbm_paddr   ({tbman_paddr   , lcd_apbs_paddr    , ppu_apbs_paddr    , spi_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
-	.apbm_psel    ({tbman_psel    , lcd_apbs_psel     , ppu_apbs_psel     , spi_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
-	.apbm_penable ({tbman_penable , lcd_apbs_penable  , ppu_apbs_penable  , spi_penable , pwm_penable , uart_penable , gpio_penable}),
-	.apbm_pwrite  ({tbman_pwrite  , lcd_apbs_pwrite   , ppu_apbs_pwrite   , spi_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
-	.apbm_pwdata  ({tbman_pwdata  , lcd_apbs_pwdata   , ppu_apbs_pwdata   , spi_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
-	.apbm_pready  ({tbman_pready  , lcd_apbs_pready   , ppu_apbs_pready   , spi_pready  , pwm_pready  , uart_pready  , gpio_pready }),
-	.apbm_prdata  ({tbman_prdata  , lcd_apbs_prdata   , ppu_apbs_prdata   , spi_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
-	.apbm_pslverr ({tbman_pslverr , lcd_apbs_pslverr  , ppu_apbs_pslverr  , spi_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
+	.apbm_paddr   ({tbio_paddr   , lcd_apbs_paddr    , ppu_apbs_paddr    , spi_paddr   , pwm_paddr   , uart_paddr   , gpio_paddr  }),
+	.apbm_psel    ({tbio_psel    , lcd_apbs_psel     , ppu_apbs_psel     , spi_psel    , pwm_psel    , uart_psel    , gpio_psel   }),
+	.apbm_penable ({tbio_penable , lcd_apbs_penable  , ppu_apbs_penable  , spi_penable , pwm_penable , uart_penable , gpio_penable}),
+	.apbm_pwrite  ({tbio_pwrite  , lcd_apbs_pwrite   , ppu_apbs_pwrite   , spi_pwrite  , pwm_pwrite  , uart_pwrite  , gpio_pwrite }),
+	.apbm_pwdata  ({tbio_pwdata  , lcd_apbs_pwdata   , ppu_apbs_pwdata   , spi_pwdata  , pwm_pwdata  , uart_pwdata  , gpio_pwdata }),
+	.apbm_pready  ({tbio_pready  , lcd_apbs_pready   , ppu_apbs_pready   , spi_pready  , pwm_pready  , uart_pready  , gpio_pready }),
+	.apbm_prdata  ({tbio_prdata  , lcd_apbs_prdata   , ppu_apbs_prdata   , spi_prdata  , pwm_prdata  , uart_prdata  , gpio_prdata }),
+	.apbm_pslverr ({tbio_pslverr , lcd_apbs_pslverr  , ppu_apbs_pslverr  , spi_pslverr , pwm_pslverr , uart_pslverr , gpio_pslverr})
 );
 
 
@@ -648,25 +648,6 @@ ahb_sync_sram #(
 	.ahbls_hmastlock   (sram1_hmastlock),
 	.ahbls_hwdata      (sram1_hwdata),
 	.ahbls_hrdata      (sram1_hrdata)
-);
-
-tbman #(
-	.STUB_UART (STUB_UART),
-	.STUB_SPI  (STUB_SPI),
-	.STUB_PWM  (STUB_PWM)
-) inst_tbman (
-	.clk              (clk_sys),
-	.rst_n            (rst_n),
-	.apbs_psel        (tbman_psel),
-	.apbs_penable     (tbman_penable),
-	.apbs_pwrite      (tbman_pwrite),
-	.apbs_paddr       (tbman_paddr),
-	.apbs_pwdata      (tbman_pwdata),
-	.apbs_prdata      (tbman_prdata),
-	.apbs_pready      (tbman_pready),
-	.apbs_pslverr     (tbman_pslverr),
-
-	.irq_force        (tbman_irq_force) // FIXME testing only, need proper platform IRQ controller
 );
 
 generate

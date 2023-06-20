@@ -110,6 +110,15 @@ riscboy_core #(
 	.sram_oe_n      (sramphy_oe_n),
 	.sram_byte_n    (sramphy_byte_n),
 
+	.tbio_paddr     (/* unused */),
+	.tbio_psel      (/* unused */),
+	.tbio_penable   (/* unused */),
+	.tbio_pwrite    (/* unused */),
+	.tbio_pwdata    (/* unused */),
+	.tbio_pready    (1'b0),
+	.tbio_pslverr   (1'b0),
+	.tbio_prdata    (32'h0),
+
 	.lcdp           ({lcd_cs, lcd_dc, lcd_sclk, lcd_mosi}),
 
 	.padout         (padout),
