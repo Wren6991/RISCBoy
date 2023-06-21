@@ -60,6 +60,7 @@ module riscboy_ppu_tile_agu #(
 
 reg [W_COORD_SX-1:0]  count;
 reg [W_SPANTYPE-1:0]  type;
+reg                   type_is_atile;
 reg [W_ADDR-1:0]      tilemap_ptr;
 reg [2:0]             log_texsize;
 reg                   log_tilesize;
@@ -72,6 +73,7 @@ always @ (posedge clk or negedge rst_n) begin
 		span_done <= 1'b1;
 		count <= {W_COORD_SX{1'b0}};
 		type <= {W_SPANTYPE{1'b0}};
+		type_is_atile <= 1'b0;
 		tilemap_ptr <= {W_ADDR{1'b0}};
 		log_texsize <= 3'h0;
 		log_tilesize <= 1'b0;
@@ -80,6 +82,7 @@ always @ (posedge clk or negedge rst_n) begin
 		span_done <= !(span_type == SPANTYPE_TILE || span_type == SPANTYPE_ATILE);
 		count <= span_count;
 		type <= span_type;
+		type_is_atile <= span_type == SPANTYPE_ATILE;
 		tilemap_ptr <= span_tilemap_ptr & ADDR_MASK;
 		log_texsize <= {1'b1, span_texsize[1:0]}; // only larger half of sizes available for tiled backgrounds (128 -> 1024 px)
 		log_tilesize <= span_tilesize;
@@ -89,7 +92,7 @@ always @ (posedge clk or negedge rst_n) begin
 		assert(!span_done);
 `endif
 		count <= count - 1'b1;
-		first_of_span <= 1'b0;
+		first_of_span <= type_is_atile;
 		if (~|count) begin
 			span_done <= 1'b1;
 		end
@@ -115,8 +118,8 @@ wire issue_discard = out_of_bounds && 1'b0; // FIXME need an option here
 // the bus) and the last time tile data is *used* (to pop it from the buffer)
 wire [3:0] tile_wrap_mask = {span_tilesize, 3'h7};
 wire tinfo_end;
-wire first_of_tile = type == SPANTYPE_ATILE || first_of_span || ~|(cgen_u[3:0] & tile_wrap_mask);
-wire last_of_tile = type == SPANTYPE_ATILE || !tinfo_buf_empty && (tinfo_end || &(tinfo_u[3:0] & tile_wrap_mask));
+wire first_of_tile = first_of_span || ~|(cgen_u[3:0] & tile_wrap_mask);
+wire last_of_tile = type_is_atile || !tinfo_buf_empty && (tinfo_end || &(tinfo_u[3:0] & tile_wrap_mask));
 
 // ----------------------------------------------------------------------------
 // Tile info buffering

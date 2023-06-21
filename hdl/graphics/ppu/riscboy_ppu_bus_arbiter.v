@@ -26,7 +26,7 @@ module riscboy_ppu_bus_arbiter #(
 	parameter W_ADDR        = 18,
 	parameter W_DATA        = 16,
 	parameter ADDR_MASK     = {W_ADDR{1'b1}},
-	parameter MAX_IN_FLIGHT = 3,
+	parameter MAX_IN_FLIGHT = 5,
 	parameter PIPESTAGE_IN  = 1
 ) (
 	input  wire                    clk,
@@ -161,10 +161,8 @@ sync_fifo #(
 assign req_dph_data = {N_REQ{mem_rdata_q}};
 assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld_q}};
 
-assign space_in_reqmask_fifo = (reqmask_fifo_level
-	+ {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, pipestage_reqmask_vld}
-	- {{W_REQMASK_FIFO_LEVEL-1{1'b0}}, mem_rdata_vld_q}
-	) < MAX_IN_FLIGHT;
+// Note -1 for the address pipestage slot
+assign space_in_reqmask_fifo = reqmask_fifo_level < MAX_IN_FLIGHT - 1;
 
 endmodule
 

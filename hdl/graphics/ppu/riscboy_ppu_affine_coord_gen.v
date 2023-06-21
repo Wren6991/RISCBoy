@@ -48,7 +48,7 @@ module riscboy_ppu_affine_coord_gen #(
 
 	output wire [W_COORD_INT-1:0] out_u,
 	output wire [W_COORD_INT-1:0] out_v,
-	output wire                   out_vld,
+	output reg                    out_vld,
 	input  wire                   out_rdy
 );
 
@@ -68,11 +68,14 @@ reg [W_MULCTR-1:0] mul_ctr;
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		state <= S_STREAM_SIMPLE;
+		out_vld <= 1'b0;
 		mul_ctr <= {W_MULCTR{1'b0}};
 	end else if (start_simple) begin
 		state <= S_STREAM_SIMPLE;
+		out_vld <= 1'b1;
 	end else if (start_affine) begin
 		state <= S_APARAM0;
+		out_vld <= 1'b0;
 	end else case (state)
 		S_APARAM0: if (aparam_vld && aparam_rdy) state <= S_APARAM1;
 		S_APARAM1: if (aparam_vld && aparam_rdy) state <= S_APARAM2;
@@ -82,8 +85,10 @@ always @ (posedge clk or negedge rst_n) begin
 		end
 		S_MAT_MUL: begin
 			mul_ctr <= mul_ctr - 1'b1;
-			if (~|mul_ctr)
+			if (~|mul_ctr) begin
 				state <= S_STREAM_AFFINE;
+				out_vld <= 1'b1;
+			end
 		end
 		default: begin end
 	endcase
@@ -106,7 +111,6 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 assign aparam_rdy = state == S_APARAM0 || state == S_APARAM1 || state == S_APARAM2;
-assign out_vld = state == S_STREAM_SIMPLE || state == S_STREAM_AFFINE;
 
 // ----------------------------------------------------------------------------
 // u and v phase accumulators

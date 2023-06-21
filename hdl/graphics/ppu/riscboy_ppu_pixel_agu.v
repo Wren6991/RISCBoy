@@ -70,10 +70,12 @@
 
 reg [W_COORD_SX-1:0] count;
 reg [W_SPANTYPE-1:0] type;
+reg                  type_is_blit;
 reg [1:0]            pixmode;
 reg [W_ADDR-1:0]     texture_ptr;
 reg [2:0]            texsize;
 reg                  tilesize;
+reg [W_COORD_UV-1:0] ordinate_mask;
 
 wire                 issue_pixel;
 
@@ -82,18 +84,22 @@ always @ (posedge clk or negedge rst_n) begin
 		span_done <= 1'b1;
 		count <= {W_COORD_SX{1'b0}};
 		type <= {W_SPANTYPE{1'b0}};
+		type_is_blit <= 1'b0;
 		pixmode <= 2'h0;
 		texture_ptr <= {W_ADDR{1'b0}};
 		texsize <= 3'h0;
 		tilesize <= 1'b0;
+		ordinate_mask <= {W_COORD_UV{1'b0}};
 	end else if (span_start) begin
 		span_done <= span_type == SPANTYPE_FILL;
 		count <= span_count;
 		type <= span_type;
+		type_is_blit <= span_type == SPANTYPE_BLIT || span_type == SPANTYPE_ABLIT;
 		pixmode <= span_pixmode;
 		texture_ptr <= span_texture_ptr;
 		texsize <= span_texsize - (span_ablit_halfsize && span_type == SPANTYPE_ABLIT);
 		tilesize <= span_tilesize;
+		ordinate_mask <= ~({{W_COORD_UV-3{1'b1}}, 3'b000} << span_texsize);
 	end else if (issue_pixel) begin
 		count <= count - 1'b1;
 		if (~|count) begin
@@ -105,11 +111,9 @@ end
 // ----------------------------------------------------------------------------
 // Address generation
 
-wire blit_mode = type == SPANTYPE_BLIT || type == SPANTYPE_ABLIT;
 wire pinfo_room_for_issue; // TODO delete?
 wire pinfo_fifo_full;
 
-wire [W_COORD_UV-1:0] ordinate_mask = ~({{W_COORD_UV-3{1'b1}}, 3'b000} << texsize);
 wire [W_ADDR:0] blit_pixel_offs_in_texture = (cgen_u & ordinate_mask) |
 	({{W_COORD_UV-3{1'b0}}, cgen_v & ordinate_mask, 3'b000} << texsize);
 
@@ -117,25 +121,25 @@ wire [W_ADDR:0] tile_pixel_offset_in_tilemap = tilesize ?
 	{{W_ADDR-15{1'b0}}, tinfo_tilenum, tinfo_v, tinfo_u} :
 	{{W_ADDR-13{1'b0}}, tinfo_tilenum, tinfo_v[2:0], tinfo_u[2:0]};
 
-wire [W_ADDR:0] pixel_addr_offs = ({blit_mode ? blit_pixel_offs_in_texture : tile_pixel_offset_in_tilemap, 1'b0}
+wire [W_ADDR:0] pixel_addr_offs = ({type_is_blit ? blit_pixel_offs_in_texture : tile_pixel_offset_in_tilemap, 1'b0}
 	>> 3'h4 - MODE_LOG_PIXSIZE(pixmode)) & ADDR_MASK;
 
 wire blit_out_of_bounds = |{cgen_u & ~ordinate_mask, cgen_v & ~ordinate_mask};
 
 // Always halfword-sized, halfword-aligned
 assign bus_addr = (({texture_ptr, 1'b0} + pixel_addr_offs) >> 1) & ADDR_MASK;
-assign bus_addr_vld = blit_mode ?
+assign bus_addr_vld = type_is_blit ?
 	!(span_done || pinfo_fifo_full || blit_out_of_bounds || !cgen_vld) :
 	!(span_done || pinfo_fifo_full || tinfo_discard || !tinfo_vld);
 
 assign issue_pixel = !span_done && (
 	bus_addr_vld && bus_addr_rdy ||
-	blit_mode && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full ||
-	!blit_mode && tinfo_vld && tinfo_discard && !pinfo_fifo_full
+	type_is_blit && cgen_vld && blit_out_of_bounds && !pinfo_fifo_full ||
+	!type_is_blit && tinfo_vld && tinfo_discard && !pinfo_fifo_full
 );
 
-assign cgen_rdy = issue_pixel && blit_mode;
-assign tinfo_rdy = issue_pixel && !blit_mode;
+assign cgen_rdy = issue_pixel && type_is_blit;
+assign tinfo_rdy = issue_pixel && !type_is_blit;
 
 // ----------------------------------------------------------------------------
 // Metadata
@@ -146,7 +150,7 @@ localparam W_PINFO_FIFO_LEVEL = 3;
 wire                          pinfo_fifo_empty;
 wire [W_PINFO_FIFO_LEVEL-1:0] pinfo_fifo_level;
 
-wire [4:0] pinfo_fifo_wdata = blit_mode ?
+wire [4:0] pinfo_fifo_wdata = type_is_blit ?
 	{blit_out_of_bounds, cgen_u[3:0]} :
 	{tinfo_discard, tinfo_u};
 
