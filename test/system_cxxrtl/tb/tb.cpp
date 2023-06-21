@@ -82,7 +82,7 @@ bus_response mem_access(mem_io_state &memio, uint32_t addr, bool write, uint32_t
 	}
 	else {
 		if (addr == IO_BASE + IO_RUNNING_IN_SIM) {
-			resp.rdata = 1;
+			resp.rdata = 0; // FIXME change back
 		}
 		else {
 			resp.err = true;
@@ -205,6 +205,7 @@ int main(int argc, char **argv) {
 	bool next_sram_we_n = true;
 	uint8_t next_sram_byte_n = 0xff;
 	uint32_t next_sram_addr = 0;
+	uint16_t next_sram_rdata = 0;
 
 	// Reset + initial clock pulse
 
@@ -234,8 +235,11 @@ int main(int argc, char **argv) {
 		bool step = false;
 		memio.step();
 
+		// Register in SRAM contents read on previous cycle (matching DQ input registers in FPGA SRAM PHY)
+		top.p_sram__dq__in.set<uint16_t>(next_sram_rdata);
+		next_sram_rdata = 0;
+
 		// Apply SRAM operation registered into TB PHY model on previous cycle
-		uint16_t next_sram_rdata = 0;
 		if (!next_sram_ce_n && !next_sram_we_n) {
 			uint16_t sram_wdata = top.p_sram__dq__out.get<uint16_t>();
 			if (!(next_sram_byte_n & 0x1)) {
@@ -248,8 +252,6 @@ int main(int argc, char **argv) {
 			next_sram_rdata = memio.mem[2 * next_sram_addr + 0] |
 				((uint16_t)memio.mem[2 * next_sram_addr + 1] << 8);
 		}
-		// Immediately apply new SRAM rdata
-		top.p_sram__dq__in.set<uint16_t>(next_sram_rdata);
 
 		// Sample SRAM control bus, and read/write memory contents accordingly
 		next_sram_oe_n = top.p_sram__oe__n.get<bool>();

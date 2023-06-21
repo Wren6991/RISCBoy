@@ -1,0 +1,102 @@
+[*]
+[*] GTKWave Analyzer v3.3.114 (w)1999-2023 BSI
+[*] Wed Jun 21 19:28:08 2023
+[*]
+[dumpfile] "/home/luke/proj/riscboy/test/system_cxxrtl/tb/waves.vcd"
+[dumpfile_mtime] "Wed Jun 21 19:28:08 2023"
+[dumpfile_size] 1106171703
+[savefile] "/home/luke/proj/riscboy/test/system_cxxrtl/waves.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] 925 491
+*-7.199999 284 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] has_sram0_ctrl.
+[treeopen] hazard5_cpu_u.
+[treeopen] hazard5_cpu_u.core.
+[sst_width] 278
+[signals_width] 238
+[sst_expanded] 1
+[sst_vpaned_height] 157
+@22
+proc0_haddr[31:0]
+@28
+proc0_htrans[1:0]
+proc0_hsize[2:0]
+proc0_hwrite
+proc0_hready
+@22
+proc0_hwdata[31:0]
+proc0_hrdata[31:0]
+@200
+-
+@22
+has_sram0_ctrl.sram0_ctrl.sram_aph_op[2:0]
+has_sram0_ctrl.sram0_ctrl.sram_wph_op[2:0]
+has_sram0_ctrl.sram0_ctrl.sram_rph_op[2:0]
+@200
+-
+@28
+has_sram0_ctrl.sram0_ctrl.ahb_valid_dph
+has_sram0_ctrl.sram0_ctrl.ahb_read_dph
+has_sram0_ctrl.sram0_ctrl.issue_ahb_first_beat_early
+has_sram0_ctrl.sram0_ctrl.ahb_first_beat_early
+has_sram0_ctrl.sram0_ctrl.ahb_2beat_dph
+has_sram0_ctrl.sram0_ctrl.ahb_beat_ctr_dph[1:0]
+@200
+-
+@22
+has_sram0_ctrl.sram0_ctrl.sram_addr[17:0]
+@28
+has_sram0_ctrl.sram0_ctrl.sram_ce_n
+has_sram0_ctrl.sram0_ctrl.sram_oe_n
+has_sram0_ctrl.sram0_ctrl.sram_we_n
+@29
+has_sram0_ctrl.sram0_ctrl.write_addr_hword_sel
+@200
+-
+@22
+has_sram0_ctrl.sram0_ctrl.sram_dq_in[15:0]
+has_sram0_ctrl.sram0_ctrl.sram_dq_oe[15:0]
+has_sram0_ctrl.sram0_ctrl.sram_dq_out[15:0]
+@200
+-
+@22
+hazard5_cpu_u.core.fd_cir[31:0]
+@28
+hazard5_cpu_u.core.fd_cir_vld[1:0]
+@22
+hazard5_cpu_u.core.d_pc[31:0]
+@28
+hazard5_cpu_u.core.f_jump_now
+@22
+hazard5_cpu_u.core.f_jump_target[31:0]
+@200
+-
+@22
+has_sram0_ctrl.sram0_ctrl.dma_addr[17:0]
+@28
+has_sram0_ctrl.sram0_ctrl.dma_addr_rdy
+has_sram0_ctrl.sram0_ctrl.dma_addr_vld
+has_sram0_ctrl.sram0_ctrl.dma_rdata_vld
+@22
+has_sram0_ctrl.sram0_ctrl.dma_rdata[15:0]
+@200
+-
+@22
+ppu_apbs_paddr[15:0]
+@28
+ppu_apbs_pwrite
+ppu_apbs_psel
+ppu_apbs_penable
+@22
+ppu_apbs_pwdata[31:0]
+ppu_apbs_prdata[31:0]
+@200
+-
+@28
+lcd_apbs_pwrite
+lcd_apbs_psel
+@22
+lcd_apbs_prdata[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
