@@ -5,7 +5,6 @@
 #include "delay.h"
 #include "gpio.h"
 #include "spi.h"
-#include "tbman.h"
 #include "uart.h"
 
 #ifndef UART_BAUD
@@ -24,7 +23,7 @@
 #define SRAM0_SIZE FORCE_SRAM0_SIZE
 #endif
 
-// #define MEMTEST_BYTES
+#define MEMTEST_BYTES
 
 const char *splash =
 "\n"
@@ -118,8 +117,7 @@ int main()
 	gpio_dir_pin(PIN_LED, 1);
 
 	uart_puts(splash);
-	if (*TBMAN_STUB & TBMAN_STUB_SPI_MASK)
-	{
+	if (*SPI_FSTAT == 0) {
 		uart_puts("SPI hardware not present. Skipping flash load.");
 		test_mem();
 		run_flash_shell();

@@ -1,5 +1,5 @@
 #include "addressmap.h"
-#include "tbman.h"
+#include "tb.h"
 
 #include <stdint.h>
 
@@ -19,11 +19,11 @@ static inline uint32_t randu()
 
 int main()
 {
-	tbman_puts("Byte write random\n");
+	tb_puts("Byte write random\n");
 	rand_state = RAND_SEED;
 	for (int i = 0; i < TESTSIZE_BYTES; ++i)
 		((volatile uint8_t*)mem)[i] = randu();
-	tbman_puts("Readback\n");
+	tb_puts("Readback\n");
 	rand_state = RAND_SEED;
 	for (int i = 0; i < TESTSIZE_BYTES; ++i)
 	{
@@ -31,21 +31,21 @@ int main()
 		uint8_t expected = randu();
 		if (actual != expected)
 		{
-			tbman_puts("Mismatch at addr\n");
-			tbman_putint((uint32_t)&((uint8_t*)mem)[i]);
-			tbman_puts("expected\n");
-			tbman_putint(expected);
-			tbman_puts("actual\n");
-			tbman_putint(actual);
-			tbman_exit(-1);
+			tb_puts("Mismatch at addr\n");
+			tb_putint((uint32_t)&((uint8_t*)mem)[i]);
+			tb_puts("expected\n");
+			tb_putint(expected);
+			tb_puts("actual\n");
+			tb_putint(actual);
+			tb_exit(-1);
 		}
 	}
 
-	tbman_puts("Halfword write random\n");
+	tb_puts("Halfword write random\n");
 	rand_state = RAND_SEED;
 	for (int i = 0; i < TESTSIZE_BYTES / sizeof(uint16_t); ++i)
 		((volatile uint16_t*)mem)[i] = randu();
-	tbman_puts("Readback\n");
+	tb_puts("Readback\n");
 	rand_state = RAND_SEED;
 	for (int i = 0; i < TESTSIZE_BYTES / sizeof(uint16_t); ++i)
 	{
@@ -53,21 +53,21 @@ int main()
 		uint16_t expected = randu();
 		if (actual != expected)
 		{
-			tbman_puts("Mismatch at addr\n");
-			tbman_putint((uint32_t)&((uint16_t*)mem)[i]);
-			tbman_puts("expected\n");
-			tbman_putint(expected);
-			tbman_puts("actual\n");
-			tbman_putint(actual);
-			tbman_exit(-1);
+			tb_puts("Mismatch at addr\n");
+			tb_putint((uint32_t)&((uint16_t*)mem)[i]);
+			tb_puts("expected\n");
+			tb_putint(expected);
+			tb_puts("actual\n");
+			tb_putint(actual);
+			tb_exit(-1);
 		}
 	}
 	
-	tbman_puts("Word write random\n");
+	tb_puts("Word write random\n");
 	rand_state = RAND_SEED;
 	for (int i = 0; i < TESTSIZE_BYTES / sizeof(uint32_t); ++i)
 		((volatile uint32_t*)mem)[i] = randu();
-	tbman_puts("Readback\n");
+	tb_puts("Readback\n");
 	rand_state = RAND_SEED;
 	for (int i = 0; i < TESTSIZE_BYTES / sizeof(uint32_t); ++i)
 	{
@@ -75,15 +75,15 @@ int main()
 		uint32_t expected = randu();
 		if (actual != expected)
 		{
-			tbman_puts("Mismatch at addr\n");
-			tbman_putint((uint32_t)&((uint32_t*)mem)[i]);
-			tbman_puts("expected\n");
-			tbman_putint(expected);
-			tbman_puts("actual\n");
-			tbman_putint(actual);
-			tbman_exit(-1);
+			tb_puts("Mismatch at addr\n");
+			tb_putint((uint32_t)&((uint32_t*)mem)[i]);
+			tb_puts("expected\n");
+			tb_putint(expected);
+			tb_puts("actual\n");
+			tb_putint(actual);
+			tb_exit(-1);
 		}
 	}
 	
-	tbman_exit(0);
+	tb_exit(0);
 }

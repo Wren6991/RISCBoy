@@ -4,7 +4,7 @@
 #include "display.h"
 #include "gpio.h"
 #include "affine_transform.h"
-#include "tbman.h"
+#include "tb_cxxrtl_io.h"
 
 #include "zelda_tileset_mini_pal8.h"
 #include "zelda_tileset_mini_pal8_palette.h"

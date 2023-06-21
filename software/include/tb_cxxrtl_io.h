@@ -29,7 +29,7 @@ static inline void tb_putc(char c) {
 
 static inline void tb_puts(const char *s) {
 	while (*s)
-		tb_putc(*s++);
+		mm_io->print_char = *s++;
 }
 
 static inline void tb_put_u32(uint32_t x) {

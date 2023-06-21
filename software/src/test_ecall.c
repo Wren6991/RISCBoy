@@ -1,10 +1,10 @@
-#include "tbman.h"
+#include "tb_cxxrtl_io.h"
 
 volatile int flag;
 
 void __attribute__((interrupt)) handle_ecall()
 {
-	tbman_puts("Handling ECALL\n");
+	tb_puts("Handling ECALL\n");
 	flag = 0;
 
 	// mepc contains the address of ecall itself; increment before return
@@ -19,9 +19,9 @@ int main()
 	// Fail by default
 	flag = 1;
 	// Should clear flag:
-	tbman_puts("Raising ECALL\n");
+	tb_puts("Raising ECALL\n");
 	asm volatile("ecall");
 	// Return flag to testbench environment
-	tbman_exit(flag);
+	tb_exit(flag);
 }
 

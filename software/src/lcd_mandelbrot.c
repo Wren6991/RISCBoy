@@ -5,7 +5,7 @@
 #include "gpio.h"
 #include "spi_lcd.h"
 #include "pwm.h"
-#include "tbman.h"
+#include "tb_cxxrtl_io.h"
 
 static uint16_t palette[256];
 
@@ -18,7 +18,7 @@ int main()
 {
 	pwm_enable(false);
 	pwm_invert(true);
-	if (!tbman_running_in_sim())
+	if (!tb_running_in_sim())
 		spi_lcd_init(ili9341_init_seq);
 
 	for (int i = 0; i < 256; ++i)
@@ -31,7 +31,7 @@ int main()
 	}
 
 	// Output a test pattern and clear it, to check everything works
-	if (!tbman_running_in_sim())
+	if (!tb_running_in_sim())
 	{
 		spi_lcd_start_pixels();
 		for (int y = 0; y < HEIGHT; ++y)

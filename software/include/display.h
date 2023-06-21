@@ -4,7 +4,7 @@
 #include "spi_lcd.h"
 #include "dvi_lcd.h"
 #include "ppu.h"
-#include "tbman.h"
+#include "tb_cxxrtl_io.h"
 
 // Header file for doing common things to SPI/DVI display controllers, without
 // having to be aware of which of the two you have
@@ -41,7 +41,7 @@ static inline void display_init() {
 	dispctrl_type_t disptype = get_dispctrl_type();
 	if (disptype == DISPCTRL_TYPE_SPI) {
 		// This takes a looooooooooooooong time in sim
-		if (!tbman_running_in_sim())
+		if (!tb_running_in_sim())
 			spi_lcd_init(SPI_LCD_INIT_SEQ);
 		spi_lcd_set_disp_width(DISPLAY_WIDTH);
 	}

@@ -1,7 +1,6 @@
-#include "tbman.h"
+#include "tb_cxxrtl_io.h"
 
-int main()
-{
-	tbman_puts("Hello, world!\n");
-	tbman_exit(123);
+int main() {
+	tb_puts("Hello, world!\n");
+	tb_exit(123);
 }

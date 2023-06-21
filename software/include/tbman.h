@@ -9,6 +9,8 @@
 #include "addressmap.h"
 #include "hw/tbman_regs.h"
 
+#error "Don't use this header (old tbman)"
+
 DECL_REG(TBMAN_BASE + TBMAN_PRINT_OFFS, TBMAN_PRINT);
 DECL_REG(TBMAN_BASE + TBMAN_PUTINT_OFFS, TBMAN_PUTINT);
 DECL_REG(TBMAN_BASE + TBMAN_EXIT_OFFS, TBMAN_EXIT);
