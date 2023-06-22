@@ -161,7 +161,10 @@ sync_fifo #(
 assign req_dph_data = {N_REQ{mem_rdata_q}};
 assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld_q}};
 
-// Note -1 for the address pipestage slot
+// Note -1 for the address pipestage slot -- we could make this comparison
+// more sophisticated, but it's quite time-critical (feeds back to aph_rdy)
+// so it's cheaper to just have more FIFO slots and use this simple
+// comparison:
 assign space_in_reqmask_fifo = reqmask_fifo_level < MAX_IN_FLIGHT - 1;
 
 endmodule
