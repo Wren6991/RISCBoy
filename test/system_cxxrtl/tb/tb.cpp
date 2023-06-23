@@ -82,7 +82,7 @@ bus_response mem_access(mem_io_state &memio, uint32_t addr, bool write, uint32_t
 	}
 	else {
 		if (addr == IO_BASE + IO_RUNNING_IN_SIM) {
-			resp.rdata = 0; // FIXME change back
+			resp.rdata = 1;
 		}
 		else {
 			resp.err = true;
@@ -277,8 +277,10 @@ int main(int argc, char **argv) {
 			// in the VCD (hopefully is a quick update)
 			top.step();
 			vcd.sample(cycle * 2 + 1);
-			waves_fd << vcd.buffer;
-			vcd.buffer.clear();
+			if ((cycle & 0xfff) == 0) {
+				waves_fd << vcd.buffer;
+				vcd.buffer.clear();
+			}
 		}
 
 		if (memio.exit_req) {
@@ -292,6 +294,11 @@ int main(int argc, char **argv) {
 		}
 		if (got_exit_cmd)
 			break;
+	}
+
+	if (dump_waves) {
+		waves_fd << vcd.buffer;
+		vcd.buffer.clear();
 	}
 
 	for (auto r : dump_ranges) {

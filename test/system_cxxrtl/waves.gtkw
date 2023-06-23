@@ -1,102 +1,97 @@
 [*]
 [*] GTKWave Analyzer v3.3.114 (w)1999-2023 BSI
-[*] Wed Jun 21 19:28:08 2023
+[*] Fri Jun 23 18:36:10 2023
 [*]
-[dumpfile] "/home/luke/proj/riscboy/test/system_cxxrtl/tb/waves.vcd"
-[dumpfile_mtime] "Wed Jun 21 19:28:08 2023"
-[dumpfile_size] 1106171703
+[dumpfile] "/home/luke/proj/riscboy/test/system_cxxrtl/waves.vcd"
+[dumpfile_mtime] "Fri Jun 23 18:34:54 2023"
+[dumpfile_size] 3340418976
 [savefile] "/home/luke/proj/riscboy/test/system_cxxrtl/waves.gtkw"
-[timestart] 0
-[size] 1000 600
-[pos] 925 491
-*-7.199999 284 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[treeopen] has_sram0_ctrl.
+[timestart] 14930
+[size] 2560 1600
+[pos] -1 -1
+*-11.400000 17470 1491 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] hazard5_cpu_u.
 [treeopen] hazard5_cpu_u.core.
 [sst_width] 278
-[signals_width] 238
+[signals_width] 265
 [sst_expanded] 1
-[sst_vpaned_height] 157
+[sst_vpaned_height] 505
+@200
+-Proc AHB
 @22
-proc0_haddr[31:0]
+hazard5_cpu_u.ahblm_haddr[31:0]
 @28
-proc0_htrans[1:0]
-proc0_hsize[2:0]
-proc0_hwrite
-proc0_hready
+hazard5_cpu_u.ahblm_htrans[1:0]
+hazard5_cpu_u.ahblm_hwrite
+hazard5_cpu_u.ahblm_hready
 @22
-proc0_hwdata[31:0]
-proc0_hrdata[31:0]
+hazard5_cpu_u.ahblm_hwdata[31:0]
+hazard5_cpu_u.ahblm_hrdata[31:0]
 @200
 -
-@22
-has_sram0_ctrl.sram0_ctrl.sram_aph_op[2:0]
-has_sram0_ctrl.sram0_ctrl.sram_wph_op[2:0]
-has_sram0_ctrl.sram0_ctrl.sram_rph_op[2:0]
-@200
--
+-APB
 @28
-has_sram0_ctrl.sram0_ctrl.ahb_valid_dph
-has_sram0_ctrl.sram0_ctrl.ahb_read_dph
-has_sram0_ctrl.sram0_ctrl.issue_ahb_first_beat_early
-has_sram0_ctrl.sram0_ctrl.ahb_first_beat_early
-has_sram0_ctrl.sram0_ctrl.ahb_2beat_dph
-has_sram0_ctrl.sram0_ctrl.ahb_beat_ctr_dph[1:0]
+lcd_apbs_psel
+ppu_apbs_psel
+tbio_psel
 @200
 -
 @22
-has_sram0_ctrl.sram0_ctrl.sram_addr[17:0]
+bridge_paddr[15:0]
 @28
-has_sram0_ctrl.sram0_ctrl.sram_ce_n
-has_sram0_ctrl.sram0_ctrl.sram_oe_n
-has_sram0_ctrl.sram0_ctrl.sram_we_n
-@29
-has_sram0_ctrl.sram0_ctrl.write_addr_hword_sel
+bridge_pwrite
+bridge_penable
+@22
+bridge_pwdata[31:0]
+bridge_prdata[31:0]
 @200
 -
+-Core Internals
 @22
-has_sram0_ctrl.sram0_ctrl.sram_dq_in[15:0]
-has_sram0_ctrl.sram0_ctrl.sram_dq_oe[15:0]
-has_sram0_ctrl.sram0_ctrl.sram_dq_out[15:0]
-@200
--
-@22
+hazard5_cpu_u.core.d_pc[31:0]
 hazard5_cpu_u.core.fd_cir[31:0]
 @28
 hazard5_cpu_u.core.fd_cir_vld[1:0]
-@22
-hazard5_cpu_u.core.d_pc[31:0]
-@28
-hazard5_cpu_u.core.f_jump_now
-@22
-hazard5_cpu_u.core.f_jump_target[31:0]
-@200
--
-@22
-has_sram0_ctrl.sram0_ctrl.dma_addr[17:0]
-@28
-has_sram0_ctrl.sram0_ctrl.dma_addr_rdy
-has_sram0_ctrl.sram0_ctrl.dma_addr_vld
-has_sram0_ctrl.sram0_ctrl.dma_rdata_vld
-@22
-has_sram0_ctrl.sram0_ctrl.dma_rdata[15:0]
-@200
--
-@22
-ppu_apbs_paddr[15:0]
-@28
-ppu_apbs_pwrite
-ppu_apbs_psel
-ppu_apbs_penable
-@22
-ppu_apbs_pwdata[31:0]
-ppu_apbs_prdata[31:0]
 @200
 -
 @28
-lcd_apbs_pwrite
-lcd_apbs_psel
+hazard5_cpu_u.core.x_memop_vld
 @22
-lcd_apbs_prdata[31:0]
+hazard5_cpu_u.core.dx_rdata1[31:0]
+hazard5_cpu_u.core.d_rs1[4:0]
+hazard5_cpu_u.core.inst_regfile_1w2r.raddr1[4:0]
+@200
+-
+@22
+hazard5_cpu_u.core.dx_pc[31:0]
+hazard5_cpu_u.core.dx_rs1[4:0]
+hazard5_cpu_u.core.dx_rs2[4:0]
+hazard5_cpu_u.core.x_op_a[31:0]
+hazard5_cpu_u.core.x_op_b[31:0]
+@200
+-
+@22
+hazard5_cpu_u.core.dx_rd[4:0]
+hazard5_cpu_u.core.x_alu_result[31:0]
+@200
+-
+-Registers
+@22
++{ra} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[1][31:0]
++{sp} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[2][31:0]
+@200
+-
+@22
++{s0} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[8][31:0]
++{s1} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[9][31:0]
+@200
+-
+@22
++{a0} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[10][31:0]
++{a1} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[11][31:0]
++{a2} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[12][31:0]
++{a3} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[13][31:0]
++{a4} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[14][31:0]
++{a5} hazard5_cpu_u.core.inst_regfile_1w2r.\real_dualport_noreset.mem[15][31:0]
 [pattern_trace] 1
 [pattern_trace] 0
