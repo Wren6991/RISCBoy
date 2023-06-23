@@ -21,3 +21,6 @@ clean::
 
 $(TBEXEC): build/dut.cpp tb.cpp
 	clang++ -O3 -std=c++14 -I $(shell yosys-config --datdir)/include -I build tb.cpp -o $(TBEXEC)
+
+test: $(TBEXEC)
+	./tb

@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
 	bool dump_waves = true;
 	std::string waves_path = "waves.vcd";
-	int64_t max_cycles = 10000;
+	int64_t max_cycles = 100000;
 
 	cxxrtl_design::p_riscboy__sram__ctrl top;
 

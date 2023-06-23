@@ -1,0 +1,96 @@
+[*]
+[*] GTKWave Analyzer v3.3.114 (w)1999-2023 BSI
+[*] Fri Jun 23 15:20:49 2023
+[*]
+[dumpfile] "/home/luke/proj/riscboy/test/riscboy_sram_ctrl/waves.vcd"
+[dumpfile_mtime] "Fri Jun 23 15:20:05 2023"
+[dumpfile_size] 14009427
+[savefile] "/home/luke/proj/riscboy/test/riscboy_sram_ctrl/waves.gtkw"
+[timestart] 59982
+[size] 2025 1526
+[pos] -1 -1
+*-2.572393 59998 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 278
+[signals_width] 272
+[sst_expanded] 1
+[sst_vpaned_height] 481
+@28
+clk
+@200
+-
+-AHB
+@22
+ahbls_haddr[5:0]
+ahbls_htrans[1:0]
+ahbls_hsize[2:0]
+@28
+ahbls_hwrite
+ahbls_hready
+ahbls_hready_resp
+@22
+ahbls_hwdata[31:0]
+ahbls_hrdata[31:0]
+@200
+-
+@28
+dma_addr_vld
+@200
+-
+@28
+sram_aph_op[2:0]
+sram_wph_op[2:0]
+sram_rph_op[2:0]
+@200
+-
+@22
+sram_addr[4:0]
+@28
+sram_ce_n
+sram_we_n
+sram_oe_n
+sram_byte_n[1:0]
+@200
+-
+@22
+sram_dq_out[15:0]
+sram_dq_oe[15:0]
+sram_dq_in[15:0]
+@200
+-
+@28
+[color] 3
+issue_ahb_first_beat_early
+[color] 3
+ahb_first_beat_was_early
+@29
+ahb_issue_ctr_dph[1:0]
+@28
+ahb_rph_ctr
+ahb_wph_ctr
+@200
+-
+@28
+ahb_read_aph
+ahb_write_aph
+ahb_read_dph
+ahb_write_dph
+@200
+-
+@28
+ahb_2beat_aph
+ahb_2beat_dph
+@200
+-
+@28
+dma_addr_vld
+sram_from_ahb_read_dph
+sram_from_ahb_write_dph
+sram_from_ahb_read_aph
+sram_from_ahb_write_aph
+sram_from_ahb_read_aph_early
+@200
+-
+@28
+dph_last_beat_issued
+[pattern_trace] 1
+[pattern_trace] 0
