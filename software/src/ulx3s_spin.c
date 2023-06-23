@@ -1,10 +1,9 @@
 #define CLK_SYS_MHZ 18
-#define SPI_LCD_INIT_SEQ st7789_init_seq
-#define DISPLAY_WIDTH 240
+// #define SPI_LCD_INIT_SEQ st7789_init_seq
+// #define DISPLAY_WIDTH 240
 
 #include "ppu.h"
 #include "display.h"
-#include "tbman.h"
 #include "affine_transform.h"
 #include "ulx3s_bin.h"
 #include "ulx3s_bin_pal.h"

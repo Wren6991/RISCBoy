@@ -2,7 +2,7 @@
 
 #include "display.h"
 #include "display.h"
-#include "tbman.h"
+#include "tb_cxxrtl_io.h"
 #include "gpio.h"
 #include "pwm.h"
 
@@ -12,8 +12,7 @@ uint16_t __attribute__ ((section (".noload"), aligned (4))) tileset[65536];
 uint8_t  __attribute__ ((section (".noload"), aligned (4))) tilemap[256];
 uint32_t __attribute__ ((section (".noload"))) cproc_prog[256];
 
-int main()
-{
+int main() {
 	display_init();
 
 	for (int i = 0; i < 256; ++i)
@@ -37,8 +36,7 @@ int main()
 	unsigned int scroll_x = 0;
 	unsigned int scroll_y = 0;
 	unsigned int frame_ctr = 0;
-	while (true)
-	{
+	while (true) {
 		uint32_t *p = cproc_prog;
 		p += cproc_clip(p, 0, 319);
 		p += cproc_fill(p, 16, 0, 16);
@@ -65,5 +63,5 @@ int main()
 				++scroll_y;
 	}
 
-	tbman_exit(0);
+	tb_exit(0);
 }

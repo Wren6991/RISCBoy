@@ -1,8 +1,8 @@
 #define CLK_SYS_MHZ 12
 
 #include "ppu.h"
-#include "lcd.h"
-#include "tbman.h"
+#include "display.h"
+#include "tb_cxxrtl_io.h"
 #include "uart.h"
 #include "affine_transform.h"
 #include "testframe.bin.h"
@@ -56,10 +56,7 @@ void __time_critical update_buf(uint8_t *buf)
 
 int main()
 {
-	if (!tbman_running_in_sim())
-		lcd_init(ili9341_init_seq);
-
-	mm_ppu->dispsize = ((SCREEN_WIDTH - 1) << PPU_DISPSIZE_W_LSB) | ((SCREEN_HEIGHT - 1) << PPU_DISPSIZE_H_LSB);
+	display_init();
 
 	const affine_transform_t ta = {
 		(int32_t)(AF_ONE * 128.f / 320.f), 0, 0,
@@ -87,18 +84,13 @@ int main()
 		p += cproc_jump(p, (uint32_t)cp_prog);
 		cproc_put_pc((uint32_t)cp_prog);
 
-		lcd_wait_idle();
-		lcd_force_dc_cs(1, 1);
-		st7789_start_pixels();
-
 		for (int i = 0; i < 16; ++i)
 			PPU_PALETTE_RAM[i] = ((uint16_t *)bufs[current_buf])[i] | 0x8000u; // alpha!
 
-		render_start();
+		display_start_frame();
 		current_buf = !current_buf;
 		update_buf(bufs[current_buf]);
-
-		render_wait();
+		display_wait_frame_end();
 	}
 
 	return 0;
