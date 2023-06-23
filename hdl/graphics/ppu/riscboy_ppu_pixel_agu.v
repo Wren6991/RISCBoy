@@ -99,7 +99,8 @@ always @ (posedge clk or negedge rst_n) begin
 		texture_ptr <= span_texture_ptr;
 		texsize <= span_texsize - (span_ablit_halfsize && span_type == SPANTYPE_ABLIT);
 		tilesize <= span_tilesize;
-		ordinate_mask <= ~({{W_COORD_UV-3{1'b1}}, 3'b000} << span_texsize);
+		ordinate_mask <= ~({{W_COORD_UV-3{1'b1}}, 3'b000} <<
+			(span_texsize - (span_ablit_halfsize && span_type == SPANTYPE_ABLIT)));
 	end else if (issue_pixel) begin
 		count <= count - 1'b1;
 		if (~|count) begin
