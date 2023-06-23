@@ -115,7 +115,7 @@ riscboy_core #(
 	.tbio_penable   (/* unused */),
 	.tbio_pwrite    (/* unused */),
 	.tbio_pwdata    (/* unused */),
-	.tbio_pready    (1'b0),
+	.tbio_pready    (1'b1),
 	.tbio_pslverr   (1'b0),
 	.tbio_prdata    (32'h0),
 
