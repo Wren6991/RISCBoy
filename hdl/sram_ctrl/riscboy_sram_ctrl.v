@@ -231,9 +231,9 @@ assign sram_we_n = ~|(sram_aph_op & OP_AHB_W);
 
 // TODO only valid for 16-bit:
 assign sram_byte_n = ~(
-	dma_addr_vld ? 2'b11                                                    :
-	sram_from_ahb_write_dph && ~|ahb_size_dph ? 2'b01 << ahb_addr_align_dph :
-	sram_from_ahb_write_aph && ~|ahbls_hsize  ? 2'b01 << ahbls_haddr[0]     : 2'b11
+	dma_addr_vld                           ? 2'b11                                       :
+	ahb_valid_dph && !dph_last_beat_issued ? {|ahb_size_dph, 1'b1} << ahb_addr_align_dph :
+	                                         {|ahbls_hsize,  1'b1} << ahbls_haddr[0]
 );
 
 reg write_addr_hword_sel;
