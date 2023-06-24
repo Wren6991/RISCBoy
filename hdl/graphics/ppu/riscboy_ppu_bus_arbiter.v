@@ -22,18 +22,19 @@
 `default_nettype none
 
 module riscboy_ppu_bus_arbiter #(
-	parameter N_REQ         = 10,
-	parameter W_ADDR        = 18,
-	parameter W_DATA        = 16,
-	parameter ADDR_MASK     = {W_ADDR{1'b1}},
-	parameter MAX_IN_FLIGHT = 5,
-	parameter PIPESTAGE_IN  = 1
+	parameter N_REQ             = 10,
+	parameter W_ADDR            = 18,
+	parameter W_DATA            = 16,
+	parameter ADDR_MASK         = {W_ADDR{1'b1}},
+	// Ignored if FIXED_BUS_LATENCY is set:
+	parameter MAX_IN_FLIGHT     = 5,
+	// Set to nonzero cycle count to always expect rdata a fixed number of
+	// cycles after addr_vld && addr_rdy, rather than timed by rdata_vld:
+	parameter FIXED_BUS_LATENCY = 0,
+	parameter PIPESTAGE_IN      = 1
 ) (
 	input  wire                    clk,
 	input  wire                    rst_n,
-
-	input  wire                    ppu_running,
-
 
 	input  wire [N_REQ-1:0]        req_aph_vld,
 	output wire [N_REQ-1:0]        req_aph_rdy,
@@ -50,6 +51,7 @@ module riscboy_ppu_bus_arbiter #(
 	input  wire [W_DATA-1:0]       mem_rdata,
 	input  wire                    mem_rdata_vld
 );
+
 // ----------------------------------------------------------------------------
 // Request arbitration
 
@@ -58,8 +60,7 @@ module riscboy_ppu_bus_arbiter #(
 // updates.
 
 wire space_in_reqmask_fifo;
-wire block_issue = !ppu_running || !space_in_reqmask_fifo;
-wire [N_REQ-1:0] req_filtered = req_aph_vld & {N_REQ{!block_issue}};
+wire [N_REQ-1:0] req_filtered = req_aph_vld & {N_REQ{space_in_reqmask_fifo}};
 wire [N_REQ-1:0] grant_aph;
 
 onehot_priority #(
@@ -138,34 +139,65 @@ endgenerate
 // transfer, so that data can be returned to the correct requestor when the
 // transfer completes.
 
-wire [N_REQ-1:0] dph_reqmask;
-localparam W_REQMASK_FIFO_LEVEL = $clog2(MAX_IN_FLIGHT + 1);
-wire [W_REQMASK_FIFO_LEVEL-1:0] reqmask_fifo_level;
-
-sync_fifo #(
-	.DEPTH  (MAX_IN_FLIGHT),
-	.WIDTH  (N_REQ)
-) in_flight_reqmask_fifo_u (
-	.clk    (clk),
-	.rst_n  (rst_n),
-	.wdata  (pipestage_reqmask),
-	.wen    (mem_addr_vld && mem_addr_rdy),
-	.rdata  (dph_reqmask),
-	.ren    (mem_rdata_vld_q),
-	.flush  (1'b0),
-	.full   (/* unused */),
-	.empty  (/* unused */),
-	.level  (reqmask_fifo_level)
-);
-
 assign req_dph_data = {N_REQ{mem_rdata_q}};
-assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld_q}};
 
-// Note -1 for the address pipestage slot -- we could make this comparison
-// more sophisticated, but it's quite time-critical (feeds back to aph_rdy)
-// so it's cheaper to just have more FIFO slots and use this simple
-// comparison:
-assign space_in_reqmask_fifo = reqmask_fifo_level < MAX_IN_FLIGHT - 1;
+generate
+if (FIXED_BUS_LATENCY > 0) begin: fixed_latency_tracking
+
+	// Note we include one extra if the input pipestage is present
+	localparam SHIFT_STAGES = FIXED_BUS_LATENCY + PIPESTAGE_IN;
+	reg [N_REQ-1:0] in_flight_reqmask_shifter [0:SHIFT_STAGES-1];
+
+	always @ (posedge clk or negedge rst_n) begin: shift_reqmasks
+		integer i;
+		if (!rst_n) begin
+			for (i = 0; i < SHIFT_STAGES; i = i + 1) begin
+				in_flight_reqmask_shifter[i] <= {N_REQ{1'b0}};
+			end
+		end else begin
+			for (i = 1; i < SHIFT_STAGES; i = i + 1) begin
+				in_flight_reqmask_shifter[i] <= in_flight_reqmask_shifter[i - 1];
+			end
+			in_flight_reqmask_shifter[0] <= pipestage_reqmask;
+		end
+	end
+
+	// Ignore mem_rdata_vld_q in this case, because the latency is known.
+	assign req_dph_vld = in_flight_reqmask_shifter[SHIFT_STAGES - 1];
+	assign space_in_reqmask_fifo = 1'b1;
+
+end else begin: variable_latency_tracking
+
+	wire [N_REQ-1:0] dph_reqmask;
+	localparam W_REQMASK_FIFO_LEVEL = $clog2(MAX_IN_FLIGHT + 1);
+	wire [W_REQMASK_FIFO_LEVEL-1:0] reqmask_fifo_level;
+
+	sync_fifo #(
+		.DEPTH  (MAX_IN_FLIGHT),
+		.WIDTH  (N_REQ)
+	) in_flight_reqmask_fifo_u (
+		.clk    (clk),
+		.rst_n  (rst_n),
+		.wdata  (pipestage_reqmask),
+		.wen    (mem_addr_vld && mem_addr_rdy),
+		.rdata  (dph_reqmask),
+		.ren    (mem_rdata_vld_q),
+		.flush  (1'b0),
+		.full   (/* unused */),
+		.empty  (/* unused */),
+		.level  (reqmask_fifo_level)
+	);
+
+	assign req_dph_vld = dph_reqmask & {N_REQ{mem_rdata_vld_q}};
+
+	// Note -1 for the address pipestage slot -- we could make this comparison
+	// more sophisticated, but it's quite time-critical (feeds back to aph_rdy)
+	// so it's cheaper to just have more FIFO slots and use this simple
+	// comparison:
+	assign space_in_reqmask_fifo = reqmask_fifo_level < MAX_IN_FLIGHT - 1;
+
+end
+endgenerate
 
 endmodule
 

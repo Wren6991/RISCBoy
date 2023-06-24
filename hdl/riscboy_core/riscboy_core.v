@@ -271,10 +271,11 @@ localparam W_COORD_SX = 9;
 localparam W_COORD_SY = 8;
 
 riscboy_ppu #(
-	.W_COORD_SX (W_COORD_SX),
-	.W_COORD_SY (W_COORD_SY),
-	.W_MEM_ADDR (W_SRAM0_ADDR),
-	.W_MEM_DATA (16)
+	.W_COORD_SX        (W_COORD_SX),
+	.W_COORD_SY        (W_COORD_SY),
+	.W_MEM_ADDR        (W_SRAM0_ADDR),
+	.FIXED_BUS_LATENCY (0),
+	.W_MEM_DATA        (16)
 ) inst_riscboy_ppu (
 	.clk                 (clk_sys),
 	.rst_n               (rst_n),

@@ -25,6 +25,8 @@ module riscboy_ppu #(
 	parameter W_HDATA = 32,
 	parameter W_DATA = 16,
 	parameter ADDR_MASK = {W_MEM_ADDR{1'b1}},
+	// Set to 0 for variable latency (timed by rdata_vld):
+	parameter FIXED_BUS_LATENCY = 0,
 	parameter W_COORD_SX = 9, // Do not modify
 	parameter W_COORD_SY = 8, // Do not modify
 	parameter W_PIXDATA = 16  // Do not modify
@@ -520,14 +522,14 @@ assign scanout_rdata = {scanout_rdata_raw[14:5], 1'b0, scanout_rdata_raw[4:0]};
 // Bus interface
 
 riscboy_ppu_bus_arbiter #(
-	.N_REQ     (3),
-	.W_ADDR    (W_MEM_ADDR),
-	.W_DATA    (W_MEM_DATA),
-	.ADDR_MASK (ADDR_MASK)
+	.N_REQ             (3),
+	.W_ADDR            (W_MEM_ADDR),
+	.W_DATA            (W_MEM_DATA),
+	.FIXED_BUS_LATENCY (FIXED_BUS_LATENCY),
+	.ADDR_MASK         (ADDR_MASK)
 ) busmaster (
 	.clk             (clk),
 	.rst_n           (rst_n),
-	.ppu_running     (ppu_running),
 
 	//                             <- Low priority  |  High priority ->
 	.req_aph_vld     ({cproc_bus_aph_vld  , pixel_bus_aph_vld  , tile_bus_aph_vld  }),
