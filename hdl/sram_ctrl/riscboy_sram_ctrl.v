@@ -166,24 +166,22 @@ end
 // Generate AHB response:
 
 reg [W_SRAM_DATA-1:0] ahb_rdata_buf;
-reg                   ahb_rph_ctr;
-reg                   ahb_wph_ctr;
+reg                   ahb_final_sram_beat_dph;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		ahb_rdata_buf <= {W_SRAM_DATA{1'b0}};
-		ahb_rph_ctr <= 1'b0;
-		ahb_wph_ctr <= 1'b0;
+		ahb_final_sram_beat_dph <= 1'b0;
 	end else begin
 		if (|(sram_rph_op & OP_AHB_R)) begin
 			ahb_rdata_buf <= sram_dq_in;
 		end
 		if (ahbls_hready) begin
-			ahb_rph_ctr <= 1'b0;
-			ahb_wph_ctr <= 1'b0;
+			ahb_final_sram_beat_dph <= !ahb_2beat_aph;
 		end else begin
-			ahb_rph_ctr <= ahb_rph_ctr || |(sram_rph_op & OP_AHB_R);
-			ahb_wph_ctr <= ahb_wph_ctr || |(sram_wph_op & OP_AHB_W);
+			ahb_final_sram_beat_dph <= ahb_final_sram_beat_dph || (
+				ahb_read_dph ? |(sram_rph_op & OP_AHB_R) : |(sram_wph_op & OP_AHB_W)
+			);
 		end
 	end
 end
@@ -191,8 +189,8 @@ end
 assign ahbls_hresp = 1'b0;
 assign ahbls_hrdata = {sram_dq_in, ahb_2beat_dph ? ahb_rdata_buf : sram_dq_in};
 assign ahbls_hready_resp =
-	ahb_read_dph  ? |(sram_rph_op & OP_AHB_R) && (!ahb_2beat_dph || ahb_rph_ctr) :
-	ahb_write_dph ? |(sram_wph_op & OP_AHB_W) && (!ahb_2beat_dph || ahb_wph_ctr) : 1'b1;
+	ahb_read_dph  ? |(sram_rph_op & OP_AHB_R) && ahb_final_sram_beat_dph :
+	ahb_write_dph ? |(sram_wph_op & OP_AHB_W) && ahb_final_sram_beat_dph : 1'b1;
 
 // ----------------------------------------------------------------------------
 // SRAM control signals
