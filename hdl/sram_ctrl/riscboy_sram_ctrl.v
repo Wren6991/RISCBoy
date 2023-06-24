@@ -213,15 +213,20 @@ wire sram_from_ahb_read_dph       = ahb_read_dph  && !dph_last_beat_issued;
 wire sram_from_ahb_write_dph      = ahb_write_dph && !dph_last_beat_issued;
 wire sram_from_ahb_read_aph       = ahb_read_aph  && ahbls_hready && !(ahb_first_beat_was_early && !ahb_2beat_aph);
 wire sram_from_ahb_write_aph      = ahb_write_aph && ahbls_hready;
-wire sram_from_ahb_read_aph_early = ahb_read_aph  && ahb_valid_dph && !ahbls_hready_resp;
+wire sram_from_ahb_read_aph_early = ahb_read_aph  && !ahbls_hready_resp;
+
+// Note the toggling is only required for non-early read aphase, as only reads
+// are ever done early, but it's harmless to use the same address term
+// everywhere (and saves a little logic)
+wire [W_SRAM_ADDR-1:0] ahb_addr_aph_toggled = ahb_ram_addr_aph | {{W_SRAM_ADDR-1{1'b0}}, ahb_first_beat_was_early};
 
 assign {issue_ahb_first_beat_early, sram_aph_op, sram_addr} =
-	dma_addr_vld                 ? {1'b0, OP_DMA_R, dma_addr           } :
-	sram_from_ahb_read_dph       ? {1'b0, OP_AHB_R, ahb_ram_addr_dph   } :
-	sram_from_ahb_write_dph      ? {1'b0, OP_AHB_W, ahb_ram_addr_dph   } :
-	sram_from_ahb_read_aph       ? {1'b0, OP_AHB_R, ahb_ram_addr_aph | {{W_SRAM_ADDR-1{1'b0}}, ahb_first_beat_was_early}} :
-	sram_from_ahb_write_aph      ? {1'b0, OP_AHB_W, ahb_ram_addr_aph   } :
-	sram_from_ahb_read_aph_early ? {1'b1, OP_AHB_R, ahb_ram_addr_aph   } :
+	dma_addr_vld                 ? {1'b0, OP_DMA_R, dma_addr            } :
+	sram_from_ahb_read_dph       ? {1'b0, OP_AHB_R, ahb_ram_addr_dph    } :
+	sram_from_ahb_write_dph      ? {1'b0, OP_AHB_W, ahb_ram_addr_dph    } :
+	sram_from_ahb_read_aph       ? {1'b0, OP_AHB_R, ahb_addr_aph_toggled} :
+	sram_from_ahb_write_aph      ? {1'b0, OP_AHB_W, ahb_addr_aph_toggled} :
+	sram_from_ahb_read_aph_early ? {1'b1, OP_AHB_R, ahb_addr_aph_toggled} :
 	                               {1'b0, OP_NONE,  {W_SRAM_ADDR{1'bx}}};
 
 // Generate control signals accordingly
