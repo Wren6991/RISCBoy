@@ -407,11 +407,12 @@ endgenerate
 // =============================================================================
 
 ahbl_splitter #(
-	.N_PORTS   (3),
-	.W_ADDR    (W_ADDR),
-	.W_DATA    (W_DATA),
-	.ADDR_MAP  ({APB_BASE, SRAM1_BASE, SRAM0_BASE}),
-	.ADDR_MASK ({APB_MASK, SRAM1_MASK, SRAM0_MASK})
+	.N_PORTS           (3),
+	.W_ADDR            (W_ADDR),
+	.W_DATA            (W_DATA),
+	.IGNORE_BUS_ERRORS (1),
+	.ADDR_MAP          ({APB_BASE, SRAM1_BASE, SRAM0_BASE}),
+	.ADDR_MASK         ({APB_MASK, SRAM1_MASK, SRAM0_MASK})
 ) inst_ahbl_crossbar (
 	.clk             (clk_sys),
 	.rst_n           (rst_n),
