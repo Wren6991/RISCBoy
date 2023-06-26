@@ -1,5 +1,6 @@
 file riscboy_fpga_hx8kevn.v
 file pll_12_36.v
+file pll_12_48.v
 file pll_12_30.v
 file pll_12_18.v
 file $LIBFPGA/common/blinky.v

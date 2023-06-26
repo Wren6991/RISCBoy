@@ -1,5 +1,5 @@
 #ifndef CLK_SYS_MHZ
-#define CLK_SYS_MHZ 36
+#define CLK_SYS_MHZ 48
 #endif
 
 #include "delay.h"
@@ -8,7 +8,7 @@
 #include "uart.h"
 
 #ifndef UART_BAUD
-#define UART_BAUD (3 * 1000 * 1000)
+#define UART_BAUD (1 * 1000 * 1000)
 #endif
 
 #define SPI_CLK_MHZ 6

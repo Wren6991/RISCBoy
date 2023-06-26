@@ -4,7 +4,7 @@ TOP=riscboy_fpga
 BOOTAPP=riscboy_bootloader
 
 SYNTH_OPT=
-
+PNR_OPT=--freq 48 --timing-allow-fail
 DEVICE=hx8k
 PACKAGE=ct256
 
