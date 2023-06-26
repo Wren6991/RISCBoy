@@ -5,12 +5,12 @@
 #define SRAM0_BASE (0x00u << 16)
 #define SRAM0_SIZE (512 * 1024)
 
-// Boot/stack SRAM, 1 MiB above base of SRAM0:
-#define SRAM1_BASE (0x10u << 16)
+// Boot/stack SRAM, 512 kiB above base of SRAM0:
+#define SRAM1_BASE (0x08u << 16)
 #define SRAM1_SIZE (8 * 1024)
 
-// Peripherals 0.5 MiB above base of SRAM1:
-#define PERI_BASE  (0x18u << 16)
+// Peripherals 256 kiB above base of SRAM1:
+#define PERI_BASE  (0x0cu << 16)
 #define GPIO_BASE  (PERI_BASE + 0x0000)
 #define UART_BASE  (PERI_BASE + 0x1000)
 #define PWM_BASE   (PERI_BASE + 0x2000)

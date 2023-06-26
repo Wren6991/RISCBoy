@@ -23,7 +23,7 @@
 
 module riscboy_core #(
 	parameter BOOTRAM_PRELOAD = "",
-	parameter CPU_RESET_VECTOR = 32'h001000c0,
+	parameter CPU_RESET_VECTOR = 32'h000800c0,
 	parameter W_SRAM0_ADDR = 18,
 	parameter SRAM0_INTERNAL = 0,
 	parameter SRAM0_PRELOAD = "", // For INTERNAL only
@@ -92,11 +92,11 @@ localparam W_ADDR = 32;
 localparam W_DATA = 32;
 localparam W_PADDR = 16;
 
-// Address space for up to 1 MiB of external memory. Avoid decoding the
+// Address space for up to 0.5 MiB of external memory. Avoid decoding the
 // most-significant bits, so that processor address logic can be trimmed.
-localparam [W_ADDR-1:0] SRAM0_BASE = 32'h00000000, SRAM0_MASK = 32'h00100000;
-localparam [W_ADDR-1:0] SRAM1_BASE = 32'h00100000, SRAM1_MASK = 32'h00180000;
-localparam [W_ADDR-1:0] APB_BASE   = 32'h00180000, APB_MASK   = 32'h00180000;
+localparam [W_ADDR-1:0] SRAM0_BASE = 32'h00000000, SRAM0_MASK = 32'h00080000;
+localparam [W_ADDR-1:0] SRAM1_BASE = 32'h00080000, SRAM1_MASK = 32'h000c0000;
+localparam [W_ADDR-1:0] APB_BASE   = 32'h000c0000, APB_MASK   = 32'h000c0000;
 
 // =============================================================================
 //  Instance interconnects
