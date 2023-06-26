@@ -49,7 +49,7 @@ module riscboy_ppu_cproc_frontend #(
 // ----------------------------------------------------------------------------
 // Instruction prefetch buffer
 
-localparam BUF_DEPTH = 5;
+localparam BUF_DEPTH = 6;
 localparam W_BUF_LEVEL = 3;
 
 reg [W_ADDR-1:0] pc;

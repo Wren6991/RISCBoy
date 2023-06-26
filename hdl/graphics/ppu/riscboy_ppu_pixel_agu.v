@@ -145,7 +145,7 @@ assign tinfo_rdy = issue_pixel && !type_is_blit;
 // ----------------------------------------------------------------------------
 // Metadata
 
-localparam PINFO_FIFO_DEPTH = 4;
+localparam PINFO_FIFO_DEPTH = 5;
 localparam W_PINFO_FIFO_LEVEL = 3;
 
 wire                          pinfo_fifo_empty;

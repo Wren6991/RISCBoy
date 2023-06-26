@@ -136,7 +136,7 @@ wire last_of_tile = type_is_atile || !tinfo_buf_empty && (tinfo_end || &(tinfo_u
 wire consume_tinfo = tinfo_vld && tinfo_rdy;
 wire consume_tilenum = consume_tinfo && last_of_tile;
 
-localparam TILENUM_BUF_DEPTH = 4;
+localparam TILENUM_BUF_DEPTH = 5;
 localparam W_TILENUM_BUF_LEVEL = 3;
 localparam TINFO_BUF_DEPTH = 2 * TILENUM_BUF_DEPTH;
 
