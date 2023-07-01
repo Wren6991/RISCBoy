@@ -1,12 +1,14 @@
 CHIPNAME=riscboy_hx8kevn
-DOTF=$(HDL)/riscboy_fpga/riscboy_fpga_hx8kevn.f
-TOP=riscboy_fpga
-BOOTAPP=riscboy_bootloader
+DOTF          := $(HDL)/riscboy_fpga/riscboy_fpga_hx8kevn.f
+TOP           := riscboy_fpga
+BOOTAPP       := riscboy_bootloader
 
-SYNTH_OPT=
-PNR_OPT=--freq 48 --timing-allow-fail
-DEVICE=hx8k
-PACKAGE=ct256
+# Use experimental flow3 script for better QoR (invokes abc9 multiple times)
+PRE_SYNTH_CMD := scratchpad -copy abc9.script.flow3 abc9.script;
+SYNTH_OPT     := -abc9
+PNR_OPT       := --freq 48 --timing-allow-fail
+DEVICE        := hx8k
+PACKAGE       := ct256
 
 include $(SCRIPTS)/synth_ice40.mk
 
