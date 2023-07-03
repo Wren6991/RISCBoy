@@ -102,6 +102,7 @@ reg [W_MEM_ADDR-1:0]         tilemap_ptr;
 
 reg [W_COORD_SX-1:0]         clip_x0;
 reg [W_COORD_SX-1:0]         clip_x1;
+reg                          clip_nonempty;
 
 reg [2:0]                    texsize;
 reg [INSTR_PALOFFS_BITS-1:0] paloffs;
@@ -132,6 +133,7 @@ always @ (posedge clk or negedge rst_n) begin
 		tilemap_ptr     <= {W_MEM_ADDR{1'b0}};
 		clip_x0         <= {W_COORD_SX{1'b0}};
 		clip_x1         <= {W_COORD_SX{1'b0}};
+		clip_nonempty   <= 1'b1;
 		texsize         <= 3'h0;
 		paloffs         <= {INSTR_PALOFFS_BITS{1'b0}};
 		tilesize        <= 1'b0;
@@ -149,8 +151,9 @@ always @ (posedge clk or negedge rst_n) begin
 			case (opcode)
 			OPCODE_SYNC: state <= S_SYNC_WAIT;
 			OPCODE_CLIP: begin
-				clip_x0 <= instr[INSTR_X_LSB +: INSTR_X_BITS];
-				clip_x1 <= instr[INSTR_Y_LSB +: INSTR_Y_BITS];
+				clip_x0 <= instr[INSTR_X_LSB +: W_COORD_SX];
+				clip_x1 <= instr[INSTR_Y_LSB +: W_COORD_SX];
+				clip_nonempty <= instr[INSTR_X_LSB +: W_COORD_SX] <= instr[INSTR_Y_LSB +: W_COORD_SX];
 			end
 			OPCODE_FILL: state <= S_SPAN_WAIT;
 			OPCODE_BLIT: if (skip_span) begin
@@ -332,7 +335,7 @@ assign span_ablit_halfsize = ablit_halfsize;
 
 assign span_start = instr_vld && instr_rdy && (
 	// Avoid using the full `skip_span` comparison combinatorially for FILL:
-	state == S_EXECUTE && opcode == OPCODE_FILL && clip_pass_primary ||
+	state == S_EXECUTE && opcode == OPCODE_FILL && clip_nonempty ||
 	state == S_BLIT_IMG ||
 	state == S_ABLIT_IMG ||
 	state == S_TILE_TILESET ||
