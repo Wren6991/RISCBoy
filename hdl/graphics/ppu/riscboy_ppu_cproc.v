@@ -313,10 +313,10 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 
-// Note we're using xl_clip_primary instead of span_x0_comb because it's
+// Note we're using clip region instead of span_x0_comb because it's
 // assumed that any span in S_EXECUTE is a FILL instruction.
-assign span_x0 = state == S_EXECUTE ? xl_clip_primary : span_x0_saved;
-assign span_count = state == S_EXECUTE ? span_count_comb_primary : span_count_saved;
+assign span_x0 = state == S_EXECUTE ? clip_x0 : span_x0_saved;
+assign span_count = state == S_EXECUTE ? (clip_x1 - clip_x0) : span_count_saved;
 
 assign span_type =
 	state == S_BLIT_IMG ? SPANTYPE_BLIT :
