@@ -32,6 +32,12 @@ module riscboy_ppu #(
 	input  wire                  clk,
 	input  wire                  rst_n,
 
+	// GF180: Memory power supplies; I cannot for the life of me figure out
+	// the right combination of backslashes to describe PDN connections for
+	// generate-looped memories in the .yaml
+	inout  wire                  VDD,
+	inout  wire                  VSS,
+
 	output wire                  irq,
 
 	// Memory read port -- note this is an SRAM row (halfword) address, not a
@@ -423,30 +429,41 @@ wire                  scanbuf_wen;
 wire [W_PIXDATA-2:0]  scanbuf_rdata0;
 wire [W_PIXDATA-2:0]  scanbuf_rdata1;
 
-sram_sync_1r1w #(
-	.WIDTH (W_PIXDATA - 1), // no alpha
+// GF180: 1R1W memories replaced with 1RW since the ports are used mutually
+// exclusively for current blending modes.
+wire scanbuf0_wen = scanbuf_wen && !blitter_current_scanbuf;
+wire scanbuf1_wen = scanbuf_wen &&  blitter_current_scanbuf;
+wire scanbuf0_ren = scanout_ren && !scanout_current_scanbuf;
+wire scanbuf1_ren = scanout_ren &&  scanout_current_scanbuf;
+
+sram_wrapper #(
+	.WIDTH (W_PIXDATA),
 	.DEPTH (1 << W_COORD_SX)
-) scanbuf0 (
+) scanbuf0_u (
+	.VDD (VDD),
+	.VSS (VSS),
 	.clk   (clk),
-	.waddr (scanbuf_waddr),
+	.addr  (scanbuf0_wen ? scanbuf_waddr : scanout_raddr),
+	.we_n  (!scanbuf0_wen),
+	.cs_n  (!(scanbuf0_wen || scanbuf0_ren)),
+	.be_n  (2'b00),
 	.wdata (scanbuf_wdata),
-	.wen   (scanbuf_wen && !blitter_current_scanbuf),
-	.raddr (scanout_raddr),
-	.rdata (scanbuf_rdata0),
-	.ren   (scanout_ren && !scanout_current_scanbuf)
+	.rdata (scanbuf_rdata0)
 );
 
-sram_sync_1r1w #(
-	.WIDTH (W_PIXDATA - 1),
+sram_wrapper #(
+	.WIDTH (W_PIXDATA),
 	.DEPTH (1 << W_COORD_SX)
-) scanbuf1 (
+) scanbuf1_u (
+	.VDD (VDD),
+	.VSS (VSS),
 	.clk   (clk),
-	.waddr (scanbuf_waddr),
+	.addr  (scanbuf1_wen ? scanbuf_waddr : scanout_raddr),
+	.we_n  (!scanbuf1_wen),
+	.cs_n  (!(scanbuf1_wen || scanbuf1_ren)),
+	.be_n  (2'b00),
 	.wdata (scanbuf_wdata),
-	.wen   (scanbuf_wen && blitter_current_scanbuf),
-	.raddr (scanout_raddr),
-	.rdata (scanbuf_rdata1),
-	.ren   (scanout_ren && scanout_current_scanbuf)
+	.rdata (scanbuf_rdata1)
 );
 
 riscboy_ppu_blender #(

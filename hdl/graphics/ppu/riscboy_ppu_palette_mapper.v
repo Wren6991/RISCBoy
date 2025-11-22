@@ -24,6 +24,9 @@ module riscboy_ppu_palette_mapper #(
 	input wire                     clk,
 	input wire                     rst_n,
 
+	inout wire                     VDD,
+	inout wire                     VSS,
+
 	input wire                     in_vld,
 	input wire [W_PIXDATA-1:0]     in_data,
 	input wire                     in_paletted,
@@ -64,20 +67,23 @@ end
 
 wire [W_PIXDATA-1:0] pram_rdata;
 
-// Should be a single iCE40 BRAM
-sram_sync_1r1w #(
+// GF180MCU: replace 1R1W with 1RW. Drop writes on collision.
+wire pram_ren = in_vld && in_paletted;
+sram_wrapper #(
 	.WIDTH (W_PIXDATA),
 	.DEPTH (1 << W_PALETTE_IDX)
 ) pram_u (
+	.VDD   (VDD),
+	.VSS   (VSS),
 	.clk   (clk),
-	.waddr (pram_waddr),
+	.addr  (pram_ren ? in_data[0 +: W_PALETTE_IDX] : pram_waddr),
+	.we_n  (!(pram_wen && !pram_ren)),
+	.cs_n  (!(pram_wen ||  pram_ren)),
+	.be_n  (2'b00),
 	.wdata (pram_wdata),
-	.wen   (pram_wen),
-
-	.raddr (in_data[0 +: W_PALETTE_IDX]),
-	.rdata (pram_rdata),
-	.ren   (in_vld && in_paletted)
+	.rdata (pram_rdata)
 );
+
 
 assign out_vld = sidestep_vld || pram_out_vld;
 assign out_data = sidestep_vld ? sidestep_data : pram_rdata;

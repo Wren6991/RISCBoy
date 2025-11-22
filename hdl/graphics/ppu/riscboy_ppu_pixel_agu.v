@@ -69,7 +69,7 @@
 `include "riscboy_ppu_const.vh"
 
 reg [W_COORD_SX-1:0] count;
-reg [W_SPANTYPE-1:0] type;
+reg [W_SPANTYPE-1:0] stype;
 reg                  type_is_blit;
 reg [1:0]            pixmode;
 reg [W_ADDR-1:0]     texture_ptr;
@@ -83,7 +83,7 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		span_done <= 1'b1;
 		count <= {W_COORD_SX{1'b0}};
-		type <= {W_SPANTYPE{1'b0}};
+		stype <= {W_SPANTYPE{1'b0}};
 		type_is_blit <= 1'b0;
 		pixmode <= 2'h0;
 		texture_ptr <= {W_ADDR{1'b0}};
@@ -93,7 +93,7 @@ always @ (posedge clk or negedge rst_n) begin
 	end else if (span_start) begin
 		span_done <= span_type == SPANTYPE_FILL;
 		count <= span_count;
-		type <= span_type;
+		stype <= span_type;
 		type_is_blit <= span_type == SPANTYPE_BLIT || span_type == SPANTYPE_ABLIT;
 		pixmode <= span_pixmode;
 		texture_ptr <= span_texture_ptr;

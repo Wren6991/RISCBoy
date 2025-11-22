@@ -55,7 +55,7 @@ module riscboy_ppu_pixel_unpack #(
 
 reg [W_COORD_SX-1:0] x_coord;
 reg [W_COORD_SX-1:0] x_remaining;
-reg [W_SPANTYPE-1:0] type;
+reg [W_SPANTYPE-1:0] stype;
 reg [1:0]            pixmode;
 reg [2:0]            paloffs;
 reg [14:0]           fill_colour;
@@ -65,7 +65,7 @@ always @ (posedge clk or negedge rst_n) begin
 		span_done <= 1'b1;
 		x_coord <= {W_COORD_SX{1'b0}};
 		x_remaining <= {W_COORD_SX{1'b0}};
-		type <= SPANTYPE_FILL;
+		stype <= SPANTYPE_FILL;
 		pixmode <= PIXMODE_ARGB1555;
 		paloffs <= 3'h0;
 		fill_colour <= 15'h0;
@@ -73,7 +73,7 @@ always @ (posedge clk or negedge rst_n) begin
 		span_done <= 1'b0;
 		x_coord <= span_x0;
 		x_remaining <= span_count;
-		type <= span_type;
+		stype <= span_type;
 		pixmode <= span_pixmode;
 		paloffs <= span_paloffs;
 		fill_colour <= span_fill_colour;
@@ -95,10 +95,10 @@ end
 wire [7:0] paloffs_shifted = {paloffs, 5'h0};
 
 always @ (*) begin
-	out_vld = !span_done && (type == SPANTYPE_FILL || in_vld || (pinfo_vld && pinfo_discard));
-	out_blank = pinfo_discard && type != SPANTYPE_FILL;
+	out_vld = !span_done && (stype == SPANTYPE_FILL || in_vld || (pinfo_vld && pinfo_discard));
+	out_blank = pinfo_discard && stype != SPANTYPE_FILL;
 	out_data = 16'h0;
-	if (type == SPANTYPE_FILL) begin
+	if (stype == SPANTYPE_FILL) begin
 		out_data = {1'b1, fill_colour};
 	end else case (pixmode)
 		PIXMODE_ARGB1555: out_data      = in_data;

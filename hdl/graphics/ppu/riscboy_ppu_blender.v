@@ -37,6 +37,9 @@ module riscboy_ppu_blender #(
 	input  wire                     clk,
 	input  wire                     rst_n,
 
+	inout  wire                     VDD,
+	inout  wire                     VSS,
+
 	input  wire                     in_vld,
 	input  wire [W_PIXDATA-1:0]     in_data,
 	input  wire                     in_paletted,
@@ -66,6 +69,10 @@ riscboy_ppu_palette_mapper #(
 ) palette_mapper (
 	.clk         (clk),
 	.rst_n       (rst_n),
+
+	.VDD         (VDD),
+	.VSS         (VSS),
+
 	.in_vld      (in_vld),
 	.in_data     (in_data),
 	.in_paletted (in_paletted),

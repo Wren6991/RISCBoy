@@ -198,20 +198,24 @@ always @ (posedge clk_tx or negedge rst_n_tx) begin
 	end
 end
 
-ddr_out sck_ddr (
+cell_ddr_out sck_ddr (
 	.clk    (clk_tx),
 	.rst_n  (rst_n_tx),
 
-	.d_rise (1'b0),
-	.d_fall (lcdctrl_busy_clklcd),
+	.dp     (1'b0),
+	.dn     (lcdctrl_busy_clklcd),
 	.q      (lcd_sck)
 );
 
-dffe_out mosi_dffe (
-	.clk (clk_tx),
-	.d   (shift[W_DATA - 1]),
-	.e   (1'b1),
-	.q   (lcd_mosi)
-);
+reg lcd_mosi_q;
+always @ (posedge clk_tx or negedge rst_n_tx) begin
+	if (!rst_n_tx) begin
+		lcd_mosi_q <= 1'b0;
+	end else begin
+		lcd_mosi_q <= shift[W_DATA - 1];
+	end
+end
+
+assign lcd_mosi = lcd_mosi_q;
 
 endmodule
