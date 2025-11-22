@@ -100,12 +100,12 @@ dispctrl_spi_regs inst_dispctrl_spi_regs (
 
 // Scan out to pixel FIFO
 
+reg pxfifo_scan_wen;
+
 assign scanout_ren = scanout_buf_rdy && (
 	pxfifo_wlevel < PXFIFO_DEPTH - 2 || !(pxfifo_wfull || pxfifo_scan_wen)
 );
 assign scanout_buf_release = scanout_ren && scanout_raddr == dispsize_w;
-
-reg pxfifo_scan_wen;
 
 always @ (posedge clk_sys or negedge rst_n_sys) begin
 	if (!rst_n_sys) begin

@@ -118,6 +118,9 @@ wire issue_discard = out_of_bounds && 1'b0; // FIXME need an option here
 // the bus) and the last time tile data is *used* (to pop it from the buffer)
 wire [3:0] tile_wrap_mask = {span_tilesize, 3'h7};
 wire tinfo_end;
+wire tinfo_buf_empty;
+wire tinfo_buf_full;
+
 wire first_of_tile = first_of_span || ~|(cgen_u[3:0] & tile_wrap_mask);
 wire last_of_tile = type_is_atile || !tinfo_buf_empty && (tinfo_end || &(tinfo_u[3:0] & tile_wrap_mask));
 
@@ -143,8 +146,6 @@ localparam TINFO_BUF_DEPTH = 2 * TILENUM_BUF_DEPTH;
 wire                           tilenum_buf_empty;
 wire                           tilenum_buf_full;
 wire [W_TILENUM_BUF_LEVEL-1:0] tilenum_buf_level;
-wire                           tinfo_buf_empty;
-wire                           tinfo_buf_full;
 
 // 1-bit wide FIFO to hold the byte address LSB of in-flight bus accesses, so
 // that the correct byte can be picked from the data bus. This FIFO does not

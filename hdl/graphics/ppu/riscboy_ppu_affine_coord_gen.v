@@ -60,6 +60,9 @@ localparam S_APARAM2       = 3'h3;
 localparam S_MAT_MUL       = 3'h4;
 localparam S_STREAM_AFFINE = 3'h5;
 
+localparam W_COORD_FULL = W_COORD_INT + W_COORD_FRAC;
+localparam W_APARAM = W_CFGDATA / 2;
+
 parameter W_MULCTR = $clog2(W_COORD_INT);
 
 reg [W_STATE-1:0]  state;
@@ -114,9 +117,6 @@ assign aparam_rdy = state == S_APARAM0 || state == S_APARAM1 || state == S_APARA
 
 // ----------------------------------------------------------------------------
 // u and v phase accumulators
-
-localparam W_COORD_FULL = W_COORD_INT + W_COORD_FRAC;
-localparam W_APARAM = W_CFGDATA / 2;
 
 // b coefficients are left-shifted to full significance
 wire [W_COORD_FULL-1:0] aparam_unpack_bu = {aparam_data[       0 +: W_APARAM], {W_COORD_FULL-W_APARAM{1'b0}}};
