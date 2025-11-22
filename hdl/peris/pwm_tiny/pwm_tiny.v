@@ -25,9 +25,7 @@ localparam W_CTR = 8;
 
 wire rst_n_sync;
 
-reset_sync #(
-	.N_CYCLES (2)
-) inst_reset_sync (
+reset_sync reset_sync_u (
 	.clk       (clk),
 	.rst_n_in  (rst_n),
 	.rst_n_out (rst_n_sync)
