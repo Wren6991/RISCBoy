@@ -474,6 +474,9 @@ riscboy_ppu_blender #(
 	.clk           (clk),
 	.rst_n         (rst_n),
 
+	.VDD           (VDD),
+	.VSS           (VSS),
+
 	.in_vld        (blender_in_vld),
 	.in_data       (blender_in_data),
 	.in_paletted   (blender_in_paletted),
