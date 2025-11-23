@@ -18,6 +18,20 @@
 #define PPU_INTS_OFFS 12
 #define PPU_INTE_OFFS 16
 
+#ifndef __ASSEMBLER__
+#include <stdint.h>
+
+typedef struct {
+	volatile uint32_t csr;
+	volatile uint32_t dispsize;
+	volatile uint32_t cproc_pc;
+	volatile uint32_t ints;
+	volatile uint32_t inte;
+} ppu_hw_t;
+
+#endif // !__ASSEMBLER__
+
+
 /*******************************************************************************
 *                                     CSR                                      *
 *******************************************************************************/
@@ -25,16 +39,19 @@
 // PPU control and status register
 
 // Field: CSR_RUN  Access: SC
+// Reset: 0x0
 // Write 1 to start the PPU running. Self-clearing strobe
 #define PPU_CSR_RUN_LSB  0
 #define PPU_CSR_RUN_BITS 1
 #define PPU_CSR_RUN_MASK 0x1
 // Field: CSR_RUNNING  Access: ROV
+// Reset: 0x0
 // Reads as 1 if PPU is running, otherwise 0
 #define PPU_CSR_RUNNING_LSB  2
 #define PPU_CSR_RUNNING_BITS 1
 #define PPU_CSR_RUNNING_MASK 0x4
 // Field: CSR_HALT_VSYNC  Access: RW
+// Reset: 0x0
 // If 1, the PPU will halt automatically after completing a frame
 #define PPU_CSR_HALT_VSYNC_LSB  4
 #define PPU_CSR_HALT_VSYNC_BITS 1
@@ -47,10 +64,12 @@
 // Configure display dimensions. Actual width is W + 1, height is H + 1
 
 // Field: DISPSIZE_W  Access: WO
+// Reset: 0x0
 #define PPU_DISPSIZE_W_LSB  0
 #define PPU_DISPSIZE_W_BITS 9
 #define PPU_DISPSIZE_W_MASK 0x1ff
 // Field: DISPSIZE_H  Access: WO
+// Reset: 0x0
 #define PPU_DISPSIZE_H_LSB  16
 #define PPU_DISPSIZE_H_BITS 8
 #define PPU_DISPSIZE_H_MASK 0xff0000
@@ -63,6 +82,7 @@
 // idle.
 
 // Field: CPROC_PC  Access: WF
+// Reset: 0x0
 #define PPU_CPROC_PC_LSB  1
 #define PPU_CPROC_PC_BITS 18
 #define PPU_CPROC_PC_MASK 0x7fffe
@@ -74,6 +94,7 @@
 // Raw status of interrupt sources. Each source is write-1-clear.
 
 // Field: INTS_VSYNC  Access: W1C
+// Reset: 0x0
 #define PPU_INTS_VSYNC_LSB  0
 #define PPU_INTS_VSYNC_BITS 1
 #define PPU_INTS_VSYNC_MASK 0x1
@@ -85,6 +106,7 @@
 // Interrupt enable mask
 
 // Field: INTE_VSYNC  Access: RW
+// Reset: 0x0
 #define PPU_INTE_VSYNC_LSB  0
 #define PPU_INTE_VSYNC_BITS 1
 #define PPU_INTE_VSYNC_MASK 0x1

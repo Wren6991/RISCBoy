@@ -10,24 +10,24 @@
 // Bus address width    : 16
 
 module pwm_tiny_regs (
-	input wire clk,
-	input wire rst_n,
+	input wire         clk,
+	input wire         rst_n,
 	
 	// APB Port
-	input wire apbs_psel,
-	input wire apbs_penable,
-	input wire apbs_pwrite,
-	input wire [15:0] apbs_paddr,
-	input wire [31:0] apbs_pwdata,
+	input  wire        apbs_psel,
+	input  wire        apbs_penable,
+	input  wire        apbs_pwrite,
+	input  wire [15:0] apbs_paddr,
+	input  wire [31:0] apbs_pwdata,
 	output wire [31:0] apbs_prdata,
-	output wire apbs_pready,
-	output wire apbs_pslverr,
+	output wire        apbs_pready,
+	output wire        apbs_pslverr,
 	
 	// Register interfaces
-	output reg [7:0] ctrl_val_o,
-	output reg [7:0] ctrl_div_o,
-	output reg  ctrl_en_o,
-	output reg  ctrl_inv_o
+	output reg  [7:0]  ctrl_val_o,
+	output reg  [7:0]  ctrl_div_o,
+	output reg         ctrl_en_o,
+	output reg         ctrl_inv_o
 );
 
 // APB adapter
@@ -45,14 +45,14 @@ localparam ADDR_CTRL = 0;
 wire __ctrl_wen = wen && addr == ADDR_CTRL;
 wire __ctrl_ren = ren && addr == ADDR_CTRL;
 
-wire [7:0] ctrl_val_wdata = wdata[7:0];
-wire [7:0] ctrl_val_rdata;
-wire [7:0] ctrl_div_wdata = wdata[15:8];
-wire [7:0] ctrl_div_rdata;
-wire  ctrl_en_wdata = wdata[31];
-wire  ctrl_en_rdata;
-wire  ctrl_inv_wdata = wdata[30];
-wire  ctrl_inv_rdata;
+wire [7:0]  ctrl_val_wdata = wdata[7:0];
+wire [7:0]  ctrl_val_rdata;
+wire [7:0]  ctrl_div_wdata = wdata[15:8];
+wire [7:0]  ctrl_div_rdata;
+wire        ctrl_en_wdata = wdata[31];
+wire        ctrl_en_rdata;
+wire        ctrl_inv_wdata = wdata[30];
+wire        ctrl_inv_rdata;
 wire [31:0] __ctrl_rdata = {ctrl_en_rdata, ctrl_inv_rdata, 14'h0, ctrl_div_rdata, ctrl_val_rdata};
 assign ctrl_val_rdata = ctrl_val_o;
 assign ctrl_div_rdata = ctrl_div_o;

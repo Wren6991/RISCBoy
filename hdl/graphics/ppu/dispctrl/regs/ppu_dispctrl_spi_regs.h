@@ -16,6 +16,18 @@
 #define DISPCTRL_SPI_DISPSIZE_OFFS 4
 #define DISPCTRL_SPI_PXFIFO_OFFS 8
 
+#ifndef __ASSEMBLER__
+#include <stdint.h>
+
+typedef struct {
+	volatile uint32_t csr;
+	volatile uint32_t dispsize;
+	volatile uint32_t pxfifo;
+} dispctrl_spi_hw_t;
+
+#endif // !__ASSEMBLER__
+
+
 /*******************************************************************************
 *                                     CSR                                      *
 *******************************************************************************/
@@ -23,31 +35,38 @@
 // Control and status register for the SPI LCD interface
 
 // Field: CSR_PXFIFO_EMPTY  Access: ROV
+// Reset: 0x0
 #define DISPCTRL_SPI_CSR_PXFIFO_EMPTY_LSB  0
 #define DISPCTRL_SPI_CSR_PXFIFO_EMPTY_BITS 1
 #define DISPCTRL_SPI_CSR_PXFIFO_EMPTY_MASK 0x1
 // Field: CSR_PXFIFO_FULL  Access: ROV
+// Reset: 0x0
 #define DISPCTRL_SPI_CSR_PXFIFO_FULL_LSB  1
 #define DISPCTRL_SPI_CSR_PXFIFO_FULL_BITS 1
 #define DISPCTRL_SPI_CSR_PXFIFO_FULL_MASK 0x2
 // Field: CSR_LCD_CS  Access: RW
+// Reset: 0x1
 #define DISPCTRL_SPI_CSR_LCD_CS_LSB  8
 #define DISPCTRL_SPI_CSR_LCD_CS_BITS 1
 #define DISPCTRL_SPI_CSR_LCD_CS_MASK 0x100
 // Field: CSR_LCD_DC  Access: RW
+// Reset: 0x0
 #define DISPCTRL_SPI_CSR_LCD_DC_LSB  9
 #define DISPCTRL_SPI_CSR_LCD_DC_BITS 1
 #define DISPCTRL_SPI_CSR_LCD_DC_MASK 0x200
 // Field: CSR_TX_BUSY  Access: ROV
+// Reset: 0x0
 #define DISPCTRL_SPI_CSR_TX_BUSY_LSB  10
 #define DISPCTRL_SPI_CSR_TX_BUSY_BITS 1
 #define DISPCTRL_SPI_CSR_TX_BUSY_MASK 0x400
 // Field: CSR_LCD_SHIFTCNT  Access: RW
+// Reset: 0x0
 // 1 for 16-bit, 0 for 8-bit
 #define DISPCTRL_SPI_CSR_LCD_SHIFTCNT_LSB  16
 #define DISPCTRL_SPI_CSR_LCD_SHIFTCNT_BITS 1
 #define DISPCTRL_SPI_CSR_LCD_SHIFTCNT_MASK 0x10000
 // Field: CSR_DISPTYPE  Access: RO
+// Reset: 0x0
 // Encodes the type of display controller. All RISCBoy display controllers have
 // this field. 0x0 means SPI.
 #define DISPCTRL_SPI_CSR_DISPTYPE_LSB  28
@@ -62,6 +81,7 @@
 // the end of a scanline buffer or frame
 
 // Field: DISPSIZE_W  Access: WO
+// Reset: 0x13f
 #define DISPCTRL_SPI_DISPSIZE_W_LSB  0
 #define DISPCTRL_SPI_DISPSIZE_W_BITS 9
 #define DISPCTRL_SPI_DISPSIZE_W_MASK 0x1ff
@@ -74,6 +94,7 @@
 // idle.
 
 // Field: PXFIFO  Access: WF
+// Reset: 0x0
 #define DISPCTRL_SPI_PXFIFO_LSB  0
 #define DISPCTRL_SPI_PXFIFO_BITS 16
 #define DISPCTRL_SPI_PXFIFO_MASK 0xffff

@@ -14,6 +14,16 @@
 
 #define PWM_TINY_CTRL_OFFS 0
 
+#ifndef __ASSEMBLER__
+#include <stdint.h>
+
+typedef struct {
+	volatile uint32_t ctrl;
+} pwm_tiny_hw_t;
+
+#endif // !__ASSEMBLER__
+
+
 /*******************************************************************************
 *                                     CTRL                                     *
 *******************************************************************************/
@@ -21,19 +31,23 @@
 // PWM control register
 
 // Field: CTRL_VAL  Access: RW
+// Reset: 0x0
 #define PWM_TINY_CTRL_VAL_LSB  0
 #define PWM_TINY_CTRL_VAL_BITS 8
 #define PWM_TINY_CTRL_VAL_MASK 0xff
 // Field: CTRL_DIV  Access: RW
+// Reset: 0x1
 #define PWM_TINY_CTRL_DIV_LSB  8
 #define PWM_TINY_CTRL_DIV_BITS 8
 #define PWM_TINY_CTRL_DIV_MASK 0xff00
 // Field: CTRL_EN  Access: RW
+// Reset: 0x0
 // Enable PWM (reset when low)
 #define PWM_TINY_CTRL_EN_LSB  31
 #define PWM_TINY_CTRL_EN_BITS 1
 #define PWM_TINY_CTRL_EN_MASK 0x80000000
 // Field: CTRL_INV  Access: RW
+// Reset: 0x0
 // Invert output
 #define PWM_TINY_CTRL_INV_LSB  30
 #define PWM_TINY_CTRL_INV_BITS 1

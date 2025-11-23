@@ -10,29 +10,29 @@
 // Bus address width    : 16
 
 module dispctrl_spi_regs (
-	input wire clk,
-	input wire rst_n,
+	input wire         clk,
+	input wire         rst_n,
 	
 	// APB Port
-	input wire apbs_psel,
-	input wire apbs_penable,
-	input wire apbs_pwrite,
-	input wire [15:0] apbs_paddr,
-	input wire [31:0] apbs_pwdata,
+	input  wire        apbs_psel,
+	input  wire        apbs_penable,
+	input  wire        apbs_pwrite,
+	input  wire [15:0] apbs_paddr,
+	input  wire [31:0] apbs_pwdata,
 	output wire [31:0] apbs_prdata,
-	output wire apbs_pready,
-	output wire apbs_pslverr,
+	output wire        apbs_pready,
+	output wire        apbs_pslverr,
 	
 	// Register interfaces
-	input wire  csr_pxfifo_empty_i,
-	input wire  csr_pxfifo_full_i,
-	output reg  csr_lcd_cs_o,
-	output reg  csr_lcd_dc_o,
-	input wire  csr_tx_busy_i,
-	output reg  csr_lcd_shiftcnt_o,
-	output reg [8:0] dispsize_w_o,
-	output reg [15:0] pxfifo_o,
-	output reg pxfifo_wen
+	input  wire        csr_pxfifo_empty_i,
+	input  wire        csr_pxfifo_full_i,
+	output reg         csr_lcd_cs_o,
+	output reg         csr_lcd_dc_o,
+	input  wire        csr_tx_busy_i,
+	output reg         csr_lcd_shiftcnt_o,
+	output reg  [8:0]  dispsize_w_o,
+	output reg  [15:0] pxfifo_o,
+	output reg         pxfifo_wen
 );
 
 // APB adapter
@@ -56,20 +56,20 @@ wire __dispsize_ren = ren && addr == ADDR_DISPSIZE;
 wire __pxfifo_wen = wen && addr == ADDR_PXFIFO;
 wire __pxfifo_ren = ren && addr == ADDR_PXFIFO;
 
-wire  csr_pxfifo_empty_wdata = wdata[0];
-wire  csr_pxfifo_empty_rdata;
-wire  csr_pxfifo_full_wdata = wdata[1];
-wire  csr_pxfifo_full_rdata;
-wire  csr_lcd_cs_wdata = wdata[8];
-wire  csr_lcd_cs_rdata;
-wire  csr_lcd_dc_wdata = wdata[9];
-wire  csr_lcd_dc_rdata;
-wire  csr_tx_busy_wdata = wdata[10];
-wire  csr_tx_busy_rdata;
-wire  csr_lcd_shiftcnt_wdata = wdata[16];
-wire  csr_lcd_shiftcnt_rdata;
-wire [3:0] csr_disptype_wdata = wdata[31:28];
-wire [3:0] csr_disptype_rdata;
+wire        csr_pxfifo_empty_wdata = wdata[0];
+wire        csr_pxfifo_empty_rdata;
+wire        csr_pxfifo_full_wdata = wdata[1];
+wire        csr_pxfifo_full_rdata;
+wire        csr_lcd_cs_wdata = wdata[8];
+wire        csr_lcd_cs_rdata;
+wire        csr_lcd_dc_wdata = wdata[9];
+wire        csr_lcd_dc_rdata;
+wire        csr_tx_busy_wdata = wdata[10];
+wire        csr_tx_busy_rdata;
+wire        csr_lcd_shiftcnt_wdata = wdata[16];
+wire        csr_lcd_shiftcnt_rdata;
+wire [3:0]  csr_disptype_wdata = wdata[31:28];
+wire [3:0]  csr_disptype_rdata;
 wire [31:0] __csr_rdata = {csr_disptype_rdata, 11'h0, csr_lcd_shiftcnt_rdata, 5'h0, csr_tx_busy_rdata, csr_lcd_dc_rdata, csr_lcd_cs_rdata, 6'h0, csr_pxfifo_full_rdata, csr_pxfifo_empty_rdata};
 assign csr_pxfifo_empty_rdata = csr_pxfifo_empty_i;
 assign csr_pxfifo_full_rdata = csr_pxfifo_full_i;
@@ -79,8 +79,8 @@ assign csr_tx_busy_rdata = csr_tx_busy_i;
 assign csr_lcd_shiftcnt_rdata = csr_lcd_shiftcnt_o;
 assign csr_disptype_rdata = 4'h0;
 
-wire [8:0] dispsize_w_wdata = wdata[8:0];
-wire [8:0] dispsize_w_rdata;
+wire [8:0]  dispsize_w_wdata = wdata[8:0];
+wire [8:0]  dispsize_w_rdata;
 wire [31:0] __dispsize_rdata = {23'h0, dispsize_w_rdata};
 assign dispsize_w_rdata = 9'h13f;
 

@@ -10,30 +10,30 @@
 // Bus address width    : 16
 
 module ppu_regs (
-	input wire clk,
-	input wire rst_n,
+	input wire         clk,
+	input wire         rst_n,
 	
 	// APB Port
-	input wire apbs_psel,
-	input wire apbs_penable,
-	input wire apbs_pwrite,
-	input wire [15:0] apbs_paddr,
-	input wire [31:0] apbs_pwdata,
+	input  wire        apbs_psel,
+	input  wire        apbs_penable,
+	input  wire        apbs_pwrite,
+	input  wire [15:0] apbs_paddr,
+	input  wire [31:0] apbs_pwdata,
 	output wire [31:0] apbs_prdata,
-	output wire apbs_pready,
-	output wire apbs_pslverr,
+	output wire        apbs_pready,
+	output wire        apbs_pslverr,
 	
 	// Register interfaces
-	output reg  csr_run_o,
-	input wire  csr_running_i,
-	output reg  csr_halt_vsync_o,
-	output reg [8:0] dispsize_w_o,
-	output reg [7:0] dispsize_h_o,
-	output reg [17:0] cproc_pc_o,
-	output reg cproc_pc_wen,
-	input wire  ints_vsync_i,
-	output reg  ints_vsync_o,
-	output reg  inte_vsync_o
+	output reg         csr_run_o,
+	input  wire        csr_running_i,
+	output reg         csr_halt_vsync_o,
+	output reg  [8:0]  dispsize_w_o,
+	output reg  [7:0]  dispsize_h_o,
+	output reg  [17:0] cproc_pc_o,
+	output reg         cproc_pc_wen,
+	input  wire        ints_vsync_i,
+	output reg         ints_vsync_o,
+	output reg         inte_vsync_o
 );
 
 // APB adapter
@@ -63,21 +63,21 @@ wire __ints_ren = ren && addr == ADDR_INTS;
 wire __inte_wen = wen && addr == ADDR_INTE;
 wire __inte_ren = ren && addr == ADDR_INTE;
 
-wire  csr_run_wdata = wdata[0];
-wire  csr_run_rdata;
-wire  csr_running_wdata = wdata[2];
-wire  csr_running_rdata;
-wire  csr_halt_vsync_wdata = wdata[4];
-wire  csr_halt_vsync_rdata;
+wire        csr_run_wdata = wdata[0];
+wire        csr_run_rdata;
+wire        csr_running_wdata = wdata[2];
+wire        csr_running_rdata;
+wire        csr_halt_vsync_wdata = wdata[4];
+wire        csr_halt_vsync_rdata;
 wire [31:0] __csr_rdata = {27'h0, csr_halt_vsync_rdata, 1'h0, csr_running_rdata, 1'h0, csr_run_rdata};
 assign csr_run_rdata = 1'h0;
 assign csr_running_rdata = csr_running_i;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
 
-wire [8:0] dispsize_w_wdata = wdata[8:0];
-wire [8:0] dispsize_w_rdata;
-wire [7:0] dispsize_h_wdata = wdata[23:16];
-wire [7:0] dispsize_h_rdata;
+wire [8:0]  dispsize_w_wdata = wdata[8:0];
+wire [8:0]  dispsize_w_rdata;
+wire [7:0]  dispsize_h_wdata = wdata[23:16];
+wire [7:0]  dispsize_h_rdata;
 wire [31:0] __dispsize_rdata = {8'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
 assign dispsize_w_rdata = 9'h0;
 assign dispsize_h_rdata = 8'h0;
@@ -87,14 +87,14 @@ wire [17:0] cproc_pc_rdata;
 wire [31:0] __cproc_pc_rdata = {13'h0, cproc_pc_rdata, 1'h0};
 assign cproc_pc_rdata = 18'h0;
 
-wire  ints_vsync_wdata = wdata[0];
-wire  ints_vsync_rdata;
+wire        ints_vsync_wdata = wdata[0];
+wire        ints_vsync_rdata;
 wire [31:0] __ints_rdata = {31'h0, ints_vsync_rdata};
-reg  ints_vsync;
+reg        ints_vsync;
 assign ints_vsync_rdata = ints_vsync;
 
-wire  inte_vsync_wdata = wdata[0];
-wire  inte_vsync_rdata;
+wire        inte_vsync_wdata = wdata[0];
+wire        inte_vsync_rdata;
 wire [31:0] __inte_rdata = {31'h0, inte_vsync_rdata};
 assign inte_vsync_rdata = inte_vsync_o;
 
