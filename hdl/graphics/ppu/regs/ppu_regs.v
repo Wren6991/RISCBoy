@@ -127,7 +127,7 @@ always @ (posedge clk or negedge rst_n) begin
 			dispsize_w_o <= dispsize_w_wdata;
 		if (__dispsize_wen)
 			dispsize_h_o <= dispsize_h_wdata;
-		ints_vsync <= (ints_vsync && !(__ints_wen && ints_vsync_wdata)) || ints_vsync_i;
+		ints_vsync <= (ints_vsync & ~({1{__ints_wen}} & ints_vsync_wdata)) | ints_vsync_i;
 		if (__inte_wen)
 			inte_vsync_o <= inte_vsync_wdata;
 	end
