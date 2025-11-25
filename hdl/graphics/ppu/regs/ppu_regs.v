@@ -39,8 +39,8 @@ module ppu_regs (
 // APB adapter
 wire [31:0] wdata = apbs_pwdata;
 reg [31:0] rdata;
-wire wen = apbs_psel && apbs_penable && apbs_pwrite;
-wire ren = apbs_psel && apbs_penable && !apbs_pwrite;
+reg         wen;
+reg         ren;
 wire [15:0] addr = apbs_paddr & 16'h1c;
 assign apbs_prdata = rdata;
 assign apbs_pready = 1'b1;
@@ -115,12 +115,16 @@ end
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
+		wen <= 1'b0;
+		ren <= 1'b0;
 		csr_halt_vsync_o <= 1'h0;
 		dispsize_w_o <= 9'h0;
 		dispsize_h_o <= 8'h0;
 		ints_vsync <= 1'h0;
 		inte_vsync_o <= 1'h0;
 	end else begin
+		wen <= apbs_psel &&  apbs_pwrite && !apbs_penable;
+		ren <= apbs_psel && !apbs_pwrite && !apbs_penable;
 		if (__csr_wen)
 			csr_halt_vsync_o <= csr_halt_vsync_wdata;
 		if (__dispsize_wen)
