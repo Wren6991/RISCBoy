@@ -32,10 +32,11 @@ module pwm_tiny_regs (
 
 // APB adapter
 wire [31:0] wdata = apbs_pwdata;
-reg [31:0] rdata;
+reg  [31:0] rdata;
 reg         wen;
 reg         ren;
-wire [15:0] addr = apbs_paddr & 16'h0;
+reg  [15:0] addr;
+
 assign apbs_prdata = rdata;
 assign apbs_pready = 1'b1;
 assign apbs_pslverr = 1'b0;
@@ -70,13 +71,15 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		wen <= 1'b0;
 		ren <= 1'b0;
+		addr <= 16'd0;
 		ctrl_val_o <= 8'h0;
 		ctrl_div_o <= 8'h1;
 		ctrl_en_o <= 1'h0;
 		ctrl_inv_o <= 1'h0;
 	end else begin
-		wen <= apbs_psel &&  apbs_pwrite && !apbs_penable;
-		ren <= apbs_psel && !apbs_pwrite && !apbs_penable;
+		wen <= apbs_psel && !apbs_penable &&  apbs_pwrite;
+		ren <= apbs_psel && !apbs_penable && !apbs_pwrite;
+		if (apbs_psel && !apbs_penable) addr <= apbs_paddr & 16'h0;
 		if (__ctrl_wen)
 			ctrl_val_o <= ctrl_val_wdata;
 		if (__ctrl_wen)
