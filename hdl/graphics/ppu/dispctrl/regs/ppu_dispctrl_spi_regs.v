@@ -37,11 +37,10 @@ module dispctrl_spi_regs (
 
 // APB adapter
 wire [31:0] wdata = apbs_pwdata;
-reg  [31:0] rdata;
+reg [31:0] rdata;
 reg         wen;
 reg         ren;
-reg  [15:0] addr;
-
+wire [15:0] addr = apbs_paddr & 16'hc;
 assign apbs_prdata = rdata;
 assign apbs_pready = 1'b1;
 assign apbs_pslverr = 1'b0;
@@ -105,15 +104,13 @@ always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		wen <= 1'b0;
 		ren <= 1'b0;
-		addr <= 16'd0;
 		csr_lcd_cs_o <= 1'h1;
 		csr_lcd_dc_o <= 1'h0;
 		csr_lcd_shiftcnt_o <= 1'h0;
 		dispsize_w_o <= 9'h13f;
 	end else begin
-		wen <= apbs_psel && !apbs_penable &&  apbs_pwrite;
-		ren <= apbs_psel && !apbs_penable && !apbs_pwrite;
-		if (apbs_psel && !apbs_penable) addr <= apbs_paddr & 16'hc;
+		wen <= apbs_psel &&  apbs_pwrite && !apbs_penable;
+		ren <= apbs_psel && !apbs_pwrite && !apbs_penable;
 		if (__csr_wen)
 			csr_lcd_cs_o <= csr_lcd_cs_wdata;
 		if (__csr_wen)
