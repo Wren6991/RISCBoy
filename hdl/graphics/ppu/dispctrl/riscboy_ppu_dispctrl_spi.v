@@ -198,24 +198,15 @@ always @ (posedge clk_tx or negedge rst_n_tx) begin
 	end
 end
 
-cell_ddr_out sck_ddr (
-	.clk    (clk_tx),
-	.rst_n  (rst_n_tx),
 
-	.dp     (1'b0),
-	.dn     (lcdctrl_busy_clklcd),
-	.q      (lcd_sck)
+wire sck_n;
+gf180mcu_fd_sc_mcu9t5v0__icgtn_4 clkgate_sck_u (
+	.TE   (1'b0),
+	.E    (lcdctrl_busy_clklcd),
+	.CLKN (clk_tx),
+	.Q    (sck_n)
 );
-
-reg lcd_mosi_q;
-always @ (posedge clk_tx or negedge rst_n_tx) begin
-	if (!rst_n_tx) begin
-		lcd_mosi_q <= 1'b0;
-	end else begin
-		lcd_mosi_q <= shift[W_DATA - 1];
-	end
-end
-
-assign lcd_mosi = lcd_mosi_q;
+assign lcd_sck = !sck_n;
+assign lcd_mosi = shift[W_DATA-1];
 
 endmodule
