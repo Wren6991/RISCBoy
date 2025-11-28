@@ -67,7 +67,8 @@ end
 
 wire [W_PIXDATA-1:0] pram_rdata;
 
-// GF180MCU: replace 1R1W with 1RW. Drop writes on collision.
+// GF180MCU: replace 1R1W with 1RW. Prioritise writes: "bad read fuck up one
+// pixel, bad write fuck up many pixel" (ancient proverb, translated)
 wire pram_ren = in_vld && in_paletted;
 sram_wrapper #(
 	.WIDTH (W_PIXDATA),
@@ -76,9 +77,9 @@ sram_wrapper #(
 	.VDD   (VDD),
 	.VSS   (VSS),
 	.clk   (clk),
-	.addr  (pram_ren ? in_data[0 +: W_PALETTE_IDX] : pram_waddr),
-	.we_n  (!(pram_wen && !pram_ren)),
-	.cs_n  (!(pram_wen ||  pram_ren)),
+	.addr  (pram_wen ? pram_waddr : in_data[0 +: W_PALETTE_IDX]),
+	.we_n  (!pram_wen),
+	.cs_n  (!(pram_wen || pram_ren)),
 	.be_n  (2'b00),
 	.wdata (pram_wdata),
 	.rdata (pram_rdata)

@@ -466,6 +466,24 @@ sram_wrapper #(
 	.rdata (scanbuf_rdata1)
 );
 
+// Register APB paths into PRAM as they have come quite a long way
+reg [7:0] pram_waddr;
+reg       pram_wen;
+
+always @ (posedge clk) begin
+	pram_waddr <= apbs_paddr[8:1];
+end
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		pram_wen <= 1'b0;
+	end else begin
+		// Setup phase always lasts for one cycle and always proceeds to
+		// access phase; data transfer takes place in access phase.
+		pram_wen <= apbs_pwrite && !apbs_penable && apbs_psel && apbs_paddr[11];
+	end
+end
+
 riscboy_ppu_blender #(
 	.W_PIXDATA     (W_PIXDATA),
 	.W_COORD_SX    (W_COORD_SX),
@@ -482,9 +500,9 @@ riscboy_ppu_blender #(
 	.in_paletted   (blender_in_paletted),
 	.in_blank      (blender_in_blank),
 
-	.pram_waddr    (apbs_paddr[8:1]), // TODO this sucks
+	.pram_waddr    (pram_waddr),
 	.pram_wdata    (apbs_pwdata[W_PIXDATA-1:0]),
-	.pram_wen      (apbs_pwrite && apbs_penable && apbs_psel && apbs_paddr[11]),
+	.pram_wen      (pram_wen),
 
 	.scanbuf_waddr (scanbuf_waddr),
 	.scanbuf_wdata (scanbuf_wdata),
