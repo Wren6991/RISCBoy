@@ -19,7 +19,12 @@
 // - *Absolute minimum* of muxing on the AHB address path as this is likely to
 //   end up as the critical path of the final system
 //
-// - AHB writes take 1 cycle for 8/16-bit and 2 cycles for 32-bit accesses
+// - AHB writes take 1 cycle for 16-bit and 2 cycles for 32-bit accesses.
+//
+// - (due to missing byte strobes on RISCBoy 180) AHB 8-bit writes are
+//   implemented as read-modify-write so execute in 2 cycles
+//
+// - AHB reads take two cycles for 8-bit and 16-bit accesses, due to latency.
 //
 // - Try to get full SRAM throughput for overlapping 32-bit AHB reads, to keep
 //   instruction fetch fast -- a bit tricky because of the 2-cycle SRAM
@@ -69,10 +74,13 @@ module riscboy_sram_ctrl #(
 	output wire [W_SRAM_DATA/8-1:0] sram_byte_n
 );
 
+// Not used on RISCBoy 180 (do RMW instead):
+assign sram_byte_n = {W_SRAM_DATA/8{1'b0}};
+
 // ----------------------------------------------------------------------------
 // SRAM pipeline status
 
-// There are 3 SRAM pipeline phases:
+// There are 3 SRAM pipeline phases (from a clk-synchronous point of view):
 //
 // - Address phase: addresses are registered into SRAM PHY pads at the end of
 //   this cycle
@@ -114,7 +122,8 @@ wire [W_SRAM_ADDR-1:0] ahb_ram_addr_aph = ahbls_haddr[$clog2(W_SRAM_DATA / 8) +:
 wire                   ahb_read_aph     = ahbls_htrans[1] && !ahbls_hwrite;
 wire                   ahb_write_aph    = ahbls_htrans[1] && ahbls_hwrite;
 // TODO only valid for 16-bit SRAM:
-wire                   ahb_2beat_aph    = ahbls_hsize[1];
+wire                   ahb_rmw_aph      = ahbls_htrans[1] && ahbls_hwrite && ~|ahbls_hsize[1:0];
+wire                   ahb_2beat_aph    = ahbls_hsize[1] || ahb_rmw_aph;
 
 wire                   issue_ahb_first_beat_early;
 
@@ -124,7 +133,8 @@ reg                    ahb_read_dph;
 reg                    ahb_write_dph;
 reg                    ahb_valid_dph;
 reg                    ahb_2beat_dph;
-reg [2:0]              ahb_size_dph;
+reg                    ahb_rmw_dph;
+reg [1:0]              ahb_size_dph;
 reg [1:0]              ahb_issue_ctr_dph;
 reg                    ahb_first_beat_was_early;
 
@@ -136,19 +146,23 @@ always @ (posedge clk or negedge rst_n) begin
 		ahb_write_dph <= 1'b0;
 		ahb_valid_dph <= 1'b0;
 		ahb_2beat_dph <= 1'b0;
-		ahb_size_dph <= 3'h0;
+		ahb_rmw_dph <= 1'b0;
+		ahb_size_dph <= 2'h0;
 		ahb_issue_ctr_dph <= 2'h0;
 		ahb_first_beat_was_early <= 1'b0;
 	end else if (ahbls_hready) begin
 		ahb_ram_addr_dph <= ahb_ram_addr_aph | {{W_SRAM_ADDR-1{1'b0}},
-			ahb_first_beat_was_early || |(sram_aph_op & (OP_AHB_W | OP_AHB_R))
+			(ahb_first_beat_was_early || |(sram_aph_op & (OP_AHB_W | OP_AHB_R))) && !ahb_rmw_aph
 		};
 		ahb_addr_align_dph <= ahbls_haddr[0];
 		ahb_read_dph <= ahb_read_aph;
 		ahb_write_dph <= ahb_write_aph;
 		ahb_valid_dph <= ahb_read_aph || ahb_write_aph;
 		ahb_2beat_dph <= ahb_2beat_aph;
-		ahb_size_dph <= ahbls_hsize;
+		ahb_rmw_dph <= ahb_rmw_aph;
+		ahb_size_dph <= ahbls_hsize[1:0];
+		// Issue counter: a count of how many SRAM address cycles have so far
+		// been issued for the AHB access currently in AHB data phase.
 		ahb_issue_ctr_dph <= {1'b0, ahb_first_beat_was_early} + {1'b0, |(sram_aph_op & (OP_AHB_R | OP_AHB_W))};
 		ahb_first_beat_was_early <= 1'b0;
 	end else begin
@@ -156,7 +170,7 @@ always @ (posedge clk or negedge rst_n) begin
 		// the *next* dphase as part of the current one:
 		ahb_issue_ctr_dph <= ahb_issue_ctr_dph +
 			{1'b0, |(sram_aph_op & (OP_AHB_R | OP_AHB_W)) && !issue_ahb_first_beat_early};
-		if (ahb_2beat_dph) begin
+		if (ahb_2beat_dph && !ahb_rmw_dph) begin
 			ahb_ram_addr_dph[0] <= ahb_issue_ctr_dph[0] || |(sram_aph_op & (OP_AHB_R | OP_AHB_W));
 		end
 		ahb_first_beat_was_early <= ahb_first_beat_was_early || issue_ahb_first_beat_early;
@@ -177,7 +191,9 @@ always @ (posedge clk or negedge rst_n) begin
 			ahb_rdata_buf <= sram_dq_in;
 		end
 		if (ahbls_hready) begin
-			ahb_final_sram_beat_dph <= !ahb_2beat_aph;
+			// The "first" beat is the final beat for rmw because only the
+			// write part is monitored:
+			ahb_final_sram_beat_dph <= !ahb_2beat_aph || ahb_rmw_aph;
 		end else begin
 			ahb_final_sram_beat_dph <= ahb_final_sram_beat_dph || (
 				ahb_read_dph ? |(sram_rph_op & OP_AHB_R) : |(sram_wph_op & OP_AHB_W)
@@ -207,49 +223,66 @@ assign ahbls_hready_resp =
 
 wire dph_last_beat_issued = ahb_2beat_dph ? ahb_issue_ctr_dph[1] : ahb_issue_ctr_dph[0];
 
-wire sram_from_ahb_read_dph       = ahb_read_dph  && !dph_last_beat_issued;
-wire sram_from_ahb_write_dph      = ahb_write_dph && !dph_last_beat_issued;
-wire sram_from_ahb_read_aph       = ahb_read_aph  && ahbls_hready && !(ahb_first_beat_was_early && !ahb_2beat_aph);
-wire sram_from_ahb_write_aph      = ahb_write_aph && ahbls_hready;
-wire sram_from_ahb_read_aph_early = ahb_read_aph  && !ahbls_hready_resp;
+wire sram_from_ahb_read_dph        = ahb_read_dph  && !dph_last_beat_issued;
+wire sram_from_ahb_write_dph       = ahb_write_dph && !dph_last_beat_issued;
+wire sram_from_ahb_rmw_preread_dph = ahb_rmw_dph   && ~|ahb_issue_ctr_dph;
+
+wire sram_from_ahb_read_aph        = ahb_read_aph  && ahbls_hready && !(ahb_first_beat_was_early && !ahb_2beat_aph);
+wire sram_from_ahb_write_aph       = ahb_write_aph && ahbls_hready;
+wire sram_from_ahb_rmw_preread_aph = ahb_rmw_aph   && ahbls_hready; // The read part of an RMW is never issued early.
+
+wire sram_from_ahb_read_aph_early  = ahb_read_aph  && !ahbls_hready_resp;
 
 // Note the toggling is only required for non-early read aphase, as only reads
 // are ever done early, but it's harmless to use the same address term
-// everywhere (and saves a little logic)
+// everywhere (and saves a little logic). Note ahb_first_beat_was early is
+// always false for writes, including RMWs for narrow writes.
 wire [W_SRAM_ADDR-1:0] ahb_addr_aph_toggled = ahb_ram_addr_aph | {{W_SRAM_ADDR-1{1'b0}}, ahb_first_beat_was_early};
 
 assign {issue_ahb_first_beat_early, sram_aph_op, sram_addr} =
-	dma_addr_vld                 ? {1'b0, OP_DMA_R, dma_addr            } :
-	sram_from_ahb_read_dph       ? {1'b0, OP_AHB_R, ahb_ram_addr_dph    } :
-	sram_from_ahb_write_dph      ? {1'b0, OP_AHB_W, ahb_ram_addr_dph    } :
-	sram_from_ahb_read_aph       ? {1'b0, OP_AHB_R, ahb_addr_aph_toggled} :
-	sram_from_ahb_write_aph      ? {1'b0, OP_AHB_W, ahb_addr_aph_toggled} :
-	sram_from_ahb_read_aph_early ? {1'b1, OP_AHB_R, ahb_addr_aph_toggled} :
-	                               {1'b0, OP_NONE,  {W_SRAM_ADDR{1'bx}}};
+	dma_addr_vld                  ? {1'b0, OP_DMA_R, dma_addr            } :
+	sram_from_ahb_read_dph        ? {1'b0, OP_AHB_R, ahb_ram_addr_dph    } :
+	sram_from_ahb_rmw_preread_dph ? {1'b0, OP_AHB_R, ahb_ram_addr_dph    } : // priority over write
+	sram_from_ahb_write_dph       ? {1'b0, OP_AHB_W, ahb_ram_addr_dph    } :
+	sram_from_ahb_read_aph        ? {1'b0, OP_AHB_R, ahb_addr_aph_toggled} :
+	sram_from_ahb_rmw_preread_aph ? {1'b0, OP_AHB_R, ahb_addr_aph_toggled} : // priority over write
+	sram_from_ahb_write_aph       ? {1'b0, OP_AHB_W, ahb_addr_aph_toggled} :
+	sram_from_ahb_read_aph_early  ? {1'b1, OP_AHB_R, ahb_addr_aph_toggled} :
+	                                {1'b0, OP_NONE,  {W_SRAM_ADDR{1'bx}}};
 
 // Generate control signals accordingly
 assign sram_ce_n = ~|sram_aph_op;
 assign sram_oe_n = ~|(sram_aph_op & (OP_AHB_R | OP_DMA_R));
 assign sram_we_n = ~|(sram_aph_op & OP_AHB_W);
 
-// TODO only valid for 16-bit:
-assign sram_byte_n = ~(
-	dma_addr_vld                           ? 2'b11                                       :
-	ahb_valid_dph && !dph_last_beat_issued ? {|ahb_size_dph, 1'b1} << ahb_addr_align_dph :
-	                                         {|ahbls_hsize,  1'b1} << ahbls_haddr[0]
-);
-
-reg write_addr_hword_sel;
+reg       write_addr_hword_sel;
+reg [1:0] rmw_sel_rdata;
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
 		write_addr_hword_sel <= 1'b0;
-	end else if (|(sram_aph_op & OP_AHB_W)) begin
-		write_addr_hword_sel <= sram_addr[0];
+		rmw_sel_rdata <= 2'b00;
+	end else begin
+		if (|(sram_aph_op & OP_AHB_W)) begin
+			write_addr_hword_sel <= sram_addr[0];
+		end
+		if (sram_from_ahb_rmw_preread_dph) begin
+			rmw_sel_rdata <= ~(2'b01 << ahb_addr_align_dph);
+		end else if (sram_from_ahb_rmw_preread_aph) begin
+			rmw_sel_rdata <= ~(2'b01 << ahbls_haddr[0]);
+		end else if (|(sram_wph_op & OP_AHB_W)) begin
+			rmw_sel_rdata <= 2'b00;
+		end
 	end
 end
 
 assign sram_dq_oe = {W_SRAM_DATA{!sram_we_n}};
-assign sram_dq_out = ahbls_hwdata[write_addr_hword_sel * W_SRAM_DATA +: W_SRAM_DATA];
+
+wire [15:0] wdata_hwsel = ahbls_hwdata[write_addr_hword_sel * W_SRAM_DATA +: W_SRAM_DATA];
+// TODO this is very much hardcoded to 32 -> 16 data widths
+assign sram_dq_out = { // need to handle both direct read-write case and the case where a DMA read interposes
+	rmw_sel_rdata[1] ? (|(sram_rph_op & OP_AHB_R) ? sram_dq_in[15:8] : ahb_rdata_buf[15:8]) : wdata_hwsel[15:8],
+	rmw_sel_rdata[0] ? (|(sram_rph_op & OP_AHB_R) ? sram_dq_in[ 7:0] : ahb_rdata_buf[ 7:0]) : wdata_hwsel[ 7:0]
+};
 
 // ----------------------------------------------------------------------------
 // DMA port handshaking
