@@ -84,8 +84,8 @@ typedef struct {
 // Field: CPROC_PC  Access: WF
 // Reset: 0x0
 #define PPU_CPROC_PC_LSB  1
-#define PPU_CPROC_PC_BITS 18
-#define PPU_CPROC_PC_MASK 0x7fffe
+#define PPU_CPROC_PC_BITS 17
+#define PPU_CPROC_PC_MASK 0x3fffe
 
 /*******************************************************************************
 *                                     INTS                                     *
