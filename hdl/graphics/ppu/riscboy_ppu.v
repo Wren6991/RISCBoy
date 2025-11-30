@@ -426,8 +426,8 @@ wire [W_COORD_SX-1:0] scanbuf_waddr;
 wire [W_PIXDATA-2:0]  scanbuf_wdata;
 wire                  scanbuf_wen;
 
-wire [W_PIXDATA-2:0]  scanbuf_rdata0;
-wire [W_PIXDATA-2:0]  scanbuf_rdata1;
+wire [W_PIXDATA-1:0]  scanbuf_rdata0;
+wire [W_PIXDATA-1:0]  scanbuf_rdata1;
 
 // GF180: 1R1W memories replaced with 1RW since the ports are used mutually
 // exclusively for current blending modes.
@@ -550,7 +550,7 @@ always @ (posedge clk or negedge rst_n) begin
 end
 
 assign scanout_buf_rdy = scanbuf_dirty[scanout_current_scanbuf];
-wire [W_PIXDATA-2:0] scanout_rdata_raw = scanout_buf_last_read ? scanbuf_rdata1 : scanbuf_rdata0;
+wire [W_PIXDATA-1:0] scanout_rdata_raw = scanout_buf_last_read ? scanbuf_rdata1 : scanbuf_rdata0;
 // scanout_rdata is in RGB565 format, not RGB555
 assign scanout_rdata = {scanout_rdata_raw[14:5], 1'b0, scanout_rdata_raw[4:0]};
 
