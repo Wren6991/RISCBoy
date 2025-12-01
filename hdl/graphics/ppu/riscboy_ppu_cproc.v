@@ -122,7 +122,9 @@ wire                         jump_target_rdy;
 // Instructions contain byte addresses (with some LSBs invalid due to
 // alignment constraints). Need to be shifted to get SRAM addresses.
 localparam INSTR_ADDR_SHIFT  = 1;
-wire [W_MEM_ADDR-1:0] instr_ptr_arg = (instr & GLOBAL_ADDR_MASK & INSTR_ADDR_MASK) >> INSTR_ADDR_SHIFT;
+wire [W_MEM_ADDR-1:0] instr_ptr_arg = (
+	(instr & INSTR_ADDR_MASK) >> INSTR_ADDR_SHIFT
+) & GLOBAL_ADDR_MASK;
 
 // Control state machine
 
