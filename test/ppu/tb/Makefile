@@ -9,4 +9,4 @@ clean::
 	rm -f dut.cpp cxxrtl.log
 
 tb: dut.cpp
-	clang++ -O3 -std=c++14 -I $(shell yosys-config --datdir)/include -I $(SOFTWARE)/include tb.cpp -o tb
+	clang++ -O3 -std=c++14 -I $(shell yosys-config --datdir)/include/backends/cxxrtl/runtime -I $(SOFTWARE)/include tb.cpp -o tb
