@@ -28,7 +28,7 @@ module ppu_regs (
 	input  wire        csr_running_i,
 	output reg         csr_halt_vsync_o,
 	output reg  [8:0]  dispsize_w_o,
-	output reg  [7:0]  dispsize_h_o,
+	output reg  [8:0]  dispsize_h_o,
 	output reg  [16:0] cproc_pc_o,
 	output reg         cproc_pc_wen,
 	input  wire        ints_vsync_i,
@@ -77,11 +77,11 @@ assign csr_halt_vsync_rdata = csr_halt_vsync_o;
 
 wire [8:0]  dispsize_w_wdata = wdata[8:0];
 wire [8:0]  dispsize_w_rdata;
-wire [7:0]  dispsize_h_wdata = wdata[23:16];
-wire [7:0]  dispsize_h_rdata;
-wire [31:0] __dispsize_rdata = {8'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
+wire [8:0]  dispsize_h_wdata = wdata[24:16];
+wire [8:0]  dispsize_h_rdata;
+wire [31:0] __dispsize_rdata = {7'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
 assign dispsize_w_rdata = 9'h0;
-assign dispsize_h_rdata = 8'h0;
+assign dispsize_h_rdata = 9'h0;
 
 wire [16:0] cproc_pc_wdata = wdata[17:1];
 wire [16:0] cproc_pc_rdata;
@@ -121,7 +121,7 @@ always @ (posedge clk or negedge rst_n) begin
 		addr <= 16'd0;
 		csr_halt_vsync_o <= 1'h0;
 		dispsize_w_o <= 9'h0;
-		dispsize_h_o <= 8'h0;
+		dispsize_h_o <= 9'h0;
 		ints_vsync <= 1'h0;
 		inte_vsync_o <= 1'h0;
 	end else begin

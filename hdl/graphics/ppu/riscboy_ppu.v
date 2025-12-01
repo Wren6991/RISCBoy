@@ -26,7 +26,7 @@ module riscboy_ppu #(
 	parameter W_DATA = 16,
 	parameter ADDR_MASK = {W_MEM_ADDR{1'b1}},
 	parameter W_COORD_SX = 9, // Do not modify
-	parameter W_COORD_SY = 8, // Do not modify
+	parameter W_COORD_SY = 9, // Do not modify
 	parameter W_PIXDATA = 16  // Do not modify
 ) (
 	input  wire                  clk,

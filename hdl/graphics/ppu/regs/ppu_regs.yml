@@ -4,7 +4,7 @@ addr: 16
 data: 32
 params:
   W_SCREEN_COORD_X: 9
-  W_SCREEN_COORD_Y: 8
+  W_SCREEN_COORD_Y: 9
 regs:
   - name: csr
     info: PPU control and status register
@@ -18,7 +18,7 @@ regs:
       - {b: [W_SCREEN_COORD_X - 1, 0],  name: w, access: wo}
       - {b: [16 + W_SCREEN_COORD_Y - 1, 16], name: h, access: wo}
   - name: cproc_pc
-    info: Write to command processor program counter. Must only be used when the PPU is idle.
+    info: Write to command processor program counter. Ignored when CSR_RUNNING is true.
     bits:
       # Note this has been shifted up by 1, to allow software to write byte-addressed pointers directly
       - {b: [17, 1], access: wf}

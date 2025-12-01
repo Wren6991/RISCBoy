@@ -71,15 +71,14 @@ typedef struct {
 // Field: DISPSIZE_H  Access: WO
 // Reset: 0x0
 #define PPU_DISPSIZE_H_LSB  16
-#define PPU_DISPSIZE_H_BITS 8
-#define PPU_DISPSIZE_H_MASK 0xff0000
+#define PPU_DISPSIZE_H_BITS 9
+#define PPU_DISPSIZE_H_MASK 0x1ff0000
 
 /*******************************************************************************
 *                                   CPROC_PC                                   *
 *******************************************************************************/
 
-// Write to command processor program counter. Must only be used when the PPU is
-// idle.
+// Write to command processor program counter. Ignored when CSR_RUNNING is true.
 
 // Field: CPROC_PC  Access: WF
 // Reset: 0x0
