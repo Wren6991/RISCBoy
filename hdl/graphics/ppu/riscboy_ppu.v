@@ -438,6 +438,15 @@ wire scanbuf1_wen = scanbuf_wen &&  blitter_current_scanbuf;
 wire scanbuf0_ren = scanout_ren && !scanout_current_scanbuf;
 wire scanbuf1_ren = scanout_ren &&  scanout_current_scanbuf;
 
+reg chicken_cen_force_q;
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		chicken_cen_force_q <= 1'b0;
+	end else begin
+		chicken_cen_force_q <= chicken_cen_force;
+	end
+end
+
 sram_wrapper #(
 	.WIDTH (W_PIXDATA),
 	.DEPTH (1 << W_COORD_SX)
@@ -449,7 +458,7 @@ sram_wrapper #(
 	// foundry RAM models. This breaks pixel doubling but in a way that is
 	// fairly visually subtle (all pixels after first pixel are advanced by 1,
 	// so you get x coords 0 2 3 4 ...)
-	.chicken_cen_force (chicken_cen_force),
+	.chicken_cen_force (chicken_cen_force_q),
 	.addr  (scanbuf0_wen ? scanbuf_waddr : scanout_raddr),
 	.we_n  (!scanbuf0_wen),
 	.cs_n  (!(scanbuf0_wen || scanbuf0_ren)),
@@ -465,7 +474,7 @@ sram_wrapper #(
 	.VDD (VDD),
 	.VSS (VSS),
 	.clk   (clk),
-	.chicken_cen_force (chicken_cen_force),
+	.chicken_cen_force (chicken_cen_force_q),
 	.addr  (scanbuf1_wen ? scanbuf_waddr : scanout_raddr),
 	.we_n  (!scanbuf1_wen),
 	.cs_n  (!(scanbuf1_wen || scanbuf1_ren)),
@@ -502,7 +511,7 @@ riscboy_ppu_blender #(
 
 	.VDD           (VDD),
 	.VSS           (VSS),
-	.chicken_cen_force (chicken_cen_force),
+	.chicken_cen_force (chicken_cen_force_q),
 
 	.in_vld        (blender_in_vld),
 	.in_data       (blender_in_data),
