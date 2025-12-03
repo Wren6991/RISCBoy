@@ -27,6 +27,8 @@ module riscboy_ppu_palette_mapper #(
 	inout wire                     VDD,
 	inout wire                     VSS,
 
+	input wire                     chicken_cen_force,
+
 	input wire                     in_vld,
 	input wire [W_PIXDATA-1:0]     in_data,
 	input wire                     in_paletted,
@@ -77,6 +79,9 @@ sram_wrapper #(
 	.VDD   (VDD),
 	.VSS   (VSS),
 	.clk   (clk),
+
+	.chicken_cen_force (chicken_cen_force),
+
 	.addr  (pram_wen ? pram_waddr : in_data[0 +: W_PALETTE_IDX]),
 	.we_n  (!pram_wen),
 	.cs_n  (!(pram_wen || pram_ren)),

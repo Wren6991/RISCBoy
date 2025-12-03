@@ -40,6 +40,8 @@ module riscboy_ppu_blender #(
 	inout  wire                     VDD,
 	inout  wire                     VSS,
 
+	input  wire                     chicken_cen_force,
+
 	input  wire                     in_vld,
 	input  wire [W_PIXDATA-1:0]     in_data,
 	input  wire                     in_paletted,
@@ -72,6 +74,8 @@ riscboy_ppu_palette_mapper #(
 
 	.VDD         (VDD),
 	.VSS         (VSS),
+
+	.chicken_cen_force (chicken_cen_force),
 
 	.in_vld      (in_vld),
 	.in_data     (in_data),

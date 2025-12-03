@@ -38,6 +38,11 @@ module riscboy_ppu #(
 	inout  wire                  VDD,
 	inout  wire                  VSS,
 
+	// GF180: 99% sure this is a bug (or multiple overlapping bugs) in the PoS
+	// RAM model but just in case; note this slightly breaks pixel doubling
+	// when enabled
+	input wire                   chicken_cen_force,
+
 	output wire                  irq,
 
 	// Memory read port -- note this is an SRAM row (halfword) address, not a
@@ -437,9 +442,14 @@ sram_wrapper #(
 	.WIDTH (W_PIXDATA),
 	.DEPTH (1 << W_COORD_SX)
 ) scanbuf0_u (
-	.VDD (VDD),
-	.VSS (VSS),
+	.VDD   (VDD),
+	.VSS   (VSS),
 	.clk   (clk),
+	// Setting the chicken bit is necessary for simulating with the PoS
+	// foundry RAM models. This breaks pixel doubling but in a way that is
+	// fairly visually subtle (all pixels after first pixel are advanced by 1,
+	// so you get x coords 0 2 3 4 ...)
+	.chicken_cen_force (chicken_cen_force),
 	.addr  (scanbuf0_wen ? scanbuf_waddr : scanout_raddr),
 	.we_n  (!scanbuf0_wen),
 	.cs_n  (!(scanbuf0_wen || scanbuf0_ren)),
@@ -455,6 +465,7 @@ sram_wrapper #(
 	.VDD (VDD),
 	.VSS (VSS),
 	.clk   (clk),
+	.chicken_cen_force (chicken_cen_force),
 	.addr  (scanbuf1_wen ? scanbuf_waddr : scanout_raddr),
 	.we_n  (!scanbuf1_wen),
 	.cs_n  (!(scanbuf1_wen || scanbuf1_ren)),
@@ -491,6 +502,7 @@ riscboy_ppu_blender #(
 
 	.VDD           (VDD),
 	.VSS           (VSS),
+	.chicken_cen_force (chicken_cen_force),
 
 	.in_vld        (blender_in_vld),
 	.in_data       (blender_in_data),
