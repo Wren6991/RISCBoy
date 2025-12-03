@@ -117,7 +117,7 @@ always @ (posedge clk or negedge rst_n) begin
 	end
 end
 assign scanbuf_waddr = x_coord;
-assign scanbuf_wdata = pmap_out_data;
+assign scanbuf_wdata = pmap_out_data[W_PIXDATA-2:0];
 assign scanbuf_wen = pmap_out_vld && pmap_out_data[W_PIXDATA-1] // "Alpha blending" :)
 	&& !out_blank;
 

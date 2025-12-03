@@ -27,7 +27,6 @@ module ppu_regs (
 	output reg         csr_run_o,
 	input  wire        csr_running_i,
 	output reg         csr_halt_vsync_o,
-	output reg  [8:0]  dispsize_w_o,
 	output reg  [8:0]  dispsize_h_o,
 	output reg  [16:0] cproc_pc_o,
 	output reg         cproc_pc_wen,
@@ -36,6 +35,7 @@ module ppu_regs (
 	output reg         inte_vsync_o
 );
 
+/* verilator lint_off UNUSEDSIGNAL */
 // APB adapter
 wire [31:0] wdata = apbs_pwdata;
 reg  [31:0] rdata;
@@ -75,12 +75,9 @@ assign csr_run_rdata = 1'h0;
 assign csr_running_rdata = csr_running_i;
 assign csr_halt_vsync_rdata = csr_halt_vsync_o;
 
-wire [8:0]  dispsize_w_wdata = wdata[8:0];
-wire [8:0]  dispsize_w_rdata;
 wire [8:0]  dispsize_h_wdata = wdata[24:16];
 wire [8:0]  dispsize_h_rdata;
-wire [31:0] __dispsize_rdata = {7'h0, dispsize_h_rdata, 7'h0, dispsize_w_rdata};
-assign dispsize_w_rdata = 9'h0;
+wire [31:0] __dispsize_rdata = {7'h0, dispsize_h_rdata, 16'h0};
 assign dispsize_h_rdata = 9'h0;
 
 wire [16:0] cproc_pc_wdata = wdata[17:1];
@@ -98,6 +95,7 @@ wire        inte_vsync_wdata = wdata[0];
 wire        inte_vsync_rdata;
 wire [31:0] __inte_rdata = {31'h0, inte_vsync_rdata};
 assign inte_vsync_rdata = inte_vsync_o;
+/* verilator lint_on UNUSEDSIGNAL */
 
 always @ (*) begin
 	case (addr)
@@ -120,7 +118,6 @@ always @ (posedge clk or negedge rst_n) begin
 		ren <= 1'b0;
 		addr <= 16'd0;
 		csr_halt_vsync_o <= 1'h0;
-		dispsize_w_o <= 9'h0;
 		dispsize_h_o <= 9'h0;
 		ints_vsync <= 1'h0;
 		inte_vsync_o <= 1'h0;
@@ -130,8 +127,6 @@ always @ (posedge clk or negedge rst_n) begin
 		if (apbs_psel && !apbs_penable) addr <= apbs_paddr & 16'h1c;
 		if (__csr_wen)
 			csr_halt_vsync_o <= csr_halt_vsync_wdata;
-		if (__dispsize_wen)
-			dispsize_w_o <= dispsize_w_wdata;
 		if (__dispsize_wen)
 			dispsize_h_o <= dispsize_h_wdata;
 		ints_vsync <= (ints_vsync & ~({1{__ints_wen}} & ints_vsync_wdata)) | ints_vsync_i;

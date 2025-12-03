@@ -61,13 +61,10 @@ typedef struct {
 *                                   DISPSIZE                                   *
 *******************************************************************************/
 
-// Configure display dimensions. Actual width is W + 1, height is H + 1
+// Configure display dimensions. Actual height is H + 1. Display width is not
+// configured: PPU just renders into clipped regions of scan buffers and
+// presents them to the display controller. See display controller registers.
 
-// Field: DISPSIZE_W  Access: WO
-// Reset: 0x0
-#define PPU_DISPSIZE_W_LSB  0
-#define PPU_DISPSIZE_W_BITS 9
-#define PPU_DISPSIZE_W_MASK 0x1ff
 // Field: DISPSIZE_H  Access: WO
 // Reset: 0x0
 #define PPU_DISPSIZE_H_LSB  16

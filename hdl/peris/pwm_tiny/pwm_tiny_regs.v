@@ -30,6 +30,7 @@ module pwm_tiny_regs (
 	output reg         ctrl_inv_o
 );
 
+/* verilator lint_off UNUSEDSIGNAL */
 // APB adapter
 wire [31:0] wdata = apbs_pwdata;
 reg  [31:0] rdata;
@@ -59,6 +60,7 @@ assign ctrl_val_rdata = ctrl_val_o;
 assign ctrl_div_rdata = ctrl_div_o;
 assign ctrl_en_rdata = ctrl_en_o;
 assign ctrl_inv_rdata = ctrl_inv_o;
+/* verilator lint_on UNUSEDSIGNAL */
 
 always @ (*) begin
 	case (addr)

@@ -1,3 +1,5 @@
+/* verilator lint_off UNUSEDPARAM */
+
 localparam W_PIXMODE = 2;
 localparam PIXMODE_ARGB1555 = 2'h0;
 localparam PIXMODE_PAL8     = 2'h1;
@@ -62,3 +64,5 @@ localparam ADDR_BYTE_SHIFT = 1;
 function [2:0] INSTR_BLIT_SIZE; input [31:0] instr; INSTR_BLIT_SIZE = instr[27:25]; endfunction
 function [0:0] INSTR_TILE_SIZE; input [31:0] instr; INSTR_TILE_SIZE = instr[25]; endfunction
 function [2:0] INSTR_PF_SIZE;   input [31:0] instr; INSTR_PF_SIZE = {1'b1, instr[1:0]}; endfunction
+
+/* verilator lint_on UNUSEDPARAM */

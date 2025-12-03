@@ -77,10 +77,8 @@ localparam W_COORD_FRAC = 8;
 
 wire                      csr_run;
 wire                      csr_running;
-wire                      csr_halt_hsync;
 wire                      csr_halt_vsync;
 
-wire [W_COORD_SX-1:0]     dispsize_w;
 wire [W_COORD_SY-1:0]     dispsize_h;
 
 wire [W_MEM_ADDR-1:0]     cproc_pc_wdata;
@@ -108,7 +106,6 @@ ppu_regs regs (
 	.csr_running_i          (csr_running),
 	.csr_halt_vsync_o       (csr_halt_vsync),
 
-	.dispsize_w_o           (dispsize_w),
 	.dispsize_h_o           (dispsize_h),
 
 	.cproc_pc_o             (cproc_pc_wdata),
@@ -140,7 +137,7 @@ always @ (posedge clk or negedge rst_n) begin
 		raster_y <= {W_COORD_SY{1'b0}};
 		ppu_running <= 1'b0;
 	end else begin
-		raster_y <= vsync ? {W_COORD_SY{1'b0}} : raster_y + hsync;
+		raster_y <= vsync ? {W_COORD_SY{1'b0}} : raster_y + {{W_COORD_SY-1{1'b0}}, hsync};
 		ppu_running <= (ppu_running || csr_run) && !(vsync && csr_halt_vsync);
 	end
 end
@@ -447,7 +444,7 @@ sram_wrapper #(
 	.we_n  (!scanbuf0_wen),
 	.cs_n  (!(scanbuf0_wen || scanbuf0_ren)),
 	.be_n  (2'b00),
-	.wdata (scanbuf_wdata),
+	.wdata ({1'b0, scanbuf_wdata}),
 	.rdata (scanbuf_rdata0)
 );
 
@@ -462,7 +459,7 @@ sram_wrapper #(
 	.we_n  (!scanbuf1_wen),
 	.cs_n  (!(scanbuf1_wen || scanbuf1_ren)),
 	.be_n  (2'b00),
-	.wdata (scanbuf_wdata),
+	.wdata ({1'b0, scanbuf_wdata}),
 	.rdata (scanbuf_rdata1)
 );
 

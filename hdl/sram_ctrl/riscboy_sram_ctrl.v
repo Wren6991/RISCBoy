@@ -44,6 +44,7 @@ module riscboy_sram_ctrl #(
 	input wire                      rst_n,
 
 	// AHB lite interface
+	/* verilator lint_off UNUSEDSIGNAL */
 	input  wire [W_HADDR-1:0]       ahbls_haddr,
 	input  wire [1:0]               ahbls_htrans,
 	input  wire [2:0]               ahbls_hburst,
@@ -56,6 +57,7 @@ module riscboy_sram_ctrl #(
 	output wire                     ahbls_hresp,
 	input  wire [W_HDATA-1:0]       ahbls_hwdata,
 	output wire [W_HDATA-1:0]       ahbls_hrdata,
+	/* verilator lint_on UNUSEDSIGNAL */
 
 	// PPU pixel data DMA interface
 	input  wire [W_SRAM_ADDR-1:0]   dma_addr,
@@ -70,12 +72,8 @@ module riscboy_sram_ctrl #(
 	input  wire [W_SRAM_DATA-1:0]   sram_dq_in,
 	output wire                     sram_ce_n,
 	output wire                     sram_we_n,
-	output wire                     sram_oe_n,
-	output wire [W_SRAM_DATA/8-1:0] sram_byte_n
+	output wire                     sram_oe_n
 );
-
-// Not used on RISCBoy 180 (do RMW instead):
-assign sram_byte_n = {W_SRAM_DATA/8{1'b0}};
 
 // ----------------------------------------------------------------------------
 // SRAM pipeline status

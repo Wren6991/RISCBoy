@@ -78,6 +78,8 @@ reg                  tilesize;
 reg [W_COORD_UV-1:0] ordinate_mask;
 
 wire                 issue_pixel;
+wire [2:0]           span_texsize_adj = span_texsize -
+	{2'd0, (span_ablit_halfsize && span_type == SPANTYPE_ABLIT)};
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
@@ -97,10 +99,9 @@ always @ (posedge clk or negedge rst_n) begin
 		type_is_blit <= span_type == SPANTYPE_BLIT || span_type == SPANTYPE_ABLIT;
 		pixmode <= span_pixmode;
 		texture_ptr <= span_texture_ptr;
-		texsize <= span_texsize - (span_ablit_halfsize && span_type == SPANTYPE_ABLIT);
+		texsize <= span_texsize_adj;
 		tilesize <= span_tilesize;
-		ordinate_mask <= ~({{W_COORD_UV-3{1'b1}}, 3'b000} <<
-			(span_texsize - (span_ablit_halfsize && span_type == SPANTYPE_ABLIT)));
+		ordinate_mask <= ~({{W_COORD_UV-3{1'b1}}, 3'b000} << span_texsize_adj);
 	end else if (issue_pixel) begin
 		count <= count - 1'b1;
 		if (~|count) begin

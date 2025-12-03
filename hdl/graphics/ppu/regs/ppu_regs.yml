@@ -13,9 +13,11 @@ regs:
       - {b: 2, name: running, access: rov, info: "Reads as 1 if PPU is running, otherwise 0"}
       - {b: 4, name: halt_vsync, access: rw, info: "If 1, the PPU will halt automatically after completing a frame"}
   - name: dispsize
-    info: Configure display dimensions. Actual width is W + 1, height is H + 1
+    info: "Configure display dimensions. Actual height is H + 1. Display width
+    is not configured: PPU just renders into clipped regions of scan buffers
+    and presents them to the display controller. See display controller
+    registers."
     bits:
-      - {b: [W_SCREEN_COORD_X - 1, 0],  name: w, access: wo}
       - {b: [16 + W_SCREEN_COORD_Y - 1, 16], name: h, access: wo}
   - name: cproc_pc
     info: Write to command processor program counter. Ignored when CSR_RUNNING is true.

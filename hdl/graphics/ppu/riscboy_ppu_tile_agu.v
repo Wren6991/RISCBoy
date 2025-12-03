@@ -17,6 +17,9 @@
 
 `default_nettype none
 
+// useless:
+/* verilator lint_off PINCONNECTEMPTY */
+
 module riscboy_ppu_tile_agu #(
 	parameter W_ADDR      = 18,
 	parameter W_DATA      = 16,
