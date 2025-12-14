@@ -138,7 +138,6 @@ reg                    ahb_first_beat_was_early;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		ahb_ram_addr_dph <= {W_SRAM_ADDR{1'b0}};
 		ahb_addr_align_dph <= 1'b0;
 		ahb_read_dph <= 1'b0;
 		ahb_write_dph <= 1'b0;
@@ -149,9 +148,6 @@ always @ (posedge clk or negedge rst_n) begin
 		ahb_issue_ctr_dph <= 2'h0;
 		ahb_first_beat_was_early <= 1'b0;
 	end else if (ahbls_hready) begin
-		ahb_ram_addr_dph <= ahb_ram_addr_aph | {{W_SRAM_ADDR-1{1'b0}},
-			(ahb_first_beat_was_early || |(sram_aph_op & (OP_AHB_W | OP_AHB_R))) && !ahb_rmw_aph
-		};
 		ahb_addr_align_dph <= ahbls_haddr[0];
 		ahb_read_dph <= ahb_read_aph;
 		ahb_write_dph <= ahb_write_aph;
@@ -168,10 +164,20 @@ always @ (posedge clk or negedge rst_n) begin
 		// the *next* dphase as part of the current one:
 		ahb_issue_ctr_dph <= ahb_issue_ctr_dph +
 			{1'b0, |(sram_aph_op & (OP_AHB_R | OP_AHB_W)) && !issue_ahb_first_beat_early};
+		ahb_first_beat_was_early <= ahb_first_beat_was_early || issue_ahb_first_beat_early;
+	end
+end
+
+// No reset required on these datapath flops
+always @ (posedge clk) begin
+	if (ahbls_hready) begin
+		ahb_ram_addr_dph <= ahb_ram_addr_aph | {{W_SRAM_ADDR-1{1'b0}},
+			(ahb_first_beat_was_early || |(sram_aph_op & (OP_AHB_W | OP_AHB_R))) && !ahb_rmw_aph
+		};
+	end else begin
 		if (ahb_2beat_dph && !ahb_rmw_dph) begin
 			ahb_ram_addr_dph[0] <= ahb_issue_ctr_dph[0] || |(sram_aph_op & (OP_AHB_R | OP_AHB_W));
 		end
-		ahb_first_beat_was_early <= ahb_first_beat_was_early || issue_ahb_first_beat_early;
 	end
 end
 
@@ -180,14 +186,16 @@ end
 reg [W_SRAM_DATA-1:0] ahb_rdata_buf;
 reg                   ahb_final_sram_beat_dph;
 
+always @ (posedge clk) begin
+	if (|(sram_rph_op & OP_AHB_R)) begin
+		ahb_rdata_buf <= sram_dq_in;
+	end
+end
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		ahb_rdata_buf <= {W_SRAM_DATA{1'b0}};
 		ahb_final_sram_beat_dph <= 1'b0;
 	end else begin
-		if (|(sram_rph_op & OP_AHB_R)) begin
-			ahb_rdata_buf <= sram_dq_in;
-		end
 		if (ahbls_hready) begin
 			// The "first" beat is the final beat for rmw because only the
 			// write part is monitored:
