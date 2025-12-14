@@ -100,11 +100,8 @@ end
 reg [W_COORD_INT-1:0] raster_offs_x_sreg;
 reg [W_COORD_INT-1:0] raster_offs_y_sreg;
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		raster_offs_x_sreg <= {W_COORD_INT{1'b0}};
-		raster_offs_y_sreg <= {W_COORD_INT{1'b0}};
-	end else if (start_affine) begin
+always @ (posedge clk) begin
+	if (start_affine) begin
 		raster_offs_x_sreg <= raster_offs_x;
 		raster_offs_y_sreg <= raster_offs_y;
 	end else if (state == S_MAT_MUL) begin

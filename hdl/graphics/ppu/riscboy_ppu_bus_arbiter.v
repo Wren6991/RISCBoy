@@ -91,13 +91,17 @@ wire pipestage_update = mem_addr_vld ? mem_addr_rdy : |req_filtered;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		pipestage_addr <= {W_ADDR{1'b0}};
 		pipestage_reqmask <= {N_REQ{1'b0}};
 		pipestage_reqmask_vld <= 1'b0;
 	end else if (pipestage_update) begin
-		pipestage_addr <= req_addr_muxed & ADDR_MASK;
 		pipestage_reqmask <= grant_aph;
 		pipestage_reqmask_vld <= |grant_aph;
+	end
+end
+
+always @ (posedge clk) begin
+	if (pipestage_update) begin
+		pipestage_addr <= req_addr_muxed & ADDR_MASK;
 	end
 end
 
@@ -116,12 +120,13 @@ generate
 if (PIPESTAGE_IN != 0) begin: have_input_pipestage
 	always @ (posedge clk or negedge rst_n) begin
 		if (!rst_n) begin
-			mem_rdata_q <= {W_DATA{1'b0}};
 			mem_rdata_vld_q <= 1'b0;
 		end else begin
-			mem_rdata_q <= mem_rdata;
 			mem_rdata_vld_q <= mem_rdata_vld;
 		end
+	end
+	always @ (posedge clk) begin
+		mem_rdata_q <= mem_rdata;
 	end
 end else begin: no_input_pipestage
 	always @ (*) begin

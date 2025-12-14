@@ -81,19 +81,8 @@ wire                 issue_pixel;
 wire [2:0]           span_texsize_adj = span_texsize -
 	{2'd0, (span_ablit_halfsize && span_type == SPANTYPE_ABLIT)};
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		span_done <= 1'b1;
-		count <= {W_COORD_SX{1'b0}};
-		stype <= {W_SPANTYPE{1'b0}};
-		type_is_blit <= 1'b0;
-		pixmode <= 2'h0;
-		texture_ptr <= {W_ADDR{1'b0}};
-		texsize <= 3'h0;
-		tilesize <= 1'b0;
-		ordinate_mask <= {W_COORD_UV{1'b0}};
-	end else if (span_start) begin
-		span_done <= span_type == SPANTYPE_FILL;
+always @ (posedge clk) begin
+	if (span_start) begin
 		count <= span_count;
 		stype <= span_type;
 		type_is_blit <= span_type == SPANTYPE_BLIT || span_type == SPANTYPE_ABLIT;
@@ -104,6 +93,15 @@ always @ (posedge clk or negedge rst_n) begin
 		ordinate_mask <= ~({{W_COORD_UV-3{1'b1}}, 3'b000} << span_texsize_adj);
 	end else if (issue_pixel) begin
 		count <= count - 1'b1;
+	end
+end
+
+always @ (posedge clk or negedge rst_n) begin
+	if (!rst_n) begin
+		span_done <= 1'b1;
+	end else if (span_start) begin
+		span_done <= span_type == SPANTYPE_FILL;
+	end else if (issue_pixel) begin
 		if (~|count) begin
 			span_done <= 1'b1;
 		end

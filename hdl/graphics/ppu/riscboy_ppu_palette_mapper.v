@@ -50,7 +50,6 @@ reg                 pram_out_vld;
 
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		sidestep_data <= {W_PIXDATA{1'b0}};
 		sidestep_vld <= 1'b0;
 		pram_out_vld <= 1'b0;
 	end else begin
@@ -60,10 +59,16 @@ always @ (posedge clk or negedge rst_n) begin
 			if (in_paletted) begin
 				pram_out_vld <= 1'b1;
 			end else begin
-				sidestep_data <= in_data;
 				sidestep_vld <= 1'b1;
 			end
 		end
+	end
+end
+
+// No reset on datapath flops
+always @ (posedge clk) begin
+	if (in_vld && !in_paletted) begin
+		sidestep_data <= in_data;
 	end
 end
 

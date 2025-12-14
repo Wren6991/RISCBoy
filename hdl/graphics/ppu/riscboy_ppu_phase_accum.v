@@ -63,7 +63,6 @@ riscboy_ppu_shift_unshift #(
 	.MAX_SHIFT (W_COORD_INT - 1)
 ) op_a_shifter (
 	.clk     (clk),
-	.rst_n   (rst_n),
 	.din     (op_a_wdata),
 	.dout    (op_a),
 	.load    (op_a_load),
@@ -76,7 +75,6 @@ riscboy_ppu_shift_unshift #(
 	.MAX_SHIFT (0)
 ) op_b_shifter (
 	.clk     (clk),
-	.rst_n   (rst_n),
 	.din     (op_b_wdata),
 	.dout    (op_b),
 	.load    (op_b_load),
@@ -84,10 +82,8 @@ riscboy_ppu_shift_unshift #(
 	.unshift (1'b0)
 );
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		accum <= {W_COORD_FULL{1'b0}};
-	end else if (accum_load) begin
+always @ (posedge clk) begin
+	if (accum_load) begin
 		accum <= accum_wdata;
 	end else if (!accum_hold) begin
 		// Note I have tried standard carry save tricks etc but I can't beat what

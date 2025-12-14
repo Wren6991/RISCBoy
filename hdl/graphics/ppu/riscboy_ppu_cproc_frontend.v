@@ -52,13 +52,13 @@ module riscboy_ppu_cproc_frontend #(
 localparam BUF_DEPTH = 6;
 localparam W_BUF_LEVEL = 3;
 
+// pc is not reset as software should always provide a valid entry point
+// (initialising pc) before the first fetch
 reg [W_ADDR-1:0] pc;
 wire jump_now = jump_target_vld && (jump_target_rdy || !ppu_running);
 
-always @ (posedge clk or negedge rst_n) begin
-	if (!rst_n) begin
-		pc <= {W_ADDR{1'b0}};
-	end else if (jump_now) begin
+always @ (posedge clk) begin
+	if (jump_now) begin
 		pc <= jump_target & ADDR_MASK;
 	end else if (bus_addr_vld && bus_addr_rdy) begin
 		pc <= ((pc & ADDR_MASK) + 1'b1) & ADDR_MASK;
@@ -100,14 +100,19 @@ assign jump_target_rdy = instr_buf_full;
 reg [W_DATA-1:0] instr_firsthalf;
 reg              instr_firsthalf_vld;
 
+always @ (posedge clk) begin
+	if (instr_buf_ren && !instr_firsthalf_vld) begin
+		instr_firsthalf <= instr_buf_rdata;
+	end
+end
+
 always @ (posedge clk or negedge rst_n) begin
 	if (!rst_n) begin
-		instr_firsthalf <= {W_DATA{1'b0}};
+		instr_firsthalf_vld <= 1'b0;
 	end else if (jump_now) begin
 		instr_firsthalf_vld <= 1'b0;
 	end else if (instr_buf_ren && !instr_firsthalf_vld) begin
 		instr_firsthalf_vld <= 1'b1;
-		instr_firsthalf <= instr_buf_rdata;
 	end else if (instr_vld && instr_rdy) begin
 		instr_firsthalf_vld <= 1'b0;
 	end
