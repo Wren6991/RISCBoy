@@ -114,9 +114,8 @@ static inline void uart_wait_done()
 
 static inline void uart_init()
 {
+	uart_wait_done();
 	*UART_CSR = 0;
-	while (*UART_CSR & UART_CSR_BUSY_MASK)
-		;
 	while (!uart_rx_empty())
 		(void)uart_get();
 	uart_enable(true);
